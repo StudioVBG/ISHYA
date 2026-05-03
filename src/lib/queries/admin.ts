@@ -232,6 +232,36 @@ export interface AdminReviewRow {
   createdAt: string | null;
 }
 
+export interface AdminTeamMember {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  role: string;
+  isActive: boolean;
+  createdAt: string | null;
+  lastSignInAt: string | null;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  action: string;
+  tableName: string | null;
+  recordId: string | null;
+  userId: string | null;
+  userName: string | null;
+  ipAddress: string | null;
+  createdAt: string | null;
+}
+
+export interface AdminSettingRow {
+  id: string;
+  key: string;
+  description: string | null;
+  value: unknown;
+  updatedAt: string | null;
+}
+
 export interface AdminPackRow {
   id: string;
   name: string;
@@ -1179,6 +1209,254 @@ export async function searchAdminProducts(query: string, limit = 10) {
       imageUrl: primary?.url ?? null,
     };
   });
+}
+
+export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("profiles")
+    .select(
+      "id, email, first_name, last_name, role, is_active, created_at, last_login_at",
+    )
+    .in("role", ["super_admin", "admin", "editor", "support"])
+    .order("role", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getAdminTeamMembers]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    email: row.email,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    role: row.role ?? "support",
+    isActive: row.is_active ?? true,
+    createdAt: row.created_at,
+    lastSignInAt: row.last_login_at,
+  }));
+}
+
+export async function getAdminAuditLogs(): Promise<AdminAuditLog[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("audit_logs")
+    .select(
+      "id, action, table_name, record_id, user_id, ip_address, created_at",
+    )
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    console.error("[getAdminAuditLogs]", error);
+    return [];
+  }
+
+  const userIds = Array.from(
+    new Set(
+      (data ?? []).map((r) => r.user_id).filter((id): id is string => !!id),
+    ),
+  );
+  const namesById = new Map<string, string>();
+  if (userIds.length > 0) {
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .in("id", userIds);
+    for (const p of profiles ?? []) {
+      const name =
+        [p.first_name, p.last_name].filter(Boolean).join(" ") || p.email;
+      if (name) namesById.set(p.id, name);
+    }
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    action: row.action,
+    tableName: row.table_name,
+    recordId: row.record_id,
+    userId: row.user_id,
+    userName: row.user_id ? namesById.get(row.user_id) ?? null : null,
+    ipAddress: row.ip_address ? String(row.ip_address) : null,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function getAdminSettings(): Promise<AdminSettingRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("settings")
+    .select("id, key, description, value, updated_at")
+    .order("key", { ascending: true });
+
+  if (error) {
+    console.error("[getAdminSettings]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    key: row.key,
+    description: row.description,
+    value: row.value,
+    updatedAt: row.updated_at,
+  }));
+}
+
+export interface AdminAnalyticsSummary {
+  revenueLast30: number;
+  revenuePrev30: number;
+  ordersLast30: number;
+  ordersPrev30: number;
+  averageBasketLast30: number;
+  newCustomersLast30: number;
+  topProducts: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    revenue: number;
+  }>;
+  byCategory: Array<{
+    name: string;
+    revenue: number;
+  }>;
+  ordersByStatus: Record<string, number>;
+}
+
+export async function getAdminAnalytics(): Promise<AdminAnalyticsSummary> {
+  const admin = createAdminClient();
+  const now = new Date();
+  const start30 = new Date(now);
+  start30.setDate(start30.getDate() - 30);
+  start30.setHours(0, 0, 0, 0);
+  const start60 = new Date(now);
+  start60.setDate(start60.getDate() - 60);
+  start60.setHours(0, 0, 0, 0);
+
+  const VALID_STATUSES: Array<
+    "confirmed" | "processing" | "shipped" | "delivered"
+  > = ["confirmed", "processing", "shipped", "delivered"];
+
+  const [last30, prev30, allStatusCounts, customers, items] = await Promise.all([
+    admin
+      .from("orders")
+      .select("grand_total, created_at")
+      .gte("created_at", start30.toISOString())
+      .in("status", VALID_STATUSES),
+    admin
+      .from("orders")
+      .select("grand_total, created_at")
+      .gte("created_at", start60.toISOString())
+      .lt("created_at", start30.toISOString())
+      .in("status", VALID_STATUSES),
+    admin.from("orders").select("status"),
+    admin
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", start30.toISOString()),
+    admin
+      .from("order_items")
+      .select(
+        `product_id, product_name_snapshot, quantity, total,
+         product:products (
+           id, name,
+           category:categories ( name )
+         )`,
+      )
+      .gte("created_at", start30.toISOString())
+      .limit(1000),
+  ]);
+
+  const last30List = (last30.data ?? []) as Array<{
+    grand_total: number | string;
+    created_at: string | null;
+  }>;
+  const prev30List = (prev30.data ?? []) as Array<{
+    grand_total: number | string;
+    created_at: string | null;
+  }>;
+  const revenueLast30 = last30List.reduce(
+    (s, o) => s + Number(o.grand_total ?? 0),
+    0,
+  );
+  const revenuePrev30 = prev30List.reduce(
+    (s, o) => s + Number(o.grand_total ?? 0),
+    0,
+  );
+  const averageBasketLast30 = last30List.length
+    ? revenueLast30 / last30List.length
+    : 0;
+
+  // Status counts
+  const ordersByStatus: Record<string, number> = {};
+  for (const row of allStatusCounts.data ?? []) {
+    if (!row.status) continue;
+    ordersByStatus[row.status] = (ordersByStatus[row.status] ?? 0) + 1;
+  }
+
+  // Top products + revenue par catégorie
+  type ItemRow = {
+    product_id: string | null;
+    product_name_snapshot: string;
+    quantity: number;
+    total: number | string;
+    product?:
+      | { id: string; name: string; category?: { name: string } | { name: string }[] | null }
+      | Array<{
+          id: string;
+          name: string;
+          category?: { name: string } | { name: string }[] | null;
+        }>
+      | null;
+  };
+  const productAgg = new Map<
+    string,
+    { id: string; name: string; quantity: number; revenue: number }
+  >();
+  const categoryAgg = new Map<string, number>();
+
+  for (const it of (items.data ?? []) as ItemRow[]) {
+    if (!it.product_id) continue;
+    const prev = productAgg.get(it.product_id);
+    productAgg.set(it.product_id, {
+      id: it.product_id,
+      name: prev?.name ?? it.product_name_snapshot,
+      quantity: (prev?.quantity ?? 0) + it.quantity,
+      revenue: (prev?.revenue ?? 0) + Number(it.total ?? 0),
+    });
+
+    const product = Array.isArray(it.product) ? it.product[0] : it.product;
+    const category = Array.isArray(product?.category)
+      ? product?.category[0]
+      : product?.category;
+    if (category?.name) {
+      categoryAgg.set(
+        category.name,
+        (categoryAgg.get(category.name) ?? 0) + Number(it.total ?? 0),
+      );
+    }
+  }
+
+  return {
+    revenueLast30: Math.round(revenueLast30 * 100) / 100,
+    revenuePrev30: Math.round(revenuePrev30 * 100) / 100,
+    ordersLast30: last30List.length,
+    ordersPrev30: prev30List.length,
+    averageBasketLast30: Math.round(averageBasketLast30 * 100) / 100,
+    newCustomersLast30: customers.count ?? 0,
+    topProducts: Array.from(productAgg.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10),
+    byCategory: Array.from(categoryAgg.entries())
+      .map(([name, revenue]) => ({
+        name,
+        revenue: Math.round(revenue * 100) / 100,
+      }))
+      .sort((a, b) => b.revenue - a.revenue),
+    ordersByStatus,
+  };
 }
 
 export async function getAdminBlogPosts(): Promise<AdminBlogPostRow[]> {
