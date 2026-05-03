@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAdminRole } from "@/lib/auth/require-admin";
 
 export async function updateVariantStock(
   variantId: string,
@@ -12,23 +12,8 @@ export async function updateVariantStock(
     return { ok: false, error: "Quantité invalide" };
   }
 
-  // Vérifier que l'utilisateur est admin
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Non authentifié" };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const role = profile?.role;
-  if (!role || !["admin", "super_admin", "editor"].includes(role)) {
-    return { ok: false, error: "Permissions insuffisantes" };
-  }
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
 
   const admin = createAdminClient();
   const { error: variantError } = await admin

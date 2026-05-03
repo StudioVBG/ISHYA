@@ -61,6 +61,32 @@ export interface AccountProfile {
   createdAt: string | null;
 }
 
+export interface AccountAddress {
+  id: string;
+  label: string | null;
+  firstName: string;
+  lastName: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  postalCode: string;
+  city: string;
+  country: string;
+  phone: string | null;
+  type: "shipping" | "billing";
+  isDefault: boolean;
+}
+
+export interface AccountWishlistItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  basePrice: number;
+  compareAtPrice: number | null;
+  imageUrl: string | null;
+  inStock: boolean;
+}
+
 export interface AccountStats {
   ordersCount: number;
   loyaltyPoints: number;
@@ -234,6 +260,116 @@ export async function getCurrentUserOrderByNumber(
         }
       : null,
   };
+}
+
+export async function getCurrentUserAddresses(): Promise<AccountAddress[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("addresses")
+    .select(
+      "id, label, first_name, last_name, address_line1, address_line2, postal_code, city, country, phone, type, is_default",
+    )
+    .eq("user_id", user.id)
+    .order("is_default", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getCurrentUserAddresses]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    label: row.label,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    addressLine1: row.address_line1,
+    addressLine2: row.address_line2,
+    postalCode: row.postal_code,
+    city: row.city,
+    country: row.country,
+    phone: row.phone,
+    type: row.type,
+    isDefault: row.is_default ?? false,
+  }));
+}
+
+export async function getCurrentUserWishlist(): Promise<AccountWishlistItem[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("wishlists")
+    .select(
+      `id,
+       product:products (
+         id, name, slug, base_price, compare_at_price,
+         product_media ( url, is_primary, sort_order ),
+         product_variants ( stock_quantity )
+       )`,
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getCurrentUserWishlist]", error);
+    return [];
+  }
+
+  type ProductWithMedia = {
+    id: string;
+    name: string;
+    slug: string;
+    base_price: number | string;
+    compare_at_price: number | string | null;
+    product_media: Array<{
+      url: string;
+      is_primary: boolean | null;
+      sort_order: number | null;
+    }>;
+    product_variants: Array<{ stock_quantity: number }>;
+  };
+
+  return (data ?? [])
+    .map((row) => {
+      const raw = row.product as
+        | ProductWithMedia
+        | ProductWithMedia[]
+        | null;
+      const product = Array.isArray(raw) ? raw[0] : raw;
+      if (!product) return null;
+      const media = product.product_media ?? [];
+      const primary =
+        media.find((m) => m.is_primary) ??
+        media
+          .slice()
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+      const variants = product.product_variants ?? [];
+      const inStock = variants.some((v) => (v.stock_quantity ?? 0) > 0);
+      const result: AccountWishlistItem = {
+        id: row.id,
+        productId: product.id,
+        productName: product.name,
+        productSlug: product.slug,
+        basePrice: Number(product.base_price ?? 0),
+        compareAtPrice:
+          product.compare_at_price != null
+            ? Number(product.compare_at_price)
+            : null,
+        imageUrl: primary?.url ?? null,
+        inStock,
+      };
+      return result;
+    })
+    .filter((it): it is AccountWishlistItem => it !== null);
 }
 
 export async function getCurrentUserStats(): Promise<AccountStats> {

@@ -12,6 +12,61 @@ export interface AdminOrderListItem {
   customerName: string | null;
 }
 
+export interface AdminOrderDetail {
+  id: string;
+  orderNumber: string;
+  status: string;
+  createdAt: string;
+  email: string | null;
+  phone: string | null;
+  userId: string | null;
+  subtotal: number;
+  shippingTotal: number;
+  discountTotal: number;
+  taxTotal: number;
+  grandTotal: number;
+  giftWrap: boolean;
+  giftMessage: string | null;
+  customerNote: string | null;
+  internalNote: string | null;
+  shippingAddress: Record<string, string> | null;
+  billingAddress: Record<string, string> | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  cancelledAt: string | null;
+  items: Array<{
+    id: string;
+    productId: string | null;
+    variantId: string | null;
+    productName: string;
+    variantName: string | null;
+    sku: string | null;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }>;
+  payment: {
+    id: string;
+    status: string | null;
+    method: string | null;
+    amount: number;
+    stripePaymentIntentId: string | null;
+    stripeChargeId: string | null;
+    stripeReceiptUrl: string | null;
+    paidAt: string | null;
+    refundedAt: string | null;
+  } | null;
+  shipment: {
+    id: string;
+    trackingNumber: string | null;
+    carrier: string | null;
+    status: string | null;
+    shippedAt: string | null;
+    estimatedDelivery: string | null;
+    deliveredAt: string | null;
+  } | null;
+}
+
 export interface AdminProductRow {
   id: string;
   name: string;
@@ -34,6 +89,18 @@ export interface AdminLowStockRow {
   variantMaterial: string | null;
   quantity: number;
   threshold: number;
+}
+
+export interface AdminClientRow {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  loyaltyTier: string;
+  loyaltyPoints: number;
+  createdAt: string | null;
+  ordersCount: number;
+  totalSpent: number;
 }
 
 export interface AdminVariantStockRow {
@@ -132,6 +199,134 @@ export async function getAdminOrders(filters?: {
   });
 }
 
+export async function getAdminOrderById(
+  id: string,
+): Promise<AdminOrderDetail | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("orders")
+    .select(
+      `id, order_number, status, email, phone, user_id, created_at,
+       subtotal, shipping_total, discount_total, tax_total, grand_total,
+       gift_wrap, gift_message, customer_note, internal_note,
+       shipping_address_snapshot, billing_address_snapshot,
+       shipped_at, delivered_at, cancelled_at,
+       order_items ( id, product_id, variant_id, product_name_snapshot,
+                     variant_name_snapshot, sku_snapshot, quantity,
+                     unit_price, total ),
+       payments ( id, status, method, amount, stripe_payment_intent_id,
+                  stripe_charge_id, stripe_receipt_url, paid_at, refunded_at ),
+       shipments ( id, tracking_number, carrier, status, shipped_at,
+                   estimated_delivery, delivered_at )`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getAdminOrderById]", error);
+    return null;
+  }
+
+  const items = (data.order_items ?? []) as Array<{
+    id: string;
+    product_id: string | null;
+    variant_id: string | null;
+    product_name_snapshot: string;
+    variant_name_snapshot: string | null;
+    sku_snapshot: string | null;
+    quantity: number;
+    unit_price: number | string;
+    total: number | string;
+  }>;
+
+  const payments = (data.payments ?? []) as Array<{
+    id: string;
+    status: string | null;
+    method: string | null;
+    amount: number | string;
+    stripe_payment_intent_id: string | null;
+    stripe_charge_id: string | null;
+    stripe_receipt_url: string | null;
+    paid_at: string | null;
+    refunded_at: string | null;
+  }>;
+
+  const shipments = (data.shipments ?? []) as Array<{
+    id: string;
+    tracking_number: string | null;
+    carrier: string | null;
+    status: string | null;
+    shipped_at: string | null;
+    estimated_delivery: string | null;
+    delivered_at: string | null;
+  }>;
+
+  return {
+    id: data.id,
+    orderNumber: data.order_number,
+    status: data.status ?? "pending",
+    createdAt: data.created_at ?? new Date().toISOString(),
+    email: data.email,
+    phone: data.phone,
+    userId: data.user_id,
+    subtotal: Number(data.subtotal ?? 0),
+    shippingTotal: Number(data.shipping_total ?? 0),
+    discountTotal: Number(data.discount_total ?? 0),
+    taxTotal: Number(data.tax_total ?? 0),
+    grandTotal: Number(data.grand_total ?? 0),
+    giftWrap: data.gift_wrap ?? false,
+    giftMessage: data.gift_message,
+    customerNote: data.customer_note,
+    internalNote: data.internal_note,
+    shippingAddress: (data.shipping_address_snapshot ?? null) as Record<
+      string,
+      string
+    > | null,
+    billingAddress: (data.billing_address_snapshot ?? null) as Record<
+      string,
+      string
+    > | null,
+    shippedAt: data.shipped_at,
+    deliveredAt: data.delivered_at,
+    cancelledAt: data.cancelled_at,
+    items: items.map((it) => ({
+      id: it.id,
+      productId: it.product_id,
+      variantId: it.variant_id,
+      productName: it.product_name_snapshot,
+      variantName: it.variant_name_snapshot,
+      sku: it.sku_snapshot,
+      quantity: it.quantity,
+      unitPrice: Number(it.unit_price),
+      total: Number(it.total),
+    })),
+    payment: payments[0]
+      ? {
+          id: payments[0].id,
+          status: payments[0].status,
+          method: payments[0].method,
+          amount: Number(payments[0].amount),
+          stripePaymentIntentId: payments[0].stripe_payment_intent_id,
+          stripeChargeId: payments[0].stripe_charge_id,
+          stripeReceiptUrl: payments[0].stripe_receipt_url,
+          paidAt: payments[0].paid_at,
+          refundedAt: payments[0].refunded_at,
+        }
+      : null,
+    shipment: shipments[0]
+      ? {
+          id: shipments[0].id,
+          trackingNumber: shipments[0].tracking_number,
+          carrier: shipments[0].carrier,
+          status: shipments[0].status,
+          shippedAt: shipments[0].shipped_at,
+          estimatedDelivery: shipments[0].estimated_delivery,
+          deliveredAt: shipments[0].delivered_at,
+        }
+      : null,
+  };
+}
+
 export async function getAdminProducts(): Promise<AdminProductRow[]> {
   const admin = createAdminClient();
   const { data, error } = await admin
@@ -216,6 +411,57 @@ export async function getAdminLowStock(): Promise<AdminLowStockRow[]> {
         variantMaterial: row.material_variant ?? null,
         quantity: row.stock_quantity ?? 0,
         threshold: row.low_stock_threshold ?? 5,
+      };
+    });
+}
+
+export async function getAdminClients(): Promise<AdminClientRow[]> {
+  const admin = createAdminClient();
+
+  const [profilesResult, ordersResult] = await Promise.all([
+    admin
+      .from("profiles")
+      .select(
+        "id, email, first_name, last_name, loyalty_tier, loyalty_points, created_at, role",
+      )
+      .order("created_at", { ascending: false })
+      .limit(500),
+    admin
+      .from("orders")
+      .select("user_id, grand_total, status")
+      .not("user_id", "is", null)
+      .in("status", ["confirmed", "processing", "shipped", "delivered"]),
+  ]);
+
+  if (profilesResult.error) {
+    console.error("[getAdminClients] profiles:", profilesResult.error);
+    return [];
+  }
+
+  const aggregates = new Map<string, { count: number; total: number }>();
+  for (const order of ordersResult.data ?? []) {
+    if (!order.user_id) continue;
+    const prev = aggregates.get(order.user_id) ?? { count: 0, total: 0 };
+    aggregates.set(order.user_id, {
+      count: prev.count + 1,
+      total: prev.total + Number(order.grand_total ?? 0),
+    });
+  }
+
+  return (profilesResult.data ?? [])
+    .filter((p) => p.role === "customer" || !p.role)
+    .map((p) => {
+      const agg = aggregates.get(p.id);
+      return {
+        id: p.id,
+        email: p.email,
+        firstName: p.first_name,
+        lastName: p.last_name,
+        loyaltyTier: p.loyalty_tier ?? "bronze",
+        loyaltyPoints: p.loyalty_points ?? 0,
+        createdAt: p.created_at,
+        ordersCount: agg?.count ?? 0,
+        totalSpent: agg?.total ?? 0,
       };
     });
 }
