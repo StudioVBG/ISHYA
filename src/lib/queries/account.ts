@@ -87,6 +87,15 @@ export interface AccountWishlistItem {
   inStock: boolean;
 }
 
+export interface AccountNotificationPrefs {
+  emailMarketing: boolean;
+  emailOrderUpdates: boolean;
+  emailReviewReplies: boolean;
+  smsMarketing: boolean;
+  smsOrderUpdates: boolean;
+  pushEnabled: boolean;
+}
+
 export interface AccountReview {
   id: string;
   productId: string;
@@ -384,6 +393,41 @@ export async function getCurrentUserWishlist(): Promise<AccountWishlistItem[]> {
       return result;
     })
     .filter((it): it is AccountWishlistItem => it !== null);
+}
+
+export async function getCurrentUserNotificationPrefs(): Promise<AccountNotificationPrefs> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const fallback: AccountNotificationPrefs = {
+    emailMarketing: false,
+    emailOrderUpdates: true,
+    emailReviewReplies: true,
+    smsMarketing: false,
+    smsOrderUpdates: false,
+    pushEnabled: false,
+  };
+  if (!user) return fallback;
+
+  const { data } = await supabase
+    .from("notification_preferences")
+    .select(
+      "email_marketing, email_order_updates, email_review_replies, sms_marketing, sms_order_updates, push_enabled",
+    )
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!data) return fallback;
+
+  return {
+    emailMarketing: data.email_marketing ?? false,
+    emailOrderUpdates: data.email_order_updates ?? true,
+    emailReviewReplies: data.email_review_replies ?? true,
+    smsMarketing: data.sms_marketing ?? false,
+    smsOrderUpdates: data.sms_order_updates ?? false,
+    pushEnabled: data.push_enabled ?? false,
+  };
 }
 
 export async function getCurrentUserReviews(): Promise<AccountReview[]> {

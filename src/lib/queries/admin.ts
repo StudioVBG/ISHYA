@@ -232,6 +232,59 @@ export interface AdminReviewRow {
   createdAt: string | null;
 }
 
+export interface AdminBlogPostRow {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  coverImageUrl: string | null;
+  tags: string[];
+  isPublished: boolean;
+  publishedAt: string | null;
+  authorId: string | null;
+  authorName: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface AdminBlogPostDetail extends AdminBlogPostRow {
+  body: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+}
+
+export interface AdminReturnRow {
+  id: string;
+  orderId: string;
+  orderNumber: string | null;
+  customerEmail: string | null;
+  customerName: string | null;
+  status: string;
+  reason: string | null;
+  description: string | null;
+  refundAmount: number | null;
+  requestedAt: string | null;
+  approvedAt: string | null;
+  receivedAt: string | null;
+  refundedAt: string | null;
+}
+
+export interface AdminTicketRow {
+  id: string;
+  subject: string;
+  status: string;
+  priority: string;
+  channel: string | null;
+  category: string | null;
+  customerEmail: string | null;
+  customerName: string | null;
+  orderId: string | null;
+  orderNumber: string | null;
+  assignedTo: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
 export interface AdminVariantStockRow {
   variantId: string;
   productName: string;
@@ -936,6 +989,222 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
       isVerifiedPurchase: row.is_verified_purchase ?? false,
       isApproved: row.is_approved ?? false,
       createdAt: row.created_at,
+    };
+  });
+}
+
+export async function getAdminBlogPosts(): Promise<AdminBlogPostRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("blog_posts")
+    .select(
+      "id, slug, title, excerpt, cover_image_url, tags, is_published, published_at, author_id, created_at, updated_at",
+    )
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) {
+    console.error("[getAdminBlogPosts]", error);
+    return [];
+  }
+
+  const authorIds = Array.from(
+    new Set(
+      (data ?? []).map((r) => r.author_id).filter((id): id is string => !!id),
+    ),
+  );
+  const authors = new Map<string, string>();
+  if (authorIds.length > 0) {
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("id, first_name, last_name")
+      .in("id", authorIds);
+    for (const p of profiles ?? []) {
+      const name = [p.first_name, p.last_name].filter(Boolean).join(" ");
+      if (name) authors.set(p.id, name);
+    }
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    coverImageUrl: row.cover_image_url,
+    tags: row.tags ?? [],
+    isPublished: row.is_published ?? false,
+    publishedAt: row.published_at,
+    authorId: row.author_id,
+    authorName: row.author_id ? authors.get(row.author_id) ?? null : null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+}
+
+export async function getAdminBlogPostById(
+  id: string,
+): Promise<AdminBlogPostDetail | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("blog_posts")
+    .select(
+      "id, slug, title, excerpt, body, cover_image_url, tags, is_published, published_at, author_id, seo_title, seo_description, created_at, updated_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getAdminBlogPostById]", error);
+    return null;
+  }
+
+  let authorName: string | null = null;
+  if (data.author_id) {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", data.author_id)
+      .maybeSingle();
+    if (profile) {
+      authorName =
+        [profile.first_name, profile.last_name].filter(Boolean).join(" ") ||
+        null;
+    }
+  }
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    title: data.title,
+    excerpt: data.excerpt,
+    body: data.body,
+    coverImageUrl: data.cover_image_url,
+    tags: data.tags ?? [],
+    isPublished: data.is_published ?? false,
+    publishedAt: data.published_at,
+    authorId: data.author_id,
+    authorName,
+    seoTitle: data.seo_title,
+    seoDescription: data.seo_description,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
+
+export async function getAdminReturns(): Promise<AdminReturnRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("returns")
+    .select(
+      `id, order_id, status, reason, description, refund_amount,
+       created_at, approved_at, received_at, refunded_at,
+       order:orders ( order_number, email, shipping_address_snapshot )`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    console.error("[getAdminReturns]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => {
+    const order = Array.isArray(row.order)
+      ? row.order[0]
+      : (row.order as
+          | {
+              order_number: string;
+              email: string | null;
+              shipping_address_snapshot: Record<string, string> | null;
+            }
+          | null);
+    const addr = (order?.shipping_address_snapshot ?? {}) as Record<
+      string,
+      string | undefined
+    >;
+    const customerName =
+      [addr.firstName, addr.lastName].filter(Boolean).join(" ") || null;
+    return {
+      id: row.id,
+      orderId: row.order_id,
+      orderNumber: order?.order_number ?? null,
+      customerEmail: order?.email ?? null,
+      customerName,
+      status: row.status ?? "requested",
+      reason: row.reason,
+      description: row.description,
+      refundAmount:
+        row.refund_amount != null ? Number(row.refund_amount) : null,
+      requestedAt: row.created_at,
+      approvedAt: row.approved_at,
+      receivedAt: row.received_at,
+      refundedAt: row.refunded_at,
+    };
+  });
+}
+
+export async function getAdminTickets(): Promise<AdminTicketRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("tickets")
+    .select(
+      `id, subject, status, priority, channel, category, user_id, order_id,
+       assigned_to, created_at, updated_at,
+       order:orders ( order_number )`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    console.error("[getAdminTickets]", error);
+    return [];
+  }
+
+  // Récupérer les profils en lot (pas de FK directe entre tickets.user_id et profiles)
+  const userIds = Array.from(
+    new Set(
+      (data ?? []).map((r) => r.user_id).filter((id): id is string => !!id),
+    ),
+  );
+  const profilesById = new Map<
+    string,
+    { first_name: string | null; last_name: string | null; email: string | null }
+  >();
+  if (userIds.length > 0) {
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .in("id", userIds);
+    for (const p of profiles ?? []) {
+      profilesById.set(p.id, {
+        first_name: p.first_name,
+        last_name: p.last_name,
+        email: p.email,
+      });
+    }
+  }
+
+  return (data ?? []).map((row) => {
+    const order = Array.isArray(row.order)
+      ? row.order[0]
+      : (row.order as { order_number: string } | null);
+    const user = row.user_id ? profilesById.get(row.user_id) : null;
+    const customerName =
+      [user?.first_name, user?.last_name].filter(Boolean).join(" ") || null;
+    return {
+      id: row.id,
+      subject: row.subject,
+      status: row.status ?? "open",
+      priority: row.priority ?? "normal",
+      channel: row.channel,
+      category: row.category,
+      customerEmail: user?.email ?? null,
+      customerName,
+      orderId: row.order_id,
+      orderNumber: order?.order_number ?? null,
+      assignedTo: row.assigned_to,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     };
   });
 }
