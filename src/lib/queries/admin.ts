@@ -67,6 +67,90 @@ export interface AdminOrderDetail {
   } | null;
 }
 
+export interface AdminCategoryOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface AdminCategoryRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  parentId: string | null;
+  parentName: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  productCount: number;
+}
+
+export interface AdminCollectionRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  productCount: number;
+}
+
+export interface AdminCollectionOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface AdminProductDetail {
+  id: string;
+  name: string;
+  slug: string;
+  shortDescription: string | null;
+  description: string | null;
+  basePrice: number;
+  compareAtPrice: number | null;
+  sku: string | null;
+  categoryId: string | null;
+  collectionId: string | null;
+  material: string | null;
+  weightG: number | null;
+  dimensions: string | null;
+  careInstructions: string | null;
+  isNickelFree: boolean;
+  isActive: boolean;
+  isFeatured: boolean;
+  isNew: boolean;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  createdAt: string | null;
+  variants: Array<{
+    id: string;
+    sku: string | null;
+    name: string | null;
+    size: string | null;
+    materialVariant: string | null;
+    stone: string | null;
+    color: string | null;
+    lengthCm: number | null;
+    priceOverride: number | null;
+    stockQuantity: number;
+    lowStockThreshold: number;
+    weightG: number | null;
+    isActive: boolean;
+  }>;
+  media: Array<{
+    id: string;
+    url: string;
+    altText: string | null;
+    isPrimary: boolean;
+    sortOrder: number;
+  }>;
+}
+
 export interface AdminProductRow {
   id: string;
   name: string;
@@ -464,6 +548,218 @@ export async function getAdminClients(): Promise<AdminClientRow[]> {
         totalSpent: agg?.total ?? 0,
       };
     });
+}
+
+export async function getAdminProductById(
+  id: string,
+): Promise<AdminProductDetail | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("products")
+    .select(
+      `id, name, slug, short_description, description, base_price,
+       compare_at_price, sku, category_id, collection_id, material,
+       weight_g, dimensions, care_instructions, is_nickel_free,
+       is_active, is_featured, is_new, seo_title, seo_description,
+       created_at,
+       product_variants ( id, sku, name, size, material_variant, stone,
+                          color, length_cm, price_override, stock_quantity,
+                          low_stock_threshold, weight_g, is_active ),
+       product_media ( id, url, alt_text, is_primary, sort_order )`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getAdminProductById]", error);
+    return null;
+  }
+
+  const variants = (data.product_variants ?? []) as Array<{
+    id: string;
+    sku: string | null;
+    name: string | null;
+    size: string | null;
+    material_variant: string | null;
+    stone: string | null;
+    color: string | null;
+    length_cm: number | null;
+    price_override: number | string | null;
+    stock_quantity: number;
+    low_stock_threshold: number | null;
+    weight_g: number | null;
+    is_active: boolean | null;
+  }>;
+
+  const media = (data.product_media ?? []) as Array<{
+    id: string;
+    url: string;
+    alt_text: string | null;
+    is_primary: boolean | null;
+    sort_order: number | null;
+  }>;
+
+  return {
+    id: data.id,
+    name: data.name,
+    slug: data.slug,
+    shortDescription: data.short_description,
+    description: data.description,
+    basePrice: Number(data.base_price ?? 0),
+    compareAtPrice:
+      data.compare_at_price != null ? Number(data.compare_at_price) : null,
+    sku: data.sku,
+    categoryId: data.category_id,
+    collectionId: data.collection_id,
+    material: data.material,
+    weightG: data.weight_g,
+    dimensions: data.dimensions,
+    careInstructions: data.care_instructions,
+    isNickelFree: data.is_nickel_free ?? true,
+    isActive: data.is_active ?? false,
+    isFeatured: data.is_featured ?? false,
+    isNew: data.is_new ?? false,
+    seoTitle: data.seo_title,
+    seoDescription: data.seo_description,
+    createdAt: data.created_at,
+    variants: variants.map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      name: v.name,
+      size: v.size,
+      materialVariant: v.material_variant,
+      stone: v.stone,
+      color: v.color,
+      lengthCm: v.length_cm,
+      priceOverride: v.price_override != null ? Number(v.price_override) : null,
+      stockQuantity: v.stock_quantity,
+      lowStockThreshold: v.low_stock_threshold ?? 5,
+      weightG: v.weight_g,
+      isActive: v.is_active ?? true,
+    })),
+    media: media
+      .map((m) => ({
+        id: m.id,
+        url: m.url,
+        altText: m.alt_text,
+        isPrimary: m.is_primary ?? false,
+        sortOrder: m.sort_order ?? 0,
+      }))
+      .sort((a, b) => a.sortOrder - b.sortOrder),
+  };
+}
+
+export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
+  const admin = createAdminClient();
+  const [categoriesResult, productsResult] = await Promise.all([
+    admin
+      .from("categories")
+      .select(
+        "id, name, slug, description, image_url, parent_id, sort_order, is_active",
+      )
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true }),
+    admin.from("products").select("category_id").not("category_id", "is", null),
+  ]);
+
+  if (categoriesResult.error) {
+    console.error("[getAdminCategories]", categoriesResult.error);
+    return [];
+  }
+
+  const counts = new Map<string, number>();
+  for (const p of productsResult.data ?? []) {
+    if (!p.category_id) continue;
+    counts.set(p.category_id, (counts.get(p.category_id) ?? 0) + 1);
+  }
+
+  const all = categoriesResult.data ?? [];
+  const byId = new Map(all.map((c) => [c.id, c]));
+
+  return all.map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    imageUrl: row.image_url,
+    parentId: row.parent_id,
+    parentName: row.parent_id
+      ? (byId.get(row.parent_id)?.name ?? null)
+      : null,
+    sortOrder: row.sort_order ?? 0,
+    isActive: row.is_active ?? true,
+    productCount: counts.get(row.id) ?? 0,
+  }));
+}
+
+export async function getAdminCollections(): Promise<AdminCollectionRow[]> {
+  const admin = createAdminClient();
+  const [collectionsResult, productsResult] = await Promise.all([
+    admin
+      .from("collections")
+      .select(
+        "id, name, slug, description, image_url, starts_at, ends_at, sort_order, is_active",
+      )
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true }),
+    admin
+      .from("products")
+      .select("collection_id")
+      .not("collection_id", "is", null),
+  ]);
+
+  if (collectionsResult.error) {
+    console.error("[getAdminCollections]", collectionsResult.error);
+    return [];
+  }
+
+  const counts = new Map<string, number>();
+  for (const p of productsResult.data ?? []) {
+    if (!p.collection_id) continue;
+    counts.set(p.collection_id, (counts.get(p.collection_id) ?? 0) + 1);
+  }
+
+  return (collectionsResult.data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    imageUrl: row.image_url,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    sortOrder: row.sort_order ?? 0,
+    isActive: row.is_active ?? true,
+    productCount: counts.get(row.id) ?? 0,
+  }));
+}
+
+export async function getAdminCategoryOptions(): Promise<AdminCategoryOption[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("categories")
+    .select("id, name, slug")
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+  if (error) {
+    console.error("[getAdminCategoryOptions]", error);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getAdminCollectionOptions(): Promise<
+  AdminCollectionOption[]
+> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("collections")
+    .select("id, name, slug")
+    .order("name", { ascending: true });
+  if (error) {
+    console.error("[getAdminCollectionOptions]", error);
+    return [];
+  }
+  return data ?? [];
 }
 
 export async function getAdminVariantStocks(): Promise<AdminVariantStockRow[]> {

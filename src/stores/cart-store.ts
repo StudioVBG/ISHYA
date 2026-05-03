@@ -53,6 +53,35 @@ interface CartState {
   getItemCount: () => number;
 }
 
+let syncTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleSync(items: CartItemLocal[]) {
+  if (typeof window === "undefined") return;
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    const email =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("checkout_email")
+        : null;
+    fetch("/api/cart/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: items.map((i) => ({
+          productId: i.productId,
+          variantId: i.variantId,
+          quantity: i.quantity,
+          unitPrice: i.price,
+        })),
+        email,
+      }),
+    }).catch((err) => {
+      // L'échec de sync ne doit pas casser l'UX
+      console.warn("[cart-store] sync failed:", err);
+    });
+  }, 800);
+}
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -68,38 +97,38 @@ export const useCartStore = create<CartState>()(
         const itemId = variant ? `${product.id}-${variant.id}` : product.id;
         const existing = items.find((i) => i.id === itemId);
 
+        let nextItems: CartItemLocal[];
         if (existing) {
-          set({
-            items: items.map((i) =>
-              i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i
-            ),
-          });
+          nextItems = items.map((i) =>
+            i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i
+          );
         } else {
-          set({
-            items: [
-              ...items,
-              {
-                id: itemId,
-                productId: product.id,
-                variantId: variant?.id ?? null,
-                name: product.name,
-                price: variant?.price_override ?? product.base_price,
-                image: media ?? "/placeholder.jpg",
-                quantity: 1,
-                size: variant?.size ?? undefined,
-                material: variant?.material_variant ?? undefined,
-                stone: variant?.stone ?? undefined,
-                sku: variant?.sku ?? product.sku ?? "",
-              },
-            ],
-          });
+          nextItems = [
+            ...items,
+            {
+              id: itemId,
+              productId: product.id,
+              variantId: variant?.id ?? null,
+              name: product.name,
+              price: variant?.price_override ?? product.base_price,
+              image: media ?? "/placeholder.jpg",
+              quantity: 1,
+              size: variant?.size ?? undefined,
+              material: variant?.material_variant ?? undefined,
+              stone: variant?.stone ?? undefined,
+              sku: variant?.sku ?? product.sku ?? "",
+            },
+          ];
         }
 
-        set({ isOpen: true });
+        set({ items: nextItems, isOpen: true });
+        scheduleSync(nextItems);
       },
 
       removeItem: (id) => {
-        set({ items: get().items.filter((i) => i.id !== id) });
+        const nextItems = get().items.filter((i) => i.id !== id);
+        set({ items: nextItems });
+        scheduleSync(nextItems);
       },
 
       updateQuantity: (id, quantity) => {
@@ -107,11 +136,11 @@ export const useCartStore = create<CartState>()(
           get().removeItem(id);
           return;
         }
-        set({
-          items: get().items.map((i) =>
-            i.id === id ? { ...i, quantity } : i
-          ),
-        });
+        const nextItems = get().items.map((i) =>
+          i.id === id ? { ...i, quantity } : i
+        );
+        set({ items: nextItems });
+        scheduleSync(nextItems);
       },
 
       clearCart: () => {
@@ -122,6 +151,7 @@ export const useCartStore = create<CartState>()(
           discountCode: null,
           discountAmount: 0,
         });
+        scheduleSync([]);
       },
 
       toggleCart: () => set({ isOpen: !get().isOpen }),
