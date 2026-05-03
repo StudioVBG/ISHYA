@@ -8,6 +8,7 @@ import {
   getBlogPostBySlug,
   getPublishedBlogPosts,
 } from "@/lib/queries/storefront";
+import { JsonLd, siteUrl } from "@/components/seo/JsonLd";
 import { formatDate } from "@/lib/utils";
 
 export const revalidate = 300;
@@ -96,8 +97,34 @@ export default async function BlogPostPage({
   const allPosts = await getPublishedBlogPosts(6);
   const related = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
 
+  const articleJsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt ?? undefined,
+    image: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+    datePublished: post.publishedAt ?? undefined,
+    dateModified: post.publishedAt ?? undefined,
+    author: post.authorName
+      ? { "@type": "Person", name: post.authorName }
+      : { "@type": "Organization", name: "ISHYA" },
+    publisher: {
+      "@type": "Organization",
+      name: "ISHYA",
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl()}/images/hero-ishya.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${siteUrl()}/blog/${slug}`,
+    },
+  };
+
   return (
     <article className="py-12 px-4">
+      <JsonLd data={articleJsonLd} />
       <div className="container max-w-3xl mx-auto">
         <Link
           href="/blog"

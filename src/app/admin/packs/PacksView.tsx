@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,6 +12,7 @@ import {
   Loader2,
   Gift,
   ImageIcon,
+  Package,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatPrice, slugify, formatDate } from "@/lib/utils";
@@ -243,20 +245,29 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   )}
                   {p.endsAt && <span>au {formatDate(p.endsAt)}</span>}
                 </div>
-                <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
-                  <button
-                    onClick={() => openEdit(p)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                <div className="flex items-center justify-between gap-1 mt-3 pt-3 border-t border-gray-100">
+                  <Link
+                    href={`/admin/packs/${p.id}`}
+                    className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline"
                   >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    disabled={isDeletePending}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                    <Package className="w-3.5 h-3.5" />
+                    Composer
+                  </Link>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openEdit(p)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      disabled={isDeletePending}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

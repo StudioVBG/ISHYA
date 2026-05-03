@@ -246,6 +246,18 @@ export interface AdminPackRow {
   itemCount: number;
 }
 
+export interface AdminPackDetail extends AdminPackRow {
+  items: Array<{
+    id: string;
+    productId: string;
+    productName: string;
+    productSlug: string;
+    productImageUrl: string | null;
+    sortOrder: number;
+    isRequired: boolean;
+  }>;
+}
+
 export interface AdminBlogPostRow {
   id: string;
   slug: string;
@@ -1043,6 +1055,130 @@ export async function getAdminPacks(): Promise<AdminPackRow[]> {
     isActive: row.is_active ?? false,
     itemCount: counts.get(row.id) ?? 0,
   }));
+}
+
+export async function getAdminPackById(
+  id: string,
+): Promise<AdminPackDetail | null> {
+  const admin = createAdminClient();
+  const { data: pack, error } = await admin
+    .from("packs")
+    .select(
+      "id, name, slug, description, image_url, discount_type, discount_value, starts_at, ends_at, is_active",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !pack) {
+    if (error) console.error("[getAdminPackById]", error);
+    return null;
+  }
+
+  const { data: items } = await admin
+    .from("pack_items")
+    .select(
+      `id, product_id, sort_order, is_required,
+       product:products (
+         name, slug,
+         product_media ( url, is_primary, sort_order )
+       )`,
+    )
+    .eq("pack_id", id)
+    .order("sort_order", { ascending: true });
+
+  type ItemRow = {
+    id: string;
+    product_id: string;
+    sort_order: number | null;
+    is_required: boolean | null;
+    product?:
+      | {
+          name: string;
+          slug: string;
+          product_media: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+        }
+      | Array<{
+          name: string;
+          slug: string;
+          product_media: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+        }>
+      | null;
+  };
+
+  return {
+    id: pack.id,
+    name: pack.name,
+    slug: pack.slug,
+    description: pack.description,
+    imageUrl: pack.image_url,
+    discountType: pack.discount_type,
+    discountValue: Number(pack.discount_value ?? 0),
+    startsAt: pack.starts_at,
+    endsAt: pack.ends_at,
+    isActive: pack.is_active ?? false,
+    itemCount: items?.length ?? 0,
+    items: ((items ?? []) as ItemRow[]).map((it) => {
+      const product = Array.isArray(it.product) ? it.product[0] : it.product;
+      const media = product?.product_media ?? [];
+      const primary =
+        media.find((m) => m.is_primary) ??
+        media.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+      return {
+        id: it.id,
+        productId: it.product_id,
+        productName: product?.name ?? "Produit inconnu",
+        productSlug: product?.slug ?? "",
+        productImageUrl: primary?.url ?? null,
+        sortOrder: it.sort_order ?? 0,
+        isRequired: it.is_required ?? true,
+      };
+    }),
+  };
+}
+
+export async function searchAdminProducts(query: string, limit = 10) {
+  const admin = createAdminClient();
+  let req = admin
+    .from("products")
+    .select(
+      `id, name, slug, sku,
+       product_media ( url, is_primary, sort_order )`,
+    )
+    .order("name", { ascending: true })
+    .limit(limit);
+  if (query.trim()) {
+    req = req.ilike("name", `%${query.trim()}%`);
+  }
+  const { data, error } = await req;
+  if (error) {
+    console.error("[searchAdminProducts]", error);
+    return [];
+  }
+  return (data ?? []).map((row) => {
+    const media = (row.product_media ?? []) as Array<{
+      url: string;
+      is_primary: boolean | null;
+      sort_order: number | null;
+    }>;
+    const primary =
+      media.find((m) => m.is_primary) ??
+      media.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+    return {
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      sku: row.sku ?? null,
+      imageUrl: primary?.url ?? null,
+    };
+  });
 }
 
 export async function getAdminBlogPosts(): Promise<AdminBlogPostRow[]> {

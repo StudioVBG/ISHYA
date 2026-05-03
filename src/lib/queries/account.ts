@@ -139,6 +139,15 @@ export interface AccountLoyaltySummary {
   transactions: AccountLoyaltyTransaction[];
 }
 
+export interface AccountSavedSizes {
+  id: string | null;
+  ringSize: string | null;
+  braceletSize: string | null;
+  necklaceLength: string | null;
+  ankletLength: string | null;
+  label: string | null;
+}
+
 export interface AccountNotificationPrefs {
   emailMarketing: boolean;
   emailOrderUpdates: boolean;
@@ -633,6 +642,40 @@ export async function getCurrentUserLoyalty(): Promise<AccountLoyaltySummary> {
         createdAt: row.created_at,
       };
     }),
+  };
+}
+
+export async function getCurrentUserSavedSizes(): Promise<AccountSavedSizes> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const fallback: AccountSavedSizes = {
+    id: null,
+    ringSize: null,
+    braceletSize: null,
+    necklaceLength: null,
+    ankletLength: null,
+    label: null,
+  };
+  if (!user) return fallback;
+
+  const { data } = await supabase
+    .from("saved_sizes")
+    .select(
+      "id, ring_size, bracelet_size, necklace_length, anklet_length, label",
+    )
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!data) return fallback;
+  return {
+    id: data.id,
+    ringSize: data.ring_size,
+    braceletSize: data.bracelet_size,
+    necklaceLength: data.necklace_length,
+    ankletLength: data.anklet_length,
+    label: data.label,
   };
 }
 

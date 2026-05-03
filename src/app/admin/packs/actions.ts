@@ -130,3 +130,119 @@ export async function deletePack(
   revalidateAll();
   return { ok: true };
 }
+
+export async function addProductToPack(
+  packId: string,
+  productId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  // Vérifier qu'on n'ajoute pas un doublon
+  const { data: existing } = await admin
+    .from("pack_items")
+    .select("id")
+    .eq("pack_id", packId)
+    .eq("product_id", productId)
+    .maybeSingle();
+  if (existing) {
+    return { ok: false, error: "Ce produit est déjà dans le pack" };
+  }
+
+  // Calculer le sort_order
+  const { data: max } = await admin
+    .from("pack_items")
+    .select("sort_order")
+    .eq("pack_id", packId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { error } = await admin.from("pack_items").insert({
+    pack_id: packId,
+    product_id: productId,
+    sort_order: (max?.sort_order ?? -1) + 1,
+    is_required: true,
+  });
+
+  if (error) {
+    console.error("[addProductToPack]", error);
+    return { ok: false, error: "Erreur lors de l'ajout" };
+  }
+
+  revalidatePath(`/admin/packs/${packId}`);
+  revalidatePath("/admin/packs");
+  return { ok: true };
+}
+
+export async function removeProductFromPack(
+  packId: string,
+  packItemId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("pack_items")
+    .delete()
+    .eq("id", packItemId)
+    .eq("pack_id", packId);
+
+  if (error) {
+    console.error("[removeProductFromPack]", error);
+    return { ok: false, error: "Erreur" };
+  }
+
+  revalidatePath(`/admin/packs/${packId}`);
+  revalidatePath("/admin/packs");
+  return { ok: true };
+}
+
+export async function setPackItemRequired(
+  packId: string,
+  packItemId: string,
+  isRequired: boolean,
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("pack_items")
+    .update({ is_required: isRequired })
+    .eq("id", packItemId)
+    .eq("pack_id", packId);
+
+  if (error) {
+    console.error("[setPackItemRequired]", error);
+    return { ok: false, error: "Erreur" };
+  }
+
+  revalidatePath(`/admin/packs/${packId}`);
+  return { ok: true };
+}
+
+export async function reorderPackItems(
+  packId: string,
+  orderedIds: string[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  // Mise à jour individuelle (pas de batch generic update)
+  for (let i = 0; i < orderedIds.length; i++) {
+    await admin
+      .from("pack_items")
+      .update({ sort_order: i })
+      .eq("id", orderedIds[i])
+      .eq("pack_id", packId);
+  }
+
+  revalidatePath(`/admin/packs/${packId}`);
+  return { ok: true };
+}
