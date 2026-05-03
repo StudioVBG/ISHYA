@@ -87,6 +87,58 @@ export interface AccountWishlistItem {
   inStock: boolean;
 }
 
+export interface AccountReturn {
+  id: string;
+  orderId: string;
+  orderNumber: string | null;
+  status: string;
+  reason: string;
+  description: string | null;
+  refundAmount: number | null;
+  trackingNumber: string | null;
+  createdAt: string | null;
+  approvedAt: string | null;
+  receivedAt: string | null;
+  refundedAt: string | null;
+}
+
+export interface AccountReturnableOrder {
+  id: string;
+  orderNumber: string;
+  createdAt: string | null;
+  status: string;
+  items: Array<{
+    id: string;
+    productName: string;
+    variantName: string | null;
+    quantity: number;
+    unitPrice: number;
+    imageUrl: string | null;
+  }>;
+}
+
+export interface AccountLoyaltyTransaction {
+  id: string;
+  type: "earn" | "redeem" | "expire" | "adjust";
+  points: number;
+  description: string | null;
+  orderId: string | null;
+  orderNumber: string | null;
+  createdAt: string | null;
+}
+
+export interface AccountLoyaltySummary {
+  points: number;
+  tier: string;
+  tiers: Array<{
+    name: string;
+    minPoints: number;
+    pointsMultiplier: number;
+    perks: string[];
+  }>;
+  transactions: AccountLoyaltyTransaction[];
+}
+
 export interface AccountNotificationPrefs {
   emailMarketing: boolean;
   emailOrderUpdates: boolean;
@@ -393,6 +445,195 @@ export async function getCurrentUserWishlist(): Promise<AccountWishlistItem[]> {
       return result;
     })
     .filter((it): it is AccountWishlistItem => it !== null);
+}
+
+export async function getCurrentUserReturns(): Promise<AccountReturn[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("returns")
+    .select(
+      `id, order_id, status, reason, description, refund_amount, tracking_number,
+       created_at, approved_at, received_at, refunded_at,
+       order:orders ( order_number )`,
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getCurrentUserReturns]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => {
+    const order = Array.isArray(row.order)
+      ? row.order[0]
+      : (row.order as { order_number: string } | null);
+    return {
+      id: row.id,
+      orderId: row.order_id,
+      orderNumber: order?.order_number ?? null,
+      status: row.status ?? "requested",
+      reason: row.reason,
+      description: row.description,
+      refundAmount:
+        row.refund_amount != null ? Number(row.refund_amount) : null,
+      trackingNumber: row.tracking_number,
+      createdAt: row.created_at,
+      approvedAt: row.approved_at,
+      receivedAt: row.received_at,
+      refundedAt: row.refunded_at,
+    };
+  });
+}
+
+export async function getReturnableOrder(
+  orderId: string,
+): Promise<AccountReturnableOrder | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      `id, order_number, status, created_at,
+       order_items ( id, product_name_snapshot, variant_name_snapshot,
+                     quantity, unit_price, product_id,
+                     product:products (
+                       product_media ( url, is_primary, sort_order )
+                     ) )`,
+    )
+    .eq("id", orderId)
+    .eq("user_id", user.id)
+    .in("status", ["delivered", "shipped"])
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getReturnableOrder]", error);
+    return null;
+  }
+
+  type OrderItemRow = {
+    id: string;
+    product_name_snapshot: string;
+    variant_name_snapshot: string | null;
+    quantity: number;
+    unit_price: number | string;
+    product_id: string | null;
+    product?:
+      | {
+          product_media: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+        }
+      | Array<{
+          product_media: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+        }>
+      | null;
+  };
+
+  const items = (data.order_items ?? []) as OrderItemRow[];
+
+  return {
+    id: data.id,
+    orderNumber: data.order_number,
+    createdAt: data.created_at,
+    status: data.status ?? "delivered",
+    items: items.map((it) => {
+      const product = Array.isArray(it.product) ? it.product[0] : it.product;
+      const media = product?.product_media ?? [];
+      const primary =
+        media.find((m) => m.is_primary) ??
+        media.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+      return {
+        id: it.id,
+        productName: it.product_name_snapshot,
+        variantName: it.variant_name_snapshot,
+        quantity: it.quantity,
+        unitPrice: Number(it.unit_price),
+        imageUrl: primary?.url ?? null,
+      };
+    }),
+  };
+}
+
+export async function getCurrentUserLoyalty(): Promise<AccountLoyaltySummary> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const fallback: AccountLoyaltySummary = {
+    points: 0,
+    tier: "bronze",
+    tiers: [],
+    transactions: [],
+  };
+  if (!user) return fallback;
+
+  const [profileRes, tiersRes, txRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("loyalty_points, loyalty_tier")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("loyalty_tiers")
+      .select("name, min_points, points_multiplier, perks")
+      .order("min_points", { ascending: true }),
+    supabase
+      .from("loyalty_transactions")
+      .select(
+        `id, type, points, description, order_id, created_at,
+         order:orders ( order_number )`,
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
+
+  return {
+    points: profileRes.data?.loyalty_points ?? 0,
+    tier: profileRes.data?.loyalty_tier ?? "bronze",
+    tiers: (tiersRes.data ?? []).map((t) => {
+      const perks = Array.isArray(t.perks)
+        ? (t.perks as unknown as string[])
+        : [];
+      return {
+        name: t.name,
+        minPoints: t.min_points,
+        pointsMultiplier: Number(t.points_multiplier ?? 1),
+        perks,
+      };
+    }),
+    transactions: (txRes.data ?? []).map((row) => {
+      const order = Array.isArray(row.order)
+        ? row.order[0]
+        : (row.order as { order_number: string } | null);
+      return {
+        id: row.id,
+        type: row.type as AccountLoyaltyTransaction["type"],
+        points: row.points,
+        description: row.description,
+        orderId: row.order_id,
+        orderNumber: order?.order_number ?? null,
+        createdAt: row.created_at,
+      };
+    }),
+  };
 }
 
 export async function getCurrentUserNotificationPrefs(): Promise<AccountNotificationPrefs> {

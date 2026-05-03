@@ -232,6 +232,20 @@ export interface AdminReviewRow {
   createdAt: string | null;
 }
 
+export interface AdminPackRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  discountType: "percentage" | "fixed_amount" | "free_shipping" | "buy_x_get_y";
+  discountValue: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+  itemCount: number;
+}
+
 export interface AdminBlogPostRow {
   id: string;
   slug: string;
@@ -991,6 +1005,44 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
       createdAt: row.created_at,
     };
   });
+}
+
+export async function getAdminPacks(): Promise<AdminPackRow[]> {
+  const admin = createAdminClient();
+  const [packsResult, itemsResult] = await Promise.all([
+    admin
+      .from("packs")
+      .select(
+        "id, name, slug, description, image_url, discount_type, discount_value, starts_at, ends_at, is_active",
+      )
+      .order("created_at", { ascending: false })
+      .limit(200),
+    admin.from("pack_items").select("pack_id"),
+  ]);
+
+  if (packsResult.error) {
+    console.error("[getAdminPacks]", packsResult.error);
+    return [];
+  }
+
+  const counts = new Map<string, number>();
+  for (const it of itemsResult.data ?? []) {
+    counts.set(it.pack_id, (counts.get(it.pack_id) ?? 0) + 1);
+  }
+
+  return (packsResult.data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    imageUrl: row.image_url,
+    discountType: row.discount_type,
+    discountValue: Number(row.discount_value ?? 0),
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    isActive: row.is_active ?? false,
+    itemCount: counts.get(row.id) ?? 0,
+  }));
 }
 
 export async function getAdminBlogPosts(): Promise<AdminBlogPostRow[]> {
