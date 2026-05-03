@@ -15,6 +15,7 @@ import {
   getTopCategories,
   getBestSellers,
   getFeaturedCollection,
+  getHomepageReviews,
 } from "@/lib/queries/storefront";
 
 export const revalidate = 300;
@@ -32,39 +33,14 @@ const giftBudgets = [
   { label: "Plus de 60€", min: 60, max: 999, color: "from-foreground/80 to-foreground" },
 ];
 
-const homeReviews = [
-  {
-    id: "r1",
-    rating: 5,
-    title: "Une merveille",
-    content:
-      "Mon collier est arrivé dans un écrin magnifique. Les fleurs séchées sont parfaitement préservées, c'est un véritable bijou de poésie.",
-    author: "Camille L.",
-  },
-  {
-    id: "r2",
-    rating: 5,
-    title: "Cadeau parfait",
-    content:
-      "Offert à ma sœur pour son anniversaire, elle l'adore. La qualité est au rendez-vous, et la livraison rapide. Je recommande vivement.",
-    author: "Émilie R.",
-  },
-  {
-    id: "r3",
-    rating: 5,
-    title: "Délicat et unique",
-    content:
-      "Une pièce vraiment originale, je n'avais jamais rien vu de tel. Le rendu est très élégant, parfait pour le quotidien comme pour les grandes occasions.",
-    author: "Sophie M.",
-  },
-];
-
 export default async function HomePage() {
-  const [categories, bestSellers, featuredCollection] = await Promise.all([
-    getTopCategories(6),
-    getBestSellers(8),
-    getFeaturedCollection(),
-  ]);
+  const [categories, bestSellers, featuredCollection, homeReviews] =
+    await Promise.all([
+      getTopCategories(6),
+      getBestSellers(8),
+      getFeaturedCollection(),
+      getHomepageReviews(3),
+    ]);
 
   return (
     <>
@@ -225,47 +201,58 @@ export default async function HomePage() {
       </section>
 
       {/* ── Avis Clients ──────────────────────────────────────── */}
-      <section className="py-20 px-4">
-        <div className="container">
-          <div className="text-center mb-14">
-            <p className="text-terracotta uppercase tracking-widest text-xs mb-2">
-              Témoignages
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl">
-              Ce que nos clientes disent
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {homeReviews.map((review) => (
-              <div
-                key={review.id}
-                className="bg-white rounded-2xl p-8 shadow-sm border border-border/50"
-              >
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        "w-4 h-4",
-                        i < review.rating
-                          ? "fill-gold text-gold"
-                          : "fill-border text-border"
-                      )}
-                    />
-                  ))}
+      {homeReviews.length > 0 && (
+        <section className="py-20 px-4">
+          <div className="container">
+            <div className="text-center mb-14">
+              <p className="text-terracotta uppercase tracking-widest text-xs mb-2">
+                Témoignages
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl">
+                Ce que nos clientes disent
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {homeReviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="bg-white rounded-2xl p-8 shadow-sm border border-border/50"
+                >
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={cn(
+                          "w-4 h-4",
+                          i < review.rating
+                            ? "fill-gold text-gold"
+                            : "fill-border text-border",
+                        )}
+                      />
+                    ))}
+                  </div>
+                  {review.title && (
+                    <h4 className="font-medium mb-2">{review.title}</h4>
+                  )}
+                  {review.body && (
+                    <p className="text-muted text-sm leading-relaxed mb-4">
+                      &ldquo;{review.body}&rdquo;
+                    </p>
+                  )}
+                  <p className="text-xs font-medium text-terracotta">
+                    {review.authorName}
+                    {review.productName && (
+                      <span className="text-muted ml-1">
+                        · {review.productName}
+                      </span>
+                    )}
+                  </p>
                 </div>
-                <h4 className="font-medium mb-2">{review.title}</h4>
-                <p className="text-muted text-sm leading-relaxed mb-4">
-                  &ldquo;{review.content}&rdquo;
-                </p>
-                <p className="text-xs font-medium text-terracotta">
-                  {review.author}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Newsletter ────────────────────────────────────────── */}
       <section className="py-20 bg-foreground text-white px-4">

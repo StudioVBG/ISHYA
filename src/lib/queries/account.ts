@@ -87,6 +87,20 @@ export interface AccountWishlistItem {
   inStock: boolean;
 }
 
+export interface AccountReview {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  productImageUrl: string | null;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  isApproved: boolean;
+  isVerifiedPurchase: boolean;
+  createdAt: string | null;
+}
+
 export interface AccountStats {
   ordersCount: number;
   loyaltyPoints: number;
@@ -370,6 +384,67 @@ export async function getCurrentUserWishlist(): Promise<AccountWishlistItem[]> {
       return result;
     })
     .filter((it): it is AccountWishlistItem => it !== null);
+}
+
+export async function getCurrentUserReviews(): Promise<AccountReview[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(
+      `id, product_id, rating, title, body, is_approved, is_verified_purchase,
+       created_at,
+       product:products (
+         name, slug,
+         product_media ( url, is_primary, sort_order )
+       )`,
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getCurrentUserReviews]", error);
+    return [];
+  }
+
+  type ProductRowReview = {
+    name: string;
+    slug: string;
+    product_media: Array<{
+      url: string;
+      is_primary: boolean | null;
+      sort_order: number | null;
+    }>;
+  };
+
+  return (data ?? []).map((row) => {
+    const raw = row.product as
+      | ProductRowReview
+      | ProductRowReview[]
+      | null;
+    const product = Array.isArray(raw) ? raw[0] : raw;
+    const media = product?.product_media ?? [];
+    const primary =
+      media.find((m) => m.is_primary) ??
+      media.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+    return {
+      id: row.id,
+      productId: row.product_id,
+      productName: product?.name ?? "Produit inconnu",
+      productSlug: product?.slug ?? "",
+      productImageUrl: primary?.url ?? null,
+      rating: row.rating ?? 0,
+      title: row.title,
+      body: row.body,
+      isApproved: row.is_approved ?? false,
+      isVerifiedPurchase: row.is_verified_purchase ?? false,
+      createdAt: row.created_at,
+    };
+  });
 }
 
 export async function getCurrentUserStats(): Promise<AccountStats> {

@@ -451,6 +451,315 @@ export async function getAllSlugs(table: "products" | "categories" | "collection
   return (data ?? []).map((r) => r.slug);
 }
 
+export interface BlogPostSummary {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  coverImageUrl: string | null;
+  tags: string[];
+  publishedAt: string | null;
+  authorName: string | null;
+}
+
+export interface BlogPostDetail extends BlogPostSummary {
+  body: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+}
+
+export async function getPublishedBlogPosts(
+  limit = 50,
+): Promise<BlogPostSummary[]> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(
+      "id, slug, title, excerpt, cover_image_url, tags, published_at, author_id",
+    )
+    .eq("is_published", true)
+    .not("published_at", "is", null)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[getPublishedBlogPosts]", error);
+    return [];
+  }
+
+  const authorIds = Array.from(
+    new Set(
+      (data ?? []).map((p) => p.author_id).filter((id): id is string => !!id),
+    ),
+  );
+  const authorsById = await fetchAuthorsByIds(authorIds);
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    coverImageUrl: row.cover_image_url,
+    tags: row.tags ?? [],
+    publishedAt: row.published_at,
+    authorName: row.author_id ? authorsById.get(row.author_id) ?? null : null,
+  }));
+}
+
+export async function getBlogPostBySlug(
+  slug: string,
+): Promise<BlogPostDetail | null> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(
+      "id, slug, title, excerpt, body, cover_image_url, tags, published_at, author_id, seo_title, seo_description",
+    )
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getBlogPostBySlug]", error);
+    return null;
+  }
+
+  const authorsById = data.author_id
+    ? await fetchAuthorsByIds([data.author_id])
+    : new Map<string, string>();
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    title: data.title,
+    excerpt: data.excerpt,
+    coverImageUrl: data.cover_image_url,
+    tags: data.tags ?? [],
+    publishedAt: data.published_at,
+    authorName: data.author_id
+      ? authorsById.get(data.author_id) ?? null
+      : null,
+    body: data.body,
+    seoTitle: data.seo_title,
+    seoDescription: data.seo_description,
+  };
+}
+
+async function fetchAuthorsByIds(
+  ids: string[],
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (ids.length === 0) return map;
+  const supabase = createBuildClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, first_name, last_name")
+    .in("id", ids);
+  for (const p of data ?? []) {
+    const name = [p.first_name, p.last_name].filter(Boolean).join(" ");
+    if (name) map.set(p.id, name);
+  }
+  return map;
+}
+
+export async function getAllBlogSlugs(): Promise<string[]> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("slug")
+    .eq("is_published", true);
+  if (error) {
+    console.error("[getAllBlogSlugs]", error);
+    return [];
+  }
+  return (data ?? []).map((r) => r.slug);
+}
+
+export interface PublicReview {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  isVerifiedPurchase: boolean;
+  createdAt: string | null;
+  authorName: string;
+  productName?: string;
+  productSlug?: string;
+}
+
+/**
+ * Retourne les meilleurs avis approuvés pour la home (5 étoiles, content non vide).
+ */
+export async function getHomepageReviews(limit = 3): Promise<PublicReview[]> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(
+      `id, rating, title, body, is_verified_purchase, created_at, user_id,
+       product:products ( name, slug )`,
+    )
+    .eq("is_approved", true)
+    .eq("rating", 5)
+    .not("body", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[getHomepageReviews]", error);
+    return [];
+  }
+
+  return await enrichReviewsWithAuthor(data ?? []);
+}
+
+/**
+ * Avis approuvés pour un produit donné.
+ */
+export async function getProductReviews(
+  productId: string,
+  limit = 20,
+): Promise<PublicReview[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(
+      "id, rating, title, body, is_verified_purchase, created_at, user_id",
+    )
+    .eq("product_id", productId)
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[getProductReviews]", error);
+    return [];
+  }
+
+  return await enrichReviewsWithAuthor(data ?? []);
+}
+
+interface ReviewRow {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  is_verified_purchase: boolean | null;
+  created_at: string | null;
+  user_id: string | null;
+  product?:
+    | { name: string; slug: string }
+    | { name: string; slug: string }[]
+    | null;
+}
+
+async function enrichReviewsWithAuthor(
+  rows: ReviewRow[],
+): Promise<PublicReview[]> {
+  const supabase = await createClient();
+  const userIds = Array.from(
+    new Set(rows.map((r) => r.user_id).filter((id): id is string => !!id)),
+  );
+
+  const profiles = new Map<string, { firstName: string | null; lastName: string | null }>();
+  if (userIds.length > 0) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, first_name, last_name")
+      .in("id", userIds);
+    for (const p of data ?? []) {
+      profiles.set(p.id, {
+        firstName: p.first_name ?? null,
+        lastName: p.last_name ?? null,
+      });
+    }
+  }
+
+  return rows.map((row) => {
+    const author = row.user_id ? profiles.get(row.user_id) : undefined;
+    const first = author?.firstName ?? "";
+    const lastInitial = author?.lastName
+      ? `${author.lastName.charAt(0).toUpperCase()}.`
+      : "";
+    const authorName =
+      [first, lastInitial].filter(Boolean).join(" ").trim() || "Cliente ISHYA";
+    const product = Array.isArray(row.product) ? row.product[0] : row.product;
+    return {
+      id: row.id,
+      rating: row.rating,
+      title: row.title,
+      body: row.body,
+      isVerifiedPurchase: row.is_verified_purchase ?? false,
+      createdAt: row.created_at,
+      authorName,
+      productName: product?.name,
+      productSlug: product?.slug,
+    };
+  });
+}
+
+export interface ProductReviewSummary {
+  count: number;
+  average: number;
+}
+
+export async function getProductReviewSummary(
+  productId: string,
+): Promise<ProductReviewSummary> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("rating")
+    .eq("product_id", productId)
+    .eq("is_approved", true);
+
+  const ratings = (data ?? []).map((r) => r.rating);
+  if (ratings.length === 0) return { count: 0, average: 0 };
+  const sum = ratings.reduce((a, b) => a + b, 0);
+  return {
+    count: ratings.length,
+    average: Math.round((sum / ratings.length) * 10) / 10,
+  };
+}
+
+export async function userHasPurchasedProduct(
+  productId: string,
+): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data } = await supabase
+    .from("orders")
+    .select("id, order_items!inner ( product_id )")
+    .eq("user_id", user.id)
+    .in("status", ["confirmed", "processing", "shipped", "delivered"])
+    .eq("order_items.product_id", productId)
+    .limit(1);
+
+  return (data?.length ?? 0) > 0;
+}
+
+export async function userHasReviewedProduct(
+  productId: string,
+): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data } = await supabase
+    .from("reviews")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("product_id", productId)
+    .maybeSingle();
+
+  return data !== null;
+}
+
 export async function getRelatedProducts(productId: string, limit = 4) {
   const supabase = await createClient();
   const { data: source } = await supabase
