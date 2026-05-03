@@ -232,6 +232,41 @@ export interface AdminReviewRow {
   createdAt: string | null;
 }
 
+export interface AdminCmsPageRow {
+  id: string;
+  slug: string;
+  title: string;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  isPublished: boolean;
+  publishedAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface AdminSeoConfig {
+  homeMetaTitle: string;
+  homeMetaDescription: string;
+  homeOgImageUrl: string;
+  defaultKeywords: string;
+  twitterHandle: string;
+  googleSiteVerification: string;
+  bingSiteVerification: string;
+}
+
+const SEO_KEYS = [
+  "seo.home_meta_title",
+  "seo.home_meta_description",
+  "seo.home_og_image",
+  "seo.default_keywords",
+  "seo.twitter_handle",
+  "seo.google_site_verification",
+  "seo.bing_site_verification",
+] as const;
+
+export interface AdminCmsPageDetail extends AdminCmsPageRow {
+  body: string | null;
+}
+
 export interface AdminTeamMember {
   id: string;
   email: string | null;
@@ -1209,6 +1244,92 @@ export async function searchAdminProducts(query: string, limit = 10) {
       imageUrl: primary?.url ?? null,
     };
   });
+}
+
+export async function getAdminSeoConfig(): Promise<AdminSeoConfig> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("settings")
+    .select("key, value")
+    .in("key", [...SEO_KEYS]);
+
+  const map = new Map<string, unknown>();
+  for (const row of data ?? []) {
+    map.set(row.key, row.value);
+  }
+
+  const asString = (key: string): string => {
+    const v = map.get(key);
+    if (typeof v === "string") return v;
+    if (v == null) return "";
+    return String(v);
+  };
+
+  return {
+    homeMetaTitle: asString("seo.home_meta_title"),
+    homeMetaDescription: asString("seo.home_meta_description"),
+    homeOgImageUrl: asString("seo.home_og_image"),
+    defaultKeywords: asString("seo.default_keywords"),
+    twitterHandle: asString("seo.twitter_handle"),
+    googleSiteVerification: asString("seo.google_site_verification"),
+    bingSiteVerification: asString("seo.bing_site_verification"),
+  };
+}
+
+export async function getAdminCmsPages(): Promise<AdminCmsPageRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("cms_pages")
+    .select(
+      "id, slug, title, meta_title, meta_description, is_published, published_at, updated_at",
+    )
+    .order("title", { ascending: true });
+
+  if (error) {
+    console.error("[getAdminCmsPages]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    isPublished: row.is_published ?? false,
+    publishedAt: row.published_at,
+    updatedAt: row.updated_at,
+  }));
+}
+
+export async function getAdminCmsPageById(
+  id: string,
+): Promise<AdminCmsPageDetail | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("cms_pages")
+    .select(
+      "id, slug, title, body, meta_title, meta_description, is_published, published_at, updated_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getAdminCmsPageById]", error);
+    return null;
+  }
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    title: data.title,
+    body: data.body,
+    metaTitle: data.meta_title,
+    metaDescription: data.meta_description,
+    isPublished: data.is_published ?? false,
+    publishedAt: data.published_at,
+    updatedAt: data.updated_at,
+  };
 }
 
 export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {

@@ -562,6 +562,134 @@ async function fetchAuthorsByIds(
   return map;
 }
 
+export interface PublicFaqArticle {
+  id: string;
+  question: string;
+  answer: string;
+  category: string | null;
+  sortOrder: number;
+}
+
+export interface PublicFaqCategory {
+  slug: string;
+  name: string;
+  count: number;
+}
+
+function faqSlugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
+
+export async function getPublicFaqArticles(): Promise<PublicFaqArticle[]> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("faq_articles")
+    .select("id, question, answer, category, sort_order")
+    .eq("is_active", true)
+    .order("category", { ascending: true })
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    console.error("[getPublicFaqArticles]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    question: row.question,
+    answer: row.answer,
+    category: row.category,
+    sortOrder: row.sort_order ?? 0,
+  }));
+}
+
+export async function getPublicFaqCategories(): Promise<PublicFaqCategory[]> {
+  const articles = await getPublicFaqArticles();
+  const counts = new Map<string, { name: string; count: number }>();
+  for (const a of articles) {
+    if (!a.category) continue;
+    const key = faqSlugify(a.category);
+    const prev = counts.get(key);
+    if (prev) {
+      prev.count += 1;
+    } else {
+      counts.set(key, { name: a.category, count: 1 });
+    }
+  }
+  return Array.from(counts.entries()).map(([slug, v]) => ({
+    slug,
+    name: v.name,
+    count: v.count,
+  }));
+}
+
+export async function getPublicFaqArticlesByCategorySlug(
+  slug: string,
+): Promise<{ name: string; articles: PublicFaqArticle[] } | null> {
+  const articles = await getPublicFaqArticles();
+  const matching = articles.filter(
+    (a) => a.category && faqSlugify(a.category) === slug,
+  );
+  if (matching.length === 0) return null;
+  return {
+    name: matching[0].category!,
+    articles: matching,
+  };
+}
+
+export interface PublicCmsPage {
+  slug: string;
+  title: string;
+  body: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  publishedAt: string | null;
+}
+
+export async function getPublicCmsPageBySlug(
+  slug: string,
+): Promise<PublicCmsPage | null> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("cms_pages")
+    .select("slug, title, body, meta_title, meta_description, published_at")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getPublicCmsPageBySlug]", error);
+    return null;
+  }
+
+  return {
+    slug: data.slug,
+    title: data.title,
+    body: data.body,
+    metaTitle: data.meta_title,
+    metaDescription: data.meta_description,
+    publishedAt: data.published_at,
+  };
+}
+
+export async function getAllPublishedCmsSlugs(): Promise<string[]> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("cms_pages")
+    .select("slug")
+    .eq("is_published", true);
+  if (error) {
+    console.error("[getAllPublishedCmsSlugs]", error);
+    return [];
+  }
+  return (data ?? []).map((r) => r.slug);
+}
+
 export async function getAllBlogSlugs(): Promise<string[]> {
   const supabase = createBuildClient();
   const { data, error } = await supabase
