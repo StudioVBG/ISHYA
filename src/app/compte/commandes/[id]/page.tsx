@@ -1,9 +1,5 @@
-"use client";
-
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
 import {
   ChevronLeft,
   Check,
@@ -14,78 +10,108 @@ import {
   FileText,
   RotateCcw,
   MessageCircle,
-  RefreshCw,
   CreditCard,
 } from "lucide-react";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
-import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import {
+  getCurrentUserOrderByNumber,
+  type AccountOrderDetail,
+  type AccountOrderStatus,
+} from "@/lib/queries/account";
 
-const timelineSteps = [
-  {
-    label: "Commande reçue",
-    date: "15 mars 2026 - 10:00",
-    icon: Clock,
-    completed: true,
-  },
-  {
-    label: "Paiement confirmé",
-    date: "15 mars 2026 - 10:02",
-    icon: CreditCard,
-    completed: true,
-  },
-  {
+const statusLabels: Record<
+  AccountOrderStatus,
+  { label: string; className: string }
+> = {
+  pending: { label: "En attente", className: "bg-yellow-100 text-yellow-700" },
+  confirmed: { label: "Payée", className: "bg-blue-100 text-blue-700" },
+  processing: {
     label: "En préparation",
-    date: "15 mars 2026 - 14:30",
-    icon: Package,
-    completed: true,
+    className: "bg-orange-100 text-orange-700",
   },
-  {
-    label: "Expédiée",
-    date: "16 mars 2026 - 09:15",
-    icon: Truck,
-    completed: true,
+  shipped: { label: "Expédiée", className: "bg-purple-100 text-purple-700" },
+  delivered: { label: "Livrée", className: "bg-green-100 text-green-700" },
+  cancelled: { label: "Annulée", className: "bg-red-100 text-red-700" },
+  refunded: { label: "Remboursée", className: "bg-orange-100 text-orange-700" },
+  partially_refunded: {
+    label: "Partiel.",
+    className: "bg-orange-100 text-orange-700",
   },
-  {
-    label: "Livrée",
-    date: "Livraison estimée : 19 mars 2026",
-    icon: MapPin,
-    completed: false,
-  },
-];
+  on_hold: { label: "En pause", className: "bg-gray-100 text-gray-700" },
+  failed: { label: "Échec", className: "bg-red-100 text-red-700" },
+};
 
-const demoItems = [
-  {
-    id: "prod-001",
-    name: "Collier Fleur d'Oranger",
-    variant: "45cm - Or",
-    qty: 1,
-    price: 45,
-    image:
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=120&h=120&fit=crop",
-  },
-  {
-    id: "prod-010",
-    name: "Boucles Goutte de Rosée",
-    variant: "Unique - Argent",
-    qty: 1,
-    price: 36,
-    image:
-      "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?w=120&h=120&fit=crop",
-  },
-];
+function buildTimeline(order: AccountOrderDetail) {
+  const reachedConfirmed = [
+    "confirmed",
+    "processing",
+    "shipped",
+    "delivered",
+  ].includes(order.status);
+  const reachedProcessing = ["processing", "shipped", "delivered"].includes(
+    order.status,
+  );
+  const reachedShipped =
+    ["shipped", "delivered"].includes(order.status) ||
+    Boolean(order.shipment?.shippedAt);
+  const reachedDelivered =
+    order.status === "delivered" || Boolean(order.shipment?.deliveredAt);
 
-export default function OrderDetailPage() {
-  const params = useParams<{ id: string }>();
-  const orderId = params.id;
+  return [
+    {
+      label: "Commande reçue",
+      date: formatDate(order.createdAt),
+      icon: Clock,
+      completed: true,
+    },
+    {
+      label: "Paiement confirmé",
+      date: reachedConfirmed ? formatDate(order.createdAt) : "En attente",
+      icon: CreditCard,
+      completed: reachedConfirmed,
+    },
+    {
+      label: "En préparation",
+      date: reachedProcessing ? "En cours" : "À venir",
+      icon: Package,
+      completed: reachedProcessing,
+    },
+    {
+      label: "Expédiée",
+      date: order.shipment?.shippedAt
+        ? formatDate(order.shipment.shippedAt)
+        : "À venir",
+      icon: Truck,
+      completed: reachedShipped,
+    },
+    {
+      label: "Livrée",
+      date: order.shipment?.deliveredAt
+        ? formatDate(order.shipment.deliveredAt)
+        : order.shipment?.estimatedDelivery
+          ? `Estimée : ${formatDate(order.shipment.estimatedDelivery)}`
+          : "À venir",
+      icon: MapPin,
+      completed: reachedDelivered,
+    },
+  ];
+}
 
-  const subtotal = demoItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const shipping = subtotal >= 60 ? 0 : 4.9;
-  const discount = 0;
-  const total = subtotal + shipping - discount;
+export default async function OrderDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const order = await getCurrentUserOrderByNumber(id);
+  if (!order) notFound();
+
+  const timeline = buildTimeline(order);
+  const status = statusLabels[order.status];
+  const addr = order.shippingAddress;
 
   return (
     <div>
-      {/* Back link */}
       <Link
         href="/compte/commandes"
         className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-terracotta transition-colors mb-6"
@@ -94,46 +120,35 @@ export default function OrderDetailPage() {
         Retour aux commandes
       </Link>
 
-      {/* Header */}
-      <motion.div
-        variants={fadeInUp}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
-      >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display text-2xl font-semibold">
-            Commande {orderId}
+            Commande {order.orderNumber}
           </h1>
           <p className="text-sm text-muted mt-1">
-            Passée le {formatDate("2026-03-15T10:00:00Z")}
+            Passée le {formatDate(order.createdAt)}
           </p>
         </div>
-        <span className="inline-flex px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 w-fit">
-          Expédiée
+        <span
+          className={cn(
+            "inline-flex px-3 py-1.5 rounded-full text-xs font-medium w-fit",
+            status.className,
+          )}
+        >
+          {status.label}
         </span>
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="grid lg:grid-cols-3 gap-6"
-      >
-        {/* Left column */}
+      <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Timeline */}
-          <motion.div
-            variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
-          >
+          <div className="bg-white rounded-xl border border-border p-6">
             <h2 className="font-display text-lg font-semibold mb-6">
               Suivi de commande
             </h2>
             <div className="relative">
-              {timelineSteps.map((step, i) => {
+              {timeline.map((step, i) => {
                 const Icon = step.icon;
-                const isLast = i === timelineSteps.length - 1;
+                const isLast = i === timeline.length - 1;
                 return (
                   <div key={step.label} className="flex gap-4 pb-6 last:pb-0">
                     <div className="flex flex-col items-center">
@@ -142,7 +157,7 @@ export default function OrderDetailPage() {
                           "w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10",
                           step.completed
                             ? "bg-terracotta text-white"
-                            : "bg-gray-100 text-muted"
+                            : "bg-gray-100 text-muted",
                         )}
                       >
                         {step.completed ? (
@@ -155,7 +170,7 @@ export default function OrderDetailPage() {
                         <div
                           className={cn(
                             "w-0.5 flex-1 mt-1",
-                            step.completed ? "bg-terracotta" : "bg-gray-200"
+                            step.completed ? "bg-terracotta" : "bg-gray-200",
                           )}
                         />
                       )}
@@ -164,7 +179,7 @@ export default function OrderDetailPage() {
                       <p
                         className={cn(
                           "text-sm font-medium",
-                          !step.completed && "text-muted"
+                          !step.completed && "text-muted",
                         )}
                       >
                         {step.label}
@@ -175,157 +190,138 @@ export default function OrderDetailPage() {
                 );
               })}
             </div>
-            <Link
-              href={`/compte/commandes/${orderId}/suivi`}
-              className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-dark font-medium mt-4"
-            >
-              Voir le suivi détaillé
-              <Truck className="w-4 h-4" />
-            </Link>
-          </motion.div>
+            {order.shipment?.trackingNumber && (
+              <Link
+                href={`/compte/commandes/${order.orderNumber}/suivi`}
+                className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-dark font-medium mt-4"
+              >
+                Voir le suivi détaillé
+                <Truck className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
 
-          {/* Items */}
-          <motion.div
-            variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
-          >
+          <div className="bg-white rounded-xl border border-border p-6">
             <h2 className="font-display text-lg font-semibold mb-4">
               Articles
             </h2>
             <div className="space-y-4">
-              {demoItems.map((item) => (
+              {order.items.map((item) => (
                 <div
                   key={item.id}
                   className="flex gap-4 pb-4 last:pb-0 last:border-0 border-b border-border"
                 >
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-16 h-16 rounded-lg bg-beige-nude-light flex items-center justify-center shrink-0">
+                    <Package className="w-6 h-6 text-terracotta/50" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.name}</p>
-                    <p className="text-xs text-muted mt-0.5">{item.variant}</p>
-                    <p className="text-xs text-muted">Qté : {item.qty}</p>
+                    <p className="text-sm font-medium truncate">
+                      {item.productName}
+                    </p>
+                    {item.variantName && (
+                      <p className="text-xs text-muted mt-0.5">
+                        {item.variantName}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted">Qté : {item.quantity}</p>
                   </div>
                   <p className="text-sm font-semibold shrink-0">
-                    {formatPrice(item.price)}
+                    {formatPrice(item.total)}
                   </p>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Actions */}
-          <motion.div
-            variants={staggerItem}
-            className="flex flex-wrap gap-3"
-          >
+          <div className="flex flex-wrap gap-3">
             <button className="btn-secondary text-sm gap-2">
               <FileText className="w-4 h-4" />
               Télécharger la facture
             </button>
-            <Link
-              href={`/compte/retours/nouveau/${orderId}`}
-              className="btn-secondary text-sm gap-2"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Demander un retour
-            </Link>
-            <button className="btn-secondary text-sm gap-2">
+            {(order.status === "delivered" || order.status === "shipped") && (
+              <Link
+                href={`/compte/retours/nouveau/${order.id}`}
+                className="btn-secondary text-sm gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Demander un retour
+              </Link>
+            )}
+            <Link href="/contact" className="btn-secondary text-sm gap-2">
               <MessageCircle className="w-4 h-4" />
               Contacter le support
-            </button>
-            <button className="btn-primary text-sm gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Re-commander
-            </button>
-          </motion.div>
+            </Link>
+          </div>
         </div>
 
-        {/* Right column - Summary */}
         <div className="space-y-6">
-          {/* Totals */}
-          <motion.div
-            variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-5"
-          >
+          <div className="bg-white rounded-xl border border-border p-5">
             <h3 className="font-display font-semibold mb-4">Récapitulatif</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted">Sous-total</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span>{formatPrice(order.subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Livraison</span>
-                <span className={cn(shipping === 0 && "text-success font-medium")}>
-                  {shipping === 0 ? "Offerte" : formatPrice(shipping)}
+                <span
+                  className={cn(
+                    order.shippingTotal === 0 && "text-success font-medium",
+                  )}
+                >
+                  {order.shippingTotal === 0
+                    ? "Offerte"
+                    : formatPrice(order.shippingTotal)}
                 </span>
               </div>
-              {discount > 0 && (
+              {order.discountTotal > 0 && (
                 <div className="flex justify-between text-terracotta">
                   <span>Réduction</span>
-                  <span>-{formatPrice(discount)}</span>
+                  <span>-{formatPrice(order.discountTotal)}</span>
                 </div>
               )}
               <div className="flex justify-between font-semibold text-base pt-2 border-t border-border">
                 <span>Total</span>
-                <span>{formatPrice(total)}</span>
+                <span>{formatPrice(order.total)}</span>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Shipping address */}
-          <motion.div
-            variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-5"
-          >
-            <h3 className="font-display font-semibold mb-3">
-              Adresse de livraison
-            </h3>
-            <div className="text-sm text-muted space-y-0.5">
-              <p className="text-foreground font-medium">Marie Dupont</p>
-              <p>15 Rue des Fleurs, Apt 3B</p>
-              <p>75004 Paris</p>
-              <p>France</p>
-            </div>
-          </motion.div>
-
-          {/* Billing address */}
-          <motion.div
-            variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-5"
-          >
-            <h3 className="font-display font-semibold mb-3">
-              Adresse de facturation
-            </h3>
-            <div className="text-sm text-muted space-y-0.5">
-              <p className="text-foreground font-medium">Marie Dupont</p>
-              <p>15 Rue des Fleurs, Apt 3B</p>
-              <p>75004 Paris</p>
-              <p>France</p>
-            </div>
-          </motion.div>
-
-          {/* Payment */}
-          <motion.div
-            variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-5"
-          >
-            <h3 className="font-display font-semibold mb-3">Paiement</h3>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-7 rounded bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">
-                VISA
+          {addr && (
+            <div className="bg-white rounded-xl border border-border p-5">
+              <h3 className="font-display font-semibold mb-3">
+                Adresse de livraison
+              </h3>
+              <div className="text-sm text-muted space-y-0.5">
+                <p className="text-foreground font-medium">
+                  {[addr.firstName, addr.lastName].filter(Boolean).join(" ")}
+                </p>
+                {addr.line1 && <p>{addr.line1}</p>}
+                {addr.line2 && <p>{addr.line2}</p>}
+                {(addr.postalCode || addr.city) && (
+                  <p>
+                    {[addr.postalCode, addr.city].filter(Boolean).join(" ")}
+                  </p>
+                )}
+                {addr.country && <p>{addr.country}</p>}
               </div>
-              <span className="text-sm">**** **** **** 4242</span>
             </div>
-          </motion.div>
+          )}
+
+          {order.giftWrap && (
+            <div className="bg-gold/5 border border-gold/20 rounded-xl p-5">
+              <h3 className="font-display font-semibold mb-2 text-gold-dark">
+                Emballage cadeau
+              </h3>
+              {order.giftMessage && (
+                <p className="text-sm italic text-foreground/80">
+                  « {order.giftMessage} »
+                </p>
+              )}
+            </div>
+          )}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

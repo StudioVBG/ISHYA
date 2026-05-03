@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User, Mail, Lock, UserPlus, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { fadeInUp, scaleIn } from "@/lib/animations";
 
@@ -79,9 +81,30 @@ export default function IdentificationPage() {
     setIsLoading(true);
     try {
       if (!loginSchema.safeParse(data).success) return;
-      // TODO: Supabase auth signInWithPassword
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (error) {
+        if (error.message.includes("Invalid login")) {
+          toast.error("Email ou mot de passe incorrect");
+        } else if (error.message.includes("Email not confirmed")) {
+          toast.error("Veuillez confirmer votre email avant de vous connecter");
+        } else {
+          toast.error("Erreur de connexion. Veuillez réessayer.");
+        }
+        return;
+      }
       sessionStorage.setItem("checkout_email", data.email);
+      // Merge le panier guest dans le panier de l'utilisateur connecté
+      try {
+        await fetch("/api/cart/merge", { method: "POST" });
+      } catch {
+        // Pas bloquant
+      }
       router.push("/checkout/livraison");
+      router.refresh();
     } finally {
       setIsLoading(false);
     }
@@ -91,9 +114,47 @@ export default function IdentificationPage() {
     setIsLoading(true);
     try {
       if (!registerSchema.safeParse(data).success) return;
-      // TODO: Supabase auth signUp + create profile
+      const supabase = createClient();
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+          },
+        },
+      });
+      if (error) {
+        if (error.message.includes("already registered")) {
+          toast.error("Un compte existe déjà avec cet email");
+        } else {
+          toast.error("Erreur lors de la création du compte");
+        }
+        return;
+      }
+
+      // Renseigner le profil (le trigger Supabase peut déjà l'avoir créé)
+      if (signUpData.user) {
+        await supabase.from("profiles").upsert(
+          {
+            id: signUpData.user.id,
+            first_name: data.firstName,
+            last_name: data.lastName,
+          },
+          { onConflict: "id" },
+        );
+      }
+
       sessionStorage.setItem("checkout_email", data.email);
+      try {
+        await fetch("/api/cart/merge", { method: "POST" });
+      } catch {
+        // Pas bloquant
+      }
       router.push("/checkout/livraison");
+      router.refresh();
     } finally {
       setIsLoading(false);
     }
