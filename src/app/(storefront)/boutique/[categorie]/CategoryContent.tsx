@@ -9,7 +9,13 @@ import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { ProductCard } from "@/components/product/ProductCard";
 import type { ProductCardProduct } from "@/components/product/ProductCard";
-import type { Category } from "@/types/database";
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+};
 
 const PRICE_RANGES = [
   { label: "Moins de 30€", min: 0, max: 30 },

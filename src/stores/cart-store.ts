@@ -1,6 +1,21 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Product, ProductVariant } from "@/types/database";
+
+export type CartProduct = {
+  id: string;
+  name: string;
+  base_price: number;
+  sku?: string | null;
+};
+
+export type CartVariant = {
+  id: string;
+  sku?: string | null;
+  size?: string | null;
+  material_variant?: string | null;
+  stone?: string | null;
+  price_override?: number | null;
+};
 
 export interface CartItemLocal {
   id: string;
@@ -24,7 +39,7 @@ interface CartState {
   discountCode: string | null;
   discountAmount: number;
 
-  addItem: (product: Product, variant?: ProductVariant, media?: string) => void;
+  addItem: (product: CartProduct, variant?: CartVariant, media?: string) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -74,7 +89,7 @@ export const useCartStore = create<CartState>()(
                 size: variant?.size ?? undefined,
                 material: variant?.material_variant ?? undefined,
                 stone: variant?.stone ?? undefined,
-                sku: variant?.sku ?? product.sku_prefix,
+                sku: variant?.sku ?? product.sku ?? "",
               },
             ],
           });
