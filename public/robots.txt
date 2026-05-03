@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Espaces privés
+Disallow: /admin
+Disallow: /admin/
+Disallow: /compte
+Disallow: /compte/
+Disallow: /checkout
+Disallow: /checkout/
+Disallow: /api/
+
+# Pages d'authentification
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /mot-de-passe-oublie
+Disallow: /reset-password
+Disallow: /verification
+
+Sitemap: https://www.ishya.fr/sitemap.xml

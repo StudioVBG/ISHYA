@@ -13,7 +13,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { Lock, Shield, ArrowLeft, CreditCard } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
-import { cn, formatPrice, generateOrderNumber } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { fadeInUp } from "@/lib/animations";
 
 const stripePromise = loadStripe(
@@ -23,9 +23,11 @@ const stripePromise = loadStripe(
 function PaymentForm({
   total,
   clientSecret,
+  orderNumber,
 }: {
   total: number;
   clientSecret: string;
+  orderNumber: string;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -40,12 +42,10 @@ function PaymentForm({
     setIsProcessing(true);
     setError(null);
 
-    const orderId = generateOrderNumber();
-
     const { error: stripeError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/checkout/confirmation/${orderId}`,
+        return_url: `${window.location.origin}/checkout/confirmation/${orderNumber}`,
       },
     });
 
@@ -111,9 +111,12 @@ export default function PaiementPage() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.getSubtotal());
   const giftWrap = useCartStore((s) => s.giftWrap);
+  const giftMessage = useCartStore((s) => s.giftMessage);
   const discountAmount = useCartStore((s) => s.discountAmount);
+  const discountCode = useCartStore((s) => s.discountCode);
 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const shippingCost = parseFloat(
@@ -133,20 +136,34 @@ export default function PaiementPage() {
           ? sessionStorage.getItem("checkout_email") ?? undefined
           : undefined;
 
+      const addressRaw =
+        typeof window !== "undefined"
+          ? sessionStorage.getItem("checkout_address")
+          : null;
+      const shippingAddress = addressRaw ? JSON.parse(addressRaw) : undefined;
+
       const res = await fetch("/api/stripe/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((i) => ({
-            id: i.id,
+            productId: i.productId,
+            variantId: i.variantId,
             name: i.name,
+            variantName: [i.size, i.material, i.stone]
+              .filter(Boolean)
+              .join(" · "),
+            sku: i.sku,
             price: i.price,
             quantity: i.quantity,
           })),
           shippingCost,
           giftWrap,
+          giftMessage,
           discountAmount,
+          discountCode,
           email,
+          shippingAddress,
         }),
       });
 
@@ -158,10 +175,14 @@ export default function PaiementPage() {
       }
 
       setClientSecret(data.clientSecret);
+      setOrderNumber(data.orderNumber);
+      if (typeof window !== "undefined" && data.orderNumber) {
+        sessionStorage.setItem("checkout_order_number", data.orderNumber);
+      }
     } catch {
       setLoadError("Impossible de se connecter au serveur de paiement");
     }
-  }, [items, shippingCost, giftWrap, discountAmount]);
+  }, [items, shippingCost, giftWrap, giftMessage, discountAmount, discountCode]);
 
   useEffect(() => {
     createPaymentIntent();
@@ -249,7 +270,11 @@ export default function PaiementPage() {
                   locale: "fr",
                 }}
               >
-                <PaymentForm total={total} clientSecret={clientSecret} />
+                <PaymentForm
+                  total={total}
+                  clientSecret={clientSecret}
+                  orderNumber={orderNumber ?? ""}
+                />
               </Elements>
             )}
           </motion.div>
