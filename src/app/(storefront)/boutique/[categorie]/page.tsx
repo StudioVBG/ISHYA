@@ -1,10 +1,17 @@
 import { notFound } from "next/navigation";
-import { demoCategories, getProductsByCategory } from "@/lib/demo-data";
+import {
+  getAllSlugs,
+  getCategoryBySlug,
+  getProductsByCategory,
+} from "@/lib/queries/storefront";
 import CategoryContent from "./CategoryContent";
 import type { Metadata } from "next";
 
-export function generateStaticParams() {
-  return demoCategories.map((c) => ({ categorie: c.slug }));
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const slugs = await getAllSlugs("categories");
+  return slugs.map((categorie) => ({ categorie }));
 }
 
 export async function generateMetadata({
@@ -13,11 +20,11 @@ export async function generateMetadata({
   params: Promise<{ categorie: string }>;
 }): Promise<Metadata> {
   const { categorie } = await params;
-  const category = demoCategories.find((c) => c.slug === categorie);
+  const category = await getCategoryBySlug(categorie);
   if (!category) return {};
   return {
     title: category.name,
-    description: category.description,
+    description: category.description ?? undefined,
   };
 }
 
@@ -27,10 +34,11 @@ export default async function CategoryPage({
   params: Promise<{ categorie: string }>;
 }) {
   const { categorie } = await params;
-  const category = demoCategories.find((c) => c.slug === categorie);
+  const [category, products] = await Promise.all([
+    getCategoryBySlug(categorie),
+    getProductsByCategory(categorie),
+  ]);
   if (!category) notFound();
 
-  const products = getProductsByCategory(categorie);
-
-  return <CategoryContent category={category!} products={products} />;
+  return <CategoryContent category={category} products={products} />;
 }

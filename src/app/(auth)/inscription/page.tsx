@@ -110,11 +110,7 @@ export default function InscriptionPage() {
     if (authData.user) {
       await supabase
         .from("profiles")
-        // @ts-expect-error -- Database Update generic resolves to `never`
-        .update({
-          first_name: data.firstName,
-          newsletter_optin: data.newsletter ?? false,
-        })
+        .update({ first_name: data.firstName })
         .eq("id", authData.user.id);
     }
 
