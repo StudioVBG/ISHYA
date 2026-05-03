@@ -97,6 +97,12 @@ export default function IdentificationPage() {
         return;
       }
       sessionStorage.setItem("checkout_email", data.email);
+      // Merge le panier guest dans le panier de l'utilisateur connecté
+      try {
+        await fetch("/api/cart/merge", { method: "POST" });
+      } catch {
+        // Pas bloquant
+      }
       router.push("/checkout/livraison");
       router.refresh();
     } finally {
@@ -142,6 +148,11 @@ export default function IdentificationPage() {
       }
 
       sessionStorage.setItem("checkout_email", data.email);
+      try {
+        await fetch("/api/cart/merge", { method: "POST" });
+      } catch {
+        // Pas bloquant
+      }
       router.push("/checkout/livraison");
       router.refresh();
     } finally {

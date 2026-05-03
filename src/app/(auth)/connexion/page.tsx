@@ -75,6 +75,12 @@ function ConnexionContent() {
     }
 
     toast.success("Connexion réussie !");
+    // Merge le panier guest dans le panier utilisateur
+    try {
+      await fetch("/api/cart/merge", { method: "POST" });
+    } catch {
+      // Échec silencieux : ne pas bloquer la connexion
+    }
     router.push(redirectTo);
     router.refresh();
   }

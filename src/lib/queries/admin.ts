@@ -187,6 +187,51 @@ export interface AdminClientRow {
   totalSpent: number;
 }
 
+export interface AdminPromotionRow {
+  id: string;
+  code: string;
+  description: string | null;
+  discountType: "percentage" | "fixed_amount" | "free_shipping" | "buy_x_get_y";
+  discountValue: number;
+  minimumOrderAmount: number | null;
+  maximumDiscount: number | null;
+  perUserLimit: number | null;
+  usageLimit: number | null;
+  usageCount: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+}
+
+export interface AdminBannerRow {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  imageUrl: string | null;
+  linkUrl: string | null;
+  placement: string;
+  startsAt: string | null;
+  endsAt: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface AdminReviewRow {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  userId: string | null;
+  authorName: string | null;
+  authorEmail: string | null;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  isVerifiedPurchase: boolean;
+  isApproved: boolean;
+  createdAt: string | null;
+}
+
 export interface AdminVariantStockRow {
   variantId: string;
   productName: string;
@@ -760,6 +805,139 @@ export async function getAdminCollectionOptions(): Promise<
     return [];
   }
   return data ?? [];
+}
+
+export async function getAdminPromotions(): Promise<AdminPromotionRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("discount_codes")
+    .select(
+      "id, code, description, discount_type, discount_value, minimum_order_amount, maximum_discount, per_user_limit, usage_limit, usage_count, starts_at, ends_at, is_active",
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getAdminPromotions]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    code: row.code,
+    description: row.description,
+    discountType: row.discount_type,
+    discountValue: Number(row.discount_value ?? 0),
+    minimumOrderAmount:
+      row.minimum_order_amount != null
+        ? Number(row.minimum_order_amount)
+        : null,
+    maximumDiscount:
+      row.maximum_discount != null ? Number(row.maximum_discount) : null,
+    perUserLimit: row.per_user_limit ?? null,
+    usageLimit: row.usage_limit ?? null,
+    usageCount: row.usage_count ?? 0,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    isActive: row.is_active ?? false,
+  }));
+}
+
+export async function getAdminBanners(): Promise<AdminBannerRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("banners")
+    .select(
+      "id, title, subtitle, image_url, link_url, placement, starts_at, ends_at, sort_order, is_active",
+    )
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[getAdminBanners]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    title: row.title,
+    subtitle: row.subtitle,
+    imageUrl: row.image_url,
+    linkUrl: row.link_url,
+    placement: row.placement ?? "hero",
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    sortOrder: row.sort_order ?? 0,
+    isActive: row.is_active ?? false,
+  }));
+}
+
+export async function getAdminReviews(): Promise<AdminReviewRow[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("reviews")
+    .select(
+      `id, product_id, user_id, rating, title, body, is_verified_purchase,
+       is_approved, created_at,
+       product:products ( name, slug )`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) {
+    console.error("[getAdminReviews]", error);
+    return [];
+  }
+
+  // Récupérer les infos auteurs en lot
+  const userIds = Array.from(
+    new Set(
+      (data ?? [])
+        .map((r) => r.user_id)
+        .filter((id): id is string => !!id),
+    ),
+  );
+  const profilesById = new Map<
+    string,
+    { first_name: string | null; last_name: string | null; email: string | null }
+  >();
+  if (userIds.length > 0) {
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("id, first_name, last_name, email")
+      .in("id", userIds);
+    for (const p of profiles ?? []) {
+      profilesById.set(p.id, {
+        first_name: p.first_name,
+        last_name: p.last_name,
+        email: p.email,
+      });
+    }
+  }
+
+  return (data ?? []).map((row) => {
+    const product = Array.isArray(row.product)
+      ? row.product[0]
+      : (row.product as { name: string; slug: string } | null);
+    const author = row.user_id ? profilesById.get(row.user_id) : null;
+    const fullName =
+      [author?.first_name, author?.last_name].filter(Boolean).join(" ") ||
+      null;
+    return {
+      id: row.id,
+      productId: row.product_id ?? "",
+      productName: product?.name ?? "Produit inconnu",
+      productSlug: product?.slug ?? "",
+      userId: row.user_id ?? null,
+      authorName: fullName,
+      authorEmail: author?.email ?? null,
+      rating: row.rating ?? 0,
+      title: row.title,
+      body: row.body,
+      isVerifiedPurchase: row.is_verified_purchase ?? false,
+      isApproved: row.is_approved ?? false,
+      createdAt: row.created_at,
+    };
+  });
 }
 
 export async function getAdminVariantStocks(): Promise<AdminVariantStockRow[]> {
