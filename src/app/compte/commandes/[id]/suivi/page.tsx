@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import {
   ChevronLeft,
   Check,
-  Package,
   Truck,
   MapPin,
   Clock,
@@ -190,8 +189,8 @@ export default function SuiviPage() {
             <h3 className="font-display font-semibold mb-4">Transporteur</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-                  <Truck className="w-5 h-5 text-yellow-600" />
+                <div className="w-10 h-10 rounded-lg bg-warning-soft flex items-center justify-center">
+                  <Truck className="w-5 h-5 text-warning" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Colissimo</p>
