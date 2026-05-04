@@ -15,7 +15,10 @@ export type OrderStatus =
   | "approved"
   | "rejected"
   | "received"
-  | "exchanged";
+  | "exchanged"
+  | "shipped_back"
+  | "inspected"
+  | "closed";
 
 export type StatusVariant =
   | "neutral"
@@ -63,6 +66,9 @@ const orderStatusMap: Record<
   rejected: { variant: "destructive", label: "Refusé" },
   received: { variant: "accent", label: "Reçu" },
   exchanged: { variant: "success", label: "Échangé" },
+  shipped_back: { variant: "accent", label: "Renvoyé" },
+  inspected: { variant: "info", label: "Inspecté" },
+  closed: { variant: "neutral", label: "Fermé" },
 };
 
 const sizeClasses: Record<NonNullable<StatusBadgeProps["size"]>, string> = {

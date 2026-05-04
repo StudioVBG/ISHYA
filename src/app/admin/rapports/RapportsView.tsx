@@ -11,20 +11,9 @@ import {
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { KPICard } from "@/components/ui/KPICard";
+import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
 import type { AdminAnalyticsSummary } from "@/lib/queries/admin";
-
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  pending: { label: "En attente", className: "bg-gray-100 text-gray-700" },
-  confirmed: { label: "Payée", className: "bg-emerald-50 text-emerald-700" },
-  processing: { label: "En préparation", className: "bg-blue-50 text-blue-700" },
-  shipped: { label: "Expédiée", className: "bg-purple-50 text-purple-700" },
-  delivered: { label: "Livrée", className: "bg-green-50 text-green-700" },
-  cancelled: { label: "Annulée", className: "bg-red-50 text-red-700" },
-  refunded: { label: "Remboursée", className: "bg-orange-50 text-orange-700" },
-  partially_refunded: { label: "Remb. partiel", className: "bg-orange-50 text-orange-700" },
-  on_hold: { label: "En pause", className: "bg-gray-100 text-gray-700" },
-  failed: { label: "Échec", className: "bg-red-50 text-red-700" },
-};
 
 function deltaPercent(current: number, previous: number): number {
   if (previous === 0) return current > 0 ? 100 : 0;
@@ -37,8 +26,8 @@ function DeltaBadge({ value }: { value: number }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-xs font-medium",
-        isUp ? "text-emerald-600" : "text-red-500",
+        "inline-flex items-center gap-1 text-xs font-medium tabular-nums",
+        isUp ? "text-success" : "text-destructive",
       )}
     >
       <Icon className="w-3.5 h-3.5" />
@@ -57,6 +46,8 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
     (s, n) => s + n,
     0,
   );
+  const maxProductRevenue =
+    data.topProducts.reduce((max, p) => Math.max(max, p.revenue), 0) || 1;
 
   return (
     <motion.div
@@ -66,111 +57,97 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
       className="space-y-6"
     >
       <motion.div variants={staggerItem}>
-        <h2 className="text-xl font-bold text-gray-900">Rapports</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-foreground">Rapports</h2>
+        <p className="text-sm text-muted">
           Activité sur les 30 derniers jours
         </p>
       </motion.div>
 
-      {/* KPIs */}
+      {/* KPIs avec deltas */}
       <motion.div
         variants={staggerItem}
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
       >
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-success-soft text-success flex items-center justify-center">
               <Euro className="w-5 h-5" />
             </div>
             <DeltaBadge value={revenueDelta} />
           </div>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-semibold text-foreground tabular-nums">
             {formatPrice(data.revenueLast30)}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             CA · 30j (vs {formatPrice(data.revenuePrev30)} sur 30j précédents)
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-info-soft text-info flex items-center justify-center">
               <ShoppingCart className="w-5 h-5" />
             </div>
             <DeltaBadge value={ordersDelta} />
           </div>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-semibold text-foreground tabular-nums">
             {data.ordersLast30}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             Commandes · 30j (vs {data.ordersPrev30})
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">
-            {formatPrice(data.averageBasketLast30)}
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Panier moyen · 30j</p>
-        </div>
+        <KPICard
+          label="Panier moyen · 30j"
+          value={formatPrice(data.averageBasketLast30)}
+          icon={BarChart3}
+          variant="gold"
+        />
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Users className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">
-            {data.newCustomersLast30}
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Nouveaux clients · 30j</p>
-        </div>
+        <KPICard
+          label="Nouveaux clients · 30j"
+          value={String(data.newCustomersLast30)}
+          icon={Users}
+          variant="accent"
+        />
       </motion.div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Top produits */}
         <motion.div
           variants={fadeInUp}
-          className="bg-white rounded-xl border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-border p-6"
         >
-          <h3 className="text-base font-semibold text-gray-900 mb-4">
+          <h3 className="text-base font-semibold text-foreground mb-4">
             Top 10 produits · 30j
           </h3>
           {data.topProducts.length === 0 ? (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-light">
               Pas encore de ventes sur cette période.
             </p>
           ) : (
             <div className="space-y-2">
               {data.topProducts.map((p, i) => {
-                const pct = Math.round(
-                  (p.revenue /
-                    Math.max(...data.topProducts.map((x) => x.revenue))) *
-                    100,
-                );
+                const pct = Math.round((p.revenue / maxProductRevenue) * 100);
                 return (
                   <div key={p.id} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-700 truncate flex-1">
-                        <span className="text-gray-400 mr-2">#{i + 1}</span>
+                      <span className="text-foreground truncate flex-1">
+                        <span className="text-muted-light mr-2">#{i + 1}</span>
                         {p.name}
                       </span>
-                      <span className="text-gray-900 font-medium ml-2 shrink-0">
+                      <span className="text-foreground font-medium ml-2 shrink-0 tabular-nums">
                         {formatPrice(p.revenue)}
                       </span>
                     </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-muted-soft rounded-full overflow-hidden">
                       <div
                         className="h-full bg-terracotta rounded-full"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-muted-light">
                       {p.quantity} vendu{p.quantity > 1 ? "s" : ""}
                     </p>
                   </div>
@@ -183,13 +160,13 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
         {/* Revenue par catégorie */}
         <motion.div
           variants={fadeInUp}
-          className="bg-white rounded-xl border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-border p-6"
         >
-          <h3 className="text-base font-semibold text-gray-900 mb-4">
+          <h3 className="text-base font-semibold text-foreground mb-4">
             CA par catégorie · 30j
           </h3>
           {data.byCategory.length === 0 ? (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-light">
               Pas de ventes catégorisées sur cette période.
             </p>
           ) : (
@@ -199,12 +176,12 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
                 return (
                   <div key={c.name}>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-700">{c.name}</span>
-                      <span className="text-gray-900 font-medium">
+                      <span className="text-foreground">{c.name}</span>
+                      <span className="text-foreground font-medium tabular-nums">
                         {formatPrice(c.revenue)}
                       </span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-muted-soft rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-terracotta to-gold rounded-full"
                         style={{ width: `${pct}%` }}
@@ -221,38 +198,24 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
       {/* Distribution statuts */}
       <motion.div
         variants={fadeInUp}
-        className="bg-white rounded-xl border border-gray-200 p-6"
+        className="bg-white rounded-xl border border-border p-6"
       >
-        <h3 className="text-base font-semibold text-gray-900 mb-4">
+        <h3 className="text-base font-semibold text-foreground mb-4">
           Répartition des commandes par statut (toutes périodes)
         </h3>
         {totalOrders === 0 ? (
-          <p className="text-sm text-gray-400">Aucune commande.</p>
+          <p className="text-sm text-muted-light">Aucune commande.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {Object.entries(data.ordersByStatus).map(([status, count]) => {
-              const config = STATUS_LABELS[status] ?? {
-                label: status,
-                className: "bg-gray-100 text-gray-600",
-              };
               const pct = Math.round((count / totalOrders) * 100);
               return (
-                <div
-                  key={status}
-                  className="bg-gray-50 rounded-lg p-3"
-                >
-                  <span
-                    className={cn(
-                      "inline-block px-2 py-0.5 rounded-full text-xs font-medium",
-                      config.className,
-                    )}
-                  >
-                    {config.label}
-                  </span>
-                  <p className="text-xl font-bold text-gray-900 mt-2">
+                <div key={status} className="bg-ivory/60 rounded-lg p-3">
+                  <StatusBadge status={status as OrderStatus} size="sm" />
+                  <p className="text-xl font-semibold text-foreground mt-2 tabular-nums">
                     {count}
                   </p>
-                  <p className="text-xs text-gray-500">{pct}% des commandes</p>
+                  <p className="text-xs text-muted">{pct}% des commandes</p>
                 </div>
               );
             })}
