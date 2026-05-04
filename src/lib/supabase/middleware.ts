@@ -45,10 +45,22 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && authRoutes.some((route) => pathname.startsWith(route))) {
-    const redirectTo =
-      request.nextUrl.searchParams.get("redirect_to") || "/compte";
+    let target = request.nextUrl.searchParams.get("redirect_to");
+    if (!target) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      target =
+        profile &&
+        ["admin", "super_admin", "editor", "support"].includes(profile.role)
+          ? "/admin"
+          : "/compte";
+    }
     const url = request.nextUrl.clone();
-    url.pathname = redirectTo;
+    url.pathname = target;
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

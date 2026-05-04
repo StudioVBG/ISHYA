@@ -35,10 +35,12 @@ export default function ConnexionPage() {
   );
 }
 
+const ADMIN_ROLES = ["admin", "super_admin", "editor", "support"] as const;
+
 function ConnexionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect_to") || "/compte";
+  const explicitRedirect = searchParams.get("redirect_to");
 
   const [showPassword, setShowPassword] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
@@ -58,7 +60,7 @@ function ConnexionContent() {
 
   async function onSubmit(data: LoginFormData) {
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -75,13 +77,25 @@ function ConnexionContent() {
     }
 
     toast.success("Connexion réussie !");
-    // Merge le panier guest dans le panier utilisateur
     try {
       await fetch("/api/cart/merge", { method: "POST" });
     } catch {
-      // Échec silencieux : ne pas bloquer la connexion
+      // ignore — cart merge is non-blocking
     }
-    router.push(redirectTo);
+
+    let target = explicitRedirect;
+    if (!target && signInData.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", signInData.user.id)
+        .maybeSingle();
+      target =
+        profile?.role && ADMIN_ROLES.includes(profile.role as (typeof ADMIN_ROLES)[number])
+          ? "/admin"
+          : "/compte";
+    }
+    router.push(target ?? "/compte");
     router.refresh();
   }
 
@@ -91,7 +105,7 @@ function ConnexionContent() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect_to=${encodeURIComponent(explicitRedirect ?? "/compte")}`,
       },
     });
     if (error) {
