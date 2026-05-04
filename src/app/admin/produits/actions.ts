@@ -49,6 +49,7 @@ export interface VariantInput {
 export interface MediaInput {
   id?: string;
   url: string;
+  storagePath?: string | null;
   altText: string | null;
   isPrimary: boolean;
   sortOrder: number;
@@ -210,6 +211,7 @@ export async function createProduct(
       media.map((m, idx) => ({
         product_id: product.id,
         url: m.url,
+        storage_path: m.storagePath ?? null,
         alt_text: m.altText,
         is_primary: m.isPrimary,
         sort_order: m.sortOrder ?? idx,
@@ -390,6 +392,94 @@ export async function deleteVariant(
   return { ok: true };
 }
 
+/**
+ * Synchronise la liste complète des déclinaisons d'un produit.
+ * - Insère les nouvelles (sans id)
+ * - Met à jour les existantes
+ * - Supprime celles retirées de la liste
+ */
+export async function replaceVariants(
+  productId: string,
+  variants: VariantInput[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  const { data: current, error: fetchError } = await admin
+    .from("product_variants")
+    .select("id")
+    .eq("product_id", productId);
+
+  if (fetchError) {
+    console.error("[replaceVariants] fetch:", fetchError);
+    return { ok: false, error: "Erreur de lecture des déclinaisons" };
+  }
+
+  const incomingIds = new Set(
+    variants.map((v) => v.id).filter((id): id is string => !!id),
+  );
+  const idsToDelete = (current ?? [])
+    .map((row) => row.id)
+    .filter((id) => !incomingIds.has(id));
+
+  if (idsToDelete.length > 0) {
+    const { error: deleteError } = await admin
+      .from("product_variants")
+      .delete()
+      .in("id", idsToDelete);
+    if (deleteError) {
+      console.error("[replaceVariants] delete:", deleteError);
+      return { ok: false, error: "Erreur de suppression d'une déclinaison" };
+    }
+  }
+
+  for (const [idx, v] of variants.entries()) {
+    const payload = {
+      product_id: productId,
+      sku: v.sku,
+      name: v.name,
+      size: v.size,
+      material_variant: v.materialVariant,
+      stone: v.stone,
+      color: v.color,
+      length_cm: v.lengthCm,
+      price_override: v.priceOverride,
+      stock_quantity: v.stockQuantity,
+      low_stock_threshold: v.lowStockThreshold,
+      weight_g: v.weightG,
+      is_active: v.isActive,
+      sort_order: idx,
+    };
+
+    if (v.id && (current ?? []).some((row) => row.id === v.id)) {
+      const { error } = await admin
+        .from("product_variants")
+        .update(payload)
+        .eq("id", v.id);
+      if (error) {
+        console.error("[replaceVariants] update:", error);
+        return { ok: false, error: "Erreur de mise à jour d'une déclinaison" };
+      }
+      await admin
+        .from("inventory")
+        .update({ quantity: v.stockQuantity })
+        .eq("variant_id", v.id);
+    } else {
+      const { error } = await admin.from("product_variants").insert(payload);
+      if (error) {
+        console.error("[replaceVariants] insert:", error);
+        return { ok: false, error: "Erreur de création d'une déclinaison" };
+      }
+    }
+  }
+
+  revalidatePath(`/admin/produits/${productId}`);
+  revalidatePath("/admin/stocks");
+  return { ok: true };
+}
+
 export async function upsertMedia(
   productId: string,
   media: MediaInput,
@@ -414,6 +504,7 @@ export async function upsertMedia(
   const payload = {
     product_id: productId,
     url: media.url.trim(),
+    storage_path: media.storagePath ?? null,
     alt_text: media.altText,
     is_primary: media.isPrimary,
     sort_order: media.sortOrder,
@@ -449,6 +540,13 @@ export async function deleteMedia(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  const { data: existing } = await admin
+    .from("product_media")
+    .select("storage_path")
+    .eq("id", mediaId)
+    .maybeSingle();
+
   const { error } = await admin
     .from("product_media")
     .delete()
@@ -456,6 +554,113 @@ export async function deleteMedia(
   if (error) {
     console.error("[deleteMedia]", error);
     return { ok: false, error: "Erreur de suppression" };
+  }
+
+  if (existing?.storage_path) {
+    await admin.storage
+      .from("products-media")
+      .remove([existing.storage_path])
+      .catch((err) => console.warn("[deleteMedia] storage cleanup:", err));
+  }
+
+  revalidatePath(`/admin/produits/${productId}`);
+  revalidatePath("/admin/produits");
+  return { ok: true };
+}
+
+/**
+ * Synchronise la liste complète des photos d'un produit en une seule opération.
+ * - Insère les nouvelles photos (sans persistedId)
+ * - Met à jour celles déjà persistées
+ * - Supprime celles qui ne sont plus dans la liste (et leurs fichiers Storage)
+ */
+export async function replaceMedia(
+  productId: string,
+  mediaList: MediaInput[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  const { data: current, error: fetchError } = await admin
+    .from("product_media")
+    .select("id, storage_path")
+    .eq("product_id", productId);
+
+  if (fetchError) {
+    console.error("[replaceMedia] fetch:", fetchError);
+    return { ok: false, error: "Erreur de lecture des photos existantes" };
+  }
+
+  const incomingIds = new Set(
+    mediaList.map((m) => m.id).filter((id): id is string => !!id),
+  );
+  const toDelete = (current ?? []).filter((row) => !incomingIds.has(row.id));
+
+  if (toDelete.length > 0) {
+    const idsToDelete = toDelete.map((r) => r.id);
+    const { error: deleteError } = await admin
+      .from("product_media")
+      .delete()
+      .in("id", idsToDelete);
+    if (deleteError) {
+      console.error("[replaceMedia] delete:", deleteError);
+      return { ok: false, error: "Erreur de suppression des photos retirées" };
+    }
+    const pathsToRemove = toDelete
+      .map((r) => r.storage_path)
+      .filter((p): p is string => !!p);
+    if (pathsToRemove.length > 0) {
+      await admin.storage
+        .from("products-media")
+        .remove(pathsToRemove)
+        .catch((err) => console.warn("[replaceMedia] storage cleanup:", err));
+    }
+  }
+
+  const primaryCount = mediaList.filter((m) => m.isPrimary).length;
+  const normalized = mediaList.map((m, idx) => ({
+    ...m,
+    sortOrder: idx,
+    isPrimary:
+      primaryCount === 0 && idx === 0
+        ? true
+        : primaryCount > 1
+          ? idx === mediaList.findIndex((x) => x.isPrimary)
+          : m.isPrimary,
+  }));
+
+  for (const m of normalized) {
+    if (m.id && (current ?? []).some((row) => row.id === m.id)) {
+      const { error } = await admin
+        .from("product_media")
+        .update({
+          url: m.url,
+          storage_path: m.storagePath ?? null,
+          alt_text: m.altText,
+          is_primary: m.isPrimary,
+          sort_order: m.sortOrder,
+        })
+        .eq("id", m.id);
+      if (error) {
+        console.error("[replaceMedia] update:", error);
+        return { ok: false, error: "Erreur de mise à jour d'une photo" };
+      }
+    } else {
+      const { error } = await admin.from("product_media").insert({
+        product_id: productId,
+        url: m.url,
+        storage_path: m.storagePath ?? null,
+        alt_text: m.altText,
+        is_primary: m.isPrimary,
+        sort_order: m.sortOrder,
+      });
+      if (error) {
+        console.error("[replaceMedia] insert:", error);
+        return { ok: false, error: "Erreur d'ajout d'une photo" };
+      }
+    }
   }
 
   revalidatePath(`/admin/produits/${productId}`);

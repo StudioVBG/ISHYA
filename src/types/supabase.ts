@@ -1352,6 +1352,7 @@ export type Database = {
           media_type: string | null
           product_id: string
           sort_order: number | null
+          storage_path: string | null
           url: string
           variant_id: string | null
         }
@@ -1363,6 +1364,7 @@ export type Database = {
           media_type?: string | null
           product_id: string
           sort_order?: number | null
+          storage_path?: string | null
           url: string
           variant_id?: string | null
         }
@@ -1374,6 +1376,7 @@ export type Database = {
           media_type?: string | null
           product_id?: string
           sort_order?: number | null
+          storage_path?: string | null
           url?: string
           variant_id?: string | null
         }
