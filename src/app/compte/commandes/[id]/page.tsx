@@ -13,33 +13,11 @@ import {
   CreditCard,
 } from "lucide-react";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
+import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
 import {
   getCurrentUserOrderByNumber,
   type AccountOrderDetail,
-  type AccountOrderStatus,
 } from "@/lib/queries/account";
-
-const statusLabels: Record<
-  AccountOrderStatus,
-  { label: string; className: string }
-> = {
-  pending: { label: "En attente", className: "bg-yellow-100 text-yellow-700" },
-  confirmed: { label: "Payée", className: "bg-blue-100 text-blue-700" },
-  processing: {
-    label: "En préparation",
-    className: "bg-orange-100 text-orange-700",
-  },
-  shipped: { label: "Expédiée", className: "bg-purple-100 text-purple-700" },
-  delivered: { label: "Livrée", className: "bg-green-100 text-green-700" },
-  cancelled: { label: "Annulée", className: "bg-red-100 text-red-700" },
-  refunded: { label: "Remboursée", className: "bg-orange-100 text-orange-700" },
-  partially_refunded: {
-    label: "Partiel.",
-    className: "bg-orange-100 text-orange-700",
-  },
-  on_hold: { label: "En pause", className: "bg-gray-100 text-gray-700" },
-  failed: { label: "Échec", className: "bg-red-100 text-red-700" },
-};
 
 function buildTimeline(order: AccountOrderDetail) {
   const reachedConfirmed = [
@@ -107,7 +85,6 @@ export default async function OrderDetailPage({
   if (!order) notFound();
 
   const timeline = buildTimeline(order);
-  const status = statusLabels[order.status];
   const addr = order.shippingAddress;
 
   return (
@@ -129,14 +106,7 @@ export default async function OrderDetailPage({
             Passée le {formatDate(order.createdAt)}
           </p>
         </div>
-        <span
-          className={cn(
-            "inline-flex px-3 py-1.5 rounded-full text-xs font-medium w-fit",
-            status.className,
-          )}
-        >
-          {status.label}
-        </span>
+        <StatusBadge status={order.status as OrderStatus} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">

@@ -7,7 +7,15 @@ export type OrderStatus =
   | "shipped"
   | "delivered"
   | "cancelled"
-  | "refunded";
+  | "refunded"
+  | "partially_refunded"
+  | "on_hold"
+  | "failed"
+  | "requested"
+  | "approved"
+  | "rejected"
+  | "received"
+  | "exchanged";
 
 export type StatusVariant =
   | "neutral"
@@ -47,6 +55,14 @@ const orderStatusMap: Record<
   delivered: { variant: "success", label: "Livrée" },
   cancelled: { variant: "destructive", label: "Annulée" },
   refunded: { variant: "warning", label: "Remboursée" },
+  partially_refunded: { variant: "warning", label: "Remb. partiel" },
+  on_hold: { variant: "neutral", label: "En pause" },
+  failed: { variant: "destructive", label: "Échec" },
+  requested: { variant: "warning", label: "Demandé" },
+  approved: { variant: "info", label: "Approuvé" },
+  rejected: { variant: "destructive", label: "Refusé" },
+  received: { variant: "accent", label: "Reçu" },
+  exchanged: { variant: "success", label: "Échangé" },
 };
 
 const sizeClasses: Record<NonNullable<StatusBadgeProps["size"]>, string> = {
