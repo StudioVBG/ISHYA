@@ -80,8 +80,16 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
   const { product, media, variants, reviews, category } = data;
   const sortedMedia = media;
-  const currentVariant = variants[selectedVariant];
+  const currentVariant = variants[selectedVariant] as
+    | (typeof variants)[number]
+    | undefined;
   const totalStock = variants.reduce((s, v) => s + v.stock_quantity, 0);
+  const currentStock = currentVariant?.stock_quantity ?? totalStock;
+  const displayedPrice =
+    currentVariant?.price_override ?? product.base_price;
+  const displayedCompareAt = product.compare_at_price;
+  const isOnSale =
+    displayedCompareAt != null && displayedCompareAt > displayedPrice;
 
   const avgRating =
     reviews.length > 0
@@ -89,7 +97,11 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
       : 0;
 
   const handleAddToCart = () => {
-    addItem(product, currentVariant, sortedMedia[0]?.url);
+    if (currentStock === 0) return;
+    const qty = Math.min(quantity, currentStock);
+    for (let i = 0; i < qty; i++) {
+      addItem(product, currentVariant, sortedMedia[0]?.url);
+    }
   };
 
   return (
@@ -146,18 +158,17 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     priority
                   />
                 )}
-                {product.compare_at_price &&
-                  product.compare_at_price > product.base_price && (
-                    <span className="absolute top-4 left-4 bg-destructive text-white text-xs font-medium px-3 py-1 rounded">
-                      -
-                      {Math.round(
-                        ((product.compare_at_price - product.base_price) /
-                          product.compare_at_price) *
-                          100
-                      )}
-                      %
-                    </span>
-                  )}
+                {isOnSale && displayedCompareAt && (
+                  <span className="absolute top-4 left-4 bg-destructive text-white text-xs font-medium px-3 py-1 rounded">
+                    -
+                    {Math.round(
+                      ((displayedCompareAt - displayedPrice) /
+                        displayedCompareAt) *
+                        100
+                    )}
+                    %
+                  </span>
+                )}
               </div>
               {sortedMedia.length > 1 && (
                 <div className="flex gap-2">
@@ -239,17 +250,16 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 <span
                   className={cn(
                     "text-2xl font-medium",
-                    product.compare_at_price && "text-terracotta"
+                    isOnSale && "text-terracotta"
                   )}
                 >
-                  {formatPrice(product.base_price)}
+                  {formatPrice(displayedPrice)}
                 </span>
-                {product.compare_at_price &&
-                  product.compare_at_price > product.base_price && (
-                    <span className="text-lg text-muted line-through">
-                      {formatPrice(product.compare_at_price)}
-                    </span>
-                  )}
+                {isOnSale && displayedCompareAt && (
+                  <span className="text-lg text-muted line-through">
+                    {formatPrice(displayedCompareAt)}
+                  </span>
+                )}
               </motion.div>
 
               <motion.p
@@ -266,38 +276,51 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     Taille / Variante
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {variants.map((v, idx) => (
-                      <button
-                        key={v.id}
-                        onClick={() => setSelectedVariant(idx)}
-                        className={cn(
-                          "px-4 py-2 rounded-lg border text-sm transition-colors",
-                          selectedVariant === idx
-                            ? "border-terracotta bg-terracotta/5 text-terracotta"
-                            : "border-border hover:border-terracotta-light"
-                        )}
-                      >
-                        {v.size ?? v.material_variant ?? v.sku}
-                      </button>
-                    ))}
+                    {variants.map((v, idx) => {
+                      const out = v.stock_quantity === 0;
+                      return (
+                        <button
+                          key={v.id}
+                          onClick={() => setSelectedVariant(idx)}
+                          className={cn(
+                            "px-4 py-2 rounded-lg border text-sm transition-colors relative",
+                            selectedVariant === idx
+                              ? "border-terracotta bg-terracotta/5 text-terracotta"
+                              : "border-border hover:border-terracotta-light",
+                            out && "opacity-60 line-through",
+                          )}
+                          aria-label={
+                            out
+                              ? `${v.size ?? v.material_variant ?? v.sku} (rupture)`
+                              : undefined
+                          }
+                        >
+                          {v.size ?? v.material_variant ?? v.sku}
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}
 
-              {/* Stock indicator */}
+              {/* Stock indicator (per selected variant) */}
               <motion.div variants={fadeInUp} className="mb-6">
-                {totalStock > 5 ? (
+                {currentStock > 5 ? (
                   <p className="text-sm text-success flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-success" />
                     En stock
                   </p>
-                ) : totalStock > 0 ? (
+                ) : currentStock > 0 ? (
                   <p className="text-sm text-amber-600 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                    Plus que {totalStock} en stock
+                    Plus que {currentStock} en stock
                   </p>
                 ) : (
-                  <p className="text-sm text-destructive">Rupture de stock</p>
+                  <p className="text-sm text-destructive">
+                    {variants.length > 1
+                      ? "Cette variante est en rupture"
+                      : "Rupture de stock"}
+                  </p>
                 )}
               </motion.div>
 
@@ -325,10 +348,10 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 <button
                   onClick={handleAddToCart}
                   className="btn-primary flex-1 flex items-center justify-center gap-2"
-                  disabled={totalStock === 0}
+                  disabled={currentStock === 0}
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  Ajouter au panier
+                  {currentStock === 0 ? "Rupture" : "Ajouter au panier"}
                 </button>
               </motion.div>
 

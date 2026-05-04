@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -19,12 +18,11 @@ import {
 import { toast } from "sonner";
 import { cn, formatPrice } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
-import type { AdminPackDetail } from "@/lib/queries/admin";
+import type { AdminCollectionDetail } from "@/lib/queries/admin";
 import {
-  addProductToPack,
-  removeProductFromPack,
-  reorderPackItems,
-  setPackItemRequired,
+  addProductToCollection,
+  removeProductFromCollection,
+  reorderCollectionProducts,
 } from "../actions";
 
 interface ProductSearchResult {
@@ -35,22 +33,12 @@ interface ProductSearchResult {
   imageUrl: string | null;
 }
 
-function discountLabel(p: AdminPackDetail): string {
-  switch (p.discountType) {
-    case "percentage":
-      return `-${p.discountValue}%`;
-    case "fixed_amount":
-      return `-${formatPrice(p.discountValue)}`;
-    case "free_shipping":
-      return "Livraison offerte";
-    case "buy_x_get_y":
-      return "Offre X+Y";
-  }
-}
-
-export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
-  const router = useRouter();
-  const [items, setItems] = useState(pack.items);
+export function CollectionDetailView({
+  collection,
+}: {
+  collection: AdminCollectionDetail;
+}) {
+  const [items, setItems] = useState(collection.items);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<ProductSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -68,7 +56,6 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
       const res = await fetch(url.toString());
       const json = await res.json();
       if (Array.isArray(json.products)) {
-        // Filtrer les produits déjà dans le pack
         const existingIds = new Set(items.map((it) => it.productId));
         setResults(
           json.products.filter(
@@ -86,60 +73,42 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
   const handleAdd = (product: ProductSearchResult) => {
     setPendingId(product.id);
     startTransition(async () => {
-      const res = await addProductToPack(pack.id, product.id);
+      const res = await addProductToCollection(collection.id, product.id);
       setPendingId(null);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
         return;
       }
       toast.success("Produit ajouté");
-      // Mise à jour optimiste locale puis refresh server
       setItems((prev) => [
         ...prev,
         {
-          id: `temp-${product.id}`,
           productId: product.id,
           productName: product.name,
           productSlug: product.slug,
           productImageUrl: product.imageUrl,
+          productSku: product.sku,
+          basePrice: 0,
+          isActive: true,
           sortOrder: prev.length,
-          isRequired: true,
         },
       ]);
       setResults((prev) => prev.filter((p) => p.id !== product.id));
-      router.refresh();
     });
   };
 
-  const handleRemove = (packItemId: string) => {
-    if (!window.confirm("Retirer ce produit du pack ?")) return;
-    setPendingId(packItemId);
+  const handleRemove = (productId: string) => {
+    if (!window.confirm("Retirer ce produit de la collection ?")) return;
+    setPendingId(productId);
     startTransition(async () => {
-      const res = await removeProductFromPack(pack.id, packItemId);
+      const res = await removeProductFromCollection(collection.id, productId);
       setPendingId(null);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
         return;
       }
       toast.success("Produit retiré");
-      setItems((prev) => prev.filter((it) => it.id !== packItemId));
-    });
-  };
-
-  const handleToggleRequired = (packItemId: string, current: boolean) => {
-    setPendingId(packItemId);
-    startTransition(async () => {
-      const res = await setPackItemRequired(pack.id, packItemId, !current);
-      setPendingId(null);
-      if (!res.ok) {
-        toast.error(res.error ?? "Erreur");
-        return;
-      }
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === packItemId ? { ...it, isRequired: !current } : it,
-        ),
-      );
+      setItems((prev) => prev.filter((it) => it.productId !== productId));
     });
   };
 
@@ -150,9 +119,9 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
     [reordered[idx], reordered[newIdx]] = [reordered[newIdx], reordered[idx]];
     setItems(reordered);
     startTransition(async () => {
-      await reorderPackItems(
-        pack.id,
-        reordered.map((it) => it.id),
+      await reorderCollectionProducts(
+        collection.id,
+        reordered.map((it) => it.productId),
       );
     });
   };
@@ -166,34 +135,33 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
     >
       <motion.div variants={staggerItem}>
         <Link
-          href="/admin/packs"
+          href="/admin/collections"
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
-          Retour aux packs
+          Retour aux collections
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{pack.name}</h1>
+            <h1 className="text-xl font-bold text-gray-900">
+              {collection.name}
+            </h1>
             <p className="text-sm text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-xs">/{pack.slug}</span>
+              <span className="font-mono text-xs">/{collection.slug}</span>
               <span
                 className={cn(
                   "px-2 py-0.5 rounded-full text-xs font-medium",
-                  pack.isActive
+                  collection.isActive
                     ? "bg-emerald-50 text-emerald-700"
                     : "bg-gray-100 text-gray-600",
                 )}
               >
-                {pack.isActive ? "Actif" : "Inactif"}
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/10 text-terracotta">
-                {discountLabel(pack)}
+                {collection.isActive ? "Active" : "Inactive"}
               </span>
             </p>
           </div>
           <Link
-            href="/admin/packs"
+            href="/admin/collections"
             className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Modifier les infos
@@ -208,30 +176,28 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">
-              Composition ({items.length} produit{items.length > 1 ? "s" : ""})
+              Produits ({items.length})
             </h2>
-            <p className="text-xs text-gray-400">
-              Glisser pour réordonner via les flèches
-            </p>
+            <p className="text-xs text-gray-400">Réordonnez via les flèches</p>
           </div>
 
           {items.length === 0 ? (
             <div className="text-center py-12">
               <Package className="w-10 h-10 mx-auto text-gray-300 mb-3" />
               <p className="text-sm text-gray-500">
-                Aucun produit dans ce pack pour l&apos;instant.
+                Aucun produit dans cette collection.
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Utilisez la recherche à droite pour ajouter des produits.
+                Recherchez à droite pour ajouter des produits.
               </p>
             </div>
           ) : (
             <div className="space-y-2">
               {items.map((item, idx) => {
-                const isLoading = isPending && pendingId === item.id;
+                const isLoading = isPending && pendingId === item.productId;
                 return (
                   <div
-                    key={item.id}
+                    key={item.productId}
                     className="flex items-center gap-3 p-3 rounded-lg border border-gray-200"
                   >
                     <div className="flex flex-col gap-1">
@@ -277,20 +243,18 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
                         /{item.productSlug}
                       </p>
                     </div>
-                    <label className="inline-flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={item.isRequired}
-                        onChange={() =>
-                          handleToggleRequired(item.id, item.isRequired)
-                        }
-                        disabled={isLoading}
-                        className="rounded accent-terracotta"
-                      />
-                      Obligatoire
-                    </label>
+                    {item.basePrice > 0 && (
+                      <span className="text-xs text-gray-600 tabular-nums">
+                        {formatPrice(item.basePrice)}
+                      </span>
+                    )}
+                    {!item.isActive && (
+                      <span className="text-[10px] uppercase tracking-wide text-gray-400">
+                        Inactif
+                      </span>
+                    )}
                     <button
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => handleRemove(item.productId)}
                       disabled={isLoading}
                       className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
                     >
@@ -381,7 +345,7 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
                       onClick={() => handleAdd(p)}
                       disabled={isLoading}
                       className="p-1.5 rounded-lg bg-terracotta/10 text-terracotta hover:bg-terracotta/20 transition-colors disabled:opacity-50"
-                      aria-label="Ajouter au pack"
+                      aria-label="Ajouter à la collection"
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -395,17 +359,15 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
             </div>
           )}
 
-          {pack.slug && (
-            <Link
-              href={`/pack/${pack.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline mt-4"
-            >
-              Voir la page publique du pack
-              <ExternalLink className="w-3 h-3" />
-            </Link>
-          )}
+          <Link
+            href={`/collections/${collection.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline mt-4"
+          >
+            Voir la page publique
+            <ExternalLink className="w-3 h-3" />
+          </Link>
         </motion.div>
       </div>
     </motion.div>

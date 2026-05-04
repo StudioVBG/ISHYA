@@ -16,6 +16,8 @@ export interface ProductInput {
   sku: string | null;
   categoryId: string | null;
   collectionId: string | null;
+  categoryIds: string[];
+  collectionIds: string[];
   material: string | null;
   weightG: number | null;
   dimensions: string | null;
@@ -57,7 +59,50 @@ function validate(input: ProductInput): string | null {
   if (!input.slug.trim()) return "Le slug est requis";
   if (!Number.isFinite(input.basePrice) || input.basePrice < 0)
     return "Le prix doit être positif";
+  if (
+    input.compareAtPrice != null &&
+    Number.isFinite(input.compareAtPrice) &&
+    input.compareAtPrice <= input.basePrice
+  )
+    return "Le prix barré doit être supérieur au prix de base";
   return null;
+}
+
+async function syncProductMemberships(
+  admin: ReturnType<typeof createAdminClient>,
+  productId: string,
+  collectionIds: string[],
+  categoryIds: string[],
+) {
+  // collections
+  await admin
+    .from("product_collections")
+    .delete()
+    .eq("product_id", productId);
+  if (collectionIds.length > 0) {
+    await admin.from("product_collections").insert(
+      collectionIds.map((cid, idx) => ({
+        product_id: productId,
+        collection_id: cid,
+        sort_order: idx,
+      })),
+    );
+  }
+
+  // categories
+  await admin
+    .from("product_categories")
+    .delete()
+    .eq("product_id", productId);
+  if (categoryIds.length > 0) {
+    await admin.from("product_categories").insert(
+      categoryIds.map((cid, idx) => ({
+        product_id: productId,
+        category_id: cid,
+        sort_order: idx,
+      })),
+    );
+  }
 }
 
 export async function createProduct(
@@ -73,6 +118,10 @@ export async function createProduct(
 
   const admin = createAdminClient();
 
+  const primaryCategoryId = input.categoryId ?? input.categoryIds[0] ?? null;
+  const primaryCollectionId =
+    input.collectionId ?? input.collectionIds[0] ?? null;
+
   const { data: product, error: productError } = await admin
     .from("products")
     .insert({
@@ -83,8 +132,8 @@ export async function createProduct(
       base_price: input.basePrice,
       compare_at_price: input.compareAtPrice,
       sku: input.sku || null,
-      category_id: input.categoryId,
-      collection_id: input.collectionId,
+      category_id: primaryCategoryId,
+      collection_id: primaryCollectionId,
       material: input.material,
       weight_g: input.weightG,
       dimensions: input.dimensions,
@@ -139,6 +188,23 @@ export async function createProduct(
     }
   }
 
+  // Ensure at least the primary collection/category appear in the m2m
+  const collectionIds = Array.from(
+    new Set(
+      [primaryCollectionId, ...input.collectionIds].filter(
+        (v): v is string => !!v,
+      ),
+    ),
+  );
+  const categoryIds = Array.from(
+    new Set(
+      [primaryCategoryId, ...input.categoryIds].filter(
+        (v): v is string => !!v,
+      ),
+    ),
+  );
+  await syncProductMemberships(admin, product.id, collectionIds, categoryIds);
+
   if (media.length > 0) {
     const { error: mediaError } = await admin.from("product_media").insert(
       media.map((m, idx) => ({
@@ -170,6 +236,11 @@ export async function updateProduct(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  const primaryCategoryId = input.categoryId ?? input.categoryIds[0] ?? null;
+  const primaryCollectionId =
+    input.collectionId ?? input.collectionIds[0] ?? null;
+
   const { error } = await admin
     .from("products")
     .update({
@@ -180,8 +251,8 @@ export async function updateProduct(
       base_price: input.basePrice,
       compare_at_price: input.compareAtPrice,
       sku: input.sku || null,
-      category_id: input.categoryId,
-      collection_id: input.collectionId,
+      category_id: primaryCategoryId,
+      collection_id: primaryCollectionId,
       material: input.material,
       weight_g: input.weightG,
       dimensions: input.dimensions,
@@ -205,8 +276,26 @@ export async function updateProduct(
     };
   }
 
+  const collectionIds = Array.from(
+    new Set(
+      [primaryCollectionId, ...input.collectionIds].filter(
+        (v): v is string => !!v,
+      ),
+    ),
+  );
+  const categoryIds = Array.from(
+    new Set(
+      [primaryCategoryId, ...input.categoryIds].filter(
+        (v): v is string => !!v,
+      ),
+    ),
+  );
+  await syncProductMemberships(admin, id, collectionIds, categoryIds);
+
   revalidatePath("/admin/produits");
   revalidatePath(`/admin/produits/${id}`);
+  revalidatePath("/admin/collections");
+  revalidatePath("/admin/categories");
   return { ok: true };
 }
 
@@ -260,12 +349,18 @@ export async function upsertVariant(
       console.error("[upsertVariant] update:", error);
       return { ok: false, error: "Erreur de mise à jour de la variante" };
     }
+    // Garder inventory cohérent (le trigger ne couvre que les inserts)
+    await admin
+      .from("inventory")
+      .update({ quantity: variant.stockQuantity })
+      .eq("variant_id", variant.id);
   } else {
     const { error } = await admin.from("product_variants").insert(payload);
     if (error) {
       console.error("[upsertVariant] insert:", error);
       return { ok: false, error: "Erreur de création de la variante" };
     }
+    // Le trigger trg_variant_create_inventory crée automatiquement la ligne inventory
   }
 
   revalidatePath(`/admin/produits/${productId}`);

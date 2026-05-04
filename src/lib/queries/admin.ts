@@ -116,6 +116,8 @@ export interface AdminProductDetail {
   sku: string | null;
   categoryId: string | null;
   collectionId: string | null;
+  categoryIds: string[];
+  collectionIds: string[];
   material: string | null;
   weightG: number | null;
   dimensions: string | null;
@@ -754,7 +756,9 @@ export async function getAdminProductById(
        product_variants ( id, sku, name, size, material_variant, stone,
                           color, length_cm, price_override, stock_quantity,
                           low_stock_threshold, weight_g, is_active ),
-       product_media ( id, url, alt_text, is_primary, sort_order )`,
+       product_media ( id, url, alt_text, is_primary, sort_order ),
+       product_collections ( collection_id ),
+       product_categories ( category_id )`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -763,6 +767,13 @@ export async function getAdminProductById(
     if (error) console.error("[getAdminProductById]", error);
     return null;
   }
+
+  const collectionIds = ((data.product_collections ?? []) as Array<{
+    collection_id: string;
+  }>).map((r) => r.collection_id);
+  const categoryIds = ((data.product_categories ?? []) as Array<{
+    category_id: string;
+  }>).map((r) => r.category_id);
 
   const variants = (data.product_variants ?? []) as Array<{
     id: string;
@@ -800,6 +811,8 @@ export async function getAdminProductById(
     sku: data.sku,
     categoryId: data.category_id,
     collectionId: data.collection_id,
+    categoryIds,
+    collectionIds,
     material: data.material,
     weightG: data.weight_g,
     dimensions: data.dimensions,
@@ -840,7 +853,7 @@ export async function getAdminProductById(
 
 export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
   const admin = createAdminClient();
-  const [categoriesResult, productsResult] = await Promise.all([
+  const [categoriesResult, junctionResult] = await Promise.all([
     admin
       .from("categories")
       .select(
@@ -848,7 +861,7 @@ export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
       )
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true }),
-    admin.from("products").select("category_id").not("category_id", "is", null),
+    admin.from("product_categories").select("category_id"),
   ]);
 
   if (categoriesResult.error) {
@@ -857,7 +870,7 @@ export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
   }
 
   const counts = new Map<string, number>();
-  for (const p of productsResult.data ?? []) {
+  for (const p of junctionResult.data ?? []) {
     if (!p.category_id) continue;
     counts.set(p.category_id, (counts.get(p.category_id) ?? 0) + 1);
   }
@@ -883,7 +896,7 @@ export async function getAdminCategories(): Promise<AdminCategoryRow[]> {
 
 export async function getAdminCollections(): Promise<AdminCollectionRow[]> {
   const admin = createAdminClient();
-  const [collectionsResult, productsResult] = await Promise.all([
+  const [collectionsResult, junctionResult] = await Promise.all([
     admin
       .from("collections")
       .select(
@@ -891,10 +904,7 @@ export async function getAdminCollections(): Promise<AdminCollectionRow[]> {
       )
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true }),
-    admin
-      .from("products")
-      .select("collection_id")
-      .not("collection_id", "is", null),
+    admin.from("product_collections").select("collection_id"),
   ]);
 
   if (collectionsResult.error) {
@@ -903,7 +913,7 @@ export async function getAdminCollections(): Promise<AdminCollectionRow[]> {
   }
 
   const counts = new Map<string, number>();
-  for (const p of productsResult.data ?? []) {
+  for (const p of junctionResult.data ?? []) {
     if (!p.collection_id) continue;
     counts.set(p.collection_id, (counts.get(p.collection_id) ?? 0) + 1);
   }
@@ -949,6 +959,171 @@ export async function getAdminCollectionOptions(): Promise<
     return [];
   }
   return data ?? [];
+}
+
+export interface AdminProductMembership {
+  productId: string;
+  productName: string;
+  productSlug: string;
+  productImageUrl: string | null;
+  productSku: string | null;
+  basePrice: number;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export interface AdminCollectionDetail extends AdminCollectionRow {
+  items: AdminProductMembership[];
+}
+
+export interface AdminCategoryDetail extends AdminCategoryRow {
+  items: AdminProductMembership[];
+}
+
+type ProductMembershipRow = {
+  product_id: string;
+  sort_order: number | null;
+  product?:
+    | {
+        name: string;
+        slug: string;
+        sku: string | null;
+        base_price: number | string;
+        is_active: boolean | null;
+        product_media: Array<{
+          url: string;
+          is_primary: boolean | null;
+          sort_order: number | null;
+        }>;
+      }
+    | Array<{
+        name: string;
+        slug: string;
+        sku: string | null;
+        base_price: number | string;
+        is_active: boolean | null;
+        product_media: Array<{
+          url: string;
+          is_primary: boolean | null;
+          sort_order: number | null;
+        }>;
+      }>
+    | null;
+};
+
+function toMembership(row: ProductMembershipRow): AdminProductMembership {
+  const product = Array.isArray(row.product) ? row.product[0] : row.product;
+  const media = product?.product_media ?? [];
+  const primary =
+    media.find((m) => m.is_primary) ??
+    media.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+  return {
+    productId: row.product_id,
+    productName: product?.name ?? "Produit inconnu",
+    productSlug: product?.slug ?? "",
+    productImageUrl: primary?.url ?? null,
+    productSku: product?.sku ?? null,
+    basePrice: Number(product?.base_price ?? 0),
+    isActive: product?.is_active ?? false,
+    sortOrder: row.sort_order ?? 0,
+  };
+}
+
+export async function getAdminCollectionById(
+  id: string,
+): Promise<AdminCollectionDetail | null> {
+  const admin = createAdminClient();
+  const { data: col, error } = await admin
+    .from("collections")
+    .select(
+      "id, name, slug, description, image_url, starts_at, ends_at, sort_order, is_active",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !col) {
+    if (error) console.error("[getAdminCollectionById]", error);
+    return null;
+  }
+
+  const { data: items } = await admin
+    .from("product_collections")
+    .select(
+      `product_id, sort_order,
+       product:products (
+         name, slug, sku, base_price, is_active,
+         product_media ( url, is_primary, sort_order )
+       )`,
+    )
+    .eq("collection_id", id)
+    .order("sort_order", { ascending: true });
+
+  return {
+    id: col.id,
+    name: col.name,
+    slug: col.slug,
+    description: col.description,
+    imageUrl: col.image_url,
+    startsAt: col.starts_at,
+    endsAt: col.ends_at,
+    sortOrder: col.sort_order ?? 0,
+    isActive: col.is_active ?? true,
+    productCount: items?.length ?? 0,
+    items: ((items ?? []) as ProductMembershipRow[]).map(toMembership),
+  };
+}
+
+export async function getAdminCategoryById(
+  id: string,
+): Promise<AdminCategoryDetail | null> {
+  const admin = createAdminClient();
+  const { data: cat, error } = await admin
+    .from("categories")
+    .select(
+      "id, name, slug, description, image_url, parent_id, sort_order, is_active",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !cat) {
+    if (error) console.error("[getAdminCategoryById]", error);
+    return null;
+  }
+
+  const [{ data: parent }, { data: items }] = await Promise.all([
+    cat.parent_id
+      ? admin
+          .from("categories")
+          .select("name")
+          .eq("id", cat.parent_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    admin
+      .from("product_categories")
+      .select(
+        `product_id, sort_order,
+         product:products (
+           name, slug, sku, base_price, is_active,
+           product_media ( url, is_primary, sort_order )
+         )`,
+      )
+      .eq("category_id", id)
+      .order("sort_order", { ascending: true }),
+  ]);
+
+  return {
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description,
+    imageUrl: cat.image_url,
+    parentId: cat.parent_id,
+    parentName: (parent as { name: string } | null)?.name ?? null,
+    sortOrder: cat.sort_order ?? 0,
+    isActive: cat.is_active ?? true,
+    productCount: items?.length ?? 0,
+    items: ((items ?? []) as ProductMembershipRow[]).map(toMembership),
+  };
 }
 
 export async function getAdminPromotions(): Promise<AdminPromotionRow[]> {

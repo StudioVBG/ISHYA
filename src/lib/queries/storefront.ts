@@ -146,8 +146,21 @@ async function fetchCardProducts(filter: {
       .from("categories")
       .select("id")
       .eq("parent_id", cat.id);
-    const ids = [cat.id, ...(children ?? []).map((c) => c.id)];
-    query = query.in("category_id", ids);
+    const catIds = [cat.id, ...(children ?? []).map((c) => c.id)];
+    // m2m via product_categories; fallback to legacy products.category_id
+    const { data: links } = await supabase
+      .from("product_categories")
+      .select("product_id")
+      .in("category_id", catIds);
+    const productIds = Array.from(
+      new Set((links ?? []).map((l) => l.product_id)),
+    );
+    if (productIds.length === 0) {
+      // legacy fallback (au cas où la migration m2m n'a pas backfill)
+      query = query.in("category_id", catIds);
+    } else {
+      query = query.in("id", productIds);
+    }
   }
   if (filter.collectionSlug) {
     const { data: col } = await supabase
@@ -156,7 +169,18 @@ async function fetchCardProducts(filter: {
       .eq("slug", filter.collectionSlug)
       .maybeSingle();
     if (!col) return [];
-    query = query.eq("collection_id", col.id);
+    const { data: links } = await supabase
+      .from("product_collections")
+      .select("product_id")
+      .eq("collection_id", col.id);
+    const productIds = Array.from(
+      new Set((links ?? []).map((l) => l.product_id)),
+    );
+    if (productIds.length === 0) {
+      query = query.eq("collection_id", col.id);
+    } else {
+      query = query.in("id", productIds);
+    }
   }
 
   query = query.order("sort_order", { ascending: true, nullsFirst: false });
@@ -915,4 +939,193 @@ export async function getRelatedProducts(productId: string, limit = 4) {
     return [];
   }
   return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+}
+
+// ============================================================================
+// PACKS
+// ============================================================================
+
+export type {
+  PackDetail,
+  PackItem,
+  PackVariantOption,
+  PackDiscountType,
+} from "@/lib/pack-pricing";
+export { computePackPrice } from "@/lib/pack-pricing";
+
+import type { PackDetail, PackItem, PackVariantOption } from "@/lib/pack-pricing";
+import { computePackPrice } from "@/lib/pack-pricing";
+
+export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
+  const supabase = await createClient();
+  const { data: pack, error } = await supabase
+    .from("packs")
+    .select(
+      "id, name, slug, description, image_url, discount_type, discount_value, starts_at, ends_at",
+    )
+    .eq("slug", slug)
+    .or("is_active.is.null,is_active.eq.true")
+    .maybeSingle();
+
+  if (error || !pack) {
+    if (error) console.error("[getPackBySlug]", error);
+    return null;
+  }
+
+  const { data: items } = await supabase
+    .from("pack_items")
+    .select(
+      `id, product_id, sort_order, is_required,
+       product:products (
+         id, name, slug, short_description, base_price,
+         product_media ( url, is_primary, sort_order ),
+         product_variants ( id, name, sku, size, color, stone, material_variant,
+                            length_cm, price_override, stock_quantity, is_active, sort_order )
+       )`,
+    )
+    .eq("pack_id", pack.id)
+    .order("sort_order", { ascending: true });
+
+  type ItemRow = {
+    id: string;
+    product_id: string;
+    sort_order: number | null;
+    is_required: boolean | null;
+    product?:
+      | {
+          id: string;
+          name: string;
+          slug: string;
+          short_description: string | null;
+          base_price: number | string;
+          product_media: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+          product_variants: Array<{
+            id: string;
+            name: string | null;
+            sku: string | null;
+            size: string | null;
+            color: string | null;
+            stone: string | null;
+            material_variant: string | null;
+            length_cm: number | string | null;
+            price_override: number | string | null;
+            stock_quantity: number;
+            is_active: boolean | null;
+            sort_order: number | null;
+          }>;
+        }
+      | Array<{
+          id: string;
+          name: string;
+          slug: string;
+          short_description: string | null;
+          base_price: number | string;
+          product_media: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+          product_variants: Array<{
+            id: string;
+            name: string | null;
+            sku: string | null;
+            size: string | null;
+            color: string | null;
+            stone: string | null;
+            material_variant: string | null;
+            length_cm: number | string | null;
+            price_override: number | string | null;
+            stock_quantity: number;
+            is_active: boolean | null;
+            sort_order: number | null;
+          }>;
+        }>
+      | null;
+  };
+
+  const packItems: PackItem[] = ((items ?? []) as ItemRow[]).flatMap((it) => {
+    const product = Array.isArray(it.product) ? it.product[0] : it.product;
+    if (!product) return [];
+    const media = product.product_media ?? [];
+    const primary =
+      media.find((m) => m.is_primary) ??
+      media
+        .slice()
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+
+    const variants: PackVariantOption[] = (product.product_variants ?? [])
+      .filter((v) => v.is_active !== false)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((v) => ({
+        id: v.id,
+        name: v.name,
+        size: v.size,
+        color: v.color,
+        stone: v.stone,
+        material_variant: v.material_variant,
+        length_cm: v.length_cm == null ? null : Number(v.length_cm),
+        price_override:
+          v.price_override == null ? null : Number(v.price_override),
+        stock_quantity: v.stock_quantity,
+        sku: v.sku,
+      }));
+
+    const item: PackItem = {
+      id: it.id,
+      product_id: it.product_id,
+      product_name: product.name,
+      product_slug: product.slug,
+      product_short_description: product.short_description,
+      base_price: Number(product.base_price),
+      is_required: it.is_required ?? true,
+      sort_order: it.sort_order ?? 0,
+      image_url: primary?.url ?? null,
+      variants,
+    };
+    return [item];
+  });
+
+  // Default pricing : 1ère variante (ou base_price) de chaque item, qty=1
+  const lineItems = packItems.map((it) => ({
+    price: it.variants[0]?.price_override ?? it.base_price,
+    quantity: 1,
+  }));
+  const { subtotal, total, savings } = computePackPrice(
+    lineItems,
+    pack.discount_type as PackDetail["discount_type"],
+    Number(pack.discount_value ?? 0),
+  );
+
+  return {
+    id: pack.id,
+    name: pack.name,
+    slug: pack.slug,
+    description: pack.description,
+    image_url: pack.image_url,
+    discount_type: pack.discount_type as PackDetail["discount_type"],
+    discount_value: Number(pack.discount_value ?? 0),
+    starts_at: pack.starts_at,
+    ends_at: pack.ends_at,
+    items: packItems,
+    default_subtotal: subtotal,
+    default_total: total,
+    default_savings: savings,
+  };
+}
+
+export async function getAllPackSlugs(): Promise<{ slug: string }[]> {
+  const supabase = createBuildClient();
+  const { data, error } = await supabase
+    .from("packs")
+    .select("slug")
+    .or("is_active.is.null,is_active.eq.true");
+  if (error) {
+    console.error("[getAllPackSlugs]", error);
+    return [];
+  }
+  return data ?? [];
 }

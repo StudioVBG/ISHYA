@@ -122,40 +122,18 @@ async function handlePaymentSucceeded(pi: Stripe.PaymentIntent) {
     .eq("order_id", orderId);
 
   if (items && items.length > 0) {
-    for (const item of items) {
-      if (!item.variant_id) continue;
-
-      // Décrément atomique : on lit puis on update.
-      // (À long terme : remplacer par un RPC/Postgres function pour atomicité.)
-      const { data: inv } = await admin
-        .from("inventory")
-        .select("id, quantity")
-        .eq("variant_id", item.variant_id)
-        .maybeSingle();
-
-      if (inv) {
-        await admin
-          .from("inventory")
-          .update({ quantity: Math.max(0, inv.quantity - item.quantity) })
-          .eq("id", inv.id);
-      }
-
-      // Mettre à jour aussi product_variants.stock_quantity (compteur dénormalisé)
-      const { data: variant } = await admin
-        .from("product_variants")
-        .select("id, stock_quantity")
-        .eq("id", item.variant_id)
-        .maybeSingle();
-
-      if (variant) {
-        await admin
-          .from("product_variants")
-          .update({
-            stock_quantity: Math.max(0, variant.stock_quantity - item.quantity),
-          })
-          .eq("id", variant.id);
-      }
-    }
+    // Décrémentation atomique via RPC : met à jour product_variants ET inventory
+    // dans une seule transaction côté Postgres.
+    await Promise.all(
+      items
+        .filter((it) => it.variant_id)
+        .map((it) =>
+          admin.rpc("decrement_variant_stock", {
+            p_variant_id: it.variant_id as string,
+            p_quantity: it.quantity,
+          }),
+        ),
+    );
   }
 
   // 6. Envoyer l'email de confirmation

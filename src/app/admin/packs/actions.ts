@@ -39,6 +39,7 @@ function validate(input: PackInput): string | null {
 function revalidateAll() {
   revalidatePath("/admin/packs");
   revalidatePath("/boutique");
+  revalidatePath("/pack", "layout");
 }
 
 export async function createPack(
@@ -140,18 +141,6 @@ export async function addProductToPack(
 
   const admin = createAdminClient();
 
-  // Vérifier qu'on n'ajoute pas un doublon
-  const { data: existing } = await admin
-    .from("pack_items")
-    .select("id")
-    .eq("pack_id", packId)
-    .eq("product_id", productId)
-    .maybeSingle();
-  if (existing) {
-    return { ok: false, error: "Ce produit est déjà dans le pack" };
-  }
-
-  // Calculer le sort_order
   const { data: max } = await admin
     .from("pack_items")
     .select("sort_order")
@@ -168,12 +157,16 @@ export async function addProductToPack(
   });
 
   if (error) {
+    if (error.code === "23505") {
+      return { ok: false, error: "Ce produit est déjà dans le pack" };
+    }
     console.error("[addProductToPack]", error);
     return { ok: false, error: "Erreur lors de l'ajout" };
   }
 
   revalidatePath(`/admin/packs/${packId}`);
   revalidatePath("/admin/packs");
+  revalidatePath(`/pack/${packId}`);
   return { ok: true };
 }
 

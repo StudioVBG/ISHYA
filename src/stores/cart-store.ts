@@ -29,6 +29,16 @@ export interface CartItemLocal {
   material?: string;
   stone?: string;
   sku: string;
+  packId?: string | null;
+  packName?: string | null;
+}
+
+export interface PackLineInput {
+  product: CartProduct;
+  variant?: CartVariant;
+  media?: string;
+  unitPrice: number; // already discounted (pack price applied)
+  quantity?: number;
 }
 
 interface CartState {
@@ -40,6 +50,11 @@ interface CartState {
   discountAmount: number;
 
   addItem: (product: CartProduct, variant?: CartVariant, media?: string) => void;
+  addPackToCart: (
+    packId: string,
+    packName: string,
+    lines: PackLineInput[],
+  ) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -72,6 +87,8 @@ function scheduleSync(items: CartItemLocal[]) {
           variantId: i.variantId,
           quantity: i.quantity,
           unitPrice: i.price,
+          packId: i.packId ?? null,
+          packName: i.packName ?? null,
         })),
         email,
       }),
@@ -121,6 +138,28 @@ export const useCartStore = create<CartState>()(
           ];
         }
 
+        set({ items: nextItems, isOpen: true });
+        scheduleSync(nextItems);
+      },
+
+      addPackToCart: (packId, packName, lines) => {
+        const items = get().items;
+        const additions: CartItemLocal[] = lines.map((line, idx) => ({
+          id: `pack-${packId}-${line.variant?.id ?? line.product.id}-${Date.now()}-${idx}`,
+          productId: line.product.id,
+          variantId: line.variant?.id ?? null,
+          name: `${line.product.name}${packName ? ` · ${packName}` : ""}`,
+          price: line.unitPrice,
+          image: line.media ?? "/placeholder.jpg",
+          quantity: line.quantity ?? 1,
+          size: line.variant?.size ?? undefined,
+          material: line.variant?.material_variant ?? undefined,
+          stone: line.variant?.stone ?? undefined,
+          sku: line.variant?.sku ?? line.product.sku ?? "",
+          packId,
+          packName,
+        }));
+        const nextItems = [...items, ...additions];
         set({ items: nextItems, isOpen: true });
         scheduleSync(nextItems);
       },
