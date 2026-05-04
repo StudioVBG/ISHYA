@@ -28,6 +28,8 @@
   --warning-soft: #FBF1DC;
   --accent-purple: #6B4F9B;
   --accent-purple-soft: #ECE6F5;
+  /* Brand tiers (logos partenaires) */
+  --stripe-brand: #635BFF;
   --radius: 0.5rem;
 }
 
@@ -58,6 +60,7 @@
   --color-warning-soft: var(--warning-soft);
   --color-accent-purple: var(--accent-purple);
   --color-accent-purple-soft: var(--accent-purple-soft);
+  --color-stripe-brand: var(--stripe-brand);
   --font-display: var(--font-playfair);
   --font-sans: var(--font-dm-sans);
 }

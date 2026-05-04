@@ -23,10 +23,10 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const TIER_COLORS: Record<string, string> = {
-  bronze: "from-orange-300 to-orange-400",
-  silver: "from-gray-300 to-gray-400",
+  bronze: "from-terracotta-light to-terracotta",
+  silver: "from-muted-light to-muted",
   gold: "from-gold-light to-gold",
-  platinum: "from-gray-700 to-gray-800",
+  platinum: "from-foreground/70 to-foreground",
 };
 
 const TYPE_LABELS: Record<string, { label: string; className: string; icon: React.ElementType }> = {
@@ -175,7 +175,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                   <div
                     className={cn(
                       "w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center mb-3",
-                      TIER_COLORS[tier.name] ?? "from-gray-300 to-gray-400",
+                      TIER_COLORS[tier.name] ?? "from-muted-light to-muted",
                     )}
                   >
                     <Sparkles className="w-4 h-4 text-white" />

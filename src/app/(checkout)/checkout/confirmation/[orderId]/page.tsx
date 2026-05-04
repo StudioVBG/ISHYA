@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useCartStore, type CartItemLocal } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
-import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 
 export default function ConfirmationPage() {
   const { orderId } = useParams<{ orderId: string }>();

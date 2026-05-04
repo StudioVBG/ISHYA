@@ -54,7 +54,7 @@ function getPasswordStrength(password: string): {
 const strengthColors: Record<number, string> = {
   1: "bg-destructive",
   2: "bg-warning",
-  3: "bg-lime-500",
+  3: "bg-success",
   4: "bg-success",
 };
 
@@ -350,7 +350,7 @@ export default function InscriptionPage() {
                     "font-medium",
                     passwordStrength.score <= 1 && "text-destructive",
                     passwordStrength.score === 2 && "text-warning",
-                    passwordStrength.score === 3 && "text-lime-600",
+                    passwordStrength.score === 3 && "text-success",
                     passwordStrength.score === 4 && "text-success"
                   )}
                 >

@@ -12,7 +12,6 @@ import {
   Facebook,
   MessageCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 
 const subjects = [

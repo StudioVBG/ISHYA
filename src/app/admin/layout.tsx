@@ -9,7 +9,7 @@ import {
   ShoppingCart, Users, Warehouse, Percent, RotateCcw,
   Headphones, Star, FileText, LayoutTemplate, Image as ImageIcon,
   Search, BarChart3, Settings, UserCog, Shield,
-  Bell, Menu, X, ExternalLink, LogOut,
+  Bell, Menu, ExternalLink, LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

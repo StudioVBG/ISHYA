@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Truck,
   MapPin,
-  Clock,
   PackageCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

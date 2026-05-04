@@ -8,7 +8,6 @@ import {
   Trash2,
   X,
   Loader2,
-  Percent as PercentIcon,
   Tag,
 } from "lucide-react";
 import { toast } from "sonner";

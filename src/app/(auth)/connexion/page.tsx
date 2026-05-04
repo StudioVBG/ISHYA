@@ -11,7 +11,7 @@ import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 
 const loginSchema = z.object({
   email: z
@@ -48,15 +48,11 @@ function ConnexionContent() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, touchedFields },
-    watch,
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "", rememberMe: false },
   });
-
-  const emailValue = watch("email");
-  const passwordValue = watch("password");
 
   async function onSubmit(data: LoginFormData) {
     const supabase = createClient();

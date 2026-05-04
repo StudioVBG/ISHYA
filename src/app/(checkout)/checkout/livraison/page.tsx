@@ -10,12 +10,12 @@ import {
   Zap,
   Package,
   Gift,
-  ArrowRight,
   ArrowLeft,
   ChevronRight,
   Shield,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCartStore } from "@/stores/cart-store";
 import { cn, formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
@@ -95,6 +95,7 @@ export default function LivraisonPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<AddressForm>({
+    resolver: zodResolver(addressSchema),
     defaultValues: { country: "France" },
   });
 

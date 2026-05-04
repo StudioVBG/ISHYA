@@ -110,9 +110,12 @@ export default function BoutiqueContent({ products, categories }: BoutiqueConten
         </h3>
         <div className="space-y-2">
           {MATERIALS.map((mat) => (
-            <label
+            <button
               key={mat}
-              className="flex items-center gap-3 cursor-pointer group"
+              type="button"
+              onClick={() => toggleMaterial(mat)}
+              aria-pressed={selectedMaterials.includes(mat)}
+              className="flex items-center gap-3 cursor-pointer group w-full text-left"
             >
               <div
                 className={cn(
@@ -138,7 +141,7 @@ export default function BoutiqueContent({ products, categories }: BoutiqueConten
               <span className="text-sm text-muted group-hover:text-foreground transition-colors">
                 {mat}
               </span>
-            </label>
+            </button>
           ))}
         </div>
       </div>

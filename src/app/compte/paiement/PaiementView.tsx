@@ -311,7 +311,7 @@ export function PaiementView({
                     : "border-border",
                 )}
               >
-                <div className="w-12 h-8 rounded bg-gradient-to-br from-foreground to-gray-700 flex items-center justify-center text-white text-[10px] font-bold tracking-wider">
+                <div className="w-12 h-8 rounded bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center text-white text-[10px] font-bold tracking-wider">
                   {card.brand
                     ? (BRAND_LABELS[card.brand.toLowerCase()] ?? card.brand.toUpperCase())
                     : "CB"}

@@ -183,7 +183,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                           className={cn(
                             "w-4 h-4",
                             n <= r.rating
-                              ? "fill-amber-400 text-warning"
+                              ? "fill-gold text-gold"
                               : "text-muted-light",
                           )}
                         />
