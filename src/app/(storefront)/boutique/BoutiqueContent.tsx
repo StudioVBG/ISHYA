@@ -47,9 +47,9 @@ export default function BoutiqueContent({ products, categories }: BoutiqueConten
 
     if (selectedMaterials.length > 0) {
       products = products.filter((p) => {
-        const product = p as any;
+        const categoryName = p.category?.name ?? "";
         return selectedMaterials.some((mat) =>
-          (product.category?.name ?? "").toLowerCase().includes(mat.toLowerCase())
+          categoryName.toLowerCase().includes(mat.toLowerCase())
         );
       });
     }

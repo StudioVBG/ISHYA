@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,8 +40,9 @@ export function Header() {
   const itemCount = useCartStore((s) => s.getItemCount());
 
   useEffect(() => {
-    const dismissed = document.cookie.includes(ANNOUNCEMENT_COOKIE);
-    if (dismissed) setShowAnnouncement(false);
+    if (document.cookie.includes(ANNOUNCEMENT_COOKIE)) {
+      queueMicrotask(() => setShowAnnouncement(false));
+    }
   }, []);
 
   useEffect(() => {
@@ -50,8 +51,12 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const prevPathname = useRef(pathname);
   useEffect(() => {
-    setMobileMenuOpen(false);
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      queueMicrotask(() => setMobileMenuOpen(false));
+    }
   }, [pathname]);
 
   useEffect(() => {

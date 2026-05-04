@@ -31,19 +31,21 @@ export default function ConfirmationPage() {
 
   useEffect(() => {
     const stored = useCartStore.getState();
-    if (stored.items.length > 0) {
-      setOrderItems([...stored.items]);
-      const sub = stored.getSubtotal();
-      const shipping = parseFloat(
-        sessionStorage.getItem("checkout_shipping_cost") ?? "0"
-      );
-      const gift = stored.giftWrap ? 3 : 0;
-      setOrderTotal(sub - stored.discountAmount + shipping + gift);
-      clearCart();
-    }
-
     const storedEmail = sessionStorage.getItem("checkout_email");
-    if (storedEmail) setEmail(storedEmail);
+
+    queueMicrotask(() => {
+      if (stored.items.length > 0) {
+        setOrderItems([...stored.items]);
+        const sub = stored.getSubtotal();
+        const shipping = parseFloat(
+          sessionStorage.getItem("checkout_shipping_cost") ?? "0"
+        );
+        const gift = stored.giftWrap ? 3 : 0;
+        setOrderTotal(sub - stored.discountAmount + shipping + gift);
+        clearCart();
+      }
+      if (storedEmail) setEmail(storedEmail);
+    });
   }, [clearCart]);
 
   useEffect(() => {

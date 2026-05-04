@@ -8,6 +8,36 @@ import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import type { AccountNotificationPrefs } from "@/lib/queries/account";
 import { updateNotificationPrefs } from "./actions";
 
+function Toggle({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex items-start justify-between gap-4 p-4 bg-beige-nude-light/30 rounded-lg cursor-pointer hover:bg-beige-nude-light/50 transition-colors">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium">{label}</p>
+        <p className="text-xs text-muted mt-0.5">{description}</p>
+      </div>
+      <div className="relative inline-flex items-center cursor-pointer shrink-0">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="sr-only peer"
+        />
+        <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-terracotta peer-focus:ring-2 peer-focus:ring-terracotta/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
+      </div>
+    </label>
+  );
+}
+
 export function NotificationsForm({
   prefs,
 }: {
@@ -36,34 +66,6 @@ export function NotificationsForm({
       setTimeout(() => setSaved(false), 2000);
     });
   };
-
-  const Toggle = ({
-    label,
-    description,
-    checked,
-    onChange,
-  }: {
-    label: string;
-    description: string;
-    checked: boolean;
-    onChange: (v: boolean) => void;
-  }) => (
-    <label className="flex items-start justify-between gap-4 p-4 bg-beige-nude-light/30 rounded-lg cursor-pointer hover:bg-beige-nude-light/50 transition-colors">
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted mt-0.5">{description}</p>
-      </div>
-      <div className="relative inline-flex items-center cursor-pointer shrink-0">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          className="sr-only peer"
-        />
-        <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-terracotta peer-focus:ring-2 peer-focus:ring-terracotta/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
-      </div>
-    </label>
-  );
 
   return (
     <div>

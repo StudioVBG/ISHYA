@@ -185,7 +185,9 @@ export default function PaiementPage() {
   }, [items, shippingCost, giftWrap, giftMessage, discountAmount, discountCode]);
 
   useEffect(() => {
-    createPaymentIntent();
+    queueMicrotask(() => {
+      void createPaymentIntent();
+    });
   }, [createPaymentIntent]);
 
   return (
