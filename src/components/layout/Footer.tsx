@@ -18,33 +18,49 @@ const FOOTER_LINKS = {
     ],
   },
   informations: {
-    title: "Informations",
+    title: "La marque",
     links: [
       { label: "À propos", href: "/a-propos" },
+      { label: "Notre atelier", href: "/atelier" },
+      { label: "Savoir-faire", href: "/savoir-faire" },
+      { label: "Matériaux", href: "/materiaux" },
+      { label: "Sur-mesure", href: "/sur-mesure" },
       { label: "Blog", href: "/blog" },
-      { label: "Guide des tailles", href: "/guide-des-tailles" },
     ],
   },
   aide: {
     title: "Aide",
     links: [
-      { label: "FAQ", href: "/faq" },
+      { label: "FAQ", href: "/aide" },
       { label: "Contact", href: "/contact" },
       { label: "Livraison", href: "/livraison" },
       { label: "Retours & échanges", href: "/retours" },
+      { label: "Garantie", href: "/garantie" },
+      { label: "Entretien", href: "/entretien" },
+      { label: "Guide des tailles", href: "/guide-des-tailles" },
       { label: "CGV", href: "/cgv" },
     ],
   },
   compte: {
-    title: "Mon Compte",
+    title: "Mon compte",
     links: [
       { label: "Connexion", href: "/connexion" },
       { label: "Mes commandes", href: "/compte/commandes" },
       { label: "Mes favoris", href: "/compte/favoris" },
-      { label: "Fidélité", href: "/compte/fidelite" },
+      { label: "Fidélité", href: "/programme-fidelite" },
+      { label: "Parrainage", href: "/parrainage" },
+      { label: "Carte cadeau", href: "/carte-cadeau" },
     ],
   },
 };
+
+const LEGAL_LINKS = [
+  { label: "Mentions légales", href: "/mentions-legales" },
+  { label: "Confidentialité", href: "/confidentialite" },
+  { label: "Cookies", href: "/cookies" },
+  { label: "Médiation", href: "/mediation" },
+  { label: "Accessibilité", href: "/accessibilite" },
+];
 
 function PinterestIcon({ className }: { className?: string }) {
   return (
@@ -125,6 +141,21 @@ export function Footer() {
                 ))}
               </ul>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Legal mini-bar */}
+      <div className="border-t border-white/10">
+        <div className="container py-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/50">
+          {LEGAL_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="hover:text-terracotta transition-colors"
+            >
+              {l.label}
+            </Link>
           ))}
         </div>
       </div>
