@@ -128,25 +128,42 @@ export default function PaiementPage() {
     if (items.length === 0) return;
 
     try {
-      const email =
-        typeof window !== "undefined"
-          ? sessionStorage.getItem("checkout_email") ?? undefined
-          : undefined;
+      const ss = typeof window !== "undefined" ? sessionStorage : null;
+      const email = ss?.getItem("checkout_email") ?? undefined;
+      const phone = ss?.getItem("checkout_phone") ?? undefined;
+      const giftMessage = useCartStore.getState().giftMessage;
+
+      let shippingAddress: Record<string, string | undefined> | undefined;
+      const shippingRaw =
+        ss?.getItem("checkout_address") ?? ss?.getItem("checkout_shipping_address");
+      if (shippingRaw) {
+        try {
+          shippingAddress = JSON.parse(shippingRaw);
+        } catch {
+          // ignore malformed snapshot
+        }
+      }
 
       const res = await fetch("/api/stripe/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((i) => ({
-            id: i.id,
+            productId: i.productId,
+            variantId: i.variantId,
             name: i.name,
+            variantName: [i.size, i.material, i.stone].filter(Boolean).join(" / ") || null,
+            sku: i.sku,
             price: i.price,
             quantity: i.quantity,
           })),
           shippingCost,
           giftWrap,
+          giftMessage: giftMessage || null,
           discountAmount,
           email,
+          phone,
+          shippingAddress,
         }),
       });
 
@@ -158,6 +175,9 @@ export default function PaiementPage() {
       }
 
       setClientSecret(data.clientSecret);
+      if (data.orderId && ss) ss.setItem("checkout_order_id", data.orderId);
+      if (data.orderNumber && ss)
+        ss.setItem("checkout_order_number", data.orderNumber);
     } catch {
       setLoadError("Impossible de se connecter au serveur de paiement");
     }
