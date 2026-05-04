@@ -169,7 +169,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   )
 
   return (
-    <div className="flex h-screen bg-[#f9fafb]">
+    <div className="flex h-screen bg-ivory">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:w-64 lg:flex-col bg-gray-900 border-r border-gray-800 shrink-0">
         {sidebarContent}

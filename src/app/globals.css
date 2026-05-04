@@ -16,9 +16,18 @@
   --gold-dark: #A88B5A;
   --muted: #9C8E82;
   --muted-light: #C4B8AD;
+  --muted-soft: #F3F0EC;
   --border: #E8E0D8;
   --destructive: #DC3545;
+  --destructive-soft: #FBE9EC;
   --success: #28A745;
+  --success-soft: #E6F4EA;
+  --info: #2563EB;
+  --info-soft: #E5EDFB;
+  --warning: #B7791F;
+  --warning-soft: #FBF1DC;
+  --accent-purple: #6B4F9B;
+  --accent-purple-soft: #ECE6F5;
   --radius: 0.5rem;
 }
 
@@ -37,9 +46,18 @@
   --color-gold-dark: var(--gold-dark);
   --color-muted: var(--muted);
   --color-muted-light: var(--muted-light);
+  --color-muted-soft: var(--muted-soft);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-purple-soft: var(--accent-purple-soft);
   --font-display: var(--font-playfair);
   --font-sans: var(--font-dm-sans);
 }
