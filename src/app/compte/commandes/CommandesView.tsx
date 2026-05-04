@@ -6,25 +6,23 @@ import { motion } from "framer-motion";
 import { Package, ChevronRight, Search, Filter } from "lucide-react";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
 import type {
   AccountOrderListItem,
   AccountOrderStatus,
 } from "@/lib/queries/account";
 
-const statusLabels: Record<
-  AccountOrderStatus,
-  { label: string; color: string; bgColor: string }
-> = {
-  pending: { label: "En attente", color: "text-yellow-700", bgColor: "bg-yellow-100" },
-  confirmed: { label: "Payée", color: "text-blue-700", bgColor: "bg-blue-100" },
-  processing: { label: "En préparation", color: "text-orange-700", bgColor: "bg-orange-100" },
-  shipped: { label: "Expédiée", color: "text-purple-700", bgColor: "bg-purple-100" },
-  delivered: { label: "Livrée", color: "text-green-700", bgColor: "bg-green-100" },
-  cancelled: { label: "Annulée", color: "text-red-700", bgColor: "bg-red-100" },
-  refunded: { label: "Remboursée", color: "text-orange-700", bgColor: "bg-orange-100" },
-  partially_refunded: { label: "Partiel.", color: "text-orange-700", bgColor: "bg-orange-100" },
-  on_hold: { label: "En pause", color: "text-gray-700", bgColor: "bg-gray-100" },
-  failed: { label: "Échec", color: "text-red-700", bgColor: "bg-red-100" },
+const FILTER_LABELS: Record<AccountOrderStatus, string> = {
+  pending: "En attente",
+  confirmed: "Payée",
+  processing: "En préparation",
+  shipped: "Expédiée",
+  delivered: "Livrée",
+  cancelled: "Annulée",
+  refunded: "Remboursée",
+  partially_refunded: "Remb. partiel",
+  on_hold: "En pause",
+  failed: "Échec",
 };
 
 const FILTERABLE_STATUSES: AccountOrderStatus[] = [
@@ -80,7 +78,10 @@ export function CommandesView({ orders }: { orders: AccountOrderListItem[] }) {
               className="pl-10 pr-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all w-48 sm:w-56"
             />
           </div>
-          <button className="p-2.5 rounded-lg border border-border bg-white hover:border-terracotta/30 transition-colors">
+          <button
+            className="p-2.5 rounded-lg border border-border bg-white hover:border-terracotta/30 transition-colors"
+            aria-label="Filtres"
+          >
             <Filter className="w-4 h-4 text-muted" />
           </button>
         </div>
@@ -105,21 +106,20 @@ export function CommandesView({ orders }: { orders: AccountOrderListItem[] }) {
           Toutes ({orders.length})
         </button>
         {FILTERABLE_STATUSES.map((status) => {
-          const config = statusLabels[status];
           const count = orders.filter((o) => o.status === status).length;
+          const isActive = statusFilter === status;
           return (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={cn(
                 "px-4 py-1.5 rounded-full text-xs font-medium shrink-0 border transition-colors",
-                statusFilter === status
-                  ? `${config.bgColor} ${config.color} border-transparent`
-                  : "bg-white border-border hover:border-terracotta/30",
-                statusFilter !== status && config.color,
+                isActive
+                  ? "bg-foreground text-white border-foreground"
+                  : "bg-white border-border text-foreground hover:border-terracotta/30",
               )}
             >
-              {config.label} ({count})
+              {FILTER_LABELS[status]} ({count})
             </button>
           );
         })}
@@ -153,65 +153,54 @@ export function CommandesView({ orders }: { orders: AccountOrderListItem[] }) {
           animate="visible"
           className="space-y-4"
         >
-          {filtered.map((order) => {
-            const config = statusLabels[order.status];
-            return (
-              <motion.div key={order.id} variants={staggerItem}>
-                <Link
-                  href={`/compte/commandes/${order.orderNumber}`}
-                  className="block bg-white rounded-xl border border-border p-5 hover:border-terracotta/30 hover:shadow-sm transition-all group"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-beige-nude-light flex items-center justify-center shrink-0">
-                        <Package className="w-5 h-5 text-terracotta" />
-                      </div>
-                      <div>
-                        <p className="font-mono text-sm font-medium group-hover:text-terracotta transition-colors">
-                          {order.orderNumber}
-                        </p>
-                        <p className="text-xs text-muted mt-0.5">
-                          {formatDate(order.createdAt)} • {order.itemCount}{" "}
-                          article{order.itemCount > 1 ? "s" : ""}
-                        </p>
-                      </div>
+          {filtered.map((order) => (
+            <motion.div key={order.id} variants={staggerItem}>
+              <Link
+                href={`/compte/commandes/${order.orderNumber}`}
+                className="block bg-white rounded-xl border border-border p-5 hover:border-terracotta/30 hover:shadow-sm transition-all group"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-beige-nude-light flex items-center justify-center shrink-0">
+                      <Package className="w-5 h-5 text-terracotta" />
                     </div>
-
-                    <div className="flex items-center gap-4 sm:gap-6">
-                      <span
-                        className={cn(
-                          "px-3 py-1 rounded-full text-xs font-medium",
-                          config.bgColor,
-                          config.color,
-                        )}
-                      >
-                        {config.label}
-                      </span>
-                      <span className="text-sm font-semibold min-w-[70px] text-right">
-                        {formatPrice(order.total)}
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-muted group-hover:text-terracotta transition-colors hidden sm:block" />
+                    <div>
+                      <p className="font-mono text-sm font-medium group-hover:text-terracotta transition-colors">
+                        {order.orderNumber}
+                      </p>
+                      <p className="text-xs text-muted mt-0.5">
+                        {formatDate(order.createdAt)} • {order.itemCount}{" "}
+                        article{order.itemCount > 1 ? "s" : ""}
+                      </p>
                     </div>
                   </div>
 
-                  {order.itemNames.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-border/50">
-                      <div className="flex flex-wrap gap-2">
-                        {order.itemNames.map((name, i) => (
-                          <span
-                            key={i}
-                            className="text-xs text-muted bg-ivory px-2 py-1 rounded"
-                          >
-                            {name}
-                          </span>
-                        ))}
-                      </div>
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <StatusBadge status={order.status as OrderStatus} />
+                    <span className="text-sm font-semibold min-w-[70px] text-right tabular-nums">
+                      {formatPrice(order.total)}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted group-hover:text-terracotta transition-colors hidden sm:block" />
+                  </div>
+                </div>
+
+                {order.itemNames.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border/50">
+                    <div className="flex flex-wrap gap-2">
+                      {order.itemNames.map((name, i) => (
+                        <span
+                          key={i}
+                          className="text-xs text-muted bg-ivory px-2 py-1 rounded"
+                        >
+                          {name}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                </Link>
-              </motion.div>
-            );
-          })}
+                  </div>
+                )}
+              </Link>
+            </motion.div>
+          ))}
         </motion.div>
       )}
     </div>

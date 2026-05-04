@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,8 +40,9 @@ export function Header() {
   const itemCount = useCartStore((s) => s.getItemCount());
 
   useEffect(() => {
-    const dismissed = document.cookie.includes(ANNOUNCEMENT_COOKIE);
-    if (dismissed) setShowAnnouncement(false);
+    if (document.cookie.includes(ANNOUNCEMENT_COOKIE)) {
+      queueMicrotask(() => setShowAnnouncement(false));
+    }
   }, []);
 
   useEffect(() => {
@@ -50,8 +51,12 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const prevPathname = useRef(pathname);
   useEffect(() => {
-    setMobileMenuOpen(false);
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      queueMicrotask(() => setMobileMenuOpen(false));
+    }
   }, [pathname]);
 
   useEffect(() => {
@@ -101,7 +106,7 @@ export function Header() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden p-2 -ml-2 hover:text-terracotta transition-colors"
+            className="lg:hidden p-2.5 -ml-2 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
             aria-label="Ouvrir le menu"
           >
             <Menu className="w-5 h-5" />
@@ -135,10 +140,10 @@ export function Header() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="flex items-center gap-0.5 sm:gap-2">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 hover:text-terracotta transition-colors"
+              className="p-2.5 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
               aria-label="Rechercher"
             >
               <Search className="w-5 h-5" />
@@ -146,7 +151,7 @@ export function Header() {
 
             <Link
               href="/compte"
-              className="hidden sm:block p-2 hover:text-terracotta transition-colors"
+              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors"
               aria-label="Mon compte"
             >
               <User className="w-5 h-5" />
@@ -154,7 +159,7 @@ export function Header() {
 
             <Link
               href="/compte/favoris"
-              className="hidden sm:block p-2 hover:text-terracotta transition-colors"
+              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors"
               aria-label="Mes favoris"
             >
               <Heart className="w-5 h-5" />
@@ -162,12 +167,13 @@ export function Header() {
 
             <button
               onClick={openCart}
-              className="p-2 hover:text-terracotta transition-colors relative"
+              data-cart-icon
+              className="p-2.5 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors relative"
               aria-label="Mon panier"
             >
               <ShoppingBag className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-terracotta text-white text-[10px] font-medium w-4.5 h-4.5 flex items-center justify-center rounded-full">
+                <span className="absolute top-1 right-1 bg-terracotta text-white text-[10px] font-medium min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full tabular-nums">
                   {itemCount > 99 ? "99+" : itemCount}
                 </span>
               )}
@@ -195,7 +201,7 @@ export function Header() {
               animate="visible"
               exit="exit"
               transition={drawerTransition}
-              className="fixed inset-y-0 left-0 z-50 w-[300px] bg-white shadow-xl lg:hidden flex flex-col"
+              className="fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-white shadow-xl lg:hidden flex flex-col"
             >
               <div className="flex items-center justify-between p-4 border-b border-border">
                 <span className="font-display text-xl tracking-wider font-semibold">
@@ -203,7 +209,7 @@ export function Header() {
                 </span>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 hover:text-terracotta transition-colors"
+                  className="p-2.5 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
                   aria-label="Fermer le menu"
                 >
                   <X className="w-5 h-5" />

@@ -22,7 +22,6 @@ const stripePromise = loadStripe(
 
 function PaymentForm({
   total,
-  clientSecret,
   orderNumber,
 }: {
   total: number;
@@ -31,7 +30,6 @@ function PaymentForm({
 }) {
   const stripe = useStripe();
   const elements = useElements();
-  const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -185,7 +183,9 @@ export default function PaiementPage() {
   }, [items, shippingCost, giftWrap, giftMessage, discountAmount, discountCode]);
 
   useEffect(() => {
-    createPaymentIntent();
+    queueMicrotask(() => {
+      void createPaymentIntent();
+    });
   }, [createPaymentIntent]);
 
   return (
@@ -296,7 +296,7 @@ export default function PaiementPage() {
               <span>Chiffrement SSL</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted">
-              <span className="font-semibold text-[#635BFF]">stripe</span>
+              <span className="font-semibold text-stripe-brand">stripe</span>
             </div>
           </motion.div>
 

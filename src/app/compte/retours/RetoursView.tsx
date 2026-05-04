@@ -12,59 +12,33 @@ import {
   Coins,
   Package,
 } from "lucide-react";
-import { cn, formatPrice, formatDate } from "@/lib/utils";
+import { formatPrice, formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
 import type { AccountReturn } from "@/lib/queries/account";
 
-const STATUS_LABELS: Record<
-  string,
-  { label: string; className: string; icon: React.ElementType }
-> = {
-  requested: {
-    label: "En attente",
-    className: "bg-yellow-50 text-yellow-700",
-    icon: Clock,
-  },
-  approved: {
-    label: "Approuvé",
-    className: "bg-blue-50 text-blue-700",
-    icon: CheckCircle2,
-  },
-  rejected: {
-    label: "Refusé",
-    className: "bg-red-50 text-red-700",
-    icon: X,
-  },
-  shipped_back: {
-    label: "Renvoyé",
-    className: "bg-purple-50 text-purple-700",
-    icon: Truck,
-  },
-  received: {
-    label: "Reçu",
-    className: "bg-cyan-50 text-cyan-700",
-    icon: Package,
-  },
-  inspected: {
-    label: "Inspecté",
-    className: "bg-indigo-50 text-indigo-700",
-    icon: CheckCircle2,
-  },
-  refunded: {
-    label: "Remboursé",
-    className: "bg-emerald-50 text-emerald-700",
-    icon: Coins,
-  },
-  exchanged: {
-    label: "Échangé",
-    className: "bg-emerald-50 text-emerald-700",
-    icon: CheckCircle2,
-  },
-  closed: {
-    label: "Fermé",
-    className: "bg-gray-100 text-gray-600",
-    icon: CheckCircle2,
-  },
+const STATUS_ICONS: Record<string, React.ElementType> = {
+  requested: Clock,
+  approved: CheckCircle2,
+  rejected: X,
+  shipped_back: Truck,
+  received: Package,
+  inspected: CheckCircle2,
+  refunded: Coins,
+  exchanged: CheckCircle2,
+  closed: CheckCircle2,
+};
+
+const STATUS_ICON_BG: Record<string, string> = {
+  requested: "bg-warning-soft text-warning",
+  approved: "bg-info-soft text-info",
+  rejected: "bg-destructive-soft text-destructive",
+  shipped_back: "bg-accent-purple-soft text-accent-purple",
+  received: "bg-info-soft text-info",
+  inspected: "bg-info-soft text-info",
+  refunded: "bg-success-soft text-success",
+  exchanged: "bg-success-soft text-success",
+  closed: "bg-muted-soft text-muted",
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -120,12 +94,9 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
           className="space-y-4"
         >
           {returns.map((r) => {
-            const status = STATUS_LABELS[r.status] ?? {
-              label: r.status,
-              className: "bg-gray-100 text-gray-600",
-              icon: Clock,
-            };
-            const Icon = status.icon;
+            const Icon = STATUS_ICONS[r.status] ?? Clock;
+            const iconBg =
+              STATUS_ICON_BG[r.status] ?? "bg-muted-soft text-muted";
             const reasonLabel = REASON_LABELS[r.reason] ?? r.reason;
 
             return (
@@ -137,10 +108,7 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex items-start gap-4">
                     <div
-                      className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
-                        status.className,
-                      )}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}
                     >
                       <Icon className="w-5 h-5" />
                     </div>
@@ -158,14 +126,10 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
                             Retour
                           </span>
                         )}
-                        <span
-                          className={cn(
-                            "px-2 py-0.5 rounded-full text-xs font-medium",
-                            status.className,
-                          )}
-                        >
-                          {status.label}
-                        </span>
+                        <StatusBadge
+                          status={r.status as OrderStatus}
+                          size="sm"
+                        />
                       </div>
                       <p className="text-sm text-foreground">{reasonLabel}</p>
                       {r.description && (
@@ -192,7 +156,7 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
                   {r.refundAmount != null && (
                     <div className="text-right shrink-0">
                       <p className="text-xs text-muted">Remboursement</p>
-                      <p className="font-display text-base font-semibold text-emerald-600">
+                      <p className="font-display text-base font-semibold text-success tabular-nums">
                         {formatPrice(r.refundAmount)}
                       </p>
                     </div>

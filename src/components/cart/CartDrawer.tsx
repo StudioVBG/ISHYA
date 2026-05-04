@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingBag, Minus, Plus, Trash2, Gift, Truck } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
-import { cn, formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
+import { formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
 import { slideInRight, fadeIn, drawerTransition } from "@/lib/animations";
 
 export function CartDrawer() {

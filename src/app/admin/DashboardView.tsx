@@ -22,25 +22,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
-import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
+import { KPICard } from "@/components/ui/KPICard";
 import type {
   AdminDashboardStats,
   AdminOrderListItem,
   AdminLowStockRow,
 } from "@/lib/queries/admin";
 
-const statusLabels: Record<string, { label: string; className: string }> = {
-  pending: { label: "En attente", className: "bg-gray-100 text-gray-700" },
-  confirmed: { label: "Payée", className: "bg-emerald-50 text-emerald-700" },
-  processing: {
-    label: "En préparation",
-    className: "bg-blue-50 text-blue-700",
-  },
-  shipped: { label: "Expédiée", className: "bg-purple-50 text-purple-700" },
-  delivered: { label: "Livrée", className: "bg-green-50 text-green-700" },
-  cancelled: { label: "Annulée", className: "bg-red-50 text-red-700" },
-  refunded: { label: "Remboursée", className: "bg-orange-50 text-orange-700" },
-};
+type AlertVariant = "destructive" | "warning";
 
 export function DashboardView({
   stats,
@@ -57,35 +48,35 @@ export function DashboardView({
       value: formatPrice(stats.todayRevenue),
       detail: "Aujourd'hui",
       icon: Euro,
-      color: "bg-emerald-50 text-emerald-600",
+      variant: "success" as const,
     },
     {
       label: "Commandes",
       value: String(stats.todayOrders),
       detail: "Aujourd'hui",
       icon: ShoppingCart,
-      color: "bg-blue-50 text-blue-600",
+      variant: "info" as const,
     },
     {
       label: "Panier moyen",
       value: formatPrice(stats.averageBasket),
       detail: "Sur 30 jours",
       icon: Users,
-      color: "bg-amber-50 text-amber-600",
+      variant: "gold" as const,
     },
     {
       label: "Clients",
       value: String(stats.totalCustomers),
       detail: "Au total",
       icon: Users,
-      color: "bg-purple-50 text-purple-600",
+      variant: "accent" as const,
     },
   ];
 
   const alerts: Array<{
     type: "stock" | "retour" | "ticket";
     message: string;
-    color: string;
+    variant: AlertVariant;
   }> = [
     ...lowStock.slice(0, 3).map((row) => ({
       type: "stock" as const,
@@ -93,14 +84,14 @@ export function DashboardView({
         row.quantity === 0
           ? `${row.productName} – ${row.variantSku ?? "variante"} : rupture`
           : `${row.productName} – ${row.variantSku ?? "variante"} : ${row.quantity} restant${row.quantity > 1 ? "s" : ""}`,
-      color: "bg-red-50 text-red-700 border-red-200",
+      variant: "destructive" as AlertVariant,
     })),
     ...(stats.pendingReturns > 0
       ? [
           {
             type: "retour" as const,
             message: `${stats.pendingReturns} retour${stats.pendingReturns > 1 ? "s" : ""} en attente de validation`,
-            color: "bg-orange-50 text-orange-700 border-orange-200",
+            variant: "warning" as AlertVariant,
           },
         ]
       : []),
@@ -109,7 +100,7 @@ export function DashboardView({
           {
             type: "ticket" as const,
             message: `${stats.openTickets} ticket${stats.openTickets > 1 ? "s" : ""} ouvert${stats.openTickets > 1 ? "s" : ""}`,
-            color: "bg-yellow-50 text-yellow-700 border-yellow-200",
+            variant: "warning" as AlertVariant,
           },
         ]
       : []),
@@ -121,6 +112,12 @@ export function DashboardView({
     ticket: Headphones,
   };
 
+  const alertVariantClasses: Record<AlertVariant, string> = {
+    destructive:
+      "bg-destructive-soft text-destructive border-destructive/20",
+    warning: "bg-warning-soft text-warning border-warning/20",
+  };
+
   return (
     <motion.div
       variants={staggerContainer}
@@ -129,70 +126,58 @@ export function DashboardView({
       className="space-y-8"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {kpis.map((kpi) => {
-          const Icon = kpi.icon;
-          return (
-            <motion.div
-              key={kpi.label}
-              variants={staggerItem}
-              className="bg-white rounded-xl border border-gray-200 p-5"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center",
-                    kpi.color,
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                {kpi.label} · {kpi.detail}
-              </p>
-            </motion.div>
-          );
-        })}
+        {kpis.map((kpi) => (
+          <KPICard
+            key={kpi.label}
+            label={kpi.label}
+            value={kpi.value}
+            detail={kpi.detail}
+            icon={kpi.icon}
+            variant={kpi.variant}
+          />
+        ))}
       </div>
 
       <motion.div
         variants={fadeInUp}
-        className="bg-white rounded-xl border border-gray-200 p-6"
+        className="bg-white rounded-xl border border-border p-6"
       >
-        <h2 className="text-base font-semibold text-gray-900 mb-4">
+        <h2 className="text-base font-semibold text-foreground mb-4">
           CA des 30 derniers jours
         </h2>
-        <div className="h-72">
+        <div className="h-64 sm:h-72 lg:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats.revenueByDay}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--color-border)"
+              />
               <XAxis
                 dataKey="day"
                 tick={{ fontSize: 12 }}
-                stroke="#9ca3af"
+                stroke="var(--color-muted)"
                 interval={4}
               />
               <YAxis
                 tick={{ fontSize: 12 }}
-                stroke="#9ca3af"
+                stroke="var(--color-muted)"
                 tickFormatter={(v) => `${v}€`}
               />
               <Tooltip
                 formatter={(value) => [`${value} €`, "CA"]}
                 contentStyle={{
                   borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
+                  border: "1px solid var(--color-border)",
                   fontSize: "13px",
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="ca"
-                stroke="#DF887B"
+                stroke="var(--color-terracotta)"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 5, fill: "#DF887B" }}
+                activeDot={{ r: 5, fill: "var(--color-terracotta)" }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -202,27 +187,27 @@ export function DashboardView({
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <motion.div
           variants={fadeInUp}
-          className="bg-white rounded-xl border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-border p-6"
         >
-          <h2 className="text-base font-semibold text-gray-900 mb-4">
+          <h2 className="text-base font-semibold text-foreground mb-4">
             Top 5 produits
           </h2>
           {stats.topProducts.length === 0 ? (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-light">
               Pas encore de ventes sur 30 jours.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-2 font-medium text-gray-500">
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 font-medium text-muted">
                       Produit
                     </th>
-                    <th className="text-right py-2 font-medium text-gray-500">
+                    <th className="text-right py-2 font-medium text-muted">
                       Vendus
                     </th>
-                    <th className="text-right py-2 font-medium text-gray-500">
+                    <th className="text-right py-2 font-medium text-muted">
                       CA
                     </th>
                   </tr>
@@ -231,32 +216,32 @@ export function DashboardView({
                   {stats.topProducts.map((p) => (
                     <tr
                       key={p.id}
-                      className="border-b border-gray-50 last:border-0"
+                      className="border-b border-border/50 last:border-0"
                     >
                       <td className="py-2.5">
                         <div className="flex items-center gap-3">
                           {p.imageUrl ? (
                             <Image
                               src={p.imageUrl}
-                              alt=""
+                              alt={p.name}
                               width={32}
                               height={32}
                               className="w-8 h-8 rounded-lg object-cover"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                              <Package className="w-4 h-4 text-gray-400" />
+                            <div className="w-8 h-8 rounded-lg bg-muted-soft flex items-center justify-center">
+                              <Package className="w-4 h-4 text-muted" />
                             </div>
                           )}
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-foreground">
                             {p.name}
                           </span>
                         </div>
                       </td>
-                      <td className="text-right text-gray-600 py-2.5">
+                      <td className="text-right text-muted py-2.5 tabular-nums">
                         {p.quantity}
                       </td>
-                      <td className="text-right font-medium text-gray-900 py-2.5">
+                      <td className="text-right font-medium text-foreground py-2.5 tabular-nums">
                         {formatPrice(p.revenue)}
                       </td>
                     </tr>
@@ -269,13 +254,13 @@ export function DashboardView({
 
         <motion.div
           variants={fadeInUp}
-          className="bg-white rounded-xl border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-border p-6"
         >
-          <h2 className="text-base font-semibold text-gray-900 mb-4">
+          <h2 className="text-base font-semibold text-foreground mb-4">
             Alertes
           </h2>
           {alerts.length === 0 ? (
-            <p className="text-sm text-gray-400">Aucune alerte. ✓</p>
+            <p className="text-sm text-muted-light">Aucune alerte. ✓</p>
           ) : (
             <div className="space-y-2">
               {alerts.map((alert, i) => {
@@ -285,7 +270,7 @@ export function DashboardView({
                     key={i}
                     className={cn(
                       "flex items-start gap-3 p-3 rounded-lg border",
-                      alert.color,
+                      alertVariantClasses[alert.variant],
                     )}
                   >
                     <Icon className="w-4 h-4 mt-0.5 shrink-0" />
@@ -300,10 +285,10 @@ export function DashboardView({
 
       <motion.div
         variants={fadeInUp}
-        className="bg-white rounded-xl border border-gray-200 p-6"
+        className="bg-white rounded-xl border border-border p-6"
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-900">
+          <h2 className="text-base font-semibold text-foreground">
             Commandes récentes
           </h2>
           <Link
@@ -314,72 +299,62 @@ export function DashboardView({
           </Link>
         </div>
         {recentOrders.length === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-light">
             Aucune commande pour l&apos;instant.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-2 font-medium text-gray-500">
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 font-medium text-muted">
                     N° Commande
                   </th>
-                  <th className="text-left py-2 font-medium text-gray-500">
+                  <th className="text-left py-2 font-medium text-muted">
                     Client
                   </th>
-                  <th className="text-left py-2 font-medium text-gray-500">
+                  <th className="text-left py-2 font-medium text-muted">
                     Date
                   </th>
-                  <th className="text-left py-2 font-medium text-gray-500">
+                  <th className="text-left py-2 font-medium text-muted">
                     Statut
                   </th>
-                  <th className="text-right py-2 font-medium text-gray-500">
+                  <th className="text-right py-2 font-medium text-muted">
                     Montant
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order) => {
-                  const s = statusLabels[order.status] ?? {
-                    label: order.status,
-                    className: "bg-gray-100 text-gray-700",
-                  };
-                  return (
-                    <tr
-                      key={order.id}
-                      className="border-b border-gray-50 last:border-0"
-                    >
-                      <td className="py-2.5">
-                        <Link
-                          href={`/admin/commandes/${order.id}`}
-                          className="font-mono text-xs text-terracotta hover:underline"
-                        >
-                          {order.orderNumber}
-                        </Link>
-                      </td>
-                      <td className="py-2.5 text-gray-900">
-                        {order.customerName ?? order.customerEmail ?? "—"}
-                      </td>
-                      <td className="py-2.5 text-gray-500">
-                        {formatDate(order.createdAt)}
-                      </td>
-                      <td className="py-2.5">
-                        <span
-                          className={cn(
-                            "px-2 py-0.5 rounded-full text-xs font-medium",
-                            s.className,
-                          )}
-                        >
-                          {s.label}
-                        </span>
-                      </td>
-                      <td className="py-2.5 text-right font-medium text-gray-900">
-                        {formatPrice(order.total)}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {recentOrders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className="border-b border-border/50 last:border-0"
+                  >
+                    <td className="py-2.5">
+                      <Link
+                        href={`/admin/commandes/${order.id}`}
+                        className="font-mono text-xs text-terracotta hover:underline"
+                      >
+                        {order.orderNumber}
+                      </Link>
+                    </td>
+                    <td className="py-2.5 text-foreground">
+                      {order.customerName ?? order.customerEmail ?? "—"}
+                    </td>
+                    <td className="py-2.5 text-muted">
+                      {formatDate(order.createdAt)}
+                    </td>
+                    <td className="py-2.5">
+                      <StatusBadge
+                        status={order.status as OrderStatus}
+                        size="sm"
+                      />
+                    </td>
+                    <td className="py-2.5 text-right font-medium text-foreground tabular-nums">
+                      {formatPrice(order.total)}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

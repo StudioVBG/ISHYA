@@ -209,7 +209,7 @@ export function PaiementView({
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-sm text-amber-900 mb-6"
+          className="bg-warning-soft border border-warning/20 rounded-xl p-4 text-sm text-warning mb-6"
         >
           Stripe n&apos;est pas configuré sur cette installation. Les cartes ne
           peuvent pas être enregistrées.
@@ -243,7 +243,7 @@ export function PaiementView({
                 setShowAdd(false);
                 setClientSecret(null);
               }}
-              className="p-1 rounded-lg hover:bg-gray-100 text-gray-500"
+              className="p-1 rounded-lg hover:bg-muted-soft text-muted"
             >
               <X className="w-4 h-4" />
             </button>
@@ -311,7 +311,7 @@ export function PaiementView({
                     : "border-border",
                 )}
               >
-                <div className="w-12 h-8 rounded bg-gradient-to-br from-foreground to-gray-700 flex items-center justify-center text-white text-[10px] font-bold tracking-wider">
+                <div className="w-12 h-8 rounded bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center text-white text-[10px] font-bold tracking-wider">
                   {card.brand
                     ? (BRAND_LABELS[card.brand.toLowerCase()] ?? card.brand.toUpperCase())
                     : "CB"}
@@ -347,7 +347,7 @@ export function PaiementView({
                   <button
                     onClick={() => handleDelete(card)}
                     disabled={isLoading}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    className="p-1.5 rounded-lg text-muted-light hover:text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50"
                     aria-label="Supprimer"
                   >
                     {isLoading ? (
@@ -367,10 +367,10 @@ export function PaiementView({
         variants={fadeInUp}
         initial="hidden"
         animate="visible"
-        className="mt-8 bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-start gap-3"
+        className="mt-8 bg-success-soft border border-success/20 rounded-xl p-4 flex items-start gap-3"
       >
-        <Lock className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-        <p className="text-xs text-emerald-900">
+        <Lock className="w-4 h-4 text-success shrink-0 mt-0.5" />
+        <p className="text-xs text-success">
           Vos coordonnées bancaires ne sont jamais stockées sur nos serveurs.
           Elles sont gérées de façon sécurisée par notre prestataire de paiement
           Stripe (certifié PCI-DSS niveau 1).

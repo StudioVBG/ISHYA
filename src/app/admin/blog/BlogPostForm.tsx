@@ -26,8 +26,8 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
   const isEditing = !!post;
@@ -120,13 +120,13 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/blog"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux articles
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-foreground">
             {isEditing ? `Éditer : ${post?.title}` : "Nouvel article"}
           </h1>
           <div className="flex gap-2">
@@ -134,7 +134,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
               <button
                 onClick={handleDelete}
                 disabled={isDeletePending}
-                className="inline-flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 bg-red-50 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
                 {isDeletePending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -164,7 +164,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
         <div className="space-y-6">
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
             <div>
               <label className={labelClass}>Titre *</label>
@@ -200,7 +200,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 className={cn(inputClass, "resize-none")}
                 placeholder="Affiché sur la liste blog et en metadata"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {excerpt.length}/300 caractères
               </p>
             </div>
@@ -208,7 +208,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
 
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6"
+            className="bg-white rounded-xl border border-border p-6"
           >
             <label className={labelClass}>Contenu</label>
             <textarea
@@ -233,9 +233,9 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
 
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
-            <h2 className="text-base font-semibold text-gray-900">SEO</h2>
+            <h2 className="text-base font-semibold text-foreground">SEO</h2>
             <div>
               <label className={labelClass}>Titre SEO</label>
               <input
@@ -246,7 +246,7 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
                 className={inputClass}
                 placeholder="Si vide → titre de l'article"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {seoTitle.length}/60 caractères
               </p>
             </div>
@@ -260,7 +260,7 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
                 className={cn(inputClass, "resize-none")}
                 placeholder="Si vide → extrait"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {seoDescription.length}/160 caractères
               </p>
             </div>
@@ -270,11 +270,11 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
         <div className="space-y-4">
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-5"
+            className="bg-white rounded-xl border border-border p-5"
           >
-            <h3 className="font-semibold text-gray-900 mb-3">Publication</h3>
+            <h3 className="font-semibold text-foreground mb-3">Publication</h3>
             <label className="flex items-center justify-between cursor-pointer mb-3">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-foreground">
                 {isPublished ? "Publié" : "Brouillon"}
               </span>
               <input
@@ -285,12 +285,12 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
               />
             </label>
             {post?.publishedAt && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-light">
                 Publié le {formatDate(post.publishedAt)}
               </p>
             )}
             {post?.authorName && (
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 Par {post.authorName}
               </p>
             )}
@@ -309,11 +309,11 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
 
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-5"
+            className="bg-white rounded-xl border border-border p-5"
           >
-            <h3 className="font-semibold text-gray-900 mb-3">Image de couverture</h3>
+            <h3 className="font-semibold text-foreground mb-3">Image de couverture</h3>
             {coverImageUrl ? (
-              <div className="relative aspect-[16/10] rounded-lg overflow-hidden bg-gray-100 mb-3">
+              <div className="relative aspect-[16/10] rounded-lg overflow-hidden bg-muted-soft mb-3">
                 <Image
                   src={coverImageUrl}
                   alt=""
@@ -324,8 +324,8 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
                 />
               </div>
             ) : (
-              <div className="aspect-[16/10] rounded-lg bg-gray-100 flex items-center justify-center mb-3">
-                <ImageIcon className="w-8 h-8 text-gray-300" />
+              <div className="aspect-[16/10] rounded-lg bg-muted-soft flex items-center justify-center mb-3">
+                <ImageIcon className="w-8 h-8 text-muted-light" />
               </div>
             )}
             <input
@@ -339,22 +339,22 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
 
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-5"
+            className="bg-white rounded-xl border border-border p-5"
           >
-            <h3 className="font-semibold text-gray-900 mb-3">Tags</h3>
+            <h3 className="font-semibold text-foreground mb-3">Tags</h3>
             <div className="flex flex-wrap gap-1.5 mb-3">
               {tags.length === 0 ? (
-                <p className="text-xs text-gray-400">Aucun tag</p>
+                <p className="text-xs text-muted-light">Aucun tag</p>
               ) : (
                 tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1 bg-beige-nude-light text-gray-700 text-xs px-2 py-1 rounded-full"
+                    className="inline-flex items-center gap-1 bg-beige-nude-light text-foreground text-xs px-2 py-1 rounded-full"
                   >
                     {t}
                     <button
                       onClick={() => removeTag(t)}
-                      className="hover:text-red-600 transition-colors"
+                      className="hover:text-destructive transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -378,7 +378,7 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
               />
               <button
                 onClick={addTag}
-                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors"
+                className="px-3 py-2 bg-muted-soft hover:bg-border rounded-lg text-sm transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>

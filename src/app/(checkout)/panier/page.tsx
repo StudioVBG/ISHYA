@@ -222,11 +222,11 @@ export default function CartPage() {
                   variants={staggerItem}
                   exit={{ opacity: 0, x: -20, height: 0 }}
                   layout
-                  className="grid grid-cols-[80px_1fr] md:grid-cols-[1fr_120px_140px_100px_40px] gap-4 px-4 md:px-6 py-4 border-b border-border last:border-0 items-center"
+                  className="border-b border-border last:border-0"
                 >
-                  {/* Product info */}
-                  <div className="col-span-2 md:col-span-1 flex items-center gap-4">
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                  {/* ── Mobile : carte verticale ───────────────────── */}
+                  <div className="md:hidden p-4 flex gap-4">
+                    <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -235,69 +235,134 @@ export default function CartPage() {
                         sizes="80px"
                       />
                     </div>
-                    <div className="min-w-0">
-                      <h3 className="font-display text-sm font-medium truncate">
-                        {item.name}
-                      </h3>
-                      {(item.size || item.material || item.stone) && (
+                    <div className="flex-1 min-w-0 flex flex-col">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="font-display text-sm font-medium truncate">
+                            {item.name}
+                          </h3>
+                          {(item.size || item.material || item.stone) && (
+                            <p className="text-xs text-muted mt-0.5 truncate">
+                              {[item.size, item.material, item.stone]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted/70 mt-0.5 truncate">
+                            {formatPrice(item.price)} l&apos;unité
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="p-2 -mt-1 -mr-1 min-w-11 min-h-11 flex items-center justify-center text-muted hover:text-destructive transition-colors"
+                          aria-label="Supprimer l'article"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+                        <div className="flex items-center border border-border rounded-md bg-white">
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity - 1)
+                            }
+                            className="p-2 min-w-9 min-h-9 flex items-center justify-center hover:text-terracotta transition-colors"
+                            aria-label="Réduire la quantité"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="px-2 text-sm tabular-nums min-w-[2rem] text-center font-medium">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
+                            className="p-2 min-w-9 min-h-9 flex items-center justify-center hover:text-terracotta transition-colors"
+                            aria-label="Augmenter la quantité"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <span className="text-base font-medium tabular-nums">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Desktop : grille tabulaire ─────────────────── */}
+                  <div className="hidden md:grid grid-cols-[1fr_120px_140px_100px_40px] gap-4 px-6 py-4 items-center">
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-display text-sm font-medium truncate">
+                          {item.name}
+                        </h3>
+                        {(item.size || item.material || item.stone) && (
+                          <p className="text-xs text-muted mt-0.5">
+                            {[item.size, item.material, item.stone]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                        )}
                         <p className="text-xs text-muted mt-0.5">
-                          {[item.size, item.material, item.stone]
-                            .filter(Boolean)
-                            .join(" · ")}
+                          Réf : {item.sku}
                         </p>
-                      )}
-                      <p className="text-xs text-muted mt-0.5">
-                        Réf : {item.sku}
-                      </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Unit price */}
-                  <div className="hidden md:block text-center text-sm">
-                    {formatPrice(item.price)}
-                  </div>
+                    <div className="text-center text-sm tabular-nums">
+                      {formatPrice(item.price)}
+                    </div>
 
-                  {/* Quantity */}
-                  <div className="flex items-center justify-center">
-                    <div className="flex items-center border border-border rounded-lg bg-white">
+                    <div className="flex items-center justify-center">
+                      <div className="flex items-center border border-border rounded-lg bg-white">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          className="p-2 hover:text-terracotta transition-colors"
+                          aria-label="Réduire la quantité"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="px-3 text-sm tabular-nums min-w-[2.5rem] text-center font-medium">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          className="p-2 hover:text-terracotta transition-colors"
+                          aria-label="Augmenter la quantité"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-right text-sm font-medium tabular-nums">
+                      {formatPrice(item.price * item.quantity)}
+                    </div>
+
+                    <div className="flex justify-center">
                       <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
-                        className="p-2 hover:text-terracotta transition-colors"
-                        aria-label="Réduire la quantité"
+                        onClick={() => removeItem(item.id)}
+                        className="p-1.5 text-muted hover:text-destructive transition-colors"
+                        aria-label="Supprimer l'article"
                       >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="px-3 text-sm tabular-nums min-w-[2.5rem] text-center font-medium">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className="p-2 hover:text-terracotta transition-colors"
-                        aria-label="Augmenter la quantité"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
-                  </div>
-
-                  {/* Line total */}
-                  <div className="text-right text-sm font-medium">
-                    {formatPrice(item.price * item.quantity)}
-                  </div>
-
-                  {/* Remove */}
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-1.5 text-muted hover:text-destructive transition-colors"
-                      aria-label="Supprimer l'article"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
                   </div>
                 </motion.div>
               ))}

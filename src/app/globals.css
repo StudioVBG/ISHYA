@@ -16,9 +16,20 @@
   --gold-dark: #A88B5A;
   --muted: #9C8E82;
   --muted-light: #C4B8AD;
+  --muted-soft: #F3F0EC;
   --border: #E8E0D8;
   --destructive: #DC3545;
+  --destructive-soft: #FBE9EC;
   --success: #28A745;
+  --success-soft: #E6F4EA;
+  --info: #2563EB;
+  --info-soft: #E5EDFB;
+  --warning: #B7791F;
+  --warning-soft: #FBF1DC;
+  --accent-purple: #6B4F9B;
+  --accent-purple-soft: #ECE6F5;
+  /* Brand tiers (logos partenaires) */
+  --stripe-brand: #635BFF;
   --radius: 0.5rem;
 }
 
@@ -37,9 +48,19 @@
   --color-gold-dark: var(--gold-dark);
   --color-muted: var(--muted);
   --color-muted-light: var(--muted-light);
+  --color-muted-soft: var(--muted-soft);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-purple-soft: var(--accent-purple-soft);
+  --color-stripe-brand: var(--stripe-brand);
   --font-display: var(--font-playfair);
   --font-sans: var(--font-dm-sans);
 }
@@ -73,15 +94,24 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 2rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 2rem;
   background: var(--terracotta);
   color: white;
   border-radius: var(--radius);
   font-weight: 500;
-  transition: all 200ms ease;
+  transition: background 200ms ease, transform 200ms ease;
   &:hover {
     background: var(--terracotta-dark);
     transform: scale(1.02);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.6;
+    pointer-events: none;
   }
 }
 
@@ -89,16 +119,25 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 2rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 2rem;
   background: transparent;
   color: var(--foreground);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-weight: 500;
-  transition: all 200ms ease;
+  transition: border-color 200ms ease, color 200ms ease;
   &:hover {
     border-color: var(--terracotta);
     color: var(--terracotta);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--terracotta);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.6;
+    pointer-events: none;
   }
 }
 
@@ -106,14 +145,84 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 2rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 2rem;
   background: var(--gold);
   color: white;
   border-radius: var(--radius);
   font-weight: 500;
-  transition: all 200ms ease;
+  transition: background 200ms ease, transform 200ms ease;
   &:hover {
     background: var(--gold-dark);
     transform: scale(1.02);
   }
+  &:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+/* ───────────────────────────────────────────
+   Curseur custom (desktop, pointer fin)
+   ─────────────────────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  html.cursor-custom-on,
+  html.cursor-custom-on body,
+  html.cursor-custom-on a,
+  html.cursor-custom-on button,
+  html.cursor-custom-on [role="button"] {
+    cursor: none;
+  }
+  html.cursor-custom-on input,
+  html.cursor-custom-on textarea {
+    cursor: text;
+  }
+}
+
+/* ───────────────────────────────────────────
+   View Transitions API (liste → fiche produit)
+   ─────────────────────────────────────────── */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(*) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ───────────────────────────────────────────
+   Préférence utilisateur : réduire les mouvements
+   ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scroll plus doux global */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Tabular nums pour prix */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

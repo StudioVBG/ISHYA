@@ -37,9 +37,9 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
 
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 interface BlankVariantState {
   id: string; // local-only id for keyed UI, replaced by DB id after save
@@ -402,13 +402,13 @@ export function ProductForm({
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/produits"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux produits
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-foreground">
             {isEditing ? `Éditer : ${product?.name}` : "Nouveau produit"}
           </h1>
           <div className="flex gap-2">
@@ -416,7 +416,7 @@ export function ProductForm({
               <button
                 onClick={handleDelete}
                 disabled={isDeletePending}
-                className="inline-flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 bg-red-50 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
                 {isDeletePending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -447,9 +447,9 @@ export function ProductForm({
           {/* Informations */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
-            <h2 className="text-base font-semibold text-gray-900">
+            <h2 className="text-base font-semibold text-foreground">
               Informations
             </h2>
             <div>
@@ -512,14 +512,14 @@ export function ProductForm({
               <div>
                 <label className={labelClass}>
                   Catégories{" "}
-                  <span className="font-normal text-gray-400">
+                  <span className="font-normal text-muted-light">
                     ({categoryIds.length} sélectionnée
                     {categoryIds.length > 1 ? "s" : ""})
                   </span>
                 </label>
-                <div className="border border-gray-200 rounded-lg max-h-44 overflow-y-auto p-2 space-y-1">
+                <div className="border border-border rounded-lg max-h-44 overflow-y-auto p-2 space-y-1">
                   {categories.length === 0 && (
-                    <p className="text-xs text-gray-400 p-1">
+                    <p className="text-xs text-muted-light p-1">
                       Aucune catégorie. Créez-en depuis /admin/categories.
                     </p>
                   )}
@@ -529,7 +529,7 @@ export function ProductForm({
                     return (
                       <label
                         key={c.id}
-                        className="flex items-center gap-2 p-1.5 rounded hover:bg-gray-50 cursor-pointer text-sm"
+                        className="flex items-center gap-2 p-1.5 rounded hover:bg-muted-soft cursor-pointer text-sm"
                       >
                         <input
                           type="checkbox"
@@ -555,7 +555,7 @@ export function ProductForm({
                     );
                   })}
                 </div>
-                <p className="text-[11px] text-gray-400 mt-1">
+                <p className="text-[11px] text-muted-light mt-1">
                   La 1ère sélectionnée est la catégorie principale (URL & fil
                   d&apos;ariane).
                 </p>
@@ -563,14 +563,14 @@ export function ProductForm({
               <div>
                 <label className={labelClass}>
                   Collections{" "}
-                  <span className="font-normal text-gray-400">
+                  <span className="font-normal text-muted-light">
                     ({collectionIds.length} sélectionnée
                     {collectionIds.length > 1 ? "s" : ""})
                   </span>
                 </label>
-                <div className="border border-gray-200 rounded-lg max-h-44 overflow-y-auto p-2 space-y-1">
+                <div className="border border-border rounded-lg max-h-44 overflow-y-auto p-2 space-y-1">
                   {collections.length === 0 && (
-                    <p className="text-xs text-gray-400 p-1">
+                    <p className="text-xs text-muted-light p-1">
                       Aucune collection. Créez-en depuis /admin/collections.
                     </p>
                   )}
@@ -580,7 +580,7 @@ export function ProductForm({
                     return (
                       <label
                         key={c.id}
-                        className="flex items-center gap-2 p-1.5 rounded hover:bg-gray-50 cursor-pointer text-sm"
+                        className="flex items-center gap-2 p-1.5 rounded hover:bg-muted-soft cursor-pointer text-sm"
                       >
                         <input
                           type="checkbox"
@@ -606,7 +606,7 @@ export function ProductForm({
                     );
                   })}
                 </div>
-                <p className="text-[11px] text-gray-400 mt-1">
+                <p className="text-[11px] text-muted-light mt-1">
                   La 1ère sélectionnée est la collection principale.
                 </p>
               </div>
@@ -616,9 +616,9 @@ export function ProductForm({
           {/* Prix */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
-            <h2 className="text-base font-semibold text-gray-900">Prix</h2>
+            <h2 className="text-base font-semibold text-foreground">Prix</h2>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelClass}>Prix de base (€) *</label>
@@ -649,10 +649,10 @@ export function ProductForm({
           {/* Variantes */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6"
+            className="bg-white rounded-xl border border-border p-6"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-gray-900">
+              <h2 className="text-base font-semibold text-foreground">
                 Variantes
               </h2>
               <button
@@ -664,7 +664,7 @@ export function ProductForm({
               </button>
             </div>
             {variants.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-6">
+              <p className="text-sm text-muted-light text-center py-6">
                 Au moins une variante est requise pour activer la vente.
               </p>
             ) : (
@@ -672,7 +672,7 @@ export function ProductForm({
                 {variants.map((variant, idx) => (
                   <div
                     key={variant.id}
-                    className="border border-gray-200 rounded-lg p-3 space-y-3"
+                    className="border border-border rounded-lg p-3 space-y-3"
                   >
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       <div>
@@ -788,7 +788,7 @@ export function ProductForm({
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <label className="inline-flex items-center gap-2 text-sm text-foreground">
                         <input
                           type="checkbox"
                           checked={variant.isActive}
@@ -818,7 +818,7 @@ export function ProductForm({
                         <button
                           onClick={() => handleDeleteVariant(idx)}
                           disabled={isVariantPending}
-                          className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                          className="text-xs text-destructive hover:underline disabled:opacity-50"
                         >
                           Supprimer
                         </button>
@@ -833,10 +833,10 @@ export function ProductForm({
           {/* Médias */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6"
+            className="bg-white rounded-xl border border-border p-6"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-gray-900">Médias</h2>
+              <h2 className="text-base font-semibold text-foreground">Médias</h2>
               <button
                 onClick={() => setMedia((prev) => [...prev, emptyMedia()])}
                 className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
@@ -846,13 +846,13 @@ export function ProductForm({
               </button>
             </div>
             {!isEditing && (
-              <p className="text-xs text-gray-400 mb-3">
+              <p className="text-xs text-muted-light mb-3">
                 Les images saisies ici seront enregistrées avec le produit dès
                 la création.
               </p>
             )}
             {media.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-6">
+              <p className="text-sm text-muted-light text-center py-6">
                 Aucun média. Collez l&apos;URL d&apos;une image pour habiller la
                 fiche produit.
               </p>
@@ -861,9 +861,9 @@ export function ProductForm({
                   {media.map((m, idx) => (
                     <div
                       key={m.id}
-                      className="flex gap-3 items-start border border-gray-200 rounded-lg p-3"
+                      className="flex gap-3 items-start border border-border rounded-lg p-3"
                     >
-                      <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden shrink-0 relative">
+                      <div className="w-16 h-16 rounded-lg bg-muted-soft overflow-hidden shrink-0 relative">
                         {m.url ? (
                           <Image
                             src={m.url}
@@ -875,7 +875,7 @@ export function ProductForm({
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="w-6 h-6 text-gray-300" />
+                            <ImageIcon className="w-6 h-6 text-muted-light" />
                           </div>
                         )}
                       </div>
@@ -899,7 +899,7 @@ export function ProductForm({
                           className={inputClass}
                         />
                         <div className="flex items-center justify-between">
-                          <label className="inline-flex items-center gap-2 text-xs text-gray-700">
+                          <label className="inline-flex items-center gap-2 text-xs text-foreground">
                             <input
                               type="checkbox"
                               checked={m.isPrimary}
@@ -930,7 +930,7 @@ export function ProductForm({
                             <button
                               onClick={() => handleDeleteMedia(idx)}
                               disabled={isMediaPending}
-                              className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                              className="text-xs text-destructive hover:underline disabled:opacity-50"
                             >
                               {isEditing ? "Supprimer" : "Retirer"}
                             </button>
@@ -942,7 +942,7 @@ export function ProductForm({
               </div>
             )}
             {!isEditing && (
-              <p className="text-[11px] text-gray-400 text-center mt-3">
+              <p className="text-[11px] text-muted-light text-center mt-3">
                 Les boutons « Enregistrer » et « Supprimer » de chaque image
                 seront actifs après création du produit.
               </p>
@@ -952,9 +952,9 @@ export function ProductForm({
           {/* Caractéristiques */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
-            <h2 className="text-base font-semibold text-gray-900">
+            <h2 className="text-base font-semibold text-foreground">
               Caractéristiques
             </h2>
             <div className="grid grid-cols-2 gap-3">
@@ -1000,7 +1000,7 @@ export function ProductForm({
                 className={cn(inputClass, "resize-none")}
               />
             </div>
-            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <label className="inline-flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={isNickelFree}
@@ -1014,9 +1014,9 @@ export function ProductForm({
           {/* SEO */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
-            <h2 className="text-base font-semibold text-gray-900">SEO</h2>
+            <h2 className="text-base font-semibold text-foreground">SEO</h2>
             <div>
               <label className={labelClass}>Titre SEO</label>
               <input
@@ -1026,7 +1026,7 @@ export function ProductForm({
                 className={inputClass}
                 maxLength={60}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {seoTitle.length}/60 caractères
               </p>
             </div>
@@ -1039,7 +1039,7 @@ export function ProductForm({
                 maxLength={160}
                 className={cn(inputClass, "resize-none")}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {seoDescription.length}/160 caractères
               </p>
             </div>
@@ -1050,12 +1050,12 @@ export function ProductForm({
         <div className="space-y-4">
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-5 sticky top-4"
+            className="bg-white rounded-xl border border-border p-5 sticky top-4"
           >
-            <h3 className="font-semibold text-gray-900 mb-4">Publication</h3>
+            <h3 className="font-semibold text-foreground mb-4">Publication</h3>
             <div className="space-y-3">
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-gray-700">Actif (visible)</span>
+                <span className="text-sm text-foreground">Actif (visible)</span>
                 <input
                   type="checkbox"
                   checked={isActive}
@@ -1064,7 +1064,7 @@ export function ProductForm({
                 />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-gray-700">Best-seller</span>
+                <span className="text-sm text-foreground">Best-seller</span>
                 <input
                   type="checkbox"
                   checked={isFeatured}
@@ -1073,7 +1073,7 @@ export function ProductForm({
                 />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-gray-700">Nouveauté</span>
+                <span className="text-sm text-foreground">Nouveauté</span>
                 <input
                   type="checkbox"
                   checked={isNew}
@@ -1087,9 +1087,9 @@ export function ProductForm({
           {isEditing && product && (
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-xl border border-gray-200 p-5"
+              className="bg-white rounded-xl border border-border p-5"
             >
-              <h3 className="font-semibold text-gray-900 mb-3">Aperçu</h3>
+              <h3 className="font-semibold text-foreground mb-3">Aperçu</h3>
               <Link
                 href={`/produit/${product.slug}`}
                 target="_blank"

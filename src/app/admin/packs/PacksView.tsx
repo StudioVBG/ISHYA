@@ -27,8 +27,8 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 const TYPE_LABELS: Record<PackDiscountType, string> = {
   percentage: "% (pourcentage)",
@@ -165,8 +165,8 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Packs & parures</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Packs & parures</h2>
+          <p className="text-sm text-muted">
             {packs.length} pack{packs.length > 1 ? "s" : ""}
           </p>
         </div>
@@ -182,9 +182,9 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
       {packs.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400"
+          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
         >
-          <Gift className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <Gift className="w-8 h-8 mx-auto mb-2 text-muted-light" />
           Aucun pack pour l&apos;instant.
         </motion.div>
       ) : (
@@ -195,9 +195,9 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
           {packs.map((p) => (
             <div
               key={p.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col"
+              className="bg-white rounded-xl border border-border overflow-hidden flex flex-col"
             >
-              <div className="relative aspect-[16/10] bg-gray-100">
+              <div className="relative aspect-[16/10] bg-muted-soft">
                 {p.imageUrl ? (
                   <Image
                     src={p.imageUrl}
@@ -209,15 +209,15 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageIcon className="w-10 h-10 text-gray-300" />
+                    <ImageIcon className="w-10 h-10 text-muted-light" />
                   </div>
                 )}
                 <span
                   className={cn(
                     "absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium",
                     p.isActive
-                      ? "bg-emerald-500/90 text-white"
-                      : "bg-gray-500/90 text-white",
+                      ? "bg-success/90 text-white"
+                      : "bg-muted/90 text-white",
                   )}
                 >
                   {p.isActive ? "Actif" : "Inactif"}
@@ -227,16 +227,16 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                 </span>
               </div>
               <div className="p-4 flex-1 flex flex-col">
-                <p className="font-medium text-gray-900">{p.name}</p>
-                <p className="text-xs text-gray-400 font-mono mt-0.5">
+                <p className="font-medium text-foreground">{p.name}</p>
+                <p className="text-xs text-muted-light font-mono mt-0.5">
                   /{p.slug}
                 </p>
                 {p.description && (
-                  <p className="text-xs text-gray-500 mt-2 line-clamp-2">
+                  <p className="text-xs text-muted mt-2 line-clamp-2">
                     {p.description}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-400 mt-2">
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-light mt-2">
                   <span>
                     {p.itemCount} produit{p.itemCount > 1 ? "s" : ""}
                   </span>
@@ -245,7 +245,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   )}
                   {p.endsAt && <span>au {formatDate(p.endsAt)}</span>}
                 </div>
-                <div className="flex items-center justify-between gap-1 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between gap-1 mt-3 pt-3 border-t border-border/50">
                   <Link
                     href={`/admin/packs/${p.id}`}
                     className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline"
@@ -256,14 +256,14 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openEdit(p)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
                       disabled={isDeletePending}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                      className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -291,14 +291,14 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
               className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-base font-semibold text-gray-900">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-base font-semibold text-foreground">
                   {editingId ? "Modifier le pack" : "Nouveau pack"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -417,7 +417,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                     />
                   </div>
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="checkbox"
                     checked={form.isActive}
@@ -428,16 +428,16 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   />
                   Pack actif
                 </label>
-                <p className="text-xs text-gray-400 italic">
+                <p className="text-xs text-muted-light italic">
                   Les produits inclus dans le pack se gèrent depuis la table
                   pack_items en base (UI dédiée à venir).
                 </p>
               </div>
-              <div className="flex gap-3 p-6 border-t border-gray-200">
+              <div className="flex gap-3 p-6 border-t border-border">
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>

@@ -142,10 +142,10 @@ export function TaillesForm({ sizes }: { sizes: AccountSavedSizes }) {
 
         <motion.div
           variants={staggerItem}
-          className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex items-start gap-3"
+          className="bg-warning-soft border border-warning/20 rounded-xl p-4 flex items-start gap-3"
         >
-          <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-900">
+          <Info className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+          <p className="text-xs text-warning">
             Pas sûre de vos mesures ? Consultez notre{" "}
             <Link
               href="/guide-des-tailles"

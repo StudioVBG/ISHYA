@@ -53,7 +53,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
             type="checkbox"
             checked={table.getIsAllPageRowsSelected()}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="rounded border-gray-300"
+            className="rounded border-border"
           />
         ),
         cell: ({ row }) => (
@@ -61,7 +61,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
             type="checkbox"
             checked={row.getIsSelected()}
             onChange={row.getToggleSelectedHandler()}
-            className="rounded border-gray-300"
+            className="rounded border-border"
           />
         ),
         size: 40,
@@ -80,8 +80,8 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
               className="w-10 h-10 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-              <Package className="w-4 h-4 text-gray-400" />
+            <div className="w-10 h-10 rounded-lg bg-muted-soft flex items-center justify-center">
+              <Package className="w-4 h-4 text-muted-light" />
             </div>
           );
         },
@@ -94,7 +94,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         cell: ({ row }) => (
           <Link
             href={`/admin/produits/${row.original.id}`}
-            className="font-medium text-gray-900 hover:text-terracotta transition-colors"
+            className="font-medium text-foreground hover:text-terracotta transition-colors"
           >
             {row.original.name}
           </Link>
@@ -104,7 +104,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         accessorKey: "sku",
         header: "SKU",
         cell: ({ getValue }) => (
-          <span className="font-mono text-xs text-gray-500">
+          <span className="font-mono text-xs text-muted">
             {getValue<string | null>() ?? "—"}
           </span>
         ),
@@ -126,10 +126,10 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
               className={cn(
                 "font-medium",
                 v === 0
-                  ? "text-red-600"
+                  ? "text-destructive"
                   : v < 10
-                    ? "text-orange-500"
-                    : "text-gray-900",
+                    ? "text-warning"
+                    : "text-foreground",
               )}
             >
               {v}
@@ -152,8 +152,8 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
               className={cn(
                 "px-2 py-0.5 rounded-full text-xs font-medium",
                 active
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-gray-100 text-gray-600",
+                  ? "bg-success-soft text-success"
+                  : "bg-muted-soft text-muted",
               )}
             >
               {active ? "Actif" : "Brouillon"}
@@ -168,11 +168,11 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
           <div className="flex items-center gap-1">
             <Link
               href={`/admin/produits/${row.original.id}`}
-              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+              className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
             >
               <Edit className="w-4 h-4" />
             </Link>
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors">
+            <button className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -214,8 +214,8 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Produits</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Produits</h2>
+          <p className="text-sm text-muted">
             {products.length} produit{products.length > 1 ? "s" : ""} au total
           </p>
         </div>
@@ -230,23 +230,23 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 p-4"
+        className="bg-white rounded-xl border border-border p-4"
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
             <input
               type="text"
               placeholder="Rechercher un produit..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
           >
             <option value="">Toutes catégories</option>
             {categories.map((c) => (
@@ -258,7 +258,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
           >
             <option value="">Tous statuts</option>
             <option value="active">Actif</option>
@@ -266,11 +266,11 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
           </select>
         </div>
         {selectedCount > 0 && (
-          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-            <span className="text-sm text-gray-500">
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/50">
+            <span className="text-sm text-muted">
               {selectedCount} sélectionné(s)
             </span>
-            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-destructive bg-destructive-soft rounded-lg hover:bg-destructive/15 transition-colors">
               <Trash2 className="w-3.5 h-3.5" />
               Supprimer
             </button>
@@ -280,7 +280,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        className="bg-white rounded-xl border border-border overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -288,7 +288,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="border-b border-gray-200 bg-gray-50/50"
+                  className="border-b border-border bg-muted-soft/50"
                 >
                   {headerGroup.headers.map((header) => (
                     <th
@@ -299,9 +299,9 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                           : undefined
                       }
                       className={cn(
-                        "px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
+                        "px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider",
                         header.column.getCanSort() &&
-                          "cursor-pointer select-none hover:text-gray-700",
+                          "cursor-pointer select-none hover:text-foreground",
                       )}
                       style={{
                         width:
@@ -330,7 +330,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-4 py-12 text-center text-gray-400"
+                    className="px-4 py-12 text-center text-muted-light"
                   >
                     {products.length === 0
                       ? "Aucun produit. Créez-en un pour commencer."
@@ -341,7 +341,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="px-4 py-3">

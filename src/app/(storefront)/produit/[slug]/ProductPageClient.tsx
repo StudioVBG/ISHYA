@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,7 +8,6 @@ import {
   Minus,
   Plus,
   Heart,
-  ShoppingBag,
   Star,
   Truck,
   Shield,
@@ -17,14 +15,51 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
-import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
-import { ProductCard, type ProductCardProduct } from "@/components/product/ProductCard";
+import {
+  fadeInUp,
+  staggerContainer,
+  staggerItem,
+  letterContainer,
+  letterItem,
+  easeOutQuart,
+} from "@/lib/animations";
+import { ProductGallery } from "@/components/product/ProductGallery";
+import { AddToCartButton } from "@/components/product/AddToCartButton";
+import { RelatedCarousel } from "@/components/product/RelatedCarousel";
+import { type ProductCardProduct } from "@/components/product/ProductCard";
 import { useCartStore } from "@/stores/cart-store";
 import type { ProductDetail } from "@/lib/queries/storefront";
 
 interface ProductPageClientProps {
   data: ProductDetail;
   related: ProductCardProduct[];
+}
+
+function AnimatedTitle({ text }: { text: string }) {
+  const words = text.split(" ");
+  return (
+    <motion.h1
+      variants={letterContainer}
+      initial="hidden"
+      animate="visible"
+      className="font-display text-3xl md:text-4xl lg:text-5xl mb-3 leading-tight"
+      aria-label={text}
+    >
+      {words.map((word, wi) => (
+        <span key={wi} className="inline-block whitespace-nowrap mr-2">
+          {Array.from(word).map((char, ci) => (
+            <motion.span
+              key={`${wi}-${ci}`}
+              variants={letterItem}
+              className="inline-block"
+            >
+              {char}
+            </motion.span>
+          ))}
+        </span>
+      ))}
+    </motion.h1>
+  );
 }
 
 function AccordionItem({
@@ -41,23 +76,29 @@ function AccordionItem({
     <div className="border-b border-border">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-4 text-left"
+        className="w-full flex items-center justify-between py-4 text-left group"
+        aria-expanded={open}
       >
-        <span className="font-medium text-sm">{title}</span>
-        <ChevronDown
-          className={cn(
-            "w-4 h-4 text-muted transition-transform",
-            open && "rotate-180"
-          )}
-        />
+        <span className="font-medium text-sm group-hover:text-terracotta transition-colors">
+          {title}
+        </span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.35, ease: easeOutQuart }}
+        >
+          <ChevronDown className="w-4 h-4 text-muted" />
+        </motion.span>
       </button>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {open && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{
+              height: { duration: 0.35, ease: easeOutQuart },
+              opacity: { duration: 0.25, ease: easeOutQuart },
+            }}
             className="overflow-hidden"
           >
             <div className="pb-4 text-sm text-muted leading-relaxed">
@@ -72,8 +113,8 @@ function AccordionItem({
 
 export default function ProductPageClient({ data, related }: ProductPageClientProps) {
   const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
 
-  const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
@@ -90,6 +131,12 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
   const displayedCompareAt = product.compare_at_price;
   const isOnSale =
     displayedCompareAt != null && displayedCompareAt > displayedPrice;
+  const saleBadge =
+    isOnSale && displayedCompareAt
+      ? `-${Math.round(
+          ((displayedCompareAt - displayedPrice) / displayedCompareAt) * 100
+        )}%`
+      : null;
 
   const avgRating =
     reviews.length > 0
@@ -102,6 +149,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
     for (let i = 0; i < qty; i++) {
       addItem(product, currentVariant, sortedMedia[0]?.url);
     }
+    setTimeout(() => openCart(), 700);
   };
 
   return (
@@ -140,60 +188,13 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
       <section className="py-8 md:py-12 px-4">
         <div className="container">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-            {/* Image Gallery */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-            >
-              <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-beige-nude-light mb-3">
-                {sortedMedia[selectedImage] && (
-                  <Image
-                    src={sortedMedia[selectedImage].url}
-                    alt={
-                      sortedMedia[selectedImage].alt_text ?? product.name
-                    }
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                )}
-                {isOnSale && displayedCompareAt && (
-                  <span className="absolute top-4 left-4 bg-destructive text-white text-xs font-medium px-3 py-1 rounded">
-                    -
-                    {Math.round(
-                      ((displayedCompareAt - displayedPrice) /
-                        displayedCompareAt) *
-                        100
-                    )}
-                    %
-                  </span>
-                )}
-              </div>
-              {sortedMedia.length > 1 && (
-                <div className="flex gap-2">
-                  {sortedMedia.map((m, idx) => (
-                    <button
-                      key={m.id}
-                      onClick={() => setSelectedImage(idx)}
-                      className={cn(
-                        "relative w-16 h-20 rounded-lg overflow-hidden border-2 transition-colors",
-                        selectedImage === idx
-                          ? "border-terracotta"
-                          : "border-transparent hover:border-border"
-                      )}
-                    >
-                      <Image
-                        src={m.url}
-                        alt={m.alt_text ?? ""}
-                        fill
-                        className="object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
+            {/* Galerie */}
+            <ProductGallery
+              media={sortedMedia}
+              productName={product.name}
+              productId={product.id}
+              saleBadge={saleBadge}
+            />
 
             {/* Product Info */}
             <motion.div
@@ -204,24 +205,19 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
               {category && (
                 <motion.p
                   variants={fadeInUp}
-                  className="text-xs text-muted uppercase tracking-wider mb-2"
+                  className="text-xs text-muted uppercase tracking-[0.15em] mb-3"
                 >
                   {category.name}
                 </motion.p>
               )}
 
-              <motion.h1
-                variants={fadeInUp}
-                className="font-display text-3xl md:text-4xl mb-3"
-              >
-                {product.name}
-              </motion.h1>
+              <AnimatedTitle text={product.name} />
 
               {/* Rating */}
               {reviews.length > 0 && (
                 <motion.div
                   variants={fadeInUp}
-                  className="flex items-center gap-2 mb-4"
+                  className="flex items-center gap-2 mb-5"
                 >
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -247,16 +243,20 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 variants={fadeInUp}
                 className="flex items-baseline gap-3 mb-6"
               >
-                <span
+                <motion.span
+                  key={displayedPrice}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, ease: easeOutQuart }}
                   className={cn(
-                    "text-2xl font-medium",
+                    "text-3xl font-medium tabular-nums",
                     isOnSale && "text-terracotta"
                   )}
                 >
                   {formatPrice(displayedPrice)}
-                </span>
+                </motion.span>
                 {isOnSale && displayedCompareAt && (
-                  <span className="text-lg text-muted line-through">
+                  <span className="text-lg text-muted line-through tabular-nums">
                     {formatPrice(displayedCompareAt)}
                   </span>
                 )}
@@ -269,33 +269,48 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 {product.short_description}
               </motion.p>
 
-              {/* Variant selector */}
+              {/* Variant selector avec ripple */}
               {variants.length > 1 && (
                 <motion.div variants={fadeInUp} className="mb-6">
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium mb-3 uppercase tracking-wider text-xs">
                     Taille / Variante
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {variants.map((v, idx) => {
                       const out = v.stock_quantity === 0;
+                      const selected = selectedVariant === idx;
                       return (
                         <button
                           key={v.id}
                           onClick={() => setSelectedVariant(idx)}
                           className={cn(
-                            "px-4 py-2 rounded-lg border text-sm transition-colors relative",
-                            selectedVariant === idx
-                              ? "border-terracotta bg-terracotta/5 text-terracotta"
+                            "relative px-4 h-11 min-w-[3rem] rounded-lg border text-sm transition-all overflow-hidden",
+                            selected
+                              ? "border-terracotta text-terracotta bg-terracotta/5"
                               : "border-border hover:border-terracotta-light",
-                            out && "opacity-60 line-through",
+                            out && "opacity-50 line-through"
                           )}
+                          aria-pressed={selected}
                           aria-label={
                             out
                               ? `${v.size ?? v.material_variant ?? v.sku} (rupture)`
                               : undefined
                           }
                         >
-                          {v.size ?? v.material_variant ?? v.sku}
+                          {selected && (
+                            <motion.span
+                              layoutId="variant-ripple"
+                              className="absolute inset-0 bg-terracotta/10"
+                              transition={{
+                                type: "spring",
+                                stiffness: 350,
+                                damping: 30,
+                              }}
+                            />
+                          )}
+                          <span className="relative">
+                            {v.size ?? v.material_variant ?? v.sku}
+                          </span>
                         </button>
                       );
                     })}
@@ -303,7 +318,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 </motion.div>
               )}
 
-              {/* Stock indicator (per selected variant) */}
+              {/* Stock indicator */}
               <motion.div variants={fadeInUp} className="mb-6">
                 {currentStock > 5 ? (
                   <p className="text-sm text-success flex items-center gap-1.5">
@@ -311,8 +326,12 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     En stock
                   </p>
                 ) : currentStock > 0 ? (
-                  <p className="text-sm text-amber-600 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  <p className="text-sm text-warning flex items-center gap-1.5">
+                    <motion.span
+                      className="w-2 h-2 rounded-full bg-warning"
+                      animate={{ opacity: [1, 0.3, 1] }}
+                      transition={{ duration: 1.6, repeat: Infinity }}
+                    />
                     Plus que {currentStock} en stock
                   </p>
                 ) : (
@@ -326,49 +345,51 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
               {/* Quantity + Add to cart */}
               <motion.div variants={fadeInUp} className="flex gap-3 mb-4">
-                <div className="flex items-center border border-border rounded-lg">
+                <div className="flex items-center border border-border rounded-md h-12">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-beige-nude-light transition-colors"
+                    className="h-full px-3 hover:bg-beige-nude-light transition-colors rounded-l-md"
                     aria-label="Réduire la quantité"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center text-sm font-medium">
+                  <span className="w-10 text-center text-sm font-medium tabular-nums">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-beige-nude-light transition-colors"
+                    className="h-full px-3 hover:bg-beige-nude-light transition-colors rounded-r-md"
                     aria-label="Augmenter la quantité"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                <button
-                  onClick={handleAddToCart}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2"
-                  disabled={currentStock === 0}
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  {currentStock === 0 ? "Rupture" : "Ajouter au panier"}
-                </button>
+                <AddToCartButton
+                  onAdd={handleAddToCart}
+                  outOfStock={currentStock === 0}
+                />
               </motion.div>
 
               <motion.button
                 variants={fadeInUp}
                 onClick={() => setWishlisted(!wishlisted)}
                 className={cn(
-                  "flex items-center gap-2 text-sm transition-colors mb-8",
+                  "flex items-center gap-2 text-sm transition-colors mb-8 group",
                   wishlisted
                     ? "text-terracotta"
                     : "text-muted hover:text-terracotta"
                 )}
               >
-                <Heart
-                  className="w-4 h-4"
-                  fill={wishlisted ? "currentColor" : "none"}
-                />
+                <motion.span
+                  animate={wishlisted ? { scale: [1, 1.4, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="inline-flex"
+                >
+                  <Heart
+                    className="w-4 h-4"
+                    fill={wishlisted ? "currentColor" : "none"}
+                  />
+                </motion.span>
                 {wishlisted
                   ? "Ajouté aux favoris"
                   : "Ajouter aux favoris"}
@@ -437,14 +458,22 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                   { icon: Shield, text: "Paiement sécurisé" },
                   { icon: Truck, text: "Livraison offerte dès 60€" },
                   { icon: RotateCcw, text: "Retours gratuits 14j" },
-                ].map(({ icon: Icon, text }) => (
-                  <div
+                ].map(({ icon: Icon, text }, i) => (
+                  <motion.div
                     key={text}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      duration: 0.4,
+                      delay: i * 0.1,
+                      ease: easeOutQuart,
+                    }}
                     className="flex flex-col items-center text-center"
                   >
                     <Icon className="w-5 h-5 text-terracotta mb-1.5" />
                     <span className="text-[11px] text-muted">{text}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </motion.div>
             </motion.div>
@@ -489,7 +518,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
               className="space-y-6"
             >
@@ -537,32 +566,29 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
         </section>
       )}
 
-      {/* Cross-sell */}
+      {/* Cross-sell — carrousel drag */}
       {related.length > 0 && (
-        <section className="py-16 px-4">
+        <section className="py-16 px-4 overflow-hidden">
           <div className="container">
             <motion.h2
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
-              className="font-display text-2xl md:text-3xl mb-10"
+              className="font-display text-2xl md:text-3xl mb-2"
             >
               Complétez votre parure
             </motion.h2>
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              variants={staggerContainer}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+              transition={{ delay: 0.1, duration: 0.5, ease: easeOutQuart }}
+              className="text-sm text-muted mb-8"
             >
-              {related.map((product, index) => (
-                <motion.div key={product.id} variants={staggerItem}>
-                  <ProductCard product={product} index={index} />
-                </motion.div>
-              ))}
-            </motion.div>
+              Faites glisser pour découvrir
+            </motion.p>
+            <RelatedCarousel products={related} />
           </div>
         </section>
       )}

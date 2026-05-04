@@ -136,18 +136,18 @@ export function CategoryDetailView({
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/categories"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux catégories
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{category.name}</h1>
-            <p className="text-sm text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-bold text-foreground">{category.name}</h1>
+            <p className="text-sm text-muted mt-1 flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs">/{category.slug}</span>
               {category.parentName && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-muted-light">
                   ↳ enfant de {category.parentName}
                 </span>
               )}
@@ -155,8 +155,8 @@ export function CategoryDetailView({
                 className={cn(
                   "px-2 py-0.5 rounded-full text-xs font-medium",
                   category.isActive
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-gray-100 text-gray-600",
+                    ? "bg-success-soft text-success"
+                    : "bg-muted-soft text-muted",
                 )}
               >
                 {category.isActive ? "Active" : "Inactive"}
@@ -165,7 +165,7 @@ export function CategoryDetailView({
           </div>
           <Link
             href="/admin/categories"
-            className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors"
           >
             Modifier les infos
           </Link>
@@ -175,19 +175,19 @@ export function CategoryDetailView({
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-border p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-gray-900">
+            <h2 className="text-base font-semibold text-foreground">
               Produits ({items.length})
             </h2>
-            <p className="text-xs text-gray-400">Réordonnez via les flèches</p>
+            <p className="text-xs text-muted-light">Réordonnez via les flèches</p>
           </div>
 
           {items.length === 0 ? (
             <div className="text-center py-12">
-              <Package className="w-10 h-10 mx-auto text-gray-300 mb-3" />
-              <p className="text-sm text-gray-500">
+              <Package className="w-10 h-10 mx-auto text-muted-light mb-3" />
+              <p className="text-sm text-muted">
                 Aucun produit dans cette catégorie.
               </p>
             </div>
@@ -198,25 +198,25 @@ export function CategoryDetailView({
                 return (
                   <div
                     key={item.productId}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200"
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border"
                   >
                     <div className="flex flex-col gap-1">
                       <button
                         onClick={() => move(idx, -1)}
                         disabled={idx === 0 || isPending}
-                        className="p-0.5 rounded hover:bg-gray-100 disabled:opacity-30"
+                        className="p-0.5 rounded hover:bg-muted-soft disabled:opacity-30"
                       >
                         <ChevronUp className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => move(idx, 1)}
                         disabled={idx === items.length - 1 || isPending}
-                        className="p-0.5 rounded hover:bg-gray-100 disabled:opacity-30"
+                        className="p-0.5 rounded hover:bg-muted-soft disabled:opacity-30"
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 relative">
+                    <div className="w-12 h-12 rounded-lg bg-muted-soft overflow-hidden shrink-0 relative">
                       {item.productImageUrl ? (
                         <Image
                           src={item.productImageUrl}
@@ -228,35 +228,35 @@ export function CategoryDetailView({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-5 h-5 text-gray-300" />
+                          <Package className="w-5 h-5 text-muted-light" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <Link
                         href={`/admin/produits/${item.productId}`}
-                        className="font-medium text-sm text-gray-900 hover:text-terracotta transition-colors truncate block"
+                        className="font-medium text-sm text-foreground hover:text-terracotta transition-colors truncate block"
                       >
                         {item.productName}
                       </Link>
-                      <p className="text-xs text-gray-400 font-mono truncate">
+                      <p className="text-xs text-muted-light font-mono truncate">
                         /{item.productSlug}
                       </p>
                     </div>
                     {item.basePrice > 0 && (
-                      <span className="text-xs text-gray-600 tabular-nums">
+                      <span className="text-xs text-muted tabular-nums">
                         {formatPrice(item.basePrice)}
                       </span>
                     )}
                     {!item.isActive && (
-                      <span className="text-[10px] uppercase tracking-wide text-gray-400">
+                      <span className="text-[10px] uppercase tracking-wide text-muted-light">
                         Inactif
                       </span>
                     )}
                     <button
                       onClick={() => handleRemove(item.productId)}
                       disabled={isLoading}
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                      className="p-1.5 rounded-lg hover:bg-destructive-soft text-muted-light hover:text-destructive transition-colors disabled:opacity-50"
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -273,27 +273,27 @@ export function CategoryDetailView({
 
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 p-5 h-fit sticky top-4"
+          className="bg-white rounded-xl border border-border p-5 h-fit sticky top-4"
         >
-          <h3 className="font-semibold text-gray-900 mb-3">
+          <h3 className="font-semibold text-foreground mb-3">
             Ajouter un produit
           </h3>
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Nom de produit..."
-                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               />
             </div>
             <button
               onClick={handleSearch}
               disabled={isSearching}
-              className="px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+              className="px-3 py-2 bg-foreground text-white rounded-lg text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
             >
               {isSearching ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -304,7 +304,7 @@ export function CategoryDetailView({
           </div>
 
           {results.length === 0 && !isSearching && (
-            <p className="text-xs text-gray-400 text-center py-6">
+            <p className="text-xs text-muted-light text-center py-6">
               Tapez le nom d&apos;un produit puis cliquez sur Chercher.
             </p>
           )}
@@ -315,9 +315,9 @@ export function CategoryDetailView({
                 return (
                   <div
                     key={p.id}
-                    className="flex items-center gap-3 p-2 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 p-2 rounded-lg border border-border/50 hover:bg-muted-soft transition-colors"
                   >
-                    <div className="w-10 h-10 rounded bg-gray-100 overflow-hidden shrink-0 relative">
+                    <div className="w-10 h-10 rounded bg-muted-soft overflow-hidden shrink-0 relative">
                       {p.imageUrl ? (
                         <Image
                           src={p.imageUrl}
@@ -329,14 +329,14 @@ export function CategoryDetailView({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-4 h-4 text-gray-300" />
+                          <Package className="w-4 h-4 text-muted-light" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900 truncate">{p.name}</p>
+                      <p className="text-sm text-foreground truncate">{p.name}</p>
                       {p.sku && (
-                        <p className="text-xs text-gray-400 font-mono">
+                        <p className="text-xs text-muted-light font-mono">
                           {p.sku}
                         </p>
                       )}

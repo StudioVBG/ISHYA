@@ -10,7 +10,7 @@ import { Mail, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "@/lib/animations";
+import { staggerContainer, staggerItem, scaleIn } from "@/lib/animations";
 
 const forgotSchema = z.object({
   email: z

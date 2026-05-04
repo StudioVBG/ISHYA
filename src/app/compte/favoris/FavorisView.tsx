@@ -43,8 +43,8 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
 
       {items.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-pink-50 flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-pink-400" />
+          <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center mx-auto mb-4">
+            <Heart className="w-8 h-8 text-terracotta-light" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Aucun favori pour le moment
@@ -83,11 +83,11 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Package className="w-10 h-10 text-gray-300" />
+                    <Package className="w-10 h-10 text-muted-light" />
                   </div>
                 )}
                 {!item.inStock && (
-                  <span className="absolute top-2 left-2 text-[10px] uppercase tracking-wide font-medium bg-white/90 text-gray-700 px-2 py-1 rounded-full">
+                  <span className="absolute top-2 left-2 text-[10px] uppercase tracking-wide font-medium bg-white/90 text-foreground px-2 py-1 rounded-full">
                     Épuisé
                   </span>
                 )}
@@ -114,7 +114,7 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
                     onClick={() => handleRemove(item.id)}
                     disabled={isPending}
                     className={cn(
-                      "p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors",
+                      "p-1.5 rounded-lg text-muted-light hover:text-destructive hover:bg-destructive-soft transition-colors",
                       isPending && "opacity-50 cursor-not-allowed",
                     )}
                     aria-label="Retirer des favoris"

@@ -22,8 +22,8 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
   const isEditing = !!page;
@@ -93,13 +93,13 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/pages"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux pages
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-foreground">
             {isEditing ? `Éditer : ${page?.title}` : "Nouvelle page"}
           </h1>
           <div className="flex gap-2">
@@ -107,7 +107,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
               <button
                 onClick={handleDelete}
                 disabled={isDeletePending}
-                className="inline-flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 bg-red-50 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
                 {isDeletePending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -137,7 +137,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
         <div className="space-y-6">
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
             <div>
               <label className={labelClass}>Titre *</label>
@@ -157,7 +157,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
             <div>
               <label className={labelClass}>Slug *</label>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 font-mono">/p/</span>
+                <span className="text-xs text-muted-light font-mono">/p/</span>
                 <input
                   type="text"
                   value={slug}
@@ -166,7 +166,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                   placeholder="a-propos"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 Lettres minuscules, chiffres et tirets uniquement.
               </p>
             </div>
@@ -174,7 +174,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
 
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6"
+            className="bg-white rounded-xl border border-border p-6"
           >
             <label className={labelClass}>Contenu</label>
             <textarea
@@ -188,9 +188,9 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
 
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+            className="bg-white rounded-xl border border-border p-6 space-y-4"
           >
-            <h2 className="text-base font-semibold text-gray-900">SEO</h2>
+            <h2 className="text-base font-semibold text-foreground">SEO</h2>
             <div>
               <label className={labelClass}>Meta title</label>
               <input
@@ -201,7 +201,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 className={inputClass}
                 placeholder="Si vide → titre de la page"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {metaTitle.length}/60 caractères
               </p>
             </div>
@@ -214,7 +214,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 maxLength={160}
                 className={cn(inputClass, "resize-none")}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-light mt-1">
                 {metaDescription.length}/160 caractères
               </p>
             </div>
@@ -224,11 +224,11 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
         <div className="space-y-4">
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-gray-200 p-5"
+            className="bg-white rounded-xl border border-border p-5"
           >
-            <h3 className="font-semibold text-gray-900 mb-3">Publication</h3>
+            <h3 className="font-semibold text-foreground mb-3">Publication</h3>
             <label className="flex items-center justify-between cursor-pointer mb-3">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-foreground">
                 {isPublished ? "Publiée" : "Brouillon"}
               </span>
               <input
@@ -239,7 +239,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
               />
             </label>
             {page?.publishedAt && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-light">
                 Publiée le {formatDate(page.publishedAt)}
               </p>
             )}

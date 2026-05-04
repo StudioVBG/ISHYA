@@ -25,8 +25,8 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 const PLACEMENT_LABELS: Record<BannerPlacement, string> = {
   hero: "Hero (haut de page)",
@@ -150,8 +150,8 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Bannières</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Bannières</h2>
+          <p className="text-sm text-muted">
             {banners.length} bannière{banners.length > 1 ? "s" : ""}
           </p>
         </div>
@@ -167,9 +167,9 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
       {banners.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400"
+          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
         >
-          <Banner className="w-8 h-8 mx-auto mb-2 text-gray-300" aria-hidden />
+          <Banner className="w-8 h-8 mx-auto mb-2 text-muted-light" aria-hidden />
           Aucune bannière. Créez-en une pour commencer.
         </motion.div>
       ) : (
@@ -180,9 +180,9 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
           {banners.map((b) => (
             <div
               key={b.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+              className="bg-white rounded-xl border border-border overflow-hidden"
             >
-              <div className="relative aspect-[2/1] bg-gray-100">
+              <div className="relative aspect-[2/1] bg-muted-soft">
                 {b.imageUrl ? (
                   <Image
                     src={b.imageUrl}
@@ -194,48 +194,48 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageIcon className="w-10 h-10 text-gray-300" />
+                    <ImageIcon className="w-10 h-10 text-muted-light" />
                   </div>
                 )}
                 <span
                   className={cn(
                     "absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium",
                     b.isActive
-                      ? "bg-emerald-500/90 text-white"
-                      : "bg-gray-500/90 text-white",
+                      ? "bg-success/90 text-white"
+                      : "bg-muted/90 text-white",
                   )}
                 >
                   {b.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
               <div className="p-4">
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+                <p className="text-xs text-muted-light uppercase tracking-wide mb-1">
                   {PLACEMENT_LABELS[b.placement as BannerPlacement] ??
                     b.placement}
                 </p>
-                <p className="font-medium text-gray-900 truncate">{b.title}</p>
+                <p className="font-medium text-foreground truncate">{b.title}</p>
                 {b.subtitle && (
-                  <p className="text-xs text-gray-500 truncate mt-0.5">
+                  <p className="text-xs text-muted truncate mt-0.5">
                     {b.subtitle}
                   </p>
                 )}
                 {(b.startsAt || b.endsAt) && (
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-muted-light mt-2">
                     {b.startsAt && `du ${formatDate(b.startsAt)}`}
                     {b.endsAt && ` au ${formatDate(b.endsAt)}`}
                   </p>
                 )}
-                <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border/50">
                   <button
                     onClick={() => openEdit(b)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(b.id)}
                     disabled={isDeletePending}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                    className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -262,14 +262,14 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
               className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-base font-semibold text-gray-900">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-base font-semibold text-foreground">
                   {editingId ? "Modifier la bannière" : "Nouvelle bannière"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -377,7 +377,7 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
                     />
                   </div>
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="checkbox"
                     checked={form.isActive}
@@ -389,11 +389,11 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
                   Bannière active
                 </label>
               </div>
-              <div className="flex gap-3 p-6 border-t border-gray-200">
+              <div className="flex gap-3 p-6 border-t border-border">
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>

@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import {
   ChevronLeft,
   Check,
-  Package,
   Truck,
   MapPin,
   Clock,
@@ -102,7 +101,7 @@ export default function SuiviPage() {
               <h2 className="font-display text-lg font-semibold">
                 Historique de suivi
               </h2>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-accent-purple-soft text-accent-purple">
                 En transit
               </span>
             </div>
@@ -129,7 +128,7 @@ export default function SuiviPage() {
                           isCompleted && "bg-terracotta text-white",
                           isCurrent &&
                             "bg-terracotta text-white ring-4 ring-terracotta/20",
-                          isPending && "bg-gray-100 text-muted"
+                          isPending && "bg-muted-soft text-muted"
                         )}
                       >
                         {isCompleted && <Check className="w-4 h-4" />}
@@ -144,7 +143,7 @@ export default function SuiviPage() {
                             "w-0.5 flex-1 mt-1",
                             isCompleted || isCurrent
                               ? "bg-terracotta"
-                              : "bg-gray-200 border-l-2 border-dashed border-gray-200"
+                              : "bg-border border-l-2 border-dashed border-border"
                           )}
                         />
                       )}
@@ -190,8 +189,8 @@ export default function SuiviPage() {
             <h3 className="font-display font-semibold mb-4">Transporteur</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-                  <Truck className="w-5 h-5 text-yellow-600" />
+                <div className="w-10 h-10 rounded-lg bg-warning-soft flex items-center justify-center">
+                  <Truck className="w-5 h-5 text-warning" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Colissimo</p>

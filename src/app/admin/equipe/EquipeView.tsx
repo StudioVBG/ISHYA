@@ -12,23 +12,23 @@ import { toggleMemberActive, updateMemberRole } from "./actions";
 const ROLE_LABELS: Record<string, { label: string; className: string }> = {
   super_admin: {
     label: "Super-admin",
-    className: "bg-red-50 text-red-700",
+    className: "bg-destructive-soft text-destructive",
   },
   admin: {
     label: "Admin",
-    className: "bg-purple-50 text-purple-700",
+    className: "bg-accent-purple-soft text-accent-purple",
   },
   editor: {
     label: "Éditeur",
-    className: "bg-blue-50 text-blue-700",
+    className: "bg-info-soft text-info",
   },
   support: {
     label: "Support",
-    className: "bg-cyan-50 text-cyan-700",
+    className: "bg-info-soft text-info",
   },
   customer: {
     label: "Client (rétrogradé)",
-    className: "bg-gray-100 text-gray-600",
+    className: "bg-muted-soft text-muted",
   },
 };
 
@@ -80,11 +80,11 @@ export function EquipeView({
       className="space-y-6"
     >
       <motion.div variants={staggerItem}>
-        <h2 className="text-xl font-bold text-gray-900">Équipe</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-foreground">Équipe</h2>
+        <p className="text-sm text-muted">
           {members.length} membre{members.length > 1 ? "s" : ""}
           {!isSuperAdmin && (
-            <span className="ml-2 inline-flex items-center gap-1 text-xs text-orange-600">
+            <span className="ml-2 inline-flex items-center gap-1 text-xs text-warning">
               <ShieldAlert className="w-3.5 h-3.5" />
               Lecture seule (super-admin requis pour éditer)
             </span>
@@ -95,7 +95,7 @@ export function EquipeView({
       {!isSuperAdmin && (
         <motion.div
           variants={staggerItem}
-          className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-sm text-amber-900"
+          className="bg-warning-soft border border-warning/20 rounded-xl p-4 text-sm text-warning"
         >
           Seul un super-admin peut promouvoir, rétrograder ou désactiver un
           membre. Les actions ci-dessous sont désactivées.
@@ -104,25 +104,25 @@ export function EquipeView({
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        className="bg-white rounded-xl border border-border overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <tr className="border-b border-border bg-muted-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Membre
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Rôle
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Inscription
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Dernière connexion
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-4 py-3 w-32"></th>
@@ -133,7 +133,7 @@ export function EquipeView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-gray-400"
+                    className="px-4 py-12 text-center text-muted-light"
                   >
                     Aucun membre d&apos;équipe pour l&apos;instant.
                   </td>
@@ -142,17 +142,17 @@ export function EquipeView({
                 members.map((m) => {
                   const role = ROLE_LABELS[m.role] ?? {
                     label: m.role,
-                    className: "bg-gray-100 text-gray-600",
+                    className: "bg-muted-soft text-muted",
                   };
                   const isLoading = isPending && pendingId === m.id;
                   const isMe = m.id === currentUserId;
                   return (
                     <tr
                       key={m.id}
-                      className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                      className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {[m.firstName, m.lastName]
                             .filter(Boolean)
                             .join(" ") || "Sans nom"}
@@ -162,7 +162,7 @@ export function EquipeView({
                             </span>
                           )}
                         </p>
-                        <p className="text-xs text-gray-400">{m.email}</p>
+                        <p className="text-xs text-muted-light">{m.email}</p>
                       </td>
                       <td className="px-4 py-3">
                         {isSuperAdmin ? (
@@ -172,7 +172,7 @@ export function EquipeView({
                               handleRoleChange(m.id, e.target.value)
                             }
                             disabled={isLoading || (isMe && m.role === "super_admin")}
-                            className="px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
+                            className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
                           >
                             {ROLE_OPTIONS.map((r) => (
                               <option key={r} value={r}>
@@ -191,10 +191,10 @@ export function EquipeView({
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="px-4 py-3 text-muted">
                         {m.createdAt ? formatDate(m.createdAt) : "—"}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="px-4 py-3 text-muted">
                         {m.lastSignInAt
                           ? formatDate(m.lastSignInAt)
                           : "Jamais"}
@@ -204,8 +204,8 @@ export function EquipeView({
                           className={cn(
                             "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
                             m.isActive
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-gray-100 text-gray-500",
+                              ? "bg-success-soft text-success"
+                              : "bg-muted-soft text-muted",
                           )}
                         >
                           <ShieldCheck className="w-3 h-3" />
@@ -219,7 +219,7 @@ export function EquipeView({
                               handleToggleActive(m.id, m.isActive)
                             }
                             disabled={isLoading}
-                            className="text-xs text-gray-600 hover:text-terracotta transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                            className="text-xs text-muted hover:text-terracotta transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                           >
                             {isLoading && (
                               <Loader2 className="w-3 h-3 animate-spin" />

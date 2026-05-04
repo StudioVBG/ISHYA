@@ -28,7 +28,7 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      setQuery("");
+      queueMicrotask(() => setQuery(""));
     }
   }, [open]);
 

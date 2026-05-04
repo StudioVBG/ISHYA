@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
   ChevronLeft, User, Mail, Phone, MapPin, ShoppingCart,
-  Star, Calendar, Award, Clock, Package,
+  Star, Calendar, Award, Package,
 } from 'lucide-react'
 import { cn, formatPrice, formatDate } from '@/lib/utils'
 import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations'
+import { StatusBadge, type StatusVariant } from '@/components/ui/StatusBadge'
 
 const client = {
   id: 'usr-001',
@@ -46,25 +46,24 @@ const client = {
   ],
 }
 
-const statusConfig: Record<string, { label: string; className: string }> = {
-  paid: { label: 'Payée', className: 'bg-emerald-50 text-emerald-700' },
-  delivered: { label: 'Livrée', className: 'bg-green-50 text-green-700' },
-  processing: { label: 'En préparation', className: 'bg-blue-50 text-blue-700' },
+const orderStatusConfig: Record<string, { label: string; variant: StatusVariant }> = {
+  paid: { label: 'Payée', variant: 'info' },
+  delivered: { label: 'Livrée', variant: 'success' },
+  processing: { label: 'En préparation', variant: 'warning' },
 }
 
 export default function ClientDetailPage() {
-  const params = useParams<{ id: string }>()
   const [notes, setNotes] = useState('')
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
       <motion.div variants={staggerItem} className="flex items-center gap-3">
-        <Link href="/admin/clients" className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-          <ChevronLeft className="w-5 h-5 text-gray-500" />
+        <Link href="/admin/clients" className="p-2 rounded-lg hover:bg-muted-soft transition-colors" aria-label="Retour">
+          <ChevronLeft className="w-5 h-5 text-muted" />
         </Link>
         <div>
-          <h2 className="text-xl font-bold text-gray-900">{client.name}</h2>
-          <p className="text-sm text-gray-500">Client depuis {formatDate(client.createdAt)}</p>
+          <h2 className="text-xl font-bold text-foreground">{client.name}</h2>
+          <p className="text-sm text-muted">Client depuis {formatDate(client.createdAt)}</p>
         </div>
       </motion.div>
 
@@ -78,12 +77,12 @@ export default function ClientDetailPage() {
         ].map((kpi) => {
           const Icon = kpi.icon
           return (
-            <motion.div key={kpi.label} variants={staggerItem} className="bg-white rounded-xl border border-gray-200 p-4">
+            <motion.div key={kpi.label} variants={staggerItem} className="bg-white rounded-xl border border-border p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Icon className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-500">{kpi.label}</span>
+                <Icon className="w-4 h-4 text-muted" />
+                <span className="text-sm text-muted">{kpi.label}</span>
               </div>
-              <p className="text-xl font-bold text-gray-900">{kpi.value}</p>
+              <p className="text-xl font-semibold text-foreground tabular-nums">{kpi.value}</p>
             </motion.div>
           )
         })}
@@ -92,58 +91,62 @@ export default function ClientDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Profile + Addresses */}
         <div className="space-y-6">
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Informations</h3>
+          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-border p-5">
+            <h3 className="font-semibold text-foreground mb-4">Informations</h3>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-3"><User className="w-4 h-4 text-gray-400" /><span className="text-gray-700">{client.name}</span></div>
-              <div className="flex items-center gap-3"><Mail className="w-4 h-4 text-gray-400" /><span className="text-gray-700">{client.email}</span></div>
-              <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-gray-400" /><span className="text-gray-700">{client.phone}</span></div>
-              <div className="flex items-center gap-3"><Calendar className="w-4 h-4 text-gray-400" /><span className="text-gray-700">Inscrit le {formatDate(client.createdAt)}</span></div>
+              <div className="flex items-center gap-3"><User className="w-4 h-4 text-muted" /><span className="text-foreground">{client.name}</span></div>
+              <div className="flex items-center gap-3"><Mail className="w-4 h-4 text-muted" /><span className="text-foreground">{client.email}</span></div>
+              <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-muted" /><span className="text-foreground">{client.phone}</span></div>
+              <div className="flex items-center gap-3"><Calendar className="w-4 h-4 text-muted" /><span className="text-foreground">Inscrit le {formatDate(client.createdAt)}</span></div>
               <div className="flex items-center gap-3">
-                <Award className="w-4 h-4 text-gray-400" />
-                <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold-dark')}>{client.loyaltyTier}</span>
+                <Award className="w-4 h-4 text-muted" />
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gold/15 text-gold-dark">{client.loyaltyTier}</span>
               </div>
             </div>
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Adresses</h3>
+          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-border p-5">
+            <h3 className="font-semibold text-foreground mb-4">Adresses</h3>
             <div className="space-y-3">
               {client.addresses.map((addr, i) => (
-                <div key={i} className="p-3 rounded-lg border border-gray-100 text-sm">
-                  <div className="flex items-center gap-2 mb-1">
-                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="font-medium text-gray-900">{addr.label}</span>
-                    {addr.isDefault && <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-medium rounded">Par défaut</span>}
+                <div key={i} className="p-3 rounded-lg border border-border/60 text-sm">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <MapPin className="w-3.5 h-3.5 text-muted" />
+                    <span className="font-medium text-foreground">{addr.label}</span>
+                    {addr.isDefault && (
+                      <StatusBadge variant="success" size="sm">
+                        Par défaut
+                      </StatusBadge>
+                    )}
                   </div>
-                  <p className="text-gray-600 ml-5.5">{addr.line1}, {addr.postal} {addr.city}</p>
+                  <p className="text-muted ml-5.5">{addr.line1}, {addr.postal} {addr.city}</p>
                 </div>
               ))}
             </div>
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Notes internes</h3>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ajouter une note..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm h-24 resize-none focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta" />
+          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-border p-5">
+            <h3 className="font-semibold text-foreground mb-3">Notes internes</h3>
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ajouter une note..." className="w-full px-3 py-2 border border-border rounded-lg text-sm h-24 resize-none focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta" />
           </motion.div>
         </div>
 
         {/* Center: Orders + Reviews */}
         <div className="space-y-6">
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Historique des commandes</h3>
+          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-border p-5">
+            <h3 className="font-semibold text-foreground mb-4">Historique des commandes</h3>
             <div className="space-y-2">
               {client.orders.map((order) => {
-                const s = statusConfig[order.status] || { label: order.status, className: 'bg-gray-100 text-gray-600' }
+                const s = orderStatusConfig[order.status] ?? { label: order.status, variant: 'neutral' as StatusVariant }
                 return (
-                  <Link key={order.id} href={`/admin/commandes/${order.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Link key={order.id} href={`/admin/commandes/${order.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-ivory/60 transition-colors">
                     <div>
                       <p className="font-mono text-xs text-terracotta">{order.id}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{formatDate(order.date)}</p>
+                      <p className="text-xs text-muted-light mt-0.5">{formatDate(order.date)}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-sm text-gray-900">{formatPrice(order.amount)}</p>
-                      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium', s.className)}>{s.label}</span>
+                    <div className="text-right flex flex-col items-end gap-1">
+                      <p className="font-medium text-sm text-foreground tabular-nums">{formatPrice(order.amount)}</p>
+                      <StatusBadge variant={s.variant} size="sm">{s.label}</StatusBadge>
                     </div>
                   </Link>
                 )
@@ -151,21 +154,21 @@ export default function ClientDetailPage() {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Avis laissés</h3>
+          <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-border p-5">
+            <h3 className="font-semibold text-foreground mb-4">Avis laissés</h3>
             <div className="space-y-3">
               {client.reviews.map((review, i) => (
-                <div key={i} className="p-3 rounded-lg border border-gray-100">
+                <div key={i} className="p-3 rounded-lg border border-border/60">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-900">{review.product}</span>
+                    <span className="text-sm font-medium text-foreground">{review.product}</span>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, s) => (
-                        <Star key={s} className={cn('w-3.5 h-3.5', s < review.rating ? 'text-gold fill-gold' : 'text-gray-200')} />
+                        <Star key={s} className={cn('w-3.5 h-3.5', s < review.rating ? 'text-gold fill-gold' : 'text-border')} />
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">{review.content}</p>
-                  <p className="text-xs text-gray-400 mt-1">{formatDate(review.date)}</p>
+                  <p className="text-sm text-muted">{review.content}</p>
+                  <p className="text-xs text-muted-light mt-1">{formatDate(review.date)}</p>
                 </div>
               ))}
             </div>
@@ -173,15 +176,15 @@ export default function ClientDetailPage() {
         </div>
 
         {/* Right: Activity */}
-        <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="font-semibold text-gray-900 mb-4">Activité récente</h3>
+        <motion.div variants={fadeInUp} className="bg-white rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground mb-4">Activité récente</h3>
           <div className="space-y-4">
             {client.activity.map((event, i) => (
               <div key={i} className="flex items-start gap-3">
                 <div className="w-2 h-2 rounded-full bg-terracotta mt-1.5 shrink-0" />
                 <div>
-                  <p className="text-sm text-gray-700">{event.event}</p>
-                  <p className="text-xs text-gray-400">{event.date}</p>
+                  <p className="text-sm text-foreground">{event.event}</p>
+                  <p className="text-xs text-muted-light">{event.date}</p>
                 </div>
               </div>
             ))}

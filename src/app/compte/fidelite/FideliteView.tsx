@@ -23,16 +23,16 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const TIER_COLORS: Record<string, string> = {
-  bronze: "from-orange-300 to-orange-400",
-  silver: "from-gray-300 to-gray-400",
+  bronze: "from-terracotta-light to-terracotta",
+  silver: "from-muted-light to-muted",
   gold: "from-gold-light to-gold",
-  platinum: "from-gray-700 to-gray-800",
+  platinum: "from-foreground/70 to-foreground",
 };
 
 const TYPE_LABELS: Record<string, { label: string; className: string; icon: React.ElementType }> = {
   earn: {
     label: "Gagnés",
-    className: "text-emerald-600 bg-emerald-50",
+    className: "text-success bg-success-soft",
     icon: ShoppingBag,
   },
   redeem: {
@@ -42,12 +42,12 @@ const TYPE_LABELS: Record<string, { label: string; className: string; icon: Reac
   },
   expire: {
     label: "Expirés",
-    className: "text-orange-600 bg-orange-50",
+    className: "text-warning bg-warning-soft",
     icon: Calendar,
   },
   adjust: {
     label: "Ajustement",
-    className: "text-blue-600 bg-blue-50",
+    className: "text-info bg-info-soft",
     icon: RotateCcw,
   },
 };
@@ -175,7 +175,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                   <div
                     className={cn(
                       "w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center mb-3",
-                      TIER_COLORS[tier.name] ?? "from-gray-300 to-gray-400",
+                      TIER_COLORS[tier.name] ?? "from-muted-light to-muted",
                     )}
                   >
                     <Sparkles className="w-4 h-4 text-white" />
@@ -187,7 +187,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                     Dès {tier.minPoints} pts
                   </p>
                   {tier.pointsMultiplier > 1 && (
-                    <p className="text-xs text-emerald-600 font-medium mt-2">
+                    <p className="text-xs text-success font-medium mt-2">
                       ×{tier.pointsMultiplier} sur les achats
                     </p>
                   )}
@@ -237,7 +237,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
               {data.transactions.map((tx) => {
                 const config = TYPE_LABELS[tx.type] ?? {
                   label: tx.type,
-                  className: "text-gray-600 bg-gray-100",
+                  className: "text-muted bg-muted-soft",
                   icon: TrendingUp,
                 };
                 const Icon = config.icon;
@@ -274,7 +274,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                     <span
                       className={cn(
                         "font-mono text-sm font-semibold shrink-0",
-                        isNegative ? "text-orange-600" : "text-emerald-600",
+                        isNegative ? "text-warning" : "text-success",
                       )}
                     >
                       {isNegative ? "" : "+"}

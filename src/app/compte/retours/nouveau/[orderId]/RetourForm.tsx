@@ -153,7 +153,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-5 h-5 text-gray-300" />
+                          <Package className="w-5 h-5 text-muted-light" />
                         </div>
                       )}
                     </div>
@@ -254,10 +254,10 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
 
           <motion.div
             variants={staggerItem}
-            className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex items-start gap-3"
+            className="bg-warning-soft border border-warning/20 rounded-xl p-4 flex items-start gap-3"
           >
-            <RotateCcw className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-900">
+            <RotateCcw className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+            <p className="text-xs text-warning">
               Une fois la demande validée, vous recevrez par email les
               instructions et l&apos;étiquette de retour. Le délai légal est de
               14 jours après la livraison (sauf exceptions : boucles
