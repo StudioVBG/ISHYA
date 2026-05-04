@@ -6,6 +6,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { slugify } from "@/lib/utils";
 
+interface CreateProductResult {
+  ok: boolean;
+  error?: string;
+  productId?: string;
+  warnings?: string[];
+}
+
 export interface ProductInput {
   name: string;
   slug: string;
@@ -110,7 +117,7 @@ export async function createProduct(
   input: ProductInput,
   variants: VariantInput[],
   media: MediaInput[],
-): Promise<{ ok: boolean; error?: string; productId?: string }> {
+): Promise<CreateProductResult> {
   const validationError = validate(input);
   if (validationError) return { ok: false, error: validationError };
 
@@ -183,13 +190,11 @@ export async function createProduct(
       );
     if (variantsError) {
       console.error("[createProduct] variants:", variantsError);
-      // Rollback : on supprime le produit
       await admin.from("products").delete().eq("id", product.id);
       return { ok: false, error: "Erreur création variantes" };
     }
   }
 
-  // Ensure at least the primary collection/category appear in the m2m
   const collectionIds = Array.from(
     new Set(
       [primaryCollectionId, ...input.collectionIds].filter(
@@ -206,6 +211,7 @@ export async function createProduct(
   );
   await syncProductMemberships(admin, product.id, collectionIds, categoryIds);
 
+  const warnings: string[] = [];
   if (media.length > 0) {
     const { error: mediaError } = await admin.from("product_media").insert(
       media.map((m, idx) => ({
@@ -219,12 +225,16 @@ export async function createProduct(
     );
     if (mediaError) {
       console.error("[createProduct] media:", mediaError);
+      warnings.push(
+        "Le produit est créé mais les photos n'ont pas pu être enregistrées. Réessaie depuis l'onglet Photos.",
+      );
     }
   }
 
   revalidatePath("/admin/produits");
   revalidatePath("/admin");
-  redirect(`/admin/produits/${product.id}`);
+
+  return { ok: true, productId: product.id, warnings };
 }
 
 export async function updateProduct(
