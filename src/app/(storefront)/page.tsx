@@ -45,7 +45,7 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[85vh] min-h-[480px] sm:min-h-[600px] flex items-center justify-center overflow-hidden">
         <Image
           src="/images/hero-ishya.png"
           alt="Collection de boucles d'oreilles florales ISHYA"
@@ -55,42 +55,42 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
         <div className="relative z-10 text-center text-white px-4 max-w-3xl">
-          <p className="uppercase tracking-[0.3em] text-sm mb-4 text-white/80">
+          <p className="uppercase tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4 text-white/80">
             Bijoux floraux artisanaux
           </p>
-          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl tracking-wider mb-6">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 sm:mb-6">
             ISHYA
           </h1>
-          <p className="text-lg md:text-xl font-light mb-10 text-white/90 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl font-light mb-8 sm:mb-10 text-white/90 max-w-xl mx-auto">
             Bijoux floraux artisanaux en fleurs séchées et résine
           </p>
-          <Link href="/boutique" className="btn-primary text-base px-10 py-4">
+          <Link href="/boutique" className="btn-primary text-base px-8 sm:px-10 py-3 sm:py-4">
             Découvrir la collection
           </Link>
         </div>
       </section>
 
       {/* ── Catégories ───────────────────────────────────────── */}
-      <section className="py-20 px-4">
+      <section className="py-12 sm:py-16 md:py-20 px-4">
         <div className="container">
-          <h2 className="font-display text-3xl md:text-4xl text-center mb-14">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-center mb-8 sm:mb-12 md:mb-14">
             Nos Catégories
           </h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6 md:gap-8">
             {categories.map((category) => (
               <Link
                 key={category.id}
                 href={`/boutique/${category.slug}`}
                 className="group flex flex-col items-center text-center"
               >
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden mb-3 ring-2 ring-transparent group-hover:ring-terracotta transition-all duration-300 bg-beige-nude-light">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden mb-3 ring-2 ring-transparent group-hover:ring-terracotta transition-all duration-300 bg-beige-nude-light">
                   {category.image_url && (
                     <Image
                       src={category.image_url}
                       alt={category.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 768px) 80px, 112px"
+                      sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, (max-width: 1024px) 96px, 112px"
                     />
                   )}
                 </div>
