@@ -7,6 +7,8 @@ interface SyncCartItem {
   variantId: string | null;
   quantity: number;
   unitPrice: number;
+  packId?: string | null;
+  packName?: string | null;
 }
 
 interface SyncCartBody {
@@ -118,6 +120,8 @@ export async function POST(request: NextRequest) {
         variant_id: it.variantId,
         quantity: it.quantity,
         unit_price: it.unitPrice,
+        pack_id: it.packId ?? null,
+        pack_selections: it.packName ? { pack_name: it.packName } : null,
       }));
     if (rows.length > 0) {
       const { error: itemsError } = await admin

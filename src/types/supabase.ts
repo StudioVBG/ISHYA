@@ -1394,6 +1394,78 @@ export type Database = {
           },
         ]
       }
+      product_collections: {
+        Row: {
+          collection_id: string
+          created_at: string | null
+          product_id: string
+          sort_order: number
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string | null
+          product_id: string
+          sort_order?: number
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string | null
+          product_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_collections_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_collections_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          product_id: string
+          sort_order: number
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          product_id: string
+          sort_order?: number
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          product_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_relations: {
         Row: {
           created_at: string | null
@@ -2305,7 +2377,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      decrement_variant_stock: {
+        Args: {
+          p_variant_id: string
+          p_quantity: number
+        }
+        Returns: {
+          variant_id: string
+          new_quantity: number
+        }[]
+      }
     }
     Enums: {
       address_type: "shipping" | "billing"

@@ -178,8 +178,15 @@ export function ProductForm({
     product?.compareAtPrice != null ? String(product.compareAtPrice) : "",
   );
   const [sku, setSku] = useState(product?.sku ?? "");
-  const [categoryId, setCategoryId] = useState(product?.categoryId ?? "");
-  const [collectionId, setCollectionId] = useState(product?.collectionId ?? "");
+  const [categoryIds, setCategoryIds] = useState<string[]>(
+    product?.categoryIds ?? (product?.categoryId ? [product.categoryId] : []),
+  );
+  const [collectionIds, setCollectionIds] = useState<string[]>(
+    product?.collectionIds ??
+      (product?.collectionId ? [product.collectionId] : []),
+  );
+  const primaryCategoryId = categoryIds[0] ?? null;
+  const primaryCollectionId = collectionIds[0] ?? null;
   const [material, setMaterial] = useState(product?.material ?? "");
   const [weightG, setWeightG] = useState(
     product?.weightG != null ? String(product.weightG) : "",
@@ -217,8 +224,10 @@ export function ProductForm({
     basePrice: Number(basePrice) || 0,
     compareAtPrice: compareAtPrice ? Number(compareAtPrice) : null,
     sku: sku.trim() || null,
-    categoryId: categoryId || null,
-    collectionId: collectionId || null,
+    categoryId: primaryCategoryId,
+    collectionId: primaryCollectionId,
+    categoryIds,
+    collectionIds,
     material: material.trim() || null,
     weightG: weightG ? Number(weightG) : null,
     dimensions: dimensions.trim() || null,
@@ -499,36 +508,107 @@ export function ProductForm({
                 className={cn(inputClass, "resize-none")}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Catégorie</label>
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">— Aucune —</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <label className={labelClass}>
+                  Catégories{" "}
+                  <span className="font-normal text-gray-400">
+                    ({categoryIds.length} sélectionnée
+                    {categoryIds.length > 1 ? "s" : ""})
+                  </span>
+                </label>
+                <div className="border border-gray-200 rounded-lg max-h-44 overflow-y-auto p-2 space-y-1">
+                  {categories.length === 0 && (
+                    <p className="text-xs text-gray-400 p-1">
+                      Aucune catégorie. Créez-en depuis /admin/categories.
+                    </p>
+                  )}
+                  {categories.map((c) => {
+                    const checked = categoryIds.includes(c.id);
+                    const isPrimary = primaryCategoryId === c.id;
+                    return (
+                      <label
+                        key={c.id}
+                        className="flex items-center gap-2 p-1.5 rounded hover:bg-gray-50 cursor-pointer text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setCategoryIds((prev) => [...prev, c.id]);
+                            } else {
+                              setCategoryIds((prev) =>
+                                prev.filter((id) => id !== c.id),
+                              );
+                            }
+                          }}
+                          className="rounded accent-terracotta"
+                        />
+                        <span className="flex-1 truncate">{c.name}</span>
+                        {isPrimary && (
+                          <span className="text-[10px] uppercase tracking-wide text-terracotta font-semibold">
+                            Principale
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  La 1ère sélectionnée est la catégorie principale (URL & fil
+                  d&apos;ariane).
+                </p>
               </div>
               <div>
-                <label className={labelClass}>Collection</label>
-                <select
-                  value={collectionId}
-                  onChange={(e) => setCollectionId(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">— Aucune —</option>
-                  {collections.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <label className={labelClass}>
+                  Collections{" "}
+                  <span className="font-normal text-gray-400">
+                    ({collectionIds.length} sélectionnée
+                    {collectionIds.length > 1 ? "s" : ""})
+                  </span>
+                </label>
+                <div className="border border-gray-200 rounded-lg max-h-44 overflow-y-auto p-2 space-y-1">
+                  {collections.length === 0 && (
+                    <p className="text-xs text-gray-400 p-1">
+                      Aucune collection. Créez-en depuis /admin/collections.
+                    </p>
+                  )}
+                  {collections.map((c) => {
+                    const checked = collectionIds.includes(c.id);
+                    const isPrimary = primaryCollectionId === c.id;
+                    return (
+                      <label
+                        key={c.id}
+                        className="flex items-center gap-2 p-1.5 rounded hover:bg-gray-50 cursor-pointer text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setCollectionIds((prev) => [...prev, c.id]);
+                            } else {
+                              setCollectionIds((prev) =>
+                                prev.filter((id) => id !== c.id),
+                              );
+                            }
+                          }}
+                          className="rounded accent-terracotta"
+                        />
+                        <span className="flex-1 truncate">{c.name}</span>
+                        {isPrimary && (
+                          <span className="text-[10px] uppercase tracking-wide text-terracotta font-semibold">
+                            Principale
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  La 1ère sélectionnée est la collection principale.
+                </p>
               </div>
             </div>
           </motion.div>
@@ -751,29 +831,32 @@ export function ProductForm({
           </motion.div>
 
           {/* Médias */}
-          {isEditing && (
-            <motion.div
-              variants={staggerItem}
-              className="bg-white rounded-xl border border-gray-200 p-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base font-semibold text-gray-900">
-                  Médias
-                </h2>
-                <button
-                  onClick={() => setMedia((prev) => [...prev, emptyMedia()])}
-                  className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
-                >
-                  <Plus className="w-4 h-4" />
-                  Ajouter un média
-                </button>
-              </div>
-              {media.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">
-                  Aucun média. Ajoutez des images pour habiller la fiche
-                  produit.
-                </p>
-              ) : (
+          <motion.div
+            variants={staggerItem}
+            className="bg-white rounded-xl border border-gray-200 p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-gray-900">Médias</h2>
+              <button
+                onClick={() => setMedia((prev) => [...prev, emptyMedia()])}
+                className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
+              >
+                <Plus className="w-4 h-4" />
+                Ajouter un média
+              </button>
+            </div>
+            {!isEditing && (
+              <p className="text-xs text-gray-400 mb-3">
+                Les images saisies ici seront enregistrées avec le produit dès
+                la création.
+              </p>
+            )}
+            {media.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-6">
+                Aucun média. Collez l&apos;URL d&apos;une image pour habiller la
+                fiche produit.
+              </p>
+            ) : (
                 <div className="space-y-3">
                   {media.map((m, idx) => (
                     <div
@@ -833,29 +916,38 @@ export function ProductForm({
                             Image principale
                           </label>
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => handleSaveMedia(idx)}
-                              disabled={isMediaPending}
-                              className="text-xs text-terracotta hover:underline disabled:opacity-50"
-                            >
-                              {m.persistedId ? "Mettre à jour" : "Enregistrer"}
-                            </button>
+                            {isEditing && (
+                              <button
+                                onClick={() => handleSaveMedia(idx)}
+                                disabled={isMediaPending}
+                                className="text-xs text-terracotta hover:underline disabled:opacity-50"
+                              >
+                                {m.persistedId
+                                  ? "Mettre à jour"
+                                  : "Enregistrer"}
+                              </button>
+                            )}
                             <button
                               onClick={() => handleDeleteMedia(idx)}
                               disabled={isMediaPending}
                               className="text-xs text-red-600 hover:underline disabled:opacity-50"
                             >
-                              Supprimer
+                              {isEditing ? "Supprimer" : "Retirer"}
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
+                ))}
+              </div>
+            )}
+            {!isEditing && (
+              <p className="text-[11px] text-gray-400 text-center mt-3">
+                Les boutons « Enregistrer » et « Supprimer » de chaque image
+                seront actifs après création du produit.
+              </p>
+            )}
+          </motion.div>
 
           {/* Caractéristiques */}
           <motion.div

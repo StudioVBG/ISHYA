@@ -1,8 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit2, Trash2, X, Loader2, Layers } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  Loader2,
+  Layers,
+  Package,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
@@ -206,7 +215,13 @@ export function CollectionsView({
                       {!c.startsAt && !c.endsAt && "—"}
                     </td>
                     <td className="px-4 py-3 text-center text-gray-600">
-                      {c.productCount}
+                      <Link
+                        href={`/admin/collections/${c.id}`}
+                        className="inline-flex items-center gap-1 hover:text-terracotta hover:underline"
+                      >
+                        <Package className="w-3.5 h-3.5" />
+                        {c.productCount}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
@@ -222,9 +237,17 @@ export function CollectionsView({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
+                        <Link
+                          href={`/admin/collections/${c.id}`}
+                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                          title="Gérer les produits"
+                        >
+                          <Package className="w-4 h-4" />
+                        </Link>
                         <button
                           onClick={() => openEdit(c)}
                           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                          title="Éditer"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
@@ -232,6 +255,7 @@ export function CollectionsView({
                           onClick={() => handleDelete(c.id)}
                           disabled={isDeletePending}
                           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                          title="Supprimer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
