@@ -101,10 +101,10 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Avis clients</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Avis clients</h2>
+          <p className="text-sm text-muted">
             {reviews.length} avis ·
-            <span className="text-orange-500 ml-1">
+            <span className="text-warning ml-1">
               {pendingCount} en attente de modération
             </span>
           </p>
@@ -113,17 +113,17 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 p-4"
+        className="bg-white rounded-xl border border-border p-4"
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
             <input
               type="text"
               placeholder="Rechercher (produit, auteur, contenu)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
             />
           </div>
           <div className="flex gap-2">
@@ -140,8 +140,8 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                 className={cn(
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   statusFilter === key
-                    ? "bg-gray-900 text-white"
-                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50",
+                    ? "bg-foreground text-white"
+                    : "bg-white border border-border text-muted hover:bg-muted-soft",
                 )}
               >
                 {label}
@@ -154,9 +154,9 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
       {filtered.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400"
+          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
         >
-          <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-light" />
           {reviews.length === 0
             ? "Aucun avis n'a encore été déposé."
             : "Aucun avis ne correspond à votre recherche."}
@@ -169,8 +169,8 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
               className={cn(
                 "bg-white rounded-xl border p-5 transition-colors",
                 r.isApproved
-                  ? "border-gray-200"
-                  : "border-orange-200 bg-orange-50/30",
+                  ? "border-border"
+                  : "border-warning/30 bg-warning-soft/30",
               )}
             >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
@@ -183,14 +183,14 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                           className={cn(
                             "w-4 h-4",
                             n <= r.rating
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-gray-300",
+                              ? "fill-amber-400 text-warning"
+                              : "text-muted-light",
                           )}
                         />
                       ))}
                     </div>
                     {r.isVerifiedPurchase && (
-                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                      <span className="inline-flex items-center gap-1 text-xs text-success font-medium">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Achat vérifié
                       </span>
@@ -199,20 +199,20 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                       className={cn(
                         "ml-auto sm:ml-2 px-2 py-0.5 rounded-full text-xs font-medium",
                         r.isApproved
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-orange-100 text-orange-700",
+                          ? "bg-success-soft text-success"
+                          : "bg-warning-soft text-warning",
                       )}
                     >
                       {r.isApproved ? "Approuvé" : "En attente"}
                     </span>
                   </div>
                   {r.title && (
-                    <p className="font-semibold text-gray-900">{r.title}</p>
+                    <p className="font-semibold text-foreground">{r.title}</p>
                   )}
                   {r.body && (
-                    <p className="text-sm text-gray-600 mt-1">{r.body}</p>
+                    <p className="text-sm text-muted mt-1">{r.body}</p>
                   )}
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-400 mt-2">
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-light mt-2">
                     <span>
                       Sur{" "}
                       <Link
@@ -225,7 +225,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                     </span>
                     {r.authorName && <span>Par {r.authorName}</span>}
                     {r.authorEmail && (
-                      <span className="text-gray-500">{r.authorEmail}</span>
+                      <span className="text-muted">{r.authorEmail}</span>
                     )}
                     {r.createdAt && (
                       <span>· {formatDate(r.createdAt)}</span>
@@ -237,7 +237,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                     <button
                       onClick={() => handleReject(r)}
                       disabled={isPending && pendingId === r.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-100 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warning-soft text-warning rounded-lg text-sm font-medium hover:bg-warning-soft transition-colors disabled:opacity-50"
                     >
                       {isPending && pendingId === r.id ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -250,7 +250,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                     <button
                       onClick={() => handleApprove(r)}
                       disabled={isPending && pendingId === r.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-soft text-success rounded-lg text-sm font-medium hover:bg-success-soft transition-colors disabled:opacity-50"
                     >
                       {isPending && pendingId === r.id ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -263,7 +263,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                   <button
                     onClick={() => handleDelete(r)}
                     disabled={isPending && pendingId === r.id}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-destructive-soft text-destructive rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

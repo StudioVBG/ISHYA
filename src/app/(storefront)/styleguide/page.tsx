@@ -358,7 +358,7 @@ export default function StyleguidePage() {
               <strong>Pas de couleurs en dur</strong> :{" "}
               <CodeTag>bg-[#F8F6F2]</CodeTag>,{" "}
               <CodeTag>text-[#1a1a1a]</CodeTag>,{" "}
-              <CodeTag>bg-emerald-50</CodeTag>, <CodeTag>text-gray-700</CodeTag>.
+              <CodeTag>bg-emerald-50</CodeTag>, <CodeTag>text-foreground</CodeTag>.
             </span>
           </li>
           <li className="flex gap-3">

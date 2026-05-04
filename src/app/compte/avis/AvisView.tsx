@@ -51,8 +51,8 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
 
       {reviews.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
-            <MessageSquare className="w-8 h-8 text-amber-500" />
+          <div className="w-16 h-16 rounded-full bg-warning-soft flex items-center justify-center mx-auto mb-4">
+            <MessageSquare className="w-8 h-8 text-warning" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Vous n&apos;avez pas encore laissé d&apos;avis
@@ -78,7 +78,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
               variants={staggerItem}
               className={cn(
                 "bg-white rounded-xl border p-5",
-                review.isApproved ? "border-border" : "border-orange-200",
+                review.isApproved ? "border-border" : "border-warning/30",
               )}
             >
               <div className="flex gap-4">
@@ -96,7 +96,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-6 h-6 text-gray-300" />
+                      <Package className="w-6 h-6 text-muted-light" />
                     </div>
                   )}
                 </Link>
@@ -134,8 +134,8 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                           className={cn(
                             "text-[10px] px-2 py-0.5 rounded-full font-medium",
                             review.isApproved
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-orange-100 text-orange-700",
+                              ? "bg-success-soft text-success"
+                              : "bg-warning-soft text-warning",
                           )}
                         >
                           {review.isApproved
@@ -147,7 +147,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                     <button
                       onClick={() => handleDelete(review)}
                       disabled={isPending}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 shrink-0"
+                      className="p-1.5 rounded-lg text-muted-light hover:text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50 shrink-0"
                       aria-label="Supprimer l'avis"
                     >
                       {isPending ? (

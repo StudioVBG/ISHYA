@@ -209,8 +209,8 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                       className={cn(
                         "text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full font-medium",
                         addr.type === "shipping"
-                          ? "bg-blue-50 text-blue-700"
-                          : "bg-purple-50 text-purple-700",
+                          ? "bg-info-soft text-info"
+                          : "bg-accent-purple-soft text-accent-purple",
                       )}
                     >
                       {addr.type === "shipping" ? "Livraison" : "Facturation"}
@@ -226,7 +226,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                 <div className="flex gap-1">
                   <button
                     onClick={() => openEdit(addr)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                     aria-label="Modifier"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -234,7 +234,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                   <button
                     onClick={() => handleDelete(addr.id)}
                     disabled={isDeletePending}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                    className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                     aria-label="Supprimer"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -290,7 +290,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>

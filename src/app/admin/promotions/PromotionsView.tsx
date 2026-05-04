@@ -23,8 +23,8 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 interface FormState {
   code: string;
@@ -177,8 +177,8 @@ export function PromotionsView({
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Codes promo</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Codes promo</h2>
+          <p className="text-sm text-muted">
             {promotions.length} code{promotions.length > 1 ? "s" : ""}
           </p>
         </div>
@@ -193,25 +193,25 @@ export function PromotionsView({
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        className="bg-white rounded-xl border border-border overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <tr className="border-b border-border bg-muted-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Code
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Réduction
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Période
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Utilisations
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-4 py-3 w-20"></th>
@@ -222,9 +222,9 @@ export function PromotionsView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-gray-400"
+                    className="px-4 py-12 text-center text-muted-light"
                   >
-                    <Tag className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <Tag className="w-8 h-8 mx-auto mb-2 text-muted-light" />
                     Aucun code promo. Créez-en un pour commencer.
                   </td>
                 </tr>
@@ -232,14 +232,14 @@ export function PromotionsView({
                 promotions.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <p className="font-mono font-semibold text-gray-900">
+                      <p className="font-mono font-semibold text-foreground">
                         {p.code}
                       </p>
                       {p.description && (
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-muted-light mt-0.5">
                           {p.description}
                         </p>
                       )}
@@ -247,15 +247,15 @@ export function PromotionsView({
                     <td className="px-4 py-3 font-medium text-terracotta">
                       {formatDiscount(p)}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-muted">
                       {p.startsAt && <span>du {formatDate(p.startsAt)}</span>}
                       {p.endsAt && <span> au {formatDate(p.endsAt)}</span>}
                       {!p.startsAt && !p.endsAt && "—"}
                     </td>
-                    <td className="px-4 py-3 text-center text-gray-600">
+                    <td className="px-4 py-3 text-center text-muted">
                       {p.usageCount}
                       {p.usageLimit != null && (
-                        <span className="text-gray-400">
+                        <span className="text-muted-light">
                           {" "}
                           / {p.usageLimit}
                         </span>
@@ -266,8 +266,8 @@ export function PromotionsView({
                         className={cn(
                           "px-2 py-0.5 rounded-full text-xs font-medium",
                           p.isActive
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-gray-100 text-gray-600",
+                            ? "bg-success-soft text-success"
+                            : "bg-muted-soft text-muted",
                         )}
                       >
                         {p.isActive ? "Actif" : "Inactif"}
@@ -277,14 +277,14 @@ export function PromotionsView({
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEdit(p)}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(p.id)}
                           disabled={isDeletePending}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -314,14 +314,14 @@ export function PromotionsView({
               className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-base font-semibold text-gray-900">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-base font-semibold text-foreground">
                   {editingId ? "Modifier le code" : "Nouveau code promo"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -468,7 +468,7 @@ export function PromotionsView({
                     />
                   </div>
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="checkbox"
                     checked={form.isActive}
@@ -480,11 +480,11 @@ export function PromotionsView({
                   Code actif
                 </label>
               </div>
-              <div className="flex gap-3 p-6 border-t border-gray-200">
+              <div className="flex gap-3 p-6 border-t border-border">
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>

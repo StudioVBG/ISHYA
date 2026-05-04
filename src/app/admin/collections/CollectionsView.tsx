@@ -24,8 +24,8 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 interface FormState {
   name: string;
@@ -142,8 +142,8 @@ export function CollectionsView({
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Collections</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Collections</h2>
+          <p className="text-sm text-muted">
             {collections.length} collection{collections.length > 1 ? "s" : ""}
           </p>
         </div>
@@ -158,25 +158,25 @@ export function CollectionsView({
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        className="bg-white rounded-xl border border-border overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <tr className="border-b border-border bg-muted-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Nom
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Slug
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Période
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Produits
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-4 py-3 w-20"></th>
@@ -187,9 +187,9 @@ export function CollectionsView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-gray-400"
+                    className="px-4 py-12 text-center text-muted-light"
                   >
-                    <Layers className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <Layers className="w-8 h-8 mx-auto mb-2 text-muted-light" />
                     Aucune collection. Créez-en une pour commencer.
                   </td>
                 </tr>
@@ -197,15 +197,15 @@ export function CollectionsView({
                 collections.map((c) => (
                   <tr
                     key={c.id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium text-gray-900">
+                    <td className="px-4 py-3 font-medium text-foreground">
                       {c.name}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                    <td className="px-4 py-3 font-mono text-xs text-muted">
                       {c.slug}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-muted">
                       {c.startsAt && (
                         <span>du {formatDate(c.startsAt)}</span>
                       )}
@@ -214,7 +214,7 @@ export function CollectionsView({
                       )}
                       {!c.startsAt && !c.endsAt && "—"}
                     </td>
-                    <td className="px-4 py-3 text-center text-gray-600">
+                    <td className="px-4 py-3 text-center text-muted">
                       <Link
                         href={`/admin/collections/${c.id}`}
                         className="inline-flex items-center gap-1 hover:text-terracotta hover:underline"
@@ -228,8 +228,8 @@ export function CollectionsView({
                         className={cn(
                           "px-2 py-0.5 rounded-full text-xs font-medium",
                           c.isActive
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-gray-100 text-gray-600",
+                            ? "bg-success-soft text-success"
+                            : "bg-muted-soft text-muted",
                         )}
                       >
                         {c.isActive ? "Active" : "Inactive"}
@@ -239,14 +239,14 @@ export function CollectionsView({
                       <div className="flex items-center gap-1">
                         <Link
                           href={`/admin/collections/${c.id}`}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                           title="Gérer les produits"
                         >
                           <Package className="w-4 h-4" />
                         </Link>
                         <button
                           onClick={() => openEdit(c)}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                           title="Éditer"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -254,7 +254,7 @@ export function CollectionsView({
                         <button
                           onClick={() => handleDelete(c.id)}
                           disabled={isDeletePending}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                           title="Supprimer"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -285,14 +285,14 @@ export function CollectionsView({
               className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-base font-semibold text-gray-900">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-base font-semibold text-foreground">
                   {editingId ? "Modifier la collection" : "Nouvelle collection"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -387,7 +387,7 @@ export function CollectionsView({
                     className={inputClass}
                   />
                 </div>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="checkbox"
                     checked={form.isActive}
@@ -399,11 +399,11 @@ export function CollectionsView({
                   Collection active
                 </label>
               </div>
-              <div className="flex gap-3 p-6 border-t border-gray-200">
+              <div className="flex gap-3 p-6 border-t border-border">
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>

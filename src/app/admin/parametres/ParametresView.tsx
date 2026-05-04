@@ -18,8 +18,8 @@ import type { AdminSettingRow } from "@/lib/queries/admin";
 import { deleteSetting, upsertSetting } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 function stringifyValue(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -127,8 +127,8 @@ export function ParametresView({
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Paramètres</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Paramètres</h2>
+          <p className="text-sm text-muted">
             {settings.length} clé{settings.length > 1 ? "s" : ""} de
             configuration
           </p>
@@ -146,10 +146,10 @@ export function ParametresView({
 
       <motion.div
         variants={staggerItem}
-        className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3"
+        className="bg-info-soft border border-info/20 rounded-xl p-4 flex items-start gap-3"
       >
-        <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-        <p className="text-xs text-blue-900">
+        <Info className="w-4 h-4 text-info shrink-0 mt-0.5" />
+        <p className="text-xs text-info">
           Ces paramètres sont stockés dans la table <code>settings</code> en
           base. La valeur peut être du JSON, une chaîne, un booléen ou un
           nombre — on tente d&apos;abord de parser en JSON, sinon on stocke en
@@ -161,34 +161,34 @@ export function ParametresView({
       {settings.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400"
+          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
         >
-          <Settings className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <Settings className="w-8 h-8 mx-auto mb-2 text-muted-light" />
           Aucun paramètre défini.
         </motion.div>
       ) : (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+          className="bg-white rounded-xl border border-border overflow-hidden"
         >
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-border/50">
             {settings.map((s) => (
               <div key={s.id} className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="font-mono text-sm font-semibold text-gray-900">
+                    <p className="font-mono text-sm font-semibold text-foreground">
                       {s.key}
                     </p>
                     {s.description && (
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-muted mt-0.5">
                         {s.description}
                       </p>
                     )}
-                    <div className="mt-2 bg-gray-50 rounded-lg p-2 font-mono text-xs text-gray-700 break-all">
+                    <div className="mt-2 bg-muted-soft rounded-lg p-2 font-mono text-xs text-foreground break-all">
                       {previewValue(s.value)}
                     </div>
                     {s.updatedAt && (
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-[10px] text-muted-light mt-1">
                         Mis à jour le {formatDate(s.updatedAt)}
                       </p>
                     )}
@@ -197,7 +197,7 @@ export function ParametresView({
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => openEdit(s)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-terracotta transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -205,7 +205,7 @@ export function ParametresView({
                         <button
                           onClick={() => handleDelete(s.id)}
                           disabled={isDeletePending}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -235,14 +235,14 @@ export function ParametresView({
               className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-base font-semibold text-gray-900">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-base font-semibold text-foreground">
                   {form.id ? "Modifier le paramètre" : "Nouveau paramètre"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -257,11 +257,11 @@ export function ParametresView({
                       setForm({ ...form, key: e.target.value })
                     }
                     disabled={!!form.id}
-                    className={cn(inputClass, "font-mono", form.id && "bg-gray-50 cursor-not-allowed")}
+                    className={cn(inputClass, "font-mono", form.id && "bg-muted-soft cursor-not-allowed")}
                     placeholder="contact_email, business_hours…"
                   />
                   {form.id && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-muted-light mt-1">
                       La clé n&apos;est pas modifiable. Supprimez et recréez
                       pour la changer.
                     </p>
@@ -292,11 +292,11 @@ export function ParametresView({
                   />
                 </div>
               </div>
-              <div className="flex gap-3 p-6 border-t border-gray-200">
+              <div className="flex gap-3 p-6 border-t border-border">
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>

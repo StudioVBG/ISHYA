@@ -13,19 +13,19 @@ function getStockStatus(stock: number, threshold: number) {
   if (stock === 0)
     return {
       label: "Rupture",
-      className: "bg-red-50 text-red-700",
-      dotColor: "bg-red-500",
+      className: "bg-destructive-soft text-destructive",
+      dotColor: "bg-destructive",
     };
   if (stock <= threshold)
     return {
       label: "Stock bas",
-      className: "bg-orange-50 text-orange-700",
-      dotColor: "bg-orange-500",
+      className: "bg-warning-soft text-warning",
+      dotColor: "bg-warning",
     };
   return {
     label: "OK",
-    className: "bg-emerald-50 text-emerald-700",
-    dotColor: "bg-emerald-500",
+    className: "bg-success-soft text-success",
+    dotColor: "bg-success",
   };
 }
 
@@ -88,16 +88,16 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-foreground">
             Gestion des stocks
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             {rows.length} variante{rows.length > 1 ? "s" : ""} ·
-            <span className="text-red-600 ml-1">
+            <span className="text-destructive ml-1">
               {outCount} en rupture
             </span>{" "}
             ·
-            <span className="text-orange-500 ml-1">
+            <span className="text-warning ml-1">
               {lowCount} stock bas
             </span>
           </p>
@@ -106,17 +106,17 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 p-4"
+        className="bg-white rounded-xl border border-border p-4"
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
             <input
               type="text"
               placeholder="Rechercher produit ou SKU..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
             />
           </div>
           <div className="flex gap-2">
@@ -134,8 +134,8 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                 className={cn(
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   statusFilter === key
-                    ? "bg-gray-900 text-white"
-                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50",
+                    ? "bg-foreground text-white"
+                    : "bg-white border border-border text-muted hover:bg-muted-soft",
                 )}
               >
                 {label}
@@ -147,28 +147,28 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
 
       <motion.div
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        className="bg-white rounded-xl border border-border overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <tr className="border-b border-border bg-muted-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Produit
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   SKU
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
                   Variante
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Seuil
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
                   Statut
                 </th>
               </tr>
@@ -178,7 +178,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-gray-400"
+                    className="px-4 py-12 text-center text-muted-light"
                   >
                     {rows.length === 0
                       ? "Aucune variante en base."
@@ -193,21 +193,21 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                     <tr
                       key={row.variantId}
                       className={cn(
-                        "border-b border-gray-50 last:border-0 transition-colors",
+                        "border-b border-border/40 last:border-0 transition-colors",
                         row.quantity === 0
-                          ? "bg-red-50/30"
+                          ? "bg-destructive-soft/30"
                           : row.quantity <= row.threshold
-                            ? "bg-orange-50/30"
-                            : "hover:bg-gray-50/50",
+                            ? "bg-warning-soft/30"
+                            : "hover:bg-muted-soft/50",
                       )}
                     >
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                      <td className="px-4 py-3 font-medium text-foreground">
                         {row.productName}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                      <td className="px-4 py-3 font-mono text-xs text-muted">
                         {row.sku ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-muted">
                         {row.variantLabel}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -217,7 +217,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                               type="number"
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:outline-none focus:border-terracotta"
+                              className="w-16 px-2 py-1 border border-border rounded text-center text-sm focus:outline-none focus:border-terracotta"
                               autoFocus
                               onKeyDown={(e) =>
                                 e.key === "Enter" && saveEdit(row.variantId)
@@ -227,7 +227,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                             <button
                               onClick={() => saveEdit(row.variantId)}
                               disabled={isPending}
-                              className="p-1 rounded bg-emerald-50 text-emerald-600 hover:bg-emerald-100 disabled:opacity-50"
+                              className="p-1 rounded bg-success-soft text-success hover:bg-success-soft disabled:opacity-50"
                             >
                               {isPending ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -245,17 +245,17 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                             className={cn(
                               "font-bold tabular-nums hover:underline",
                               row.quantity === 0
-                                ? "text-red-600"
+                                ? "text-destructive"
                                 : row.quantity <= row.threshold
-                                  ? "text-orange-500"
-                                  : "text-gray-900",
+                                  ? "text-warning"
+                                  : "text-foreground",
                             )}
                           >
                             {row.quantity}
                           </button>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center text-gray-400">
+                      <td className="px-4 py-3 text-center text-muted-light">
                         {row.threshold}
                       </td>
                       <td className="px-4 py-3 text-center">

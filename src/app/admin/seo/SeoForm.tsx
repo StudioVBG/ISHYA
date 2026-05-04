@@ -10,8 +10,8 @@ import type { AdminSeoConfig } from "@/lib/queries/admin";
 import { updateSeoConfig } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
-const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 export function SeoForm({ config }: { config: AdminSeoConfig }) {
   const [state, setState] = useState<AdminSeoConfig>(config);
@@ -44,18 +44,18 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
       className="space-y-6"
     >
       <motion.div variants={staggerItem}>
-        <h2 className="text-xl font-bold text-gray-900">SEO</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-foreground">SEO</h2>
+        <p className="text-sm text-muted">
           Configuration globale du référencement et des partages sociaux.
         </p>
       </motion.div>
 
       <motion.div
         variants={staggerItem}
-        className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3"
+        className="bg-info-soft border border-info/20 rounded-xl p-4 flex items-start gap-3"
       >
-        <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-        <p className="text-xs text-blue-900">
+        <Info className="w-4 h-4 text-info shrink-0 mt-0.5" />
+        <p className="text-xs text-info">
           Les valeurs vides utilisent les défauts du code (
           <code>src/app/layout.tsx</code>). Les modifications sont écrites dans
           la table <code>settings</code> avec le préfixe <code>seo.*</code> et
@@ -65,11 +65,11 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
 
       <motion.section
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+        className="bg-white rounded-xl border border-border p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-2">
           <Globe className="w-4 h-4 text-terracotta" />
-          <h3 className="text-base font-semibold text-gray-900">
+          <h3 className="text-base font-semibold text-foreground">
             Page d&apos;accueil
           </h3>
         </div>
@@ -83,7 +83,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="ISHYA | Bijoux Floraux Artisanaux"
             className={inputClass}
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-light mt-1">
             {state.homeMetaTitle.length}/70 caractères
           </p>
         </div>
@@ -97,7 +97,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="Découvrez ISHYA, bijoux artisanaux..."
             className={cn(inputClass, "resize-none")}
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-light mt-1">
             {state.homeMetaDescription.length}/160 caractères
           </p>
         </div>
@@ -120,17 +120,17 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="bijoux floraux, fleurs séchées, résine, fait main"
             className={inputClass}
           />
-          <p className="text-xs text-gray-400 mt-1">Séparés par des virgules.</p>
+          <p className="text-xs text-muted-light mt-1">Séparés par des virgules.</p>
         </div>
       </motion.section>
 
       <motion.section
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+        className="bg-white rounded-xl border border-border p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-2">
           <Twitter className="w-4 h-4 text-terracotta" />
-          <h3 className="text-base font-semibold text-gray-900">
+          <h3 className="text-base font-semibold text-foreground">
             Réseaux sociaux
           </h3>
         </div>
@@ -148,11 +148,11 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
 
       <motion.section
         variants={staggerItem}
-        className="bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+        className="bg-white rounded-xl border border-border p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-2">
           <ShieldCheck className="w-4 h-4 text-terracotta" />
-          <h3 className="text-base font-semibold text-gray-900">
+          <h3 className="text-base font-semibold text-foreground">
             Vérifications
           </h3>
         </div>

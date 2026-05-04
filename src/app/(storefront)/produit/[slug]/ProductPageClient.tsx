@@ -326,9 +326,9 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     En stock
                   </p>
                 ) : currentStock > 0 ? (
-                  <p className="text-sm text-amber-600 flex items-center gap-1.5">
+                  <p className="text-sm text-warning flex items-center gap-1.5">
                     <motion.span
-                      className="w-2 h-2 rounded-full bg-amber-500"
+                      className="w-2 h-2 rounded-full bg-warning"
                       animate={{ opacity: [1, 0.3, 1] }}
                       transition={{ duration: 1.6, repeat: Infinity }}
                     />

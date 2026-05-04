@@ -127,7 +127,7 @@ export default async function OrderDetailPage({
                           "w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10",
                           step.completed
                             ? "bg-terracotta text-white"
-                            : "bg-gray-100 text-muted",
+                            : "bg-muted-soft text-muted",
                         )}
                       >
                         {step.completed ? (
@@ -140,7 +140,7 @@ export default async function OrderDetailPage({
                         <div
                           className={cn(
                             "w-0.5 flex-1 mt-1",
-                            step.completed ? "bg-terracotta" : "bg-gray-200",
+                            step.completed ? "bg-terracotta" : "bg-border",
                           )}
                         />
                       )}

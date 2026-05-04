@@ -60,7 +60,7 @@ export function NotificationsForm({
           onChange={(e) => onChange(e.target.checked)}
           className="sr-only peer"
         />
-        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-terracotta peer-focus:ring-2 peer-focus:ring-terracotta/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
+        <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-terracotta peer-focus:ring-2 peer-focus:ring-terracotta/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
       </div>
     </label>
   );
@@ -165,11 +165,11 @@ export function NotificationsForm({
 
         <motion.div
           variants={staggerItem}
-          className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-xl p-4"
+          className="flex items-center justify-between bg-warning-soft border border-warning/20 rounded-xl p-4"
         >
           <div className="flex items-start gap-3">
-            <Bell className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-900">
+            <Bell className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+            <p className="text-xs text-warning">
               Conformément au RGPD, vous pouvez vous désabonner à tout moment.
               Le suivi de commande est conservé pour des raisons légales et
               opérationnelles.

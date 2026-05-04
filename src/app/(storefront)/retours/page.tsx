@@ -275,10 +275,10 @@ export default function RetoursPage() {
                 <motion.div
                   key={exc.title}
                   variants={staggerItem}
-                  className="bg-amber-50/50 border border-amber-200/50 rounded-xl p-5"
+                  className="bg-warning-soft/50 border border-warning/30/50 rounded-xl p-5"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <AlertTriangle className="w-4 h-4 text-warning" />
                     <h3 className="font-medium text-sm">{exc.title}</h3>
                   </div>
                   <p className="text-xs text-muted leading-relaxed">
