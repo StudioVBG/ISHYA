@@ -162,6 +162,7 @@ export function Header() {
 
             <button
               onClick={openCart}
+              data-cart-icon
               className="p-2 hover:text-terracotta transition-colors relative"
               aria-label="Mon panier"
             >

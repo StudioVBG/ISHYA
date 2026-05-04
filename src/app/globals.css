@@ -117,3 +117,64 @@ h1, h2, h3, h4, h5, h6 {
     transform: scale(1.02);
   }
 }
+
+/* ───────────────────────────────────────────
+   Curseur custom (desktop, pointer fin)
+   ─────────────────────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  html.cursor-custom-on,
+  html.cursor-custom-on body,
+  html.cursor-custom-on a,
+  html.cursor-custom-on button,
+  html.cursor-custom-on [role="button"] {
+    cursor: none;
+  }
+  html.cursor-custom-on input,
+  html.cursor-custom-on textarea {
+    cursor: text;
+  }
+}
+
+/* ───────────────────────────────────────────
+   View Transitions API (liste → fiche produit)
+   ─────────────────────────────────────────── */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(*) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ───────────────────────────────────────────
+   Préférence utilisateur : réduire les mouvements
+   ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scroll plus doux global */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Tabular nums pour prix */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
