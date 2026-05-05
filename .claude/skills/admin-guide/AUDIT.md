@@ -38,7 +38,7 @@
 | SEO | settings | ✅ |
 | Avis | reviews, products, profiles | ✅ partiel |
 | Tickets | tickets, ticket_messages | ✅ |
-| Équipe | profiles | ✅ (admin_users / admin_roles supprimées — migration 007) |
+| Équipe | profiles | ✅ (admin_users / admin_roles supprimées — migration 008) |
 | Rapports | orders, order_items, products, categories | ✅ |
 | Audit | audit_logs | ⚠️ (lit mais rien n'écrit) |
 | Paramètres | settings | ✅ |
@@ -104,7 +104,7 @@ Ces tables sont créées en base mais **aucune page admin** ne les gère.
 - Conséquence : la page Audit affiche probablement une table **vide** en production
 - **Fix** : soit ajouter un trigger SQL générique sur les tables sensibles (`AFTER INSERT/UPDATE/DELETE`), soit logger explicitement dans chaque server action via un helper `logAuditEvent()`
 
-### 4.2 ✅ `admin_users` / `admin_roles` supprimées (migration 007)
+### 4.2 ✅ `admin_users` / `admin_roles` supprimées (migration 008)
 - Le contrôle d'accès se fait sur `profiles.role = 'admin'` uniquement
 - Tables `admin_users` / `admin_roles` étaient **jamais lues ni écrites** par le code
 - **Décision retenue** (Sprint 5, option A) : suppression pour simplifier le schéma
@@ -197,7 +197,7 @@ Ces tables sont créées en base mais **aucune page admin** ne les gère.
 13. **Cleanup storage** (supprimer fichier au `deleteMedia`)
 
 ### ✅ Sprint 5 — Décision admin_users (terminé)
-14. **Choix retenu** : suppression de `admin_users` / `admin_roles` via la migration `007_drop_admin_users_admin_roles.sql`
+14. **Choix retenu** : suppression de `admin_users` / `admin_roles` via la migration `008_drop_admin_users_admin_roles.sql`
 15. `profiles.role` reste l'unique source d'autorisation admin
 
 ---
