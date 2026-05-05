@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
-import { deleteAbandonedCart, markReminderSent } from "./actions";
+import { deleteAbandonedCart, sendReminderEmail } from "./actions";
 
 export interface AbandonedCartRow {
   id: string;
@@ -96,10 +96,17 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
       toast.error("Pas d'email pour ce panier");
       return;
     }
+    if (r.remindersCount >= 3) {
+      toast.error("Les 3 relances ont déjà été envoyées");
+      return;
+    }
     startTransition(async () => {
-      const res = await markReminderSent(r.id);
-      if (res.ok) toast.success("Relance enregistrée");
-      else toast.error(res.error || "Erreur");
+      const res = await sendReminderEmail(r.id);
+      if (res.ok) {
+        toast.success(`Relance #${res.step} envoyée à ${r.email}`);
+      } else {
+        toast.error(res.error || "Erreur");
+      }
     });
   };
 
@@ -257,17 +264,21 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
                     <div className="flex items-center justify-end gap-1.5">
                       {!r.recovered && r.email ? (
                         <button
-                          disabled={isPending}
+                          disabled={isPending || r.remindersCount >= 3}
                           onClick={() => handleRemind(r)}
                           className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40 disabled:opacity-50"
-                          title="Marquer relancé"
+                          title={
+                            r.remindersCount >= 3
+                              ? "3 relances déjà envoyées"
+                              : `Envoyer la relance #${r.remindersCount + 1}`
+                          }
                         >
                           {isPending ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
                           ) : (
                             <Send className="w-3 h-3" />
                           )}
-                          Relancer
+                          {r.remindersCount >= 3 ? "Épuisé" : "Relancer"}
                         </button>
                       ) : null}
                       <button
@@ -287,8 +298,10 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
       </div>
 
       <p className="text-xs text-muted">
-        Note : « Relancer » marque le panier comme relancé pour le suivi. L&apos;envoi
-        d&apos;email automatique se branche au cron / job Resend séparément.
+        Le bouton « Relancer » envoie l&apos;email du palier suivant (#1, #2 ou
+        #3) via Resend, en s&apos;appuyant sur la dédupe <code>email_logs</code>.
+        Le cron <code>/api/cron/abandoned-carts</code> envoie automatiquement à
+        1h / 24h / 48h.
       </p>
     </div>
   );
