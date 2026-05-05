@@ -52,6 +52,16 @@ export default function ConfirmationPage() {
     if (confettiRef.current) return;
     confettiRef.current = true;
 
+    const styles = getComputedStyle(document.documentElement);
+    const readVar = (name: string, fallback: string) =>
+      styles.getPropertyValue(name).trim() || fallback;
+    const palette = [
+      readVar("--terracotta", "#DF887B"),
+      readVar("--gold", "#C5A572"),
+      readVar("--beige-nude", "#F2D7C2"),
+      readVar("--ivory", "#F8F6F2"),
+    ];
+
     const duration = 2000;
     const end = Date.now() + duration;
 
@@ -61,14 +71,14 @@ export default function ConfirmationPage() {
         angle: 60,
         spread: 55,
         origin: { x: 0, y: 0.7 },
-        colors: ["#DF887B", "#C5A572", "#F2D7C2", "#F8F6F2"],
+        colors: palette,
       });
       confetti({
         particleCount: 3,
         angle: 120,
         spread: 55,
         origin: { x: 1, y: 0.7 },
-        colors: ["#DF887B", "#C5A572", "#F2D7C2", "#F8F6F2"],
+        colors: palette,
       });
 
       if (Date.now() < end) requestAnimationFrame(frame);

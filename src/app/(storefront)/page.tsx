@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BestSellersCarousel } from "@/components/home/BestSellersCarousel";
-import { NewsletterForm } from "@/components/home/NewsletterForm";
 import {
   getTopCategories,
   getBestSellers,
@@ -253,21 +252,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* ── Newsletter ────────────────────────────────────────── */}
-      <section className="py-20 bg-foreground text-white px-4">
-        <div className="container max-w-xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl mb-4">
-            Rejoignez la famille ISHYA
-          </h2>
-          <p className="text-white/70 mb-8">
-            Inscrivez-vous à notre newsletter et recevez{" "}
-            <span className="text-terracotta font-medium">-10%</span> sur votre
-            première commande.
-          </p>
-          <NewsletterForm />
-        </div>
-      </section>
     </>
   );
 }
