@@ -817,6 +817,27 @@ INSERT INTO faq_articles (id, category, question, answer, sort_order) VALUES
    E'## Programme de fidélité ISHYA\n\nRécompensez votre amour des fleurs !\n\n### Comment ça marche ?\n\n- Créez un compte ISHYA\n- Gagnez des points à chaque achat\n- Utilisez vos points pour obtenir des réductions\n\n### Les paliers\n\n| Palier | Points requis | Taux | Avantages |\n|---|---|---|---|\n| 🥉 Bronze | 0 | 1 pt/€ | Accès aux ventes privées |\n| 🥈 Argent | 200 pts | 1,5 pt/€ | -5 % permanent, livraison prioritaire |\n| 🥇 Or | 500 pts | 2 pts/€ | -10 % permanent, accès avant-premières |\n| 💎 Platine | 1 000 pts | 2,5 pts/€ | -15 % permanent, cadeau anniversaire, personal shopper |\n\n### Utiliser vos points\n\n- 100 points = 5 € de réduction\n- Les points sont valables 12 mois après leur obtention\n- Cumulables avec les codes promo (hors soldes)',
    8);
 
+-- Backfill des slugs de catégorie pour les articles fraîchement seedés
+-- (la migration 011 backfill les rangs existants, mais pas ceux du seed
+-- qui s'exécute après les migrations).
+UPDATE public.faq_articles
+   SET category_slug = trim(
+     both '-' FROM
+     regexp_replace(
+       lower(
+         translate(
+           coalesce(category, ''),
+           'àáâãäåçèéêëìíîïñòóôõöùúûüýÿ',
+           'aaaaaaceeeeiiiinooooouuuuyy'
+         )
+       ),
+       '[^a-z0-9]+',
+       '-',
+       'g'
+     )
+   )
+ WHERE category_slug IS NULL;
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 7. BLOG POSTS
 -- ════════════════════════════════════════════════════════════════════════════

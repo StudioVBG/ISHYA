@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Flower2, Home, ShoppingBag } from "lucide-react";
 import { getAccountLink } from "@/lib/auth/account-link";
+import { getAnnouncementBanner } from "@/lib/queries/storefront";
 
 export const metadata = {
   title: "Page introuvable — ISHYA",
@@ -13,10 +14,13 @@ export const metadata = {
 };
 
 export default async function NotFound() {
-  const account = await getAccountLink();
+  const [account, announcement] = await Promise.all([
+    getAccountLink(),
+    getAnnouncementBanner(),
+  ]);
   return (
     <>
-      <Header account={account} />
+      <Header account={account} announcement={announcement} />
       <CartDrawer />
       <main className="flex-1 flex items-center justify-center py-20 px-4 bg-beige-nude-light/30">
         <div className="container max-w-2xl text-center">

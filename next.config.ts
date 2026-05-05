@@ -69,6 +69,8 @@ const nextConfig: NextConfig = {
       },
       // Catégories restantes (paiement, personnalisation, etc.) → ancre dans /aide
       { source: "/aide/:slug", destination: "/aide#:slug", permanent: true },
+      // Page éditoriale fusionnée
+      { source: "/savoir-faire", destination: "/atelier", permanent: true },
     ];
   },
 };

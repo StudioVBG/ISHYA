@@ -13,7 +13,6 @@ const STATIC_ROUTES = [
   "/aide",
   "/a-propos",
   "/atelier",
-  "/savoir-faire",
   "/materiaux",
   "/equipe",
   "/contact",

@@ -32,13 +32,20 @@ const NAV_LINKS = [
   { label: "Promos", href: "/boutique?badge=promo" },
 ];
 
-const ANNOUNCEMENT_COOKIE = "ishya-announcement-dismissed";
+const ANNOUNCEMENT_COOKIE_PREFIX = "ishya-announcement-dismissed-";
 
 export interface HeaderAccount {
   href: string;
   label: string;
   isAdmin: boolean;
   isAuthenticated: boolean;
+}
+
+export interface HeaderAnnouncement {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  linkUrl: string | null;
 }
 
 const DEFAULT_ACCOUNT: HeaderAccount = {
@@ -48,11 +55,21 @@ const DEFAULT_ACCOUNT: HeaderAccount = {
   isAuthenticated: false,
 };
 
+const DEFAULT_ANNOUNCEMENT: HeaderAnnouncement = {
+  id: "default",
+  title: "Livraison offerte dès 60€ | Retours gratuits 14 jours",
+  subtitle: null,
+  linkUrl: null,
+};
+
 export function Header({
   account = DEFAULT_ACCOUNT,
+  announcement,
 }: {
   account?: HeaderAccount;
+  announcement?: HeaderAnnouncement | null;
 } = {}) {
+  const banner = announcement === undefined ? DEFAULT_ANNOUNCEMENT : announcement;
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isActive = (href: string) => {
@@ -76,10 +93,13 @@ export function Header({
   const itemCount = useCartStore((s) => s.getItemCount());
 
   useEffect(() => {
-    if (document.cookie.includes(ANNOUNCEMENT_COOKIE)) {
+    if (
+      banner &&
+      document.cookie.includes(`${ANNOUNCEMENT_COOKIE_PREFIX}${banner.id}=`)
+    ) {
       queueMicrotask(() => setShowAnnouncement(false));
     }
-  }, []);
+  }, [banner]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -102,13 +122,15 @@ export function Header({
 
   function dismissAnnouncement() {
     setShowAnnouncement(false);
-    document.cookie = `${ANNOUNCEMENT_COOKIE}=1;path=/;max-age=${60 * 60 * 24 * 7}`;
+    if (banner) {
+      document.cookie = `${ANNOUNCEMENT_COOKIE_PREFIX}${banner.id}=1;path=/;max-age=${60 * 60 * 24 * 7}`;
+    }
   }
 
   return (
     <>
       <AnimatePresence>
-        {showAnnouncement && (
+        {banner && showAnnouncement && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -117,9 +139,13 @@ export function Header({
             className="bg-gold text-white overflow-hidden"
           >
             <div className="container flex items-center justify-center gap-2 py-2 text-xs sm:text-sm relative">
-              <span>
-                Livraison offerte dès 60€ | Retours gratuits 14 jours
-              </span>
+              {banner.linkUrl ? (
+                <Link href={banner.linkUrl} className="hover:underline">
+                  {banner.title}
+                </Link>
+              ) : (
+                <span>{banner.title}</span>
+              )}
               <button
                 onClick={dismissAnnouncement}
                 className="absolute right-4 p-1 hover:opacity-70 transition-opacity"

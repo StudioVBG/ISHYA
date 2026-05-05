@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   motion,
   useMotionValue,
@@ -11,9 +12,12 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import { Heart, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import { cn, formatPrice } from "@/lib/utils";
 import { heartBounce, easeOutQuart, softSpring } from "@/lib/animations";
 import { useCartStore } from "@/stores/cart-store";
+import { useWishlistStore } from "@/stores/wishlist-store";
+import { toggleWishlist } from "@/app/compte/favoris/actions";
 import type { ProductMedia, ProductVariant } from "@/types/database";
 
 export interface ProductCardProduct {
@@ -82,10 +86,42 @@ function productHref(product: ProductCardProduct): string {
 }
 
 export function ProductCard({ product, className, index = 0 }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false);
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
   const addItem = useCartStore((s) => s.addItem);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [, startTransition] = useTransition();
+
+  const wishlisted = useWishlistStore((s) => s.productIds.has(product.id));
+  const toggleLocal = useWishlistStore((s) => s.toggle);
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (product.productType === "pack") return;
+    const optimisticNext = toggleLocal(product.id);
+    startTransition(async () => {
+      const res = await toggleWishlist(product.id);
+      if (!res.ok) {
+        // Rollback optimiste
+        toggleLocal(product.id);
+        if (res.needsAuth) {
+          toast.info("Connectez-vous pour gérer vos favoris");
+          router.push(
+            `/connexion?redirect_to=${encodeURIComponent(pathname ?? "/")}`,
+          );
+          return;
+        }
+        toast.error(res.error ?? "Erreur");
+        return;
+      }
+      if (res.isFavorite !== optimisticNext) {
+        // Désynchro rare : recale sur la valeur serveur
+        toggleLocal(product.id);
+      }
+    });
+  };
 
   // ─── Parallaxe léger sur l'image (suit le curseur ±8 px)
   const mouseX = useMotionValue(0);
@@ -128,6 +164,8 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
     : 0;
 
   const isPack = product.productType === "pack";
+  const variantCount = product.variants?.length ?? 0;
+  const hasMultipleVariants = variantCount > 1;
   const totalStock = isPack
     ? Infinity
     : (product.variants?.reduce((sum, v) => sum + v.stock_quantity, 0) ?? Infinity);
@@ -137,11 +175,19 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
     e.preventDefault();
     e.stopPropagation();
     if (isOutOfStock) return;
+    // Produits multi-variants : on envoie l'utilisateur sur la page produit
+    // pour qu'il choisisse taille / longueur / couleur. La carte ne porte
+    // pas les IDs de variant, on ne peut pas les ajouter ici.
+    if (hasMultipleVariants) {
+      router.push(productHref(product));
+      return;
+    }
     addItem(
       { id: product.id, name: product.name, base_price: product.base_price },
       undefined,
       primaryImage
     );
+    toast.success(`${product.name} ajouté au panier`);
   };
 
   return (
@@ -244,35 +290,41 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
               exit={{ y: 60, opacity: 0 }}
               transition={{ duration: 0.35, ease: easeOutQuart }}
               className="hidden md:flex absolute bottom-3 left-3 right-3 z-10 items-center justify-center gap-2 h-11 bg-foreground/95 hover:bg-terracotta text-white text-xs font-medium uppercase tracking-wider rounded-md backdrop-blur-sm transition-colors"
-              aria-label={`Ajouter ${product.name} au panier`}
+              aria-label={
+                hasMultipleVariants
+                  ? `Choisir une option pour ${product.name}`
+                  : `Ajouter ${product.name} au panier`
+              }
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              Ajouter rapidement
+              {hasMultipleVariants ? "Choisir une option" : "Ajouter rapidement"}
             </motion.button>
           )}
         </AnimatePresence>
       </Link>
 
-      {/* Wishlist button */}
-      <motion.button
-        variants={heartBounce}
-        animate={wishlisted ? "active" : "idle"}
-        onClick={() => setWishlisted(!wishlisted)}
-        className={cn(
-          "absolute top-3 right-3 z-20 p-2.5 rounded-full bg-white/85 backdrop-blur-sm transition-colors shadow-sm",
-          wishlisted
-            ? "text-terracotta"
-            : "text-muted hover:text-terracotta"
-        )}
-        aria-label={
-          wishlisted ? "Retirer des favoris" : "Ajouter aux favoris"
-        }
-      >
-        <Heart
-          className="w-4 h-4"
-          fill={wishlisted ? "currentColor" : "none"}
-        />
-      </motion.button>
+      {/* Wishlist button — masqué pour les packs */}
+      {!isPack && (
+        <motion.button
+          variants={heartBounce}
+          animate={wishlisted ? "active" : "idle"}
+          onClick={handleToggleWishlist}
+          className={cn(
+            "absolute top-3 right-3 z-20 p-2.5 rounded-full bg-white/85 backdrop-blur-sm transition-colors shadow-sm",
+            wishlisted
+              ? "text-terracotta"
+              : "text-muted hover:text-terracotta"
+          )}
+          aria-label={
+            wishlisted ? "Retirer des favoris" : "Ajouter aux favoris"
+          }
+        >
+          <Heart
+            className="w-4 h-4"
+            fill={wishlisted ? "currentColor" : "none"}
+          />
+        </motion.button>
+      )}
 
       {/* Product info */}
       <Link href={productHref(product)} className="block">

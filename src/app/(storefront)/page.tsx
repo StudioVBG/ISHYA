@@ -16,6 +16,7 @@ import {
   getBestSellers,
   getFeaturedCollection,
   getHomepageReviews,
+  getHeroBanner,
 } from "@/lib/queries/storefront";
 
 export const revalidate = 300;
@@ -48,21 +49,30 @@ const giftBudgets = [
 ];
 
 export default async function HomePage() {
-  const [categories, bestSellers, featuredCollection, homeReviews] =
+  const [categories, bestSellers, featuredCollection, homeReviews, heroBanner] =
     await Promise.all([
       getTopCategories(6),
       getBestSellers(8),
       getFeaturedCollection(),
       getHomepageReviews(3),
+      getHeroBanner(),
     ]);
+
+  const heroImage = heroBanner?.imageUrl ?? "/images/hero-ishya.png";
+  const heroEyebrow = heroBanner?.subtitle ?? "Bijoux floraux artisanaux";
+  const heroTitle = heroBanner?.title ?? "ISHYA";
+  const heroSubtitle = heroBanner
+    ? null
+    : "Bijoux floraux artisanaux en fleurs séchées et résine";
+  const heroCtaHref = heroBanner?.linkUrl ?? "/boutique";
 
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative h-[85vh] min-h-[480px] sm:min-h-[600px] flex items-center justify-center overflow-hidden">
         <Image
-          src="/images/hero-ishya.png"
-          alt="Collection de boucles d'oreilles florales ISHYA"
+          src={heroImage}
+          alt={heroBanner?.title ?? "Collection ISHYA"}
           fill
           className="object-cover object-center"
           priority
@@ -70,15 +80,17 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
         <div className="relative z-10 text-center text-white px-4 max-w-3xl">
           <p className="uppercase tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4 text-white/80">
-            Bijoux floraux artisanaux
+            {heroEyebrow}
           </p>
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 sm:mb-6">
-            ISHYA
+            {heroTitle}
           </h1>
-          <p className="text-base sm:text-lg md:text-xl font-light mb-8 sm:mb-10 text-white/90 max-w-xl mx-auto">
-            Bijoux floraux artisanaux en fleurs séchées et résine
-          </p>
-          <Link href="/boutique" className="btn-primary text-base px-8 sm:px-10 py-3 sm:py-4">
+          {heroSubtitle && (
+            <p className="text-base sm:text-lg md:text-xl font-light mb-8 sm:mb-10 text-white/90 max-w-xl mx-auto">
+              {heroSubtitle}
+            </p>
+          )}
+          <Link href={heroCtaHref} className="btn-primary text-base px-8 sm:px-10 py-3 sm:py-4">
             Découvrir la collection
           </Link>
         </div>

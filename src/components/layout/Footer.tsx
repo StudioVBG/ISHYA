@@ -23,7 +23,7 @@ const FOOTER_LINKS = {
     links: [
       { label: "À propos", href: "/a-propos" },
       { label: "Notre atelier", href: "/atelier" },
-      { label: "Savoir-faire", href: "/savoir-faire" },
+      { label: "Savoir-faire", href: "/atelier" },
       { label: "Matériaux", href: "/materiaux" },
       { label: "Sur-mesure", href: "/sur-mesure" },
       { label: "Blog", href: "/blog" },

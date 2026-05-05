@@ -391,6 +391,72 @@ export async function getFeaturedCollection() {
   return data;
 }
 
+// ============================================================================
+// BANNERS (hero + barre d'annonce)
+// ============================================================================
+
+export interface PublicBanner {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  imageUrl: string | null;
+  linkUrl: string | null;
+}
+
+async function getActiveBanner(
+  placement: "hero" | "announcement_bar",
+): Promise<PublicBanner | null> {
+  const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("banners")
+    .select("id, title, subtitle, image_url, link_url, starts_at, ends_at")
+    .eq("placement", placement)
+    .or("is_active.is.null,is_active.eq.true")
+    .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
+    .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
+    .order("sort_order", { ascending: true, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error(`[getActiveBanner:${placement}]`, error);
+    return null;
+  }
+  if (!data) return null;
+  return {
+    id: data.id,
+    title: data.title,
+    subtitle: data.subtitle,
+    imageUrl: data.image_url,
+    linkUrl: data.link_url,
+  };
+}
+
+export const getHeroBanner = () => getActiveBanner("hero");
+export const getAnnouncementBanner = () => getActiveBanner("announcement_bar");
+
+/**
+ * Liste des product_id mis en favori par l'utilisateur connecté.
+ * Renvoie un tableau vide si non authentifié.
+ */
+export async function getMyWishlistProductIds(): Promise<string[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data, error } = await supabase
+    .from("wishlists")
+    .select("product_id")
+    .eq("user_id", user.id);
+  if (error) {
+    console.error("[getMyWishlistProductIds]", error);
+    return [];
+  }
+  return Array.from(new Set((data ?? []).map((r) => r.product_id)));
+}
+
 // Best-sellers carousel sur la home — wrapper autour de searchProducts.
 export const getBestSellers = (limit = 8) =>
   searchProducts({ badges: ["best-seller"], limit, types: ["produit"] });
@@ -709,6 +775,7 @@ export interface PublicFaqArticle {
   question: string;
   answer: string;
   category: string | null;
+  categorySlug: string | null;
   sortOrder: number;
 }
 
@@ -718,7 +785,8 @@ export interface PublicFaqCategory {
   count: number;
 }
 
-function faqSlugify(text: string): string {
+// Fallback côté code si category_slug est NULL en DB (avant migration 011)
+function faqSlugifyFallback(text: string): string {
   return text
     .toLowerCase()
     .normalize("NFD")
@@ -727,11 +795,20 @@ function faqSlugify(text: string): string {
     .replace(/(^-|-$)+/g, "");
 }
 
+interface FaqArticleRow {
+  id: string;
+  question: string;
+  answer: string;
+  category: string | null;
+  category_slug: string | null;
+  sort_order: number | null;
+}
+
 export async function getPublicFaqArticles(): Promise<PublicFaqArticle[]> {
   const supabase = createBuildClient();
   const { data, error } = await supabase
     .from("faq_articles")
-    .select("id, question, answer, category, sort_order")
+    .select("id, question, answer, category, category_slug, sort_order")
     .eq("is_active", true)
     .order("category", { ascending: true })
     .order("sort_order", { ascending: true });
@@ -741,11 +818,14 @@ export async function getPublicFaqArticles(): Promise<PublicFaqArticle[]> {
     return [];
   }
 
-  return (data ?? []).map((row) => ({
+  return ((data ?? []) as unknown as FaqArticleRow[]).map((row) => ({
     id: row.id,
     question: row.question,
     answer: row.answer,
     category: row.category,
+    categorySlug:
+      row.category_slug ??
+      (row.category ? faqSlugifyFallback(row.category) : null),
     sortOrder: row.sort_order ?? 0,
   }));
 }
@@ -754,8 +834,8 @@ export async function getPublicFaqCategories(): Promise<PublicFaqCategory[]> {
   const articles = await getPublicFaqArticles();
   const counts = new Map<string, { name: string; count: number }>();
   for (const a of articles) {
-    if (!a.category) continue;
-    const key = faqSlugify(a.category);
+    if (!a.category || !a.categorySlug) continue;
+    const key = a.categorySlug;
     const prev = counts.get(key);
     if (prev) {
       prev.count += 1;
@@ -768,20 +848,6 @@ export async function getPublicFaqCategories(): Promise<PublicFaqCategory[]> {
     name: v.name,
     count: v.count,
   }));
-}
-
-export async function getPublicFaqArticlesByCategorySlug(
-  slug: string,
-): Promise<{ name: string; articles: PublicFaqArticle[] } | null> {
-  const articles = await getPublicFaqArticles();
-  const matching = articles.filter(
-    (a) => a.category && faqSlugify(a.category) === slug,
-  );
-  if (matching.length === 0) return null;
-  return {
-    name: matching[0].category!,
-    articles: matching,
-  };
 }
 
 export interface PublicCmsPage {
