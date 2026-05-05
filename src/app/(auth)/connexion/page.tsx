@@ -78,13 +78,18 @@ function ConnexionContent() {
     }
 
     let target = explicitRedirect;
-    if (!target && signInData.user) {
+    const isDefaultTarget = !target || target === "/compte";
+    if (isDefaultTarget && signInData.user) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", signInData.user.id)
         .maybeSingle();
-      target = profile?.role === "admin" ? "/admin" : "/compte";
+      if (profile?.role === "admin") {
+        target = "/admin";
+      } else if (!target) {
+        target = "/compte";
+      }
     }
     router.push(target ?? "/compte");
     router.refresh();
