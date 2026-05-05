@@ -1,19 +1,18 @@
 import type { MetadataRoute } from "next";
-import { getAllSlugs } from "@/lib/queries/storefront";
+import {
+  getAllSlugs,
+  getAllPackSlugs,
+  getAllBlogSlugs,
+  getAllPublishedCmsSlugs,
+} from "@/lib/queries/storefront";
 
 const STATIC_ROUTES = [
   "",
   "/boutique",
-  "/collections",
-  "/best-sellers",
-  "/nouveautes",
-  "/promotions",
-  "/idees-cadeaux",
   "/blog",
   "/aide",
   "/a-propos",
   "/atelier",
-  "/savoir-faire",
   "/materiaux",
   "/equipe",
   "/contact",
@@ -37,6 +36,14 @@ const STATIC_ROUTES = [
   "/recrutement",
 ];
 
+// Surfaces filtrées de /boutique qui méritent leur propre entrée sitemap.
+const BOUTIQUE_FACETS = [
+  "/boutique?badge=nouveau",
+  "/boutique?badge=best-seller",
+  "/boutique?badge=promo",
+  "/boutique?type=pack",
+];
+
 function baseUrl(): string {
   const url =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -55,13 +62,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : 0.7,
   }));
 
+  const facetEntries: MetadataRoute.Sitemap = BOUTIQUE_FACETS.map((path) => ({
+    url: `${root}${path}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   let dynamicEntries: MetadataRoute.Sitemap = [];
   try {
-    const [products, categories, collections] = await Promise.all([
-      getAllSlugs("products"),
-      getAllSlugs("categories"),
-      getAllSlugs("collections"),
-    ]);
+    const [products, categories, collections, packs, posts, cmsSlugs] =
+      await Promise.all([
+        getAllSlugs("products"),
+        getAllSlugs("categories"),
+        getAllSlugs("collections"),
+        getAllPackSlugs(),
+        getAllBlogSlugs(),
+        getAllPublishedCmsSlugs(),
+      ]);
 
     dynamicEntries = [
       ...products.map((slug) => ({
@@ -71,21 +89,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       })),
       ...categories.map((slug) => ({
-        url: `${root}/boutique/${slug}`,
+        url: `${root}/boutique?categorie=${slug}`,
         lastModified: now,
         changeFrequency: "weekly" as const,
         priority: 0.7,
       })),
       ...collections.map((slug) => ({
-        url: `${root}/collections/${slug}`,
+        url: `${root}/boutique?collection=${slug}`,
         lastModified: now,
         changeFrequency: "weekly" as const,
         priority: 0.6,
+      })),
+      ...packs.map((p) => ({
+        url: `${root}/pack/${p.slug}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      })),
+      ...posts.map((slug) => ({
+        url: `${root}/blog/${slug}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      })),
+      ...cmsSlugs.map((slug) => ({
+        url: `${root}/p/${slug}`,
+        lastModified: now,
+        changeFrequency: "monthly" as const,
+        priority: 0.4,
       })),
     ];
   } catch (error) {
     console.error("[sitemap] Erreur récupération slugs dynamiques:", error);
   }
 
-  return [...staticEntries, ...dynamicEntries];
+  return [...staticEntries, ...facetEntries, ...dynamicEntries];
 }

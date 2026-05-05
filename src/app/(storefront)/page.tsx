@@ -16,6 +16,7 @@ import {
   getBestSellers,
   getFeaturedCollection,
   getHomepageReviews,
+  getHeroBanner,
 } from "@/lib/queries/storefront";
 
 export const revalidate = 300;
@@ -48,21 +49,30 @@ const giftBudgets = [
 ];
 
 export default async function HomePage() {
-  const [categories, bestSellers, featuredCollection, homeReviews] =
+  const [categories, bestSellers, featuredCollection, homeReviews, heroBanner] =
     await Promise.all([
       getTopCategories(6),
       getBestSellers(8),
       getFeaturedCollection(),
       getHomepageReviews(3),
+      getHeroBanner(),
     ]);
+
+  const heroImage = heroBanner?.imageUrl ?? "/images/hero-ishya.png";
+  const heroEyebrow = heroBanner?.subtitle ?? "Bijoux floraux artisanaux";
+  const heroTitle = heroBanner?.title ?? "ISHYA";
+  const heroSubtitle = heroBanner
+    ? null
+    : "Bijoux floraux artisanaux en fleurs séchées et résine";
+  const heroCtaHref = heroBanner?.linkUrl ?? "/boutique";
 
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative h-[85vh] min-h-[480px] sm:min-h-[600px] flex items-center justify-center overflow-hidden">
         <Image
-          src="/images/hero-ishya.png"
-          alt="Collection de boucles d'oreilles florales ISHYA"
+          src={heroImage}
+          alt={heroBanner?.title ?? "Collection ISHYA"}
           fill
           className="object-cover object-center"
           priority
@@ -70,15 +80,17 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
         <div className="relative z-10 text-center text-white px-4 max-w-3xl">
           <p className="uppercase tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4 text-white/80">
-            Bijoux floraux artisanaux
+            {heroEyebrow}
           </p>
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 sm:mb-6">
-            ISHYA
+            {heroTitle}
           </h1>
-          <p className="text-base sm:text-lg md:text-xl font-light mb-8 sm:mb-10 text-white/90 max-w-xl mx-auto">
-            Bijoux floraux artisanaux en fleurs séchées et résine
-          </p>
-          <Link href="/boutique" className="btn-primary text-base px-8 sm:px-10 py-3 sm:py-4">
+          {heroSubtitle && (
+            <p className="text-base sm:text-lg md:text-xl font-light mb-8 sm:mb-10 text-white/90 max-w-xl mx-auto">
+              {heroSubtitle}
+            </p>
+          )}
+          <Link href={heroCtaHref} className="btn-primary text-base px-8 sm:px-10 py-3 sm:py-4">
             Découvrir la collection
           </Link>
         </div>
@@ -94,7 +106,7 @@ export default async function HomePage() {
             {categories.map((category) => (
               <Link
                 key={category.id}
-                href={`/boutique/${category.slug}`}
+                href={`/boutique?categorie=${category.slug}`}
                 className="group flex flex-col items-center text-center"
               >
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden mb-3 ring-2 ring-transparent group-hover:ring-terracotta transition-all duration-300 bg-beige-nude-light">
@@ -121,6 +133,15 @@ export default async function HomePage() {
       <section className="py-20 bg-beige-nude-light/30">
         <div className="container">
           <BestSellersCarousel products={bestSellers} />
+          <div className="text-center mt-10">
+            <Link
+              href="/boutique?badge=best-seller"
+              className="inline-flex items-center gap-2 text-sm font-medium text-terracotta hover:underline"
+            >
+              Voir tous les best-sellers
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -153,7 +174,7 @@ export default async function HomePage() {
                   </p>
                 )}
                 <Link
-                  href={`/collections/${featuredCollection.slug}`}
+                  href={`/boutique?collection=${featuredCollection.slug}`}
                   className="btn-primary inline-flex items-center gap-2"
                 >
                   Découvrir la collection
@@ -178,7 +199,7 @@ export default async function HomePage() {
             {giftBudgets.map((budget) => (
               <Link
                 key={budget.label}
-                href={`/idees-cadeaux?min=${budget.min}&max=${budget.max}`}
+                href={`/boutique?min=${budget.min}&max=${budget.max}&tri=popularite`}
                 className={cn(
                   "block relative rounded-2xl overflow-hidden p-8 md:p-10 text-white aspect-[4/3] flex flex-col justify-end bg-gradient-to-br",
                   budget.color

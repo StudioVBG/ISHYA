@@ -26,7 +26,6 @@ function revalidateAll() {
   revalidatePath("/admin");
   revalidatePath("/");
   revalidatePath("/boutique");
-  revalidatePath("/boutique/[categorie]", "page");
 }
 
 export async function createCategory(
@@ -165,7 +164,6 @@ export async function addProductToCategory(
   revalidatePath("/admin/categories");
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/boutique");
-  revalidatePath("/boutique/[categorie]", "page");
   return { ok: true };
 }
 
@@ -198,7 +196,6 @@ export async function removeProductFromCategory(
   revalidatePath("/admin/categories");
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/boutique");
-  revalidatePath("/boutique/[categorie]", "page");
   return { ok: true };
 }
 
@@ -219,6 +216,5 @@ export async function reorderCategoryProducts(
   }
   revalidatePath(`/admin/categories/${categoryId}`);
   revalidatePath("/boutique");
-  revalidatePath("/boutique/[categorie]", "page");
   return { ok: true };
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -20,21 +20,32 @@ import { useCartStore } from "@/stores/cart-store";
 import { SearchModal } from "./SearchModal";
 
 const NAV_LINKS = [
-  { label: "Colliers", href: "/boutique/colliers" },
-  { label: "Bagues", href: "/boutique/bagues" },
-  { label: "Bracelets", href: "/boutique/bracelets" },
-  { label: "Boucles d'oreilles", href: "/boutique/boucles-doreilles" },
-  { label: "Accessoires", href: "/boutique/accessoires" },
-  { label: "Packs", href: "/boutique/packs" },
+  { label: "Colliers", href: "/boutique?categorie=colliers" },
+  { label: "Bagues", href: "/boutique?categorie=bagues" },
+  { label: "Bracelets", href: "/boutique?categorie=bracelets" },
+  {
+    label: "Boucles d'oreilles",
+    href: "/boutique?categorie=boucles-d-oreilles",
+  },
+  { label: "Accessoires", href: "/boutique?categorie=accessoires" },
+  { label: "Packs", href: "/boutique?type=pack" },
+  { label: "Promos", href: "/boutique?badge=promo" },
 ];
 
-const ANNOUNCEMENT_COOKIE = "ishya-announcement-dismissed";
+const ANNOUNCEMENT_COOKIE_PREFIX = "ishya-announcement-dismissed-";
 
 export interface HeaderAccount {
   href: string;
   label: string;
   isAdmin: boolean;
   isAuthenticated: boolean;
+}
+
+export interface HeaderAnnouncement {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  linkUrl: string | null;
 }
 
 const DEFAULT_ACCOUNT: HeaderAccount = {
@@ -44,12 +55,35 @@ const DEFAULT_ACCOUNT: HeaderAccount = {
   isAuthenticated: false,
 };
 
+const DEFAULT_ANNOUNCEMENT: HeaderAnnouncement = {
+  id: "default",
+  title: "Livraison offerte dès 60€ | Retours gratuits 14 jours",
+  subtitle: null,
+  linkUrl: null,
+};
+
 export function Header({
   account = DEFAULT_ACCOUNT,
+  announcement,
 }: {
   account?: HeaderAccount;
+  announcement?: HeaderAnnouncement | null;
 } = {}) {
+  const banner = announcement === undefined ? DEFAULT_ANNOUNCEMENT : announcement;
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isActive = (href: string) => {
+    if (href.includes("?")) {
+      const [hPath, hQs] = href.split("?");
+      if (pathname !== hPath) return false;
+      const want = new URLSearchParams(hQs);
+      for (const [k, v] of want.entries()) {
+        if (searchParams?.get(k) !== v) return false;
+      }
+      return true;
+    }
+    return pathname?.startsWith(href) ?? false;
+  };
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -59,10 +93,13 @@ export function Header({
   const itemCount = useCartStore((s) => s.getItemCount());
 
   useEffect(() => {
-    if (document.cookie.includes(ANNOUNCEMENT_COOKIE)) {
+    if (
+      banner &&
+      document.cookie.includes(`${ANNOUNCEMENT_COOKIE_PREFIX}${banner.id}=`)
+    ) {
       queueMicrotask(() => setShowAnnouncement(false));
     }
-  }, []);
+  }, [banner]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -85,13 +122,15 @@ export function Header({
 
   function dismissAnnouncement() {
     setShowAnnouncement(false);
-    document.cookie = `${ANNOUNCEMENT_COOKIE}=1;path=/;max-age=${60 * 60 * 24 * 7}`;
+    if (banner) {
+      document.cookie = `${ANNOUNCEMENT_COOKIE_PREFIX}${banner.id}=1;path=/;max-age=${60 * 60 * 24 * 7}`;
+    }
   }
 
   return (
     <>
       <AnimatePresence>
-        {showAnnouncement && (
+        {banner && showAnnouncement && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -100,9 +139,13 @@ export function Header({
             className="bg-gold text-white overflow-hidden"
           >
             <div className="container flex items-center justify-center gap-2 py-2 text-xs sm:text-sm relative">
-              <span>
-                Livraison offerte dès 60€ | Retours gratuits 14 jours
-              </span>
+              {banner.linkUrl ? (
+                <Link href={banner.linkUrl} className="hover:underline">
+                  {banner.title}
+                </Link>
+              ) : (
+                <span>{banner.title}</span>
+              )}
               <button
                 onClick={dismissAnnouncement}
                 className="absolute right-4 p-1 hover:opacity-70 transition-opacity"
@@ -149,7 +192,7 @@ export function Header({
                 href={link.href}
                 className={cn(
                   "text-sm tracking-wide hover:text-terracotta transition-colors relative py-1",
-                  pathname?.startsWith(link.href) &&
+                  isActive(link.href) &&
                     "text-terracotta after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-terracotta"
                 )}
               >
@@ -249,7 +292,7 @@ export function Header({
                     href={link.href}
                     className={cn(
                       "flex items-center justify-between px-6 py-3.5 text-sm tracking-wide hover:bg-beige-nude-light transition-colors",
-                      pathname?.startsWith(link.href) && "text-terracotta font-medium"
+                      isActive(link.href) && "text-terracotta font-medium"
                     )}
                   >
                     {link.label}

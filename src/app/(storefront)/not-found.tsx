@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flower2, Home, Search, ShoppingBag } from "lucide-react";
+import { Flower2, Home, ShoppingBag } from "lucide-react";
 
 export const metadata = {
   title: "Page introuvable — ISHYA",
@@ -38,13 +38,6 @@ export default function StorefrontNotFound() {
             <ShoppingBag className="w-4 h-4" />
             Voir la boutique
           </Link>
-          <Link
-            href="/recherche"
-            className="btn-secondary inline-flex items-center gap-2"
-          >
-            <Search className="w-4 h-4" />
-            Rechercher
-          </Link>
         </div>
 
         <div className="mt-16 pt-10 border-t border-border">
@@ -52,14 +45,14 @@ export default function StorefrontNotFound() {
             Liens utiles
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
-            <Link href="/nouveautes" className="hover:text-terracotta transition-colors">
+            <Link href="/boutique?badge=nouveau" className="hover:text-terracotta transition-colors">
               Nouveautés
             </Link>
-            <Link href="/best-sellers" className="hover:text-terracotta transition-colors">
+            <Link href="/boutique?badge=best-seller" className="hover:text-terracotta transition-colors">
               Best-sellers
             </Link>
-            <Link href="/collections" className="hover:text-terracotta transition-colors">
-              Collections
+            <Link href="/boutique?type=pack" className="hover:text-terracotta transition-colors">
+              Packs
             </Link>
             <Link href="/aide" className="hover:text-terracotta transition-colors">
               Aide

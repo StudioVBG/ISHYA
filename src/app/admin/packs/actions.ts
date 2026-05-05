@@ -39,7 +39,18 @@ function validate(input: PackInput): string | null {
 function revalidateAll() {
   revalidatePath("/admin/packs");
   revalidatePath("/boutique");
-  revalidatePath("/pack", "layout");
+  revalidatePath("/pack/[slug]", "page");
+}
+
+async function revalidatePackBySlug(packId: string) {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("packs")
+    .select("slug")
+    .eq("id", packId)
+    .maybeSingle();
+  if (data?.slug) revalidatePath(`/pack/${data.slug}`);
+  revalidatePath("/boutique");
 }
 
 export async function createPack(
@@ -166,7 +177,7 @@ export async function addProductToPack(
 
   revalidatePath(`/admin/packs/${packId}`);
   revalidatePath("/admin/packs");
-  revalidatePath(`/pack/${packId}`);
+  await revalidatePackBySlug(packId);
   return { ok: true };
 }
 
@@ -191,6 +202,7 @@ export async function removeProductFromPack(
 
   revalidatePath(`/admin/packs/${packId}`);
   revalidatePath("/admin/packs");
+  await revalidatePackBySlug(packId);
   return { ok: true };
 }
 
@@ -215,6 +227,7 @@ export async function setPackItemRequired(
   }
 
   revalidatePath(`/admin/packs/${packId}`);
+  await revalidatePackBySlug(packId);
   return { ok: true };
 }
 
@@ -237,5 +250,6 @@ export async function reorderPackItems(
   }
 
   revalidatePath(`/admin/packs/${packId}`);
+  await revalidatePackBySlug(packId);
   return { ok: true };
 }

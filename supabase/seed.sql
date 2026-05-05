@@ -221,6 +221,10 @@ INSERT INTO categories (id, parent_id, name, slug, description, image_url, sort_
 VALUES (gen_random_uuid(), cat_packs, 'Coffrets cadeaux', 'coffrets-cadeaux', 'Coffrets cadeaux prêts à offrir dans un écrin ISHYA.', '/images/categories/coffrets-cadeaux.jpg', 3, true)
 RETURNING id INTO sub_coffrets;
 
+-- Sous-catégories : on ne dispose pas d'images dédiées dans /public/images/categories,
+-- on nullifie les image_url pour laisser le placeholder du composant prendre le relais.
+UPDATE public.categories SET image_url = NULL WHERE parent_id IS NOT NULL;
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 2. COLLECTIONS
 -- ════════════════════════════════════════════════════════════════════════════
@@ -813,6 +817,27 @@ INSERT INTO faq_articles (id, category, question, answer, sort_order) VALUES
    E'## Programme de fidélité ISHYA\n\nRécompensez votre amour des fleurs !\n\n### Comment ça marche ?\n\n- Créez un compte ISHYA\n- Gagnez des points à chaque achat\n- Utilisez vos points pour obtenir des réductions\n\n### Les paliers\n\n| Palier | Points requis | Taux | Avantages |\n|---|---|---|---|\n| 🥉 Bronze | 0 | 1 pt/€ | Accès aux ventes privées |\n| 🥈 Argent | 200 pts | 1,5 pt/€ | -5 % permanent, livraison prioritaire |\n| 🥇 Or | 500 pts | 2 pts/€ | -10 % permanent, accès avant-premières |\n| 💎 Platine | 1 000 pts | 2,5 pts/€ | -15 % permanent, cadeau anniversaire, personal shopper |\n\n### Utiliser vos points\n\n- 100 points = 5 € de réduction\n- Les points sont valables 12 mois après leur obtention\n- Cumulables avec les codes promo (hors soldes)',
    8);
 
+-- Backfill des slugs de catégorie pour les articles fraîchement seedés
+-- (la migration 011 backfill les rangs existants, mais pas ceux du seed
+-- qui s'exécute après les migrations).
+UPDATE public.faq_articles
+   SET category_slug = trim(
+     both '-' FROM
+     regexp_replace(
+       lower(
+         translate(
+           coalesce(category, ''),
+           'àáâãäåçèéêëìíîïñòóôõöùúûüýÿ',
+           'aaaaaaceeeeiiiinooooouuuuyy'
+         )
+       ),
+       '[^a-z0-9]+',
+       '-',
+       'g'
+     )
+   )
+ WHERE category_slug IS NULL;
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 7. BLOG POSTS
 -- ════════════════════════════════════════════════════════════════════════════
@@ -943,33 +968,9 @@ INSERT INTO banners (id, title, subtitle, image_url, link_url, placement, sort_o
 -- 12. PAGES CMS
 -- ════════════════════════════════════════════════════════════════════════════
 
-INSERT INTO cms_pages (id, title, slug, body, meta_title, meta_description, is_published, published_at) VALUES
-  (gen_random_uuid(), 'À propos', 'a-propos',
-   E'# À propos d''ISHYA\n\n## Notre histoire\n\nISHYA est née d''une passion simple : capturer la beauté éphémère des fleurs pour la rendre éternelle. Fondée en 2024, notre maison de bijoux artisanaux crée des pièces uniques en fleurs séchées et résine, façonnées à la main dans notre atelier en France.\n\n## Notre philosophie\n\nChaque bijou ISHYA est une ode à la nature. Nous sélectionnons les plus belles fleurs, les séchons avec soin, puis les encapsulons dans une résine cristalline qui préserve leur beauté pour l''éternité. Pas deux bijoux ne sont identiques — c''est la promesse ISHYA.\n\n## Nos valeurs\n\n### 🌿 Artisanat\n\nChaque pièce est entièrement réalisée à la main. De la cueillette des fleurs au polissage final de la résine, nous maîtrisons chaque étape.\n\n### 🌸 Nature\n\nNous utilisons exclusivement des fleurs naturelles, séchées et stabilisées. Aucune fleur artificielle, aucun plastique.\n\n### 💛 Qualité\n\nNos métaux sont en acier inoxydable plaqué or 18 carats, hypoallergéniques et sans nickel. Notre résine est de qualité joaillerie avec protection UV.\n\n### 🇫🇷 Made in France\n\nTous nos bijoux sont conçus et fabriqués dans notre atelier en France, avec fierté et exigence.\n\n## L''équipe\n\nISHYA, c''est avant tout une équipe passionnée de créatrices, artisanes et amoureuses de la nature. Ensemble, nous transformons chaque fleur en un petit bijou d''éternité.\n\n---\n\n*ISHYA — La nature, sublimée.*',
-   'À propos d''ISHYA | Bijoux artisanaux en fleurs séchées',
-   'Découvrez l''histoire d''ISHYA, maison de bijoux artisanaux en fleurs séchées et résine. Fabriqué à la main en France.',
-   true, now()),
-
-  (gen_random_uuid(), 'Conditions Générales de Vente', 'cgv',
-   E'# Conditions Générales de Vente\n\n*Dernière mise à jour : 1er mars 2026*\n\n## Article 1 — Objet\n\nLes présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre la société ISHYA (ci-après « le Vendeur ») et toute personne physique ou morale (ci-après « le Client ») effectuant un achat sur le site ishya.fr.\n\n## Article 2 — Produits\n\nLes bijoux ISHYA sont des pièces artisanales réalisées à la main à partir de fleurs naturelles séchées et de résine. Chaque pièce étant unique, de légères variations de couleur, taille et disposition des éléments floraux sont normales et ne constituent pas un défaut.\n\n## Article 3 — Prix\n\nLes prix sont indiqués en euros TTC (toutes taxes comprises). Le Vendeur se réserve le droit de modifier ses prix à tout moment, mais les produits seront facturés au prix en vigueur au moment de la validation de la commande.\n\n## Article 4 — Commande\n\nLa commande est définitive dès le paiement validé. Un email de confirmation est envoyé au Client. Le Vendeur se réserve le droit d''annuler une commande en cas de fraude suspectée.\n\n## Article 5 — Paiement\n\nLe paiement s''effectue par carte bancaire (Visa, Mastercard, American Express), PayPal, Apple Pay, Google Pay, ou en 3x sans frais via Alma (sous conditions). Le paiement est sécurisé par Stripe.\n\n## Article 6 — Livraison\n\nLes commandes sont expédiées sous 1 à 2 jours ouvrés. Les délais de livraison varient selon le mode choisi (voir page Livraison). Le Vendeur ne peut être tenu responsable des retards imputables au transporteur.\n\n## Article 7 — Droit de rétractation\n\nConformément à l''article L221-18 du Code de la consommation, le Client dispose de 14 jours à compter de la réception pour exercer son droit de rétractation. Les articles personnalisés sont exclus.\n\n## Article 8 — Garantie\n\nTous les bijoux ISHYA bénéficient d''une garantie de 6 mois contre les défauts de fabrication.\n\n## Article 9 — Données personnelles\n\nLe traitement des données personnelles est détaillé dans notre Politique de Confidentialité.\n\n## Article 10 — Litiges\n\nEn cas de litige, une solution amiable sera recherchée. À défaut, les tribunaux français seront compétents.',
-   'CGV — Conditions Générales de Vente | ISHYA',
-   'Conditions Générales de Vente du site ishya.fr. Commande, paiement, livraison, retour et garantie.',
-   true, now()),
-
-  (gen_random_uuid(), 'Mentions légales', 'mentions-legales',
-   E'# Mentions légales\n\n## Éditeur du site\n\n**ISHYA**\nSAS au capital de 5 000 €\nSiège social : 12 rue des Fleurs, 75004 Paris, France\nSIRET : 123 456 789 00012\nRCS Paris B 123 456 789\nTVA intracommunautaire : FR12 123456789\n\nDirectrice de la publication : [Nom de la fondatrice]\nContact : contact@ishya.fr\n\n## Hébergement\n\nLe site ishya.fr est hébergé par :\n**Vercel Inc.**\n340 S Lemon Ave #4133, Walnut, CA 91789, USA\nhttps://vercel.com\n\nBase de données hébergée par :\n**Supabase Inc.**\n970 Toa Payoh North, Singapore\nhttps://supabase.com\n\n## Propriété intellectuelle\n\nL''ensemble du contenu du site (textes, images, logo, marque) est protégé par le droit d''auteur et le droit des marques. Toute reproduction est interdite sans autorisation préalable.\n\n## Crédits photographiques\n\nPhotographies : © ISHYA 2024-2026. Tous droits réservés.',
-   'Mentions légales | ISHYA',
-   'Mentions légales du site ishya.fr. Informations sur l''éditeur, l''hébergeur et la propriété intellectuelle.',
-   true, now()),
-
-  (gen_random_uuid(), 'Politique de confidentialité', 'politique-confidentialite',
-   E'# Politique de confidentialité\n\n*Dernière mise à jour : 1er mars 2026*\n\n## 1. Responsable du traitement\n\nISHYA SAS, 12 rue des Fleurs, 75004 Paris, France.\nContact DPO : dpo@ishya.fr\n\n## 2. Données collectées\n\n### Lors de la création de compte\n- Nom, prénom\n- Adresse email\n- Numéro de téléphone (optionnel)\n- Date de naissance (optionnel, pour le programme fidélité)\n\n### Lors d''une commande\n- Adresse de livraison et de facturation\n- Données de paiement (traitées par Stripe, non stockées chez nous)\n\n### Navigation\n- Cookies techniques (session, panier)\n- Cookies analytiques (avec consentement)\n\n## 3. Finalités\n\n- Gestion des commandes et livraisons\n- Programme de fidélité\n- Newsletter (avec consentement)\n- Amélioration du site\n\n## 4. Base légale\n\n- Exécution du contrat (commandes)\n- Consentement (newsletter, cookies analytiques)\n- Intérêt légitime (amélioration du site, prévention fraude)\n\n## 5. Durée de conservation\n\n- Données de compte : durée de la relation commerciale + 3 ans\n- Données de commande : 10 ans (obligations comptables)\n- Cookies : 13 mois maximum\n\n## 6. Vos droits\n\nConformément au RGPD, vous disposez des droits d''accès, de rectification, de suppression, de portabilité, de limitation et d''opposition. Contactez dpo@ishya.fr.\n\n## 7. Cookies\n\nVous pouvez gérer vos préférences de cookies via le bandeau affiché lors de votre première visite.',
-   'Politique de confidentialité | ISHYA',
-   'Politique de confidentialité d''ISHYA. Données collectées, finalités, durée de conservation et vos droits RGPD.',
-   true, now()),
-
-  (gen_random_uuid(), 'Politique de retour', 'politique-retour',
-   E'# Politique de retour\n\n## Délai de retour\n\nVous disposez de **14 jours calendaires** à compter de la date de réception de votre commande pour nous retourner un ou plusieurs articles.\n\n## Conditions\n\nPour être éligible au retour, l''article doit :\n\n- Ne pas avoir été porté (en dehors d''un essayage raisonnable)\n- Être dans son emballage d''origine (pochette ou écrin ISHYA)\n- Ne pas être un article personnalisé ou sur-mesure\n- Ne pas être un article soldé (échangeable uniquement)\n\n## Procédure de retour\n\n1. **Connectez-vous** à votre espace client sur ishya.fr\n2. Rendez-vous dans **« Mes commandes »**\n3. Cliquez sur **« Retourner un article »** à côté de la commande concernée\n4. Sélectionnez les articles et la raison du retour\n5. **Imprimez l''étiquette de retour** prépayée (France métropolitaine uniquement)\n6. Emballez soigneusement l''article dans son emballage d''origine\n7. **Déposez le colis** en bureau de poste ou point relais\n\n## Remboursement\n\n- Le remboursement est effectué sous **5 à 7 jours ouvrés** après réception et vérification du retour\n- Le remboursement se fait sur le **moyen de paiement original**\n- Les frais de livraison initiaux ne sont **pas remboursés** (sauf erreur de notre part)\n\n## Échange\n\nPour un échange (taille, couleur), suivez la même procédure et précisez le nouvel article souhaité. L''échange sera traité en priorité.\n\n## Retour depuis l''international\n\nLes frais de retour depuis l''étranger (DOM-TOM et Europe) sont à la charge du client. Nous recommandons un envoi suivi.\n\n## Contact\n\nUne question ? Contactez notre service client à **retours@ishya.fr** ou via le chat en ligne.',
-   'Politique de retour | ISHYA',
-   'Politique de retour ISHYA. Délai de 14 jours, conditions, procédure et remboursement pour vos bijoux.',
-   true, now());
+-- Pages CMS éditables par l'admin (/p/[slug]).
+-- Note : les pages "À propos", "CGV", "Mentions légales", "Confidentialité"
+-- et "Retours" sont déjà servies par des routes React dédiées
+-- (/a-propos, /cgv, /mentions-legales, /confidentialite, /retours), donc on
+-- ne les seed pas ici pour éviter le doublon. L'admin peut créer ses propres
+-- pages CMS via /admin/pages — exemples laissés volontairement vides.

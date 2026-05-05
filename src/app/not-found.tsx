@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-import { Flower2, Home, Search, ShoppingBag } from "lucide-react";
+import { Flower2, Home, ShoppingBag } from "lucide-react";
 import { getAccountLink } from "@/lib/auth/account-link";
+import { getAnnouncementBanner } from "@/lib/queries/storefront";
 
 export const metadata = {
   title: "Page introuvable — ISHYA",
@@ -13,10 +14,13 @@ export const metadata = {
 };
 
 export default async function NotFound() {
-  const account = await getAccountLink();
+  const [account, announcement] = await Promise.all([
+    getAccountLink(),
+    getAnnouncementBanner(),
+  ]);
   return (
     <>
-      <Header account={account} />
+      <Header account={account} announcement={announcement} />
       <CartDrawer />
       <main className="flex-1 flex items-center justify-center py-20 px-4 bg-beige-nude-light/30">
         <div className="container max-w-2xl text-center">
@@ -46,13 +50,6 @@ export default async function NotFound() {
               <ShoppingBag className="w-4 h-4" />
               Voir la boutique
             </Link>
-            <Link
-              href="/recherche"
-              className="btn-secondary inline-flex items-center gap-2"
-            >
-              <Search className="w-4 h-4" />
-              Rechercher
-            </Link>
           </div>
 
           <div className="mt-16 pt-10 border-t border-border">
@@ -60,14 +57,14 @@ export default async function NotFound() {
               Liens utiles
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
-              <Link href="/nouveautes" className="hover:text-terracotta transition-colors">
+              <Link href="/boutique?badge=nouveau" className="hover:text-terracotta transition-colors">
                 Nouveautés
               </Link>
-              <Link href="/best-sellers" className="hover:text-terracotta transition-colors">
+              <Link href="/boutique?badge=best-seller" className="hover:text-terracotta transition-colors">
                 Best-sellers
               </Link>
-              <Link href="/collections" className="hover:text-terracotta transition-colors">
-                Collections
+              <Link href="/boutique?type=pack" className="hover:text-terracotta transition-colors">
+                Packs
               </Link>
               <Link href="/aide" className="hover:text-terracotta transition-colors">
                 Aide

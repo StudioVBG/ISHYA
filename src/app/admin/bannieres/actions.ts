@@ -33,7 +33,6 @@ function revalidateAll() {
   revalidatePath("/admin/bannieres");
   revalidatePath("/");
   revalidatePath("/boutique");
-  revalidatePath("/boutique/[categorie]", "page");
 }
 
 export async function createBanner(

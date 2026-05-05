@@ -318,7 +318,7 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
                       setForm({ ...form, linkUrl: e.target.value })
                     }
                     className={inputClass}
-                    placeholder="/boutique/colliers"
+                    placeholder="/boutique?categorie=colliers"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">

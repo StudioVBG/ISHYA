@@ -8,10 +8,11 @@ import { Search, X, TrendingUp } from "lucide-react";
 import { fadeIn } from "@/lib/animations";
 
 const TRENDING = [
-  { label: "Colliers", href: "/boutique/colliers" },
-  { label: "Bagues florales", href: "/boutique/bagues" },
-  { label: "Parures", href: "/boutique/packs" },
-  { label: "Nouveautés", href: "/boutique?tri=nouveautes" },
+  { label: "Colliers", href: "/boutique?categorie=colliers" },
+  { label: "Bagues florales", href: "/boutique?categorie=bagues" },
+  { label: "Packs & parures", href: "/boutique?type=pack" },
+  { label: "Nouveautés", href: "/boutique?badge=nouveau" },
+  { label: "Promotions", href: "/boutique?badge=promo" },
 ];
 
 interface SearchModalProps {

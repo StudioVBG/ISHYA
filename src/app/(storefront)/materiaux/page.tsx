@@ -147,7 +147,7 @@ export default function MateriauxPage() {
             <Link href="/contact" className="btn-secondary">
               Poser une question
             </Link>
-            <Link href="/savoir-faire" className="btn-primary">
+            <Link href="/atelier" className="btn-primary">
               Voir notre savoir-faire
             </Link>
           </div>
