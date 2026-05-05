@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Flower2, Home, Search, ShoppingBag } from "lucide-react";
+import { getAccountLink } from "@/lib/auth/account-link";
 
 export const metadata = {
   title: "Page introuvable — ISHYA",
@@ -11,10 +12,11 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function NotFound() {
+export default async function NotFound() {
+  const account = await getAccountLink();
   return (
     <>
-      <Header />
+      <Header account={account} />
       <CartDrawer />
       <main className="flex-1 flex items-center justify-center py-20 px-4 bg-beige-nude-light/30">
         <div className="container max-w-2xl text-center">

@@ -189,6 +189,71 @@ export interface AdminClientRow {
   totalSpent: number;
 }
 
+export interface AdminClientAddress {
+  id: string;
+  type: "shipping" | "billing";
+  label: string | null;
+  firstName: string;
+  lastName: string;
+  company: string | null;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string | null;
+  postalCode: string;
+  country: string;
+  phone: string | null;
+  isDefault: boolean;
+}
+
+export interface AdminClientOrderSummary {
+  id: string;
+  orderNumber: string;
+  status: string;
+  total: number;
+  itemCount: number;
+  createdAt: string;
+}
+
+export interface AdminClientReviewSummary {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  isApproved: boolean;
+  createdAt: string | null;
+}
+
+export interface AdminClientActivityItem {
+  date: string;
+  event: string;
+}
+
+export interface AdminClientDetail {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  avatarUrl: string | null;
+  dateOfBirth: string | null;
+  loyaltyTier: string;
+  loyaltyPoints: number;
+  isActive: boolean;
+  createdAt: string | null;
+  lastLoginAt: string | null;
+  ordersCount: number;
+  totalSpent: number;
+  averageBasket: number;
+  addresses: AdminClientAddress[];
+  orders: AdminClientOrderSummary[];
+  reviews: AdminClientReviewSummary[];
+  activity: AdminClientActivityItem[];
+}
+
 export interface AdminPromotionRow {
   id: string;
   code: string;
@@ -739,6 +804,188 @@ export async function getAdminClients(): Promise<AdminClientRow[]> {
         totalSpent: agg?.total ?? 0,
       };
     });
+}
+
+export async function getAdminClientById(
+  id: string,
+): Promise<AdminClientDetail | null> {
+  const admin = createAdminClient();
+
+  const { data: profile, error: profileError } = await admin
+    .from("profiles")
+    .select(
+      "id, email, first_name, last_name, phone, avatar_url, date_of_birth, role, loyalty_tier, loyalty_points, is_active, created_at, last_login_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (profileError || !profile) {
+    if (profileError) console.error("[getAdminClientById] profile:", profileError);
+    return null;
+  }
+
+  const [addressesResult, ordersResult, reviewsResult] = await Promise.all([
+    admin
+      .from("addresses")
+      .select(
+        "id, type, label, first_name, last_name, company, address_line1, address_line2, city, state, postal_code, country, phone, is_default, created_at",
+      )
+      .eq("user_id", id)
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: false }),
+    admin
+      .from("orders")
+      .select(
+        `id, order_number, status, grand_total, created_at,
+         order_items ( id )`,
+      )
+      .eq("user_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("reviews")
+      .select(
+        `id, product_id, rating, title, body, is_approved, created_at,
+         product:products ( name, slug )`,
+      )
+      .eq("user_id", id)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
+
+  if (addressesResult.error) {
+    console.error("[getAdminClientById] addresses:", addressesResult.error);
+  }
+  if (ordersResult.error) {
+    console.error("[getAdminClientById] orders:", ordersResult.error);
+  }
+  if (reviewsResult.error) {
+    console.error("[getAdminClientById] reviews:", reviewsResult.error);
+  }
+
+  const orderRows = (ordersResult.data ?? []) as Array<{
+    id: string;
+    order_number: string;
+    status: string | null;
+    grand_total: number | string | null;
+    created_at: string | null;
+    order_items: Array<{ id: string }> | null;
+  }>;
+
+  const orders: AdminClientOrderSummary[] = orderRows.map((row) => ({
+    id: row.id,
+    orderNumber: row.order_number,
+    status: row.status ?? "pending",
+    total: Number(row.grand_total ?? 0),
+    itemCount: (row.order_items ?? []).length,
+    createdAt: row.created_at ?? new Date().toISOString(),
+  }));
+
+  const validOrderStatuses = new Set([
+    "confirmed",
+    "processing",
+    "shipped",
+    "delivered",
+  ]);
+  const ordersCount = orders.filter((o) => validOrderStatuses.has(o.status)).length;
+  const totalSpent = orders
+    .filter((o) => validOrderStatuses.has(o.status))
+    .reduce((sum, o) => sum + o.total, 0);
+  const averageBasket = ordersCount > 0 ? totalSpent / ordersCount : 0;
+
+  const addresses: AdminClientAddress[] = (addressesResult.data ?? []).map(
+    (a) => ({
+      id: a.id,
+      type: (a.type ?? "shipping") as "shipping" | "billing",
+      label: a.label,
+      firstName: a.first_name,
+      lastName: a.last_name,
+      company: a.company,
+      line1: a.address_line1,
+      line2: a.address_line2,
+      city: a.city,
+      state: a.state,
+      postalCode: a.postal_code,
+      country: a.country ?? "FR",
+      phone: a.phone,
+      isDefault: a.is_default ?? false,
+    }),
+  );
+
+  const reviewRows = (reviewsResult.data ?? []) as Array<{
+    id: string;
+    product_id: string;
+    rating: number;
+    title: string | null;
+    body: string | null;
+    is_approved: boolean | null;
+    created_at: string | null;
+    product?:
+      | { name: string; slug: string }
+      | Array<{ name: string; slug: string }>
+      | null;
+  }>;
+
+  const reviews: AdminClientReviewSummary[] = reviewRows.map((r) => {
+    const product = Array.isArray(r.product) ? r.product[0] : r.product;
+    return {
+      id: r.id,
+      productId: r.product_id,
+      productName: product?.name ?? "Produit inconnu",
+      productSlug: product?.slug ?? "",
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      isApproved: r.is_approved ?? false,
+      createdAt: r.created_at,
+    };
+  });
+
+  // Build activity timeline: orders + reviews + last login
+  const activity: AdminClientActivityItem[] = [];
+  for (const o of orders.slice(0, 10)) {
+    activity.push({
+      date: o.createdAt,
+      event: `Commande ${o.orderNumber} passée (${o.status})`,
+    });
+  }
+  for (const r of reviews.slice(0, 5)) {
+    if (r.createdAt) {
+      activity.push({
+        date: r.createdAt,
+        event: `Avis (${r.rating}★) sur ${r.productName}`,
+      });
+    }
+  }
+  if (profile.last_login_at) {
+    activity.push({
+      date: profile.last_login_at,
+      event: "Dernière connexion",
+    });
+  }
+  activity.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  return {
+    id: profile.id,
+    email: profile.email,
+    firstName: profile.first_name,
+    lastName: profile.last_name,
+    phone: profile.phone,
+    avatarUrl: profile.avatar_url,
+    dateOfBirth: profile.date_of_birth,
+    loyaltyTier: profile.loyalty_tier ?? "bronze",
+    loyaltyPoints: profile.loyalty_points ?? 0,
+    isActive: profile.is_active ?? true,
+    createdAt: profile.created_at,
+    lastLoginAt: profile.last_login_at,
+    ordersCount,
+    totalSpent: Math.round(totalSpent * 100) / 100,
+    averageBasket: Math.round(averageBasket * 100) / 100,
+    addresses,
+    orders,
+    reviews,
+    activity: activity.slice(0, 15),
+  };
 }
 
 export async function getAdminProductById(

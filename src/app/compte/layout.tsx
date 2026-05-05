@@ -1,4 +1,5 @@
 import { getCurrentUserProfile } from "@/lib/queries/account";
+import { getAccountLink } from "@/lib/auth/account-link";
 import { CompteShell } from "./CompteShell";
 
 export default async function CompteLayout({
@@ -6,13 +7,17 @@ export default async function CompteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await getCurrentUserProfile();
+  const [profile, account] = await Promise.all([
+    getCurrentUserProfile(),
+    getAccountLink(),
+  ]);
 
   return (
     <CompteShell
       firstName={profile?.firstName ?? null}
       lastName={profile?.lastName ?? null}
       loyaltyTier={profile?.loyaltyTier ?? "bronze"}
+      account={account}
     >
       {children}
     </CompteShell>

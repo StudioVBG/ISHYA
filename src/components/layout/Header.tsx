@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { slideInLeft, fadeIn, drawerTransition } from "@/lib/animations";
@@ -29,7 +30,25 @@ const NAV_LINKS = [
 
 const ANNOUNCEMENT_COOKIE = "ishya-announcement-dismissed";
 
-export function Header() {
+export interface HeaderAccount {
+  href: string;
+  label: string;
+  isAdmin: boolean;
+  isAuthenticated: boolean;
+}
+
+const DEFAULT_ACCOUNT: HeaderAccount = {
+  href: "/connexion",
+  label: "Se connecter",
+  isAdmin: false,
+  isAuthenticated: false,
+};
+
+export function Header({
+  account = DEFAULT_ACCOUNT,
+}: {
+  account?: HeaderAccount;
+} = {}) {
   const pathname = usePathname();
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -150,20 +169,27 @@ export function Header() {
             </button>
 
             <Link
-              href="/compte"
-              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors"
-              aria-label="Mon compte"
+              href={account.href}
+              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors relative"
+              aria-label={account.label}
+              title={account.label}
             >
-              <User className="w-5 h-5" />
+              {account.isAdmin ? (
+                <Shield className="w-5 h-5" />
+              ) : (
+                <User className="w-5 h-5" />
+              )}
             </Link>
 
-            <Link
-              href="/compte/favoris"
-              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors"
-              aria-label="Mes favoris"
-            >
-              <Heart className="w-5 h-5" />
-            </Link>
+            {!account.isAdmin && (
+              <Link
+                href={account.isAuthenticated ? "/compte/favoris" : "/connexion?redirect_to=/compte/favoris"}
+                className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors"
+                aria-label="Mes favoris"
+              >
+                <Heart className="w-5 h-5" />
+              </Link>
+            )}
 
             <button
               onClick={openCart}
@@ -234,19 +260,33 @@ export function Header() {
 
               <div className="border-t border-border p-4 space-y-3">
                 <Link
-                  href="/compte"
+                  href={account.href}
                   className="flex items-center gap-3 px-2 py-2 text-sm hover:text-terracotta transition-colors"
                 >
-                  <User className="w-4 h-4" />
-                  Mon compte
+                  {account.isAdmin ? (
+                    <Shield className="w-4 h-4" />
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
+                  {account.isAdmin
+                    ? "Tableau de bord admin"
+                    : account.isAuthenticated
+                      ? "Mon compte"
+                      : "Se connecter"}
                 </Link>
-                <Link
-                  href="/compte/favoris"
-                  className="flex items-center gap-3 px-2 py-2 text-sm hover:text-terracotta transition-colors"
-                >
-                  <Heart className="w-4 h-4" />
-                  Mes favoris
-                </Link>
+                {!account.isAdmin && (
+                  <Link
+                    href={
+                      account.isAuthenticated
+                        ? "/compte/favoris"
+                        : "/connexion?redirect_to=/compte/favoris"
+                    }
+                    className="flex items-center gap-3 px-2 py-2 text-sm hover:text-terracotta transition-colors"
+                  >
+                    <Heart className="w-4 h-4" />
+                    Mes favoris
+                  </Link>
+                )}
               </div>
             </motion.div>
           </>

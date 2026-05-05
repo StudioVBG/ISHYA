@@ -25,6 +25,7 @@ function validate(input: CollectionInput): string | null {
 function revalidateAll() {
   revalidatePath("/admin/collections");
   revalidatePath("/collections");
+  revalidatePath("/collections/[slug]", "page");
   revalidatePath("/");
 }
 
@@ -164,6 +165,8 @@ export async function addProductToCollection(
   revalidatePath(`/admin/collections/${collectionId}`);
   revalidatePath("/admin/collections");
   revalidatePath(`/admin/produits/${productId}`);
+  revalidatePath("/collections/[slug]", "page");
+  revalidatePath("/");
   return { ok: true };
 }
 
@@ -196,6 +199,8 @@ export async function removeProductFromCollection(
   revalidatePath(`/admin/collections/${collectionId}`);
   revalidatePath("/admin/collections");
   revalidatePath(`/admin/produits/${productId}`);
+  revalidatePath("/collections/[slug]", "page");
+  revalidatePath("/");
   return { ok: true };
 }
 
@@ -215,5 +220,6 @@ export async function reorderCollectionProducts(
       .eq("product_id", orderedProductIds[i]);
   }
   revalidatePath(`/admin/collections/${collectionId}`);
+  revalidatePath("/collections/[slug]", "page");
   return { ok: true };
 }
