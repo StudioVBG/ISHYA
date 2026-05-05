@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { unsubscribeNewsletter } from "@/lib/actions/newsletter";
 
 export function DesinscriptionForm() {
   const params = useSearchParams();
@@ -11,25 +12,25 @@ export function DesinscriptionForm() {
 
   const [email, setEmail] = useState(presetEmail);
   const [reason, setReason] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [done, setDone] = useState(false);
 
-  useEffect(() => {
-    if (presetEmail) setEmail(presetEmail);
-  }, [presetEmail]);
-
-  async function onSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
-    setLoading(true);
-    try {
-      // TODO: brancher l'endpoint Resend / Supabase de désinscription.
-      await new Promise((r) => setTimeout(r, 600));
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    startTransition(async () => {
+      const res = await unsubscribeNewsletter({
+        email: trimmed,
+        reason: reason || undefined,
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Vous êtes désinscrit(e) de la newsletter.");
       setDone(true);
-    } finally {
-      setLoading(false);
-    }
+    });
   }
 
   if (done) {
@@ -86,10 +87,10 @@ export function DesinscriptionForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={isPending}
         className="btn-primary w-full inline-flex items-center justify-center gap-2"
       >
-        {loading ? (
+        {isPending ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : null}
         Confirmer la désinscription

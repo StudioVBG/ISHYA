@@ -199,8 +199,8 @@ export function CompteShell({
             )}
           </AnimatePresence>
 
-          <div className="flex gap-8 lg:gap-12">
-            <aside className="hidden lg:block w-64 shrink-0">
+          <div className="flex gap-6 lg:gap-10 xl:gap-12">
+            <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
               <div className="sticky top-24">
                 <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border">
                   <div className="w-12 h-12 rounded-full bg-beige-nude flex items-center justify-center">

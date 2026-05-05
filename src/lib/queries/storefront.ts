@@ -912,6 +912,91 @@ export async function userHasReviewedProduct(
   return data !== null;
 }
 
+/**
+ * Cross-sell pour le panier : recommande des produits actifs qui ne sont pas
+ * déjà dans le panier. On essaie d'abord de couvrir les mêmes catégories que
+ * les produits du panier (clients en quête de plus du même type), puis on
+ * complète avec des best-sellers / featured pour atteindre `limit`.
+ *
+ * Si le panier est vide, retombe sur les best-sellers.
+ */
+export async function getCartCrossSell(
+  cartProductIds: string[],
+  limit = 4,
+): Promise<ProductCardProduct[]> {
+  const supabase = await createClient();
+
+  // Panier vide → best-sellers featured
+  if (cartProductIds.length === 0) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_CARD_SELECT)
+      .or("is_active.is.null,is_active.eq.true")
+      .eq("is_featured", true)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(limit);
+    if (error) {
+      console.error("[getCartCrossSell] best-sellers fallback", error);
+      return [];
+    }
+    return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+  }
+
+  // 1. Récupérer les catégories des produits du panier
+  const { data: cartProducts } = await supabase
+    .from("products")
+    .select("category_id")
+    .in("id", cartProductIds);
+
+  const categoryIds = Array.from(
+    new Set(
+      (cartProducts ?? [])
+        .map((p) => p.category_id)
+        .filter((c): c is string => !!c),
+    ),
+  );
+
+  // 2. Tirer des produits dans ces catégories, en excluant les items déjà au panier
+  let related: ProductCardProduct[] = [];
+  if (categoryIds.length > 0) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_CARD_SELECT)
+      .or("is_active.is.null,is_active.eq.true")
+      .in("category_id", categoryIds)
+      .not("id", "in", `(${cartProductIds.join(",")})`)
+      .order("is_featured", { ascending: false, nullsFirst: false })
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(limit);
+    if (error) {
+      console.error("[getCartCrossSell] same-category", error);
+    } else {
+      related = ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+    }
+  }
+
+  // 3. Compléter avec des featured si on n'a pas atteint la limite
+  if (related.length < limit) {
+    const exclude = [...cartProductIds, ...related.map((p) => p.id)];
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_CARD_SELECT)
+      .or("is_active.is.null,is_active.eq.true")
+      .eq("is_featured", true)
+      .not("id", "in", `(${exclude.join(",")})`)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(limit - related.length);
+    if (!error) {
+      related = [
+        ...related,
+        ...((data ?? []) as unknown as ProductRow[]).map(rowToCard),
+      ];
+    }
+  }
+
+  return related.slice(0, limit);
+}
+
 export async function getRelatedProducts(productId: string, limit = 4) {
   const supabase = await createClient();
   const { data: source } = await supabase

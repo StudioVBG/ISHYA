@@ -74,10 +74,7 @@ export default function ProgrammeFidelitePage() {
             recevez des invitations privées. Plus vous nous lisez, plus vous
             êtes choyée.
           </p>
-          <Link
-            href="/inscription"
-            className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
+          <Link href="/inscription" className="btn-primary gap-2">
             Rejoindre le programme
             <ArrowRight className="w-4 h-4" />
           </Link>

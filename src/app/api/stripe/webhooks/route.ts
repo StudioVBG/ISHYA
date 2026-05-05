@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderConfirmation, sendGiftCardEmail } from "@/lib/email";
 import { formatDate } from "@/lib/utils";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -43,6 +43,10 @@ export async function POST(request: NextRequest) {
 
       case "charge.refunded":
         await handleChargeRefunded(event.data.object as Stripe.Charge);
+        break;
+
+      case "checkout.session.completed":
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
 
       default:
@@ -196,6 +200,79 @@ async function handlePaymentFailed(pi: Stripe.PaymentIntent) {
 
   if (orderId) {
     await admin.from("orders").update({ status: "cancelled" }).eq("id", orderId);
+  }
+}
+
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  if (session.metadata?.kind !== "gift_card") return;
+  if (session.payment_status !== "paid") return;
+
+  const giftCardId = session.metadata?.gift_card_id;
+  if (!giftCardId) {
+    console.error("[stripe webhook] gift_card sans gift_card_id metadata", session.id);
+    return;
+  }
+
+  const admin = createAdminClient();
+
+  type GiftCardRow = {
+    id: string;
+    status: string;
+    code: string;
+    initial_amount: number | string;
+    recipient_email: string;
+    recipient_name: string | null;
+    sender_name: string | null;
+    message: string | null;
+  };
+
+  const { data: card } = await admin
+    .from("gift_cards" as never)
+    .select(
+      "id, status, code, initial_amount, recipient_email, recipient_name, sender_name, message",
+    )
+    .eq("id", giftCardId)
+    .single<GiftCardRow>();
+
+  if (!card) {
+    console.error("[stripe webhook] gift_card introuvable", giftCardId);
+    return;
+  }
+
+  if (card.status !== "pending") return; // idempotence
+
+  const paymentIntentId =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : session.payment_intent?.id ?? null;
+
+  await admin
+    .from("gift_cards" as never)
+    .update({
+      status: "paid",
+      paid_at: new Date().toISOString(),
+      stripe_payment_intent_id: paymentIntentId,
+    } as never)
+    .eq("id", card.id);
+
+  // Envoi de l'email au destinataire (best-effort)
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://ishya.fr";
+    await sendGiftCardEmail(card.recipient_email, {
+      recipientName: card.recipient_name,
+      senderName: card.sender_name,
+      amount: Number(card.initial_amount),
+      code: card.code,
+      message: card.message,
+      shopUrl: `${baseUrl}/boutique`,
+    });
+    await admin
+      .from("gift_cards" as never)
+      .update({ status: "sent", sent_at: new Date().toISOString() } as never)
+      .eq("id", card.id);
+  } catch (err) {
+    console.error("[stripe webhook] gift card email failed", err);
   }
 }
 

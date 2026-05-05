@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -11,8 +11,11 @@ import {
   Instagram,
   Facebook,
   MessageCircle,
+  Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { submitContactMessage } from "@/lib/actions/contact";
 
 const subjects = [
   "Question sur un produit",
@@ -63,10 +66,24 @@ export default function ContactPage() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    startTransition(async () => {
+      const res = await submitContactMessage({
+        name: form.name,
+        email: form.email,
+        subject: form.subject || undefined,
+        message: form.message,
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(res.message);
+      setSubmitted(true);
+    });
   }
 
   return (
@@ -217,9 +234,22 @@ export default function ContactPage() {
                   </motion.div>
 
                   <motion.div variants={fadeInUp}>
-                    <button type="submit" className="btn-primary w-full gap-2">
-                      <Send className="w-4 h-4" />
-                      Envoyer le message
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="btn-primary w-full gap-2"
+                    >
+                      {isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Envoi en cours…
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Envoyer le message
+                        </>
+                      )}
                     </button>
                   </motion.div>
                 </form>
