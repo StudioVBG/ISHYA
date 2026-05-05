@@ -94,7 +94,7 @@ export default async function HomePage() {
             {categories.map((category) => (
               <Link
                 key={category.id}
-                href={`/boutique/${category.slug}`}
+                href={`/boutique?categorie=${category.slug}`}
                 className="group flex flex-col items-center text-center"
               >
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden mb-3 ring-2 ring-transparent group-hover:ring-terracotta transition-all duration-300 bg-beige-nude-light">
@@ -121,6 +121,15 @@ export default async function HomePage() {
       <section className="py-20 bg-beige-nude-light/30">
         <div className="container">
           <BestSellersCarousel products={bestSellers} />
+          <div className="text-center mt-10">
+            <Link
+              href="/boutique?badge=best-seller"
+              className="inline-flex items-center gap-2 text-sm font-medium text-terracotta hover:underline"
+            >
+              Voir tous les best-sellers
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -153,7 +162,7 @@ export default async function HomePage() {
                   </p>
                 )}
                 <Link
-                  href={`/collections/${featuredCollection.slug}`}
+                  href={`/boutique?collection=${featuredCollection.slug}`}
                   className="btn-primary inline-flex items-center gap-2"
                 >
                   Découvrir la collection
@@ -178,7 +187,7 @@ export default async function HomePage() {
             {giftBudgets.map((budget) => (
               <Link
                 key={budget.label}
-                href={`/idees-cadeaux?min=${budget.min}&max=${budget.max}`}
+                href={`/boutique?min=${budget.min}&max=${budget.max}&tri=popularite`}
                 className={cn(
                   "block relative rounded-2xl overflow-hidden p-8 md:p-10 text-white aspect-[4/3] flex flex-col justify-end bg-gradient-to-br",
                   budget.color

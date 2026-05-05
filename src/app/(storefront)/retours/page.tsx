@@ -331,7 +331,7 @@ export default function RetoursPage() {
                 Initier un retour
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/aide/retours-echanges" className="btn-secondary">
+              <Link href="/aide/retours" className="btn-secondary">
                 En savoir plus
               </Link>
             </div>

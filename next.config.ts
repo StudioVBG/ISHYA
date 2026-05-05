@@ -8,6 +8,51 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "jbgfogmjodepfyfrjvna.supabase.co" },
     ],
   },
+  async redirects() {
+    return [
+      // Anciennes pages liste -> /boutique unifiée avec filtres
+      {
+        source: "/best-sellers",
+        destination: "/boutique?badge=best-seller",
+        permanent: true,
+      },
+      {
+        source: "/nouveautes",
+        destination: "/boutique?badge=nouveau",
+        permanent: true,
+      },
+      {
+        source: "/promotions",
+        destination: "/boutique?badge=promo",
+        permanent: true,
+      },
+      {
+        source: "/idees-cadeaux",
+        destination: "/boutique?max=30",
+        permanent: true,
+      },
+      {
+        source: "/recherche",
+        destination: "/boutique",
+        permanent: true,
+      },
+      {
+        source: "/collections",
+        destination: "/boutique",
+        permanent: true,
+      },
+      {
+        source: "/collections/:slug",
+        destination: "/boutique?collection=:slug",
+        permanent: true,
+      },
+      {
+        source: "/boutique/:categorie",
+        destination: "/boutique?categorie=:categorie",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 const sentryEnabled = Boolean(

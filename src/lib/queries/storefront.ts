@@ -78,7 +78,283 @@ function rowToCard(row: ProductRow): ProductCardProduct {
       stock_quantity: v.stock_quantity,
     })),
     badges,
+    productType: "product",
+    material: row.material,
+    createdAt: row.created_at,
   };
+}
+
+// ============================================================================
+// UNIFIED SEARCH — used by /boutique with filters in URL
+// ============================================================================
+
+export type ProductBadgeFilter =
+  | "nouveau"
+  | "best-seller"
+  | "promo"
+  | "derniere-piece";
+export type ProductTypeFilter = "produit" | "pack";
+export type ProductSort =
+  | "popularite"
+  | "prix-asc"
+  | "prix-desc"
+  | "nouveaute"
+  | "promo";
+
+export interface ProductSearchFilters {
+  q?: string;
+  categories?: string[];
+  collections?: string[];
+  badges?: ProductBadgeFilter[];
+  types?: ProductTypeFilter[];
+  min?: number;
+  max?: number;
+  materiaux?: string[];
+  tri?: ProductSort;
+  limit?: number;
+}
+
+async function fetchProductIdsForCategorySlugs(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  slugs: string[],
+): Promise<string[]> {
+  const { data: cats } = await supabase
+    .from("categories")
+    .select("id, parent_id")
+    .in("slug", slugs);
+  if (!cats || cats.length === 0) return [];
+  const parentIds = cats.map((c) => c.id);
+  const { data: children } = await supabase
+    .from("categories")
+    .select("id")
+    .in("parent_id", parentIds);
+  const allCatIds = [...parentIds, ...(children ?? []).map((c) => c.id)];
+  const { data: links } = await supabase
+    .from("product_categories")
+    .select("product_id")
+    .in("category_id", allCatIds);
+  const m2mIds = (links ?? []).map((l) => l.product_id);
+  if (m2mIds.length > 0) return Array.from(new Set(m2mIds));
+  const { data: legacy } = await supabase
+    .from("products")
+    .select("id")
+    .in("category_id", allCatIds);
+  return (legacy ?? []).map((r) => r.id);
+}
+
+async function fetchProductIdsForCollectionSlugs(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  slugs: string[],
+): Promise<string[]> {
+  const { data: cols } = await supabase
+    .from("collections")
+    .select("id")
+    .in("slug", slugs);
+  if (!cols || cols.length === 0) return [];
+  const colIds = cols.map((c) => c.id);
+  const { data: links } = await supabase
+    .from("product_collections")
+    .select("product_id")
+    .in("collection_id", colIds);
+  const m2mIds = (links ?? []).map((l) => l.product_id);
+  if (m2mIds.length > 0) return Array.from(new Set(m2mIds));
+  const { data: legacy } = await supabase
+    .from("products")
+    .select("id")
+    .in("collection_id", colIds);
+  return (legacy ?? []).map((r) => r.id);
+}
+
+async function fetchProductsForSearch(
+  filters: ProductSearchFilters,
+): Promise<ProductCardProduct[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("products")
+    .select(PRODUCT_CARD_SELECT)
+    .or("is_active.is.null,is_active.eq.true");
+
+  if (filters.badges?.includes("nouveau")) query = query.eq("is_new", true);
+  if (filters.badges?.includes("best-seller"))
+    query = query.eq("is_featured", true);
+  if (filters.badges?.includes("promo"))
+    query = query.not("compare_at_price", "is", null);
+  if (typeof filters.min === "number") query = query.gte("base_price", filters.min);
+  if (typeof filters.max === "number") query = query.lte("base_price", filters.max);
+  if (filters.q && filters.q.trim().length > 0) {
+    const term = `%${filters.q.trim().replace(/[%]/g, "")}%`;
+    query = query.or(
+      `name.ilike.${term},short_description.ilike.${term},material.ilike.${term}`,
+    );
+  }
+  if (filters.materiaux && filters.materiaux.length > 0) {
+    const ors = filters.materiaux
+      .map((m) => `material.ilike.%${m.replace(/[%]/g, "")}%`)
+      .join(",");
+    query = query.or(ors);
+  }
+
+  const idsByCategory = filters.categories?.length
+    ? await fetchProductIdsForCategorySlugs(supabase, filters.categories)
+    : null;
+  const idsByCollection = filters.collections?.length
+    ? await fetchProductIdsForCollectionSlugs(supabase, filters.collections)
+    : null;
+  if (idsByCategory !== null && idsByCategory.length === 0) return [];
+  if (idsByCollection !== null && idsByCollection.length === 0) return [];
+
+  let intersected: string[] | null = null;
+  if (idsByCategory && idsByCollection) {
+    const setB = new Set(idsByCollection);
+    intersected = idsByCategory.filter((id) => setB.has(id));
+    if (intersected.length === 0) return [];
+  } else if (idsByCategory) {
+    intersected = idsByCategory;
+  } else if (idsByCollection) {
+    intersected = idsByCollection;
+  }
+  if (intersected) query = query.in("id", intersected);
+
+  query = query.order("sort_order", { ascending: true, nullsFirst: false });
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("[searchProducts:products]", error);
+    return [];
+  }
+  return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+}
+
+async function fetchPacksForSearch(
+  filters: ProductSearchFilters,
+): Promise<ProductCardProduct[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("packs")
+    .select("id, name, slug, description, image_url, created_at")
+    .or("is_active.is.null,is_active.eq.true")
+    .order("created_at", { ascending: false, nullsFirst: false });
+
+  if (error) {
+    console.error("[searchProducts:packs]", error);
+    return [];
+  }
+
+  let cards: ProductCardProduct[] = (data ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    base_price: 0,
+    compare_at_price: null,
+    is_featured: false,
+    media: p.image_url
+      ? [{ url: p.image_url, alt_text: p.name, position: 0, is_primary: true }]
+      : [],
+    variants: [],
+    badges: ["pack"],
+    productType: "pack" as const,
+    material: null,
+    createdAt: p.created_at,
+    description: p.description ?? null,
+  }));
+
+  if (filters.q && filters.q.trim().length > 0) {
+    const term = filters.q.trim().toLowerCase();
+    cards = cards.filter(
+      (c) =>
+        c.name.toLowerCase().includes(term) ||
+        (c.description ?? "").toLowerCase().includes(term),
+    );
+  }
+  return cards;
+}
+
+export async function searchProducts(
+  filters: ProductSearchFilters = {},
+): Promise<ProductCardProduct[]> {
+  const types =
+    filters.types && filters.types.length > 0
+      ? filters.types
+      : (["produit", "pack"] as ProductTypeFilter[]);
+
+  const wantsProducts = types.includes("produit");
+  const wantsPacks = types.includes("pack");
+
+  // Packs n'ont pas de variants/prix/matière/catégorie : si l'utilisateur applique
+  // des filtres SQL stricts, on n'inclut pas les packs (sauf demande explicite).
+  const restrictsPacks =
+    (filters.badges && filters.badges.length > 0) ||
+    typeof filters.min === "number" ||
+    typeof filters.max === "number" ||
+    (filters.materiaux && filters.materiaux.length > 0) ||
+    (filters.categories && filters.categories.length > 0) ||
+    (filters.collections && filters.collections.length > 0);
+
+  const explicitPackOnly = types.length === 1 && types[0] === "pack";
+
+  const [products, packs] = await Promise.all([
+    wantsProducts ? fetchProductsForSearch(filters) : Promise.resolve([]),
+    wantsPacks && (!restrictsPacks || explicitPackOnly)
+      ? fetchPacksForSearch(filters)
+      : Promise.resolve([]),
+  ]);
+
+  let combined = [...products, ...packs];
+
+  if (filters.badges?.includes("promo")) {
+    combined = combined.filter(
+      (c) =>
+        c.compare_at_price !== null &&
+        c.compare_at_price !== undefined &&
+        c.compare_at_price > c.base_price,
+    );
+  }
+  if (filters.badges?.includes("derniere-piece")) {
+    combined = combined.filter((c) => {
+      if (c.productType === "pack") return false;
+      const total = (c.variants ?? []).reduce(
+        (sum, v) => sum + v.stock_quantity,
+        0,
+      );
+      return total > 0 && total < 5;
+    });
+  }
+
+  switch (filters.tri) {
+    case "prix-asc":
+      combined.sort((a, b) => a.base_price - b.base_price);
+      break;
+    case "prix-desc":
+      combined.sort((a, b) => b.base_price - a.base_price);
+      break;
+    case "nouveaute":
+      combined.sort((a, b) => {
+        const da = a.createdAt ? Date.parse(a.createdAt) : 0;
+        const db = b.createdAt ? Date.parse(b.createdAt) : 0;
+        return db - da;
+      });
+      break;
+    case "promo":
+      combined.sort((a, b) => {
+        const ra =
+          a.compare_at_price && a.compare_at_price > a.base_price
+            ? (a.compare_at_price - a.base_price) / a.compare_at_price
+            : -1;
+        const rb =
+          b.compare_at_price && b.compare_at_price > b.base_price
+            ? (b.compare_at_price - b.base_price) / b.compare_at_price
+            : -1;
+        return rb - ra;
+      });
+      break;
+    case "popularite":
+    default:
+      combined.sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
+      break;
+  }
+
+  if (filters.limit) combined = combined.slice(0, filters.limit);
+  return combined;
 }
 
 export async function getTopCategories(limit = 6) {
@@ -115,167 +391,9 @@ export async function getFeaturedCollection() {
   return data;
 }
 
-async function fetchCardProducts(filter: {
-  is_featured?: boolean;
-  is_new?: boolean;
-  promoOnly?: boolean;
-  categorySlug?: string;
-  collectionSlug?: string;
-  limit?: number;
-}): Promise<ProductCardProduct[]> {
-  const supabase = await createClient();
-  let query = supabase
-    .from("products")
-    .select(PRODUCT_CARD_SELECT)
-    .or("is_active.is.null,is_active.eq.true");
-
-  if (filter.is_featured) query = query.eq("is_featured", true);
-  if (filter.is_new) query = query.eq("is_new", true);
-  if (filter.promoOnly) {
-    query = query.not("compare_at_price", "is", null);
-  }
-  if (filter.categorySlug) {
-    const { data: cat } = await supabase
-      .from("categories")
-      .select("id, parent_id")
-      .eq("slug", filter.categorySlug)
-      .maybeSingle();
-    if (!cat) return [];
-    // Include children when the slug is a top-level category
-    const { data: children } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("parent_id", cat.id);
-    const catIds = [cat.id, ...(children ?? []).map((c) => c.id)];
-    // m2m via product_categories; fallback to legacy products.category_id
-    const { data: links } = await supabase
-      .from("product_categories")
-      .select("product_id")
-      .in("category_id", catIds);
-    const productIds = Array.from(
-      new Set((links ?? []).map((l) => l.product_id)),
-    );
-    if (productIds.length === 0) {
-      // legacy fallback (au cas où la migration m2m n'a pas backfill)
-      query = query.in("category_id", catIds);
-    } else {
-      query = query.in("id", productIds);
-    }
-  }
-  if (filter.collectionSlug) {
-    const { data: col } = await supabase
-      .from("collections")
-      .select("id")
-      .eq("slug", filter.collectionSlug)
-      .maybeSingle();
-    if (!col) return [];
-    const { data: links } = await supabase
-      .from("product_collections")
-      .select("product_id")
-      .eq("collection_id", col.id);
-    const productIds = Array.from(
-      new Set((links ?? []).map((l) => l.product_id)),
-    );
-    if (productIds.length === 0) {
-      query = query.eq("collection_id", col.id);
-    } else {
-      query = query.in("id", productIds);
-    }
-  }
-
-  query = query.order("sort_order", { ascending: true, nullsFirst: false });
-  if (filter.limit) query = query.limit(filter.limit);
-
-  const { data, error } = await query;
-  if (error) {
-    console.error("[fetchCardProducts]", error);
-    return [];
-  }
-  return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
-}
-
-export const getFeaturedProducts = (limit?: number) =>
-  fetchCardProducts({ is_featured: true, limit });
-
+// Best-sellers carousel sur la home — wrapper autour de searchProducts.
 export const getBestSellers = (limit = 8) =>
-  fetchCardProducts({ is_featured: true, limit });
-
-export const getNewProducts = (limit?: number) =>
-  fetchCardProducts({ is_new: true, limit });
-
-export const getPromotionProducts = (limit?: number) =>
-  fetchCardProducts({ promoOnly: true, limit });
-
-export const getAllCardProducts = (limit?: number) => fetchCardProducts({ limit });
-
-export const getProductsByCategory = (slug: string) =>
-  fetchCardProducts({ categorySlug: slug });
-
-export const getProductsByCollection = (slug: string) =>
-  fetchCardProducts({ collectionSlug: slug });
-
-export async function getProductsByBudget(min: number, max: number) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_CARD_SELECT)
-    .or("is_active.is.null,is_active.eq.true")
-    .gte("base_price", min)
-    .lte("base_price", max)
-    .order("base_price", { ascending: true });
-
-  if (error) {
-    console.error("[getProductsByBudget]", error);
-    return [];
-  }
-  return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
-}
-
-export async function searchProducts(q: string) {
-  if (!q.trim()) return [];
-  const supabase = await createClient();
-  const term = `%${q.trim()}%`;
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_CARD_SELECT)
-    .or("is_active.is.null,is_active.eq.true")
-    .or(`name.ilike.${term},short_description.ilike.${term},material.ilike.${term}`)
-    .limit(50);
-
-  if (error) {
-    console.error("[searchProducts]", error);
-    return [];
-  }
-  return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
-}
-
-export async function getCategoryBySlug(slug: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name, slug, description, image_url, sort_order, parent_id")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) {
-    console.error("[getCategoryBySlug]", error);
-    return null;
-  }
-  return data;
-}
-
-export async function getCollectionBySlug(slug: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("collections")
-    .select("id, name, slug, description, image_url, sort_order, starts_at, ends_at")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) {
-    console.error("[getCollectionBySlug]", error);
-    return null;
-  }
-  return data;
-}
+  searchProducts({ badges: ["best-seller"], limit, types: ["produit"] });
 
 export async function getAllCollections() {
   const supabase = await createClient();

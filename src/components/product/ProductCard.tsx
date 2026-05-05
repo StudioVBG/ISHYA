@@ -27,6 +27,10 @@ export interface ProductCardProduct {
   category?: { name: string; slug: string };
   variants?: Pick<ProductVariant, "stock_quantity">[];
   badges?: string[];
+  productType?: "product" | "pack";
+  material?: string | null;
+  createdAt?: string | null;
+  description?: string | null;
 }
 
 interface ProductCardProps {
@@ -37,21 +41,27 @@ interface ProductCardProps {
 
 function getProductBadges(product: ProductCardProduct): string[] {
   const badges: string[] = [];
+  if (product.productType === "pack") badges.push("Pack");
   if (product.badges?.includes("nouveau")) badges.push("Nouveau");
   if (product.badges?.includes("best-seller") || product.is_featured)
     badges.push("Best-seller");
   if (product.compare_at_price && product.compare_at_price > product.base_price)
     badges.push("Promo");
 
-  const totalStock =
-    product.variants?.reduce((sum, v) => sum + v.stock_quantity, 0) ?? Infinity;
-  if (totalStock > 0 && totalStock < 5) badges.push("Dernières pièces");
+  if (product.productType !== "pack") {
+    const totalStock =
+      product.variants?.reduce((sum, v) => sum + v.stock_quantity, 0) ?? Infinity;
+    if (totalStock > 0 && totalStock < 5) badges.push("Dernières pièces");
+  }
 
-  return badges;
+  // Cap to 2 most relevant
+  return badges.slice(0, 2);
 }
 
 function getBadgeColor(badge: string): string {
   switch (badge) {
+    case "Pack":
+      return "bg-foreground text-white";
     case "Nouveau":
       return "bg-gold text-white";
     case "Best-seller":
@@ -63,6 +73,12 @@ function getBadgeColor(badge: string): string {
     default:
       return "bg-muted text-white";
   }
+}
+
+function productHref(product: ProductCardProduct): string {
+  return product.productType === "pack"
+    ? `/pack/${product.slug}`
+    : `/produit/${product.slug}`;
 }
 
 export function ProductCard({ product, className, index = 0 }: ProductCardProps) {
@@ -111,9 +127,11 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
       )
     : 0;
 
-  const totalStock =
-    product.variants?.reduce((sum, v) => sum + v.stock_quantity, 0) ?? Infinity;
-  const isOutOfStock = totalStock === 0;
+  const isPack = product.productType === "pack";
+  const totalStock = isPack
+    ? Infinity
+    : (product.variants?.reduce((sum, v) => sum + v.stock_quantity, 0) ?? Infinity);
+  const isOutOfStock = !isPack && totalStock === 0;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -142,7 +160,7 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
     >
       {/* Image container */}
       <Link
-        href={`/produit/${product.slug}`}
+        href={productHref(product)}
         className="block relative aspect-[3/4] rounded-lg overflow-hidden bg-beige-nude-light mb-3 isolate"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
@@ -217,7 +235,7 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
 
         {/* Quick-add button fantôme (apparaît au hover, desktop) */}
         <AnimatePresence>
-          {hovered && !isOutOfStock && (
+          {hovered && !isOutOfStock && !isPack && (
             <motion.button
               type="button"
               onClick={handleQuickAdd}
@@ -257,7 +275,7 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
       </motion.button>
 
       {/* Product info */}
-      <Link href={`/produit/${product.slug}`} className="block">
+      <Link href={productHref(product)} className="block">
         {product.category && (
           <p className="text-xs text-muted uppercase tracking-wider mb-0.5">
             {product.category.name}
@@ -267,14 +285,18 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
           {product.name}
         </h3>
         <div className="flex items-center gap-2 mt-1">
-          <span
-            className={cn(
-              "text-sm font-medium tabular-nums",
-              hasDiscount && "text-terracotta"
-            )}
-          >
-            {formatPrice(product.base_price)}
-          </span>
+          {isPack ? (
+            <span className="text-sm text-muted">Voir le pack →</span>
+          ) : (
+            <span
+              className={cn(
+                "text-sm font-medium tabular-nums",
+                hasDiscount && "text-terracotta"
+              )}
+            >
+              {formatPrice(product.base_price)}
+            </span>
+          )}
           {hasDiscount && (
             <>
               <span className="text-sm text-muted line-through tabular-nums">

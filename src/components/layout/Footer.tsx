@@ -10,12 +10,12 @@ const FOOTER_LINKS = {
   boutique: {
     title: "Boutique",
     links: [
-      { label: "Colliers", href: "/boutique/colliers" },
-      { label: "Bagues", href: "/boutique/bagues" },
-      { label: "Bracelets", href: "/boutique/bracelets" },
-      { label: "Boucles d'oreilles", href: "/boutique/boucles-doreilles" },
-      { label: "Accessoires", href: "/boutique/accessoires" },
-      { label: "Packs", href: "/boutique/packs" },
+      { label: "Tous les bijoux", href: "/boutique" },
+      { label: "Nouveautés", href: "/boutique?badge=nouveau" },
+      { label: "Best-sellers", href: "/boutique?badge=best-seller" },
+      { label: "Promotions", href: "/boutique?badge=promo" },
+      { label: "Packs & parures", href: "/boutique?type=pack" },
+      { label: "Idées cadeaux", href: "/boutique?max=30" },
     ],
   },
   informations: {

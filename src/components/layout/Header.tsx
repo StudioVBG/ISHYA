@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -20,12 +20,16 @@ import { useCartStore } from "@/stores/cart-store";
 import { SearchModal } from "./SearchModal";
 
 const NAV_LINKS = [
-  { label: "Colliers", href: "/boutique/colliers" },
-  { label: "Bagues", href: "/boutique/bagues" },
-  { label: "Bracelets", href: "/boutique/bracelets" },
-  { label: "Boucles d'oreilles", href: "/boutique/boucles-doreilles" },
-  { label: "Accessoires", href: "/boutique/accessoires" },
-  { label: "Packs", href: "/boutique/packs" },
+  { label: "Colliers", href: "/boutique?categorie=colliers" },
+  { label: "Bagues", href: "/boutique?categorie=bagues" },
+  { label: "Bracelets", href: "/boutique?categorie=bracelets" },
+  {
+    label: "Boucles d'oreilles",
+    href: "/boutique?categorie=boucles-d-oreilles",
+  },
+  { label: "Accessoires", href: "/boutique?categorie=accessoires" },
+  { label: "Packs", href: "/boutique?type=pack" },
+  { label: "Promos", href: "/boutique?badge=promo" },
 ];
 
 const ANNOUNCEMENT_COOKIE = "ishya-announcement-dismissed";
@@ -50,6 +54,19 @@ export function Header({
   account?: HeaderAccount;
 } = {}) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isActive = (href: string) => {
+    if (href.includes("?")) {
+      const [hPath, hQs] = href.split("?");
+      if (pathname !== hPath) return false;
+      const want = new URLSearchParams(hQs);
+      for (const [k, v] of want.entries()) {
+        if (searchParams?.get(k) !== v) return false;
+      }
+      return true;
+    }
+    return pathname?.startsWith(href) ?? false;
+  };
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -149,7 +166,7 @@ export function Header({
                 href={link.href}
                 className={cn(
                   "text-sm tracking-wide hover:text-terracotta transition-colors relative py-1",
-                  pathname?.startsWith(link.href) &&
+                  isActive(link.href) &&
                     "text-terracotta after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-terracotta"
                 )}
               >
@@ -249,7 +266,7 @@ export function Header({
                     href={link.href}
                     className={cn(
                       "flex items-center justify-between px-6 py-3.5 text-sm tracking-wide hover:bg-beige-nude-light transition-colors",
-                      pathname?.startsWith(link.href) && "text-terracotta font-medium"
+                      isActive(link.href) && "text-terracotta font-medium"
                     )}
                   >
                     {link.label}
