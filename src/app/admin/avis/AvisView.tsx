@@ -12,12 +12,20 @@ import {
   CheckCircle2,
   Search,
   MessageSquare,
+  Reply,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import type { AdminReviewRow } from "@/lib/queries/admin";
-import { approveReview, deleteReview, rejectReview } from "./actions";
+import {
+  approveReview,
+  deleteReview,
+  deleteReviewResponse,
+  rejectReview,
+  upsertReviewResponse,
+} from "./actions";
 
 type FilterStatus = "all" | "pending" | "approved";
 
@@ -26,6 +34,8 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
   const [search, setSearch] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
+  const [replyBody, setReplyBody] = useState("");
 
   const filtered = useMemo(() => {
     return reviews.filter((r) => {
@@ -86,6 +96,46 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
         return;
       }
       toast.success("Avis supprimé");
+    });
+  };
+
+  const openReply = (r: AdminReviewRow) => {
+    setReplyOpenId(r.id);
+    setReplyBody(r.response?.body ?? "");
+  };
+
+  const closeReply = () => {
+    setReplyOpenId(null);
+    setReplyBody("");
+  };
+
+  const handleReplySave = (r: AdminReviewRow) => {
+    setPendingId(r.id);
+    startTransition(async () => {
+      const res = await upsertReviewResponse(r.id, replyBody, r.productSlug);
+      setPendingId(null);
+      if (!res.ok) {
+        toast.error(res.error ?? "Erreur");
+        return;
+      }
+      toast.success(r.response ? "Réponse mise à jour" : "Réponse publiée");
+      closeReply();
+    });
+  };
+
+  const handleReplyDelete = (r: AdminReviewRow) => {
+    if (!r.response) return;
+    if (!window.confirm("Supprimer cette réponse ?")) return;
+    setPendingId(r.id);
+    startTransition(async () => {
+      const res = await deleteReviewResponse(r.response!.id, r.productSlug);
+      setPendingId(null);
+      if (!res.ok) {
+        toast.error(res.error ?? "Erreur");
+        return;
+      }
+      toast.success("Réponse supprimée");
+      closeReply();
     });
   };
 
@@ -269,6 +319,83 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                   </button>
                 </div>
               </div>
+
+              {r.response && replyOpenId !== r.id ? (
+                <div className="mt-3 ml-2 pl-3 border-l-2 border-terracotta/40 bg-muted-soft/50 rounded-r-lg p-3">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="text-xs font-semibold text-terracotta uppercase tracking-wide">
+                      Réponse ISHYA
+                    </p>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => openReply(r)}
+                        className="inline-flex items-center gap-1 text-xs text-muted hover:text-foreground"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Modifier
+                      </button>
+                      <button
+                        onClick={() => handleReplyDelete(r)}
+                        disabled={isPending && pendingId === r.id}
+                        className="inline-flex items-center gap-1 text-xs text-destructive hover:underline disabled:opacity-50"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground whitespace-pre-wrap">
+                    {r.response.body}
+                  </p>
+                  {r.response.updatedAt ? (
+                    <p className="text-xs text-muted-light mt-1">
+                      {formatDate(r.response.updatedAt)}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {replyOpenId === r.id ? (
+                <div className="mt-3 ml-2 pl-3 border-l-2 border-terracotta/40">
+                  <textarea
+                    value={replyBody}
+                    onChange={(e) => setReplyBody(e.target.value)}
+                    rows={3}
+                    placeholder="Votre réponse publique…"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta resize-none"
+                  />
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button
+                      onClick={closeReply}
+                      disabled={isPending && pendingId === r.id}
+                      className="px-3 py-1.5 text-sm text-muted hover:text-foreground disabled:opacity-50"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      onClick={() => handleReplySave(r)}
+                      disabled={
+                        (isPending && pendingId === r.id) || !replyBody.trim()
+                      }
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 transition-colors disabled:opacity-50"
+                    >
+                      {isPending && pendingId === r.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Reply className="w-3.5 h-3.5" />
+                      )}
+                      {r.response ? "Mettre à jour" : "Publier la réponse"}
+                    </button>
+                  </div>
+                </div>
+              ) : !r.response ? (
+                <button
+                  onClick={() => openReply(r)}
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
+                >
+                  <Reply className="w-3.5 h-3.5" />
+                  Répondre
+                </button>
+              ) : null}
             </div>
           ))}
         </motion.div>

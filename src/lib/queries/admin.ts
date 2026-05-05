@@ -297,6 +297,12 @@ export interface AdminReviewRow {
   isVerifiedPurchase: boolean;
   isApproved: boolean;
   createdAt: string | null;
+  response: {
+    id: string;
+    body: string;
+    createdAt: string | null;
+    updatedAt: string | null;
+  } | null;
 }
 
 export interface AdminCmsPageRow {
@@ -1454,7 +1460,26 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
     return [];
   }
 
-  // Récupérer les infos auteurs en lot
+  const reviewIds = (data ?? []).map((r) => r.id);
+  const responsesByReview = new Map<
+    string,
+    { id: string; body: string; created_at: string | null; updated_at: string | null }
+  >();
+  if (reviewIds.length > 0) {
+    const { data: responses } = await admin
+      .from("review_responses")
+      .select("id, review_id, body, created_at, updated_at")
+      .in("review_id", reviewIds);
+    for (const r of responses ?? []) {
+      responsesByReview.set(r.review_id, {
+        id: r.id,
+        body: r.body,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+      });
+    }
+  }
+
   const userIds = Array.from(
     new Set(
       (data ?? [])
@@ -1488,6 +1513,7 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
     const fullName =
       [author?.first_name, author?.last_name].filter(Boolean).join(" ") ||
       null;
+    const response = responsesByReview.get(row.id) ?? null;
     return {
       id: row.id,
       productId: row.product_id ?? "",
@@ -1502,6 +1528,14 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
       isVerifiedPurchase: row.is_verified_purchase ?? false,
       isApproved: row.is_approved ?? false,
       createdAt: row.created_at,
+      response: response
+        ? {
+            id: response.id,
+            body: response.body,
+            createdAt: response.created_at,
+            updatedAt: response.updated_at,
+          }
+        : null,
     };
   });
 }
