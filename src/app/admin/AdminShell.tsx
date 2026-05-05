@@ -1,0 +1,327 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  Layers,
+  Gift,
+  ShoppingCart,
+  Users,
+  Warehouse,
+  Percent,
+  RotateCcw,
+  Headphones,
+  Star,
+  FileText,
+  LayoutTemplate,
+  Image as ImageIcon,
+  Search,
+  BarChart3,
+  Settings,
+  UserCog,
+  Shield,
+  Bell,
+  Menu,
+  ExternalLink,
+  LogOut,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { adminSignOut } from "./actions";
+
+type AdminRole = "super_admin" | "admin" | "editor" | "support";
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  roles: AdminRole[];
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const ALL: AdminRole[] = ["super_admin", "admin", "editor", "support"];
+const STAFF_NO_SUPPORT: AdminRole[] = ["super_admin", "admin", "editor"];
+const SALES: AdminRole[] = ["super_admin", "admin", "support"];
+const ADMIN_ONLY: AdminRole[] = ["super_admin", "admin"];
+const SUPER_ONLY: AdminRole[] = ["super_admin"];
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Principal",
+    items: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ALL },
+    ],
+  },
+  {
+    label: "Catalogue",
+    items: [
+      { label: "Produits", href: "/admin/produits", icon: Package, roles: STAFF_NO_SUPPORT },
+      { label: "Catégories", href: "/admin/categories", icon: FolderTree, roles: STAFF_NO_SUPPORT },
+      { label: "Collections", href: "/admin/collections", icon: Layers, roles: STAFF_NO_SUPPORT },
+      { label: "Packs", href: "/admin/packs", icon: Gift, roles: STAFF_NO_SUPPORT },
+    ],
+  },
+  {
+    label: "Ventes",
+    items: [
+      { label: "Commandes", href: "/admin/commandes", icon: ShoppingCart, roles: SALES },
+      { label: "Clients", href: "/admin/clients", icon: Users, roles: SALES },
+      { label: "Stocks", href: "/admin/stocks", icon: Warehouse, roles: ADMIN_ONLY },
+      { label: "Promotions", href: "/admin/promotions", icon: Percent, roles: ADMIN_ONLY },
+    ],
+  },
+  {
+    label: "Support",
+    items: [
+      { label: "Retours", href: "/admin/retours", icon: RotateCcw, roles: SALES },
+      { label: "Tickets", href: "/admin/tickets", icon: Headphones, roles: SALES },
+      { label: "Avis", href: "/admin/avis", icon: Star, roles: SALES },
+    ],
+  },
+  {
+    label: "Contenu",
+    items: [
+      { label: "Blog", href: "/admin/blog", icon: FileText, roles: STAFF_NO_SUPPORT },
+      { label: "Pages", href: "/admin/pages", icon: LayoutTemplate, roles: STAFF_NO_SUPPORT },
+      { label: "Bannières", href: "/admin/bannieres", icon: ImageIcon, roles: STAFF_NO_SUPPORT },
+      { label: "SEO", href: "/admin/seo", icon: Search, roles: STAFF_NO_SUPPORT },
+    ],
+  },
+  {
+    label: "Analyse",
+    items: [
+      { label: "Rapports", href: "/admin/rapports", icon: BarChart3, roles: ADMIN_ONLY },
+    ],
+  },
+  {
+    label: "Système",
+    items: [
+      { label: "Paramètres", href: "/admin/parametres", icon: Settings, roles: ADMIN_ONLY },
+      { label: "Équipe", href: "/admin/equipe", icon: UserCog, roles: SUPER_ONLY },
+      { label: "Audit", href: "/admin/audit", icon: Shield, roles: ADMIN_ONLY },
+    ],
+  },
+];
+
+const pageTitles: Record<string, string> = {
+  "/admin": "Dashboard",
+  "/admin/produits": "Produits",
+  "/admin/produits/nouveau": "Nouveau produit",
+  "/admin/categories": "Catégories",
+  "/admin/collections": "Collections",
+  "/admin/packs": "Packs",
+  "/admin/commandes": "Commandes",
+  "/admin/clients": "Clients",
+  "/admin/stocks": "Stocks",
+  "/admin/promotions": "Promotions",
+  "/admin/retours": "Retours",
+  "/admin/tickets": "Tickets",
+  "/admin/avis": "Avis clients",
+  "/admin/blog": "Blog",
+  "/admin/pages": "Pages",
+  "/admin/bannieres": "Bannières",
+  "/admin/seo": "SEO",
+  "/admin/rapports": "Rapports",
+  "/admin/parametres": "Paramètres",
+  "/admin/equipe": "Équipe",
+  "/admin/audit": "Journal d'audit",
+};
+
+const ROLE_LABELS: Record<AdminRole, string> = {
+  super_admin: "Super Admin",
+  admin: "Admin",
+  editor: "Éditeur",
+  support: "Support",
+};
+
+const ROLE_BADGE_CLASS: Record<AdminRole, string> = {
+  super_admin: "bg-gold/10 text-gold-dark",
+  admin: "bg-terracotta/10 text-terracotta",
+  editor: "bg-blue-500/10 text-blue-700",
+  support: "bg-emerald-500/10 text-emerald-700",
+};
+
+interface AdminShellProps {
+  user: {
+    displayName: string;
+    initials: string;
+    role: AdminRole;
+  };
+  children: React.ReactNode;
+}
+
+export function AdminShell({ user, children }: AdminShellProps) {
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname === "/admin";
+    return pathname.startsWith(href);
+  };
+
+  const pageTitle =
+    pageTitles[pathname] ||
+    Object.entries(pageTitles).find(([key]) => pathname.startsWith(key))?.[1] ||
+    "Administration";
+
+  const visibleGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.roles.includes(user.role)),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  const sidebarContent = (
+    <div className="flex flex-col h-full">
+      <div className="px-6 py-5 border-b border-gray-700">
+        <Link href="/admin" className="flex items-center gap-2">
+          <span
+            className="text-xl font-bold tracking-wide text-white"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            ISHYA
+          </span>
+          <span className="text-xs font-medium text-gray-400 uppercase tracking-widest">
+            Admin
+          </span>
+        </Link>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        {visibleGroups.map((group) => (
+          <div key={group.label}>
+            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      active
+                        ? "bg-terracotta/20 text-terracotta-light"
+                        : "text-gray-400 hover:bg-gray-800 hover:text-gray-200",
+                    )}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div className="px-3 py-4 border-t border-gray-700 space-y-1">
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-200 transition-colors"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Voir la boutique
+        </Link>
+        <form action={adminSignOut}>
+          <button
+            type="submit"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-red-400 transition-colors w-full"
+          >
+            <LogOut className="w-4 h-4" />
+            Déconnexion
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen bg-ivory">
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col bg-gray-900 border-r border-gray-800 shrink-0">
+        {sidebarContent}
+      </aside>
+
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-64 bg-gray-900 z-50 lg:hidden"
+            >
+              {sidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-col flex-1 min-w-0">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8 shrink-0">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900">
+              {pageTitle}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
+              <Bell className="w-5 h-5 text-gray-600" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-terracotta rounded-full" />
+            </button>
+            <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200">
+              <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center">
+                <span className="text-sm font-semibold text-terracotta">
+                  {user.initials}
+                </span>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">
+                  {user.displayName}
+                </p>
+                <span
+                  className={cn(
+                    "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
+                    ROLE_BADGE_CLASS[user.role],
+                  )}
+                >
+                  {ROLE_LABELS[user.role]}
+                </span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8">{children}</main>
+      </div>
+    </div>
+  );
+}
