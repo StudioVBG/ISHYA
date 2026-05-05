@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { fadeInUp } from "@/lib/animations";
+import { subscribeNewsletter } from "@/lib/actions/newsletter";
 
 export function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -18,9 +19,12 @@ export function NewsletterForm() {
       return;
     }
     startTransition(async () => {
-      // TODO: brancher l'API newsletter (Resend / Supabase)
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Merci ! Vérifiez votre boîte mail pour votre code -10%.");
+      const res = await subscribeNewsletter({ email: trimmed, source: "home" });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(res.message);
       setEmail("");
     });
   }

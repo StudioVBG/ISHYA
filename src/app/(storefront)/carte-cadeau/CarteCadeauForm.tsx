@@ -11,6 +11,7 @@ export function CarteCadeauForm({ amounts }: { amounts: number[] }) {
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [senderName, setSenderName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
   const [message, setMessage] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,11 +23,31 @@ export function CarteCadeauForm({ amounts }: { amounts: number[] }) {
     if (!recipientEmail.trim() || finalAmount < 10) return;
     setLoading(true);
     try {
-      // TODO: brancher la création de carte cadeau (Stripe + Supabase + email Resend)
-      await new Promise((r) => setTimeout(r, 700));
-      toast.success(
-        `Carte cadeau de ${finalAmount} € préparée pour ${recipientName || recipientEmail}.`,
-      );
+      const res = await fetch("/api/stripe/gift-card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: finalAmount,
+          recipientEmail: recipientEmail.trim(),
+          recipientName: recipientName.trim() || undefined,
+          senderName: senderName.trim() || undefined,
+          senderEmail: senderEmail.trim() || undefined,
+          message: message.trim() || undefined,
+          deliveryDate: deliveryDate || undefined,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        checkoutUrl?: string;
+        error?: string;
+      };
+      if (!res.ok || !data.checkoutUrl) {
+        toast.error(data.error ?? "Impossible de lancer le paiement.");
+        return;
+      }
+      window.location.assign(data.checkoutUrl);
+    } catch (err) {
+      console.error("[gift-card] submit failed", err);
+      toast.error("Une erreur est survenue. Réessayez.");
     } finally {
       setLoading(false);
     }
@@ -101,16 +122,29 @@ export function CarteCadeauForm({ amounts }: { amounts: number[] }) {
         </div>
       </div>
 
-      <div>
-        <label className="block text-xs font-medium text-foreground mb-2 uppercase tracking-wider">
-          Votre nom (apparaîtra sur la carte)
-        </label>
-        <input
-          type="text"
-          value={senderName}
-          onChange={(e) => setSenderName(e.target.value)}
-          className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
-        />
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-medium text-foreground mb-2 uppercase tracking-wider">
+            Votre nom (apparaîtra sur la carte)
+          </label>
+          <input
+            type="text"
+            value={senderName}
+            onChange={(e) => setSenderName(e.target.value)}
+            className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-foreground mb-2 uppercase tracking-wider">
+            Votre email <span className="text-muted normal-case">(reçu Stripe)</span>
+          </label>
+          <input
+            type="email"
+            value={senderEmail}
+            onChange={(e) => setSenderEmail(e.target.value)}
+            className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+          />
+        </div>
       </div>
 
       <div>

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { submitContactMessage } from "@/lib/actions/contact";
 
 const subjects = [
   "Question sur un produit",
@@ -70,9 +71,17 @@ export default function ContactPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      // TODO: brancher l'envoi via Resend (action serveur)
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Message envoyé ! Nous vous répondrons sous 24-48h.");
+      const res = await submitContactMessage({
+        name: form.name,
+        email: form.email,
+        subject: form.subject || undefined,
+        message: form.message,
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(res.message);
       setSubmitted(true);
     });
   }
