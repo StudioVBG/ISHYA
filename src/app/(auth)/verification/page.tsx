@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Mail, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 
 export default function VerificationPage() {
@@ -72,12 +71,7 @@ export default function VerificationPage() {
           type="button"
           disabled={isResending}
           onClick={handleResend}
-          className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-lg bg-terracotta px-6 py-3",
-            "text-sm font-medium text-white transition-all duration-200",
-            "hover:bg-terracotta-dark hover:scale-[1.01]",
-            "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-          )}
+          className="btn-primary"
         >
           {isResending ? (
             <>

@@ -179,10 +179,7 @@ export default function GarantiePage() {
           <p className="text-white/70 mb-8">
             Notre service après-vente est joignable du lundi au vendredi, 9h–18h.
           </p>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
+          <Link href="/contact" className="btn-primary gap-2">
             Contacter le SAV
             <ArrowRight className="w-4 h-4" />
           </Link>

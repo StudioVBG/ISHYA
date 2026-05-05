@@ -303,16 +303,11 @@ function ConnexionContent() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-lg bg-terracotta px-4 py-3.5",
-            "text-sm font-medium text-white transition-all duration-200",
-            "hover:bg-terracotta-dark hover:scale-[1.01]",
-            "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-          )}
+          className="btn-primary w-full"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
               Connexion en cours…
             </>
           ) : (

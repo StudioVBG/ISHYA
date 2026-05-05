@@ -110,10 +110,7 @@ export default function EquipePage() {
             Nous cherchons régulièrement des artisans, photographes et
             stagiaires qui partagent notre passion du fait main.
           </p>
-          <Link
-            href="/recrutement"
-            className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
+          <Link href="/recrutement" className="btn-primary">
             Voir nos offres
           </Link>
         </div>

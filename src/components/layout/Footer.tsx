@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Instagram, Facebook, Mail, ArrowRight } from "lucide-react";
+import { Instagram, Facebook, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { subscribeNewsletter } from "@/lib/actions/newsletter";
 
 const FOOTER_LINKS = {
   boutique: {
@@ -77,12 +78,21 @@ function PinterestIcon({ className }: { className?: string }) {
 
 export function Footer() {
   const [email, setEmail] = useState("");
+  const [isPending, startTransition] = useTransition();
 
-  async function handleNewsletter(e: React.FormEvent) {
+  function handleNewsletter(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
-    toast.success("Merci ! Vérifiez votre boîte mail pour votre code -10%.");
-    setEmail("");
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    startTransition(async () => {
+      const res = await subscribeNewsletter({ email: trimmed, source: "footer" });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(res.message);
+      setEmail("");
+    });
   }
 
   return (
@@ -111,10 +121,17 @@ export function Footer() {
             />
             <button
               type="submit"
-              className="px-6 py-3 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors flex items-center gap-2"
+              disabled={isPending}
+              className="px-6 py-3 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors flex items-center gap-2 disabled:opacity-60"
             >
-              S&apos;inscrire
-              <ArrowRight className="w-4 h-4" />
+              {isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  S&apos;inscrire
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -164,7 +181,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs text-white/40">
-            <span>&copy; 2026 ISHYA - Création Florales</span>
+            <span>&copy; {new Date().getFullYear()} ISHYA - Création Florales</span>
             <span className="hidden sm:inline">|</span>
             <span>Bijoux artisanaux en fleurs séchées et résine</span>
           </div>

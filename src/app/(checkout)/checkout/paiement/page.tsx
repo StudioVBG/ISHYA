@@ -81,12 +81,7 @@ function PaymentForm({
       <button
         type="submit"
         disabled={isProcessing || !stripe || !elements}
-        className={cn(
-          "w-full py-4 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2",
-          isProcessing
-            ? "bg-muted cursor-not-allowed"
-            : "bg-terracotta hover:bg-terracotta-dark active:scale-[0.98]"
-        )}
+        className="btn-primary w-full gap-2"
       >
         {isProcessing ? (
           <>

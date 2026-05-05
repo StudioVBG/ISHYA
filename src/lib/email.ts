@@ -47,6 +47,16 @@ import {
   reviewRequestEmailSubject,
   type ReviewRequestEmailProps,
 } from "@/emails/ReviewRequestEmail";
+import {
+  GiftCardEmail,
+  giftCardEmailSubject,
+  type GiftCardEmailProps,
+} from "@/emails/GiftCardEmail";
+import {
+  ContactNotificationEmail,
+  contactNotificationSubject,
+  type ContactNotificationEmailProps,
+} from "@/emails/ContactNotificationEmail";
 
 let resendClient: Resend | null = null;
 
@@ -301,6 +311,47 @@ export async function sendRestockEmail(
       logoSrc: args.logoSrc,
       baseUrl,
       unsubscribeUrl,
+    }),
+  });
+}
+
+export async function sendGiftCardEmail(
+  to: string,
+  args: Omit<GiftCardEmailProps, "baseUrl" | "unsubscribeUrl"> &
+    Partial<Pick<GiftCardEmailProps, "baseUrl" | "unsubscribeUrl" | "logoSrc">>,
+) {
+  const { baseUrl, unsubscribeUrl } = resolveEmailRouting(args);
+  return sendEmail({
+    to,
+    subject: giftCardEmailSubject(args.senderName ?? null),
+    react: createElement(GiftCardEmail, {
+      recipientName: args.recipientName ?? null,
+      senderName: args.senderName ?? null,
+      amount: args.amount,
+      code: args.code,
+      message: args.message ?? null,
+      shopUrl: args.shopUrl,
+      logoSrc: args.logoSrc,
+      baseUrl,
+      unsubscribeUrl,
+    }),
+  });
+}
+
+export async function sendContactNotification(
+  to: string | string[],
+  args: ContactNotificationEmailProps & { replyTo?: string },
+) {
+  return sendEmail({
+    to,
+    subject: contactNotificationSubject(args.subject),
+    replyTo: args.replyTo,
+    react: createElement(ContactNotificationEmail, {
+      name: args.name,
+      email: args.email,
+      subject: args.subject ?? null,
+      message: args.message,
+      receivedAt: args.receivedAt,
     }),
   });
 }
