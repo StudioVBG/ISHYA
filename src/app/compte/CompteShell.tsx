@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Header } from "@/components/layout/Header";
+import { Header, type HeaderAccount } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { createClient } from "@/lib/supabase/client";
@@ -86,11 +86,13 @@ export function CompteShell({
   firstName,
   lastName,
   loyaltyTier,
+  account,
   children,
 }: {
   firstName: string | null;
   lastName: string | null;
   loyaltyTier: string;
+  account: HeaderAccount;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -125,7 +127,7 @@ export function CompteShell({
 
   return (
     <>
-      <Header />
+      <Header account={account} />
       <CartDrawer />
       <main className="flex-1 bg-background">
         <div className="border-b border-border bg-white/50">

@@ -6,6 +6,48 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { slugify } from "@/lib/utils";
 
+/**
+ * Invalide tous les caches storefront susceptibles d'afficher un produit.
+ * Sans ça, les pages publiques (revalidate=300) peuvent attendre 5 minutes
+ * avant de voir une création/modification de produit.
+ */
+function revalidateStorefrontProductPaths(
+  slug?: string | null,
+  extraSlugs: string[] = [],
+) {
+  const paths = [
+    "/",
+    "/boutique",
+    "/nouveautes",
+    "/promotions",
+    "/best-sellers",
+    "/idees-cadeaux",
+    "/recherche",
+    "/collections",
+  ];
+  for (const p of paths) revalidatePath(p);
+  if (slug) revalidatePath(`/produit/${slug}`);
+  for (const s of extraSlugs) {
+    if (s) revalidatePath(`/produit/${s}`);
+  }
+  // Toutes les pages catégories/collections individuelles partagent la
+  // même file d'attente de cache ; on les invalide via leur racine.
+  revalidatePath("/boutique/[categorie]", "page");
+  revalidatePath("/collections/[slug]", "page");
+}
+
+async function revalidateForProductId(
+  admin: ReturnType<typeof createAdminClient>,
+  productId: string,
+) {
+  const { data } = await admin
+    .from("products")
+    .select("slug")
+    .eq("id", productId)
+    .maybeSingle();
+  revalidateStorefrontProductPaths(data?.slug ?? null);
+}
+
 interface CreateProductResult {
   ok: boolean;
   error?: string;
@@ -130,11 +172,13 @@ export async function createProduct(
   const primaryCollectionId =
     input.collectionId ?? input.collectionIds[0] ?? null;
 
+  const finalSlug = input.slug.trim() || slugify(input.name);
+
   const { data: product, error: productError } = await admin
     .from("products")
     .insert({
       name: input.name.trim(),
-      slug: input.slug.trim() || slugify(input.name),
+      slug: finalSlug,
       short_description: input.shortDescription || null,
       description: input.description || null,
       base_price: input.basePrice,
@@ -233,6 +277,7 @@ export async function createProduct(
 
   revalidatePath("/admin/produits");
   revalidatePath("/admin");
+  revalidateStorefrontProductPaths(finalSlug);
 
   return { ok: true, productId: product.id, warnings };
 }
@@ -253,11 +298,19 @@ export async function updateProduct(
   const primaryCollectionId =
     input.collectionId ?? input.collectionIds[0] ?? null;
 
+  const { data: previous } = await admin
+    .from("products")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
+  const newSlug = input.slug.trim();
+
   const { error } = await admin
     .from("products")
     .update({
       name: input.name.trim(),
-      slug: input.slug.trim(),
+      slug: newSlug,
       short_description: input.shortDescription || null,
       description: input.description || null,
       base_price: input.basePrice,
@@ -308,6 +361,11 @@ export async function updateProduct(
   revalidatePath(`/admin/produits/${id}`);
   revalidatePath("/admin/collections");
   revalidatePath("/admin/categories");
+  const previousSlug = previous?.slug ?? null;
+  revalidateStorefrontProductPaths(
+    newSlug,
+    previousSlug && previousSlug !== newSlug ? [previousSlug] : [],
+  );
   return { ok: true };
 }
 
@@ -318,6 +376,13 @@ export async function deleteProduct(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  const { data: previous } = await admin
+    .from("products")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await admin.from("products").delete().eq("id", id);
   if (error) {
     console.error("[deleteProduct]", error);
@@ -325,6 +390,7 @@ export async function deleteProduct(
   }
 
   revalidatePath("/admin/produits");
+  revalidateStorefrontProductPaths(previous?.slug ?? null);
   redirect("/admin/produits");
 }
 
@@ -377,6 +443,7 @@ export async function upsertVariant(
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/stocks");
+  await revalidateForProductId(admin, productId);
   return { ok: true };
 }
 
@@ -399,6 +466,7 @@ export async function deleteVariant(
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/stocks");
+  await revalidateForProductId(admin, productId);
   return { ok: true };
 }
 
@@ -487,6 +555,7 @@ export async function replaceVariants(
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/stocks");
+  await revalidateForProductId(admin, productId);
   return { ok: true };
 }
 
@@ -539,6 +608,7 @@ export async function upsertMedia(
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/produits");
+  await revalidateForProductId(admin, productId);
   return { ok: true };
 }
 
@@ -575,6 +645,7 @@ export async function deleteMedia(
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/produits");
+  await revalidateForProductId(admin, productId);
   return { ok: true };
 }
 
@@ -675,5 +746,6 @@ export async function replaceMedia(
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/produits");
+  await revalidateForProductId(admin, productId);
   return { ok: true };
 }
