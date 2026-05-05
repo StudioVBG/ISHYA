@@ -307,9 +307,22 @@ export function ProductForm({
         router.refresh();
       } else {
         const res = await createProduct(payload, variantsPayload, mediaPayload);
-        if (res && !res.ok) {
-          toast.error(res.error ?? "Erreur");
+        if (!res?.ok) {
+          toast.error(res?.error ?? "Erreur lors de la création");
+          return;
         }
+        toast.success(
+          publish ? "Produit créé et mis en ligne ✓" : "Brouillon enregistré ✓",
+        );
+        for (const warning of res.warnings ?? []) {
+          toast.warning(warning);
+        }
+        if (res.productId) {
+          router.push(`/admin/produits/${res.productId}`);
+        } else {
+          router.push("/admin/produits");
+        }
+        router.refresh();
       }
     });
   };
@@ -421,9 +434,12 @@ export function ProductForm({
                 className={inputClass}
                 placeholder="Ex : Collier Fleur d'Oranger"
               />
-              {name.trim() && !isEditing && (
+              {(name.trim() || product?.slug) && (
                 <p className={helpClass}>
-                  Adresse de la page : /produit/<span className="font-mono">{slugify(name)}</span>
+                  Adresse de la page : /produit/
+                  <span className="font-mono">
+                    {product?.slug ?? slugify(name)}
+                  </span>
                 </p>
               )}
             </div>

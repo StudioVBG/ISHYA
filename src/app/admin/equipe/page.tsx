@@ -16,18 +16,6 @@ export default async function AdminEquipePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/connexion?redirect_to=/admin/equipe");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
   const members = await getAdminTeamMembers();
-  return (
-    <EquipeView
-      members={members}
-      currentUserId={user.id}
-      isSuperAdmin={profile?.role === "super_admin"}
-    />
-  );
+  return <EquipeView members={members} currentUserId={user.id} />;
 }

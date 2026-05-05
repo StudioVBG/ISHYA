@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { Loader2, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
@@ -10,38 +10,24 @@ import type { AdminTeamMember } from "@/lib/queries/admin";
 import { toggleMemberActive, updateMemberRole } from "./actions";
 
 const ROLE_LABELS: Record<string, { label: string; className: string }> = {
-  super_admin: {
-    label: "Super-admin",
-    className: "bg-destructive-soft text-destructive",
-  },
   admin: {
     label: "Admin",
     className: "bg-accent-purple-soft text-accent-purple",
   },
-  editor: {
-    label: "Éditeur",
-    className: "bg-info-soft text-info",
-  },
-  support: {
-    label: "Support",
-    className: "bg-info-soft text-info",
-  },
   customer: {
-    label: "Client (rétrogradé)",
+    label: "Client",
     className: "bg-muted-soft text-muted",
   },
 };
 
-const ROLE_OPTIONS = ["super_admin", "admin", "editor", "support", "customer"];
+const ROLE_OPTIONS = ["admin", "customer"];
 
 export function EquipeView({
   members,
   currentUserId,
-  isSuperAdmin,
 }: {
   members: AdminTeamMember[];
   currentUserId: string;
-  isSuperAdmin: boolean;
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -82,25 +68,12 @@ export function EquipeView({
       <motion.div variants={staggerItem}>
         <h2 className="text-xl font-bold text-foreground">Équipe</h2>
         <p className="text-sm text-muted">
-          {members.length} membre{members.length > 1 ? "s" : ""}
-          {!isSuperAdmin && (
-            <span className="ml-2 inline-flex items-center gap-1 text-xs text-warning">
-              <ShieldAlert className="w-3.5 h-3.5" />
-              Lecture seule (super-admin requis pour éditer)
-            </span>
-          )}
+          {members.length} admin{members.length > 1 ? "s" : ""}
+        </p>
+        <p className="text-xs text-muted-light mt-1">
+          Promeut un client en admin pour lui donner accès au tableau de bord.
         </p>
       </motion.div>
-
-      {!isSuperAdmin && (
-        <motion.div
-          variants={staggerItem}
-          className="bg-warning-soft border border-warning/20 rounded-xl p-4 text-sm text-warning"
-        >
-          Seul un super-admin peut promouvoir, rétrograder ou désactiver un
-          membre. Les actions ci-dessous sont désactivées.
-        </motion.div>
-      )}
 
       <motion.div
         variants={staggerItem}
@@ -135,7 +108,7 @@ export function EquipeView({
                     colSpan={6}
                     className="px-4 py-12 text-center text-muted-light"
                   >
-                    Aucun membre d&apos;équipe pour l&apos;instant.
+                    Aucun admin pour l&apos;instant.
                   </td>
                 </tr>
               ) : (
@@ -165,31 +138,25 @@ export function EquipeView({
                         <p className="text-xs text-muted-light">{m.email}</p>
                       </td>
                       <td className="px-4 py-3">
-                        {isSuperAdmin ? (
-                          <select
-                            value={m.role}
-                            onChange={(e) =>
-                              handleRoleChange(m.id, e.target.value)
-                            }
-                            disabled={isLoading || (isMe && m.role === "super_admin")}
-                            className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
-                          >
-                            {ROLE_OPTIONS.map((r) => (
-                              <option key={r} value={r}>
-                                {ROLE_LABELS[r]?.label ?? r}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span
-                            className={cn(
-                              "px-2 py-0.5 rounded-full text-xs font-medium",
-                              role.className,
-                            )}
-                          >
-                            {role.label}
-                          </span>
-                        )}
+                        <select
+                          value={m.role}
+                          onChange={(e) =>
+                            handleRoleChange(m.id, e.target.value)
+                          }
+                          disabled={isLoading || (isMe && m.role === "admin")}
+                          className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
+                          title={
+                            isMe && m.role === "admin"
+                              ? "Vous ne pouvez pas retirer votre propre rôle d'admin"
+                              : undefined
+                          }
+                        >
+                          {ROLE_OPTIONS.map((r) => (
+                            <option key={r} value={r}>
+                              {ROLE_LABELS[r]?.label ?? r}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="px-4 py-3 text-muted">
                         {m.createdAt ? formatDate(m.createdAt) : "—"}
@@ -211,9 +178,10 @@ export function EquipeView({
                           <ShieldCheck className="w-3 h-3" />
                           {m.isActive ? "Actif" : "Désactivé"}
                         </span>
+                        <span className="sr-only">{role.label}</span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {isSuperAdmin && !isMe && (
+                        {!isMe && (
                           <button
                             onClick={() =>
                               handleToggleActive(m.id, m.isActive)

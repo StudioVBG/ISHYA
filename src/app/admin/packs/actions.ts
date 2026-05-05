@@ -119,7 +119,7 @@ export async function updatePack(
 export async function deletePack(
   id: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  const auth = await requireAdminRole(["admin", "super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();

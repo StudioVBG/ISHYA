@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const ADMIN_ROLES = ["admin", "super_admin", "editor", "support"];
-
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
@@ -32,7 +30,7 @@ export async function GET(request: NextRequest) {
       .select("role")
       .eq("id", data.user.id)
       .maybeSingle();
-    if (profile?.role && ADMIN_ROLES.includes(profile.role)) {
+    if (profile?.role === "admin") {
       redirectTo = "/admin";
     }
   }

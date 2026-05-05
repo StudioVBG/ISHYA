@@ -195,7 +195,7 @@ export interface Profile {
   loyalty_points: number;
   loyalty_tier: string;
   newsletter_optin: boolean;
-  role: "customer" | "support" | "editor" | "admin" | "super_admin";
+  role: "customer" | "admin";
   created_at: string;
 }
 

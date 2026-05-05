@@ -18,7 +18,7 @@ const KEY_MAPPING: Array<{ key: keyof AdminSeoConfig; settingKey: string }> = [
 export async function updateSeoConfig(
   config: AdminSeoConfig,
 ): Promise<{ ok: boolean; error?: string }> {
-  const auth = await requireAdminRole(["admin", "super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();

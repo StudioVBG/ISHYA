@@ -1514,8 +1514,7 @@ export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {
     .select(
       "id, email, first_name, last_name, role, is_active, created_at, last_login_at",
     )
-    .in("role", ["super_admin", "admin", "editor", "support"])
-    .order("role", { ascending: true })
+    .eq("role", "admin")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -1528,7 +1527,7 @@ export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {
     email: row.email,
     firstName: row.first_name,
     lastName: row.last_name,
-    role: row.role ?? "support",
+    role: row.role ?? "admin",
     isActive: row.is_active ?? true,
     createdAt: row.created_at,
     lastSignInAt: row.last_login_at,

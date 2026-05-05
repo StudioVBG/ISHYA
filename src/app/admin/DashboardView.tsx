@@ -146,41 +146,47 @@ export function DashboardView({
           CA des 30 derniers jours
         </h2>
         <div className="h-64 sm:h-72 lg:h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stats.revenueByDay}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--color-border)"
-              />
-              <XAxis
-                dataKey="day"
-                tick={{ fontSize: 12 }}
-                stroke="var(--color-muted)"
-                interval={4}
-              />
-              <YAxis
-                tick={{ fontSize: 12 }}
-                stroke="var(--color-muted)"
-                tickFormatter={(v) => `${v}€`}
-              />
-              <Tooltip
-                formatter={(value) => [`${value} €`, "CA"]}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid var(--color-border)",
-                  fontSize: "13px",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="ca"
-                stroke="var(--color-terracotta)"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 5, fill: "var(--color-terracotta)" }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {stats.revenueByDay.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-sm text-muted-light">
+              Pas encore de ventes sur les 30 derniers jours.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stats.revenueByDay}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--color-border)"
+                />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontSize: 12 }}
+                  stroke="var(--color-muted)"
+                  interval={4}
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  stroke="var(--color-muted)"
+                  tickFormatter={(v) => `${v}€`}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value} €`, "CA"]}
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid var(--color-border)",
+                    fontSize: "13px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="ca"
+                  stroke="var(--color-terracotta)"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 5, fill: "var(--color-terracotta)" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </motion.div>
 

@@ -6,7 +6,7 @@ export type AdminAuthResult =
   | { ok: false; error: string };
 
 export async function requireAdminRole(
-  allowed: string[] = ["admin", "super_admin", "editor"],
+  allowed: string[] = ["admin"],
 ): Promise<AdminAuthResult> {
   const supabase = await createClient();
   const {

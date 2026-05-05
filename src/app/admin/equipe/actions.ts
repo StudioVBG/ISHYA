@@ -4,45 +4,33 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 
-export type AdminRole =
-  | "customer"
-  | "support"
-  | "editor"
-  | "admin"
-  | "super_admin";
+export type AppRole = "customer" | "admin";
 
-const ALLOWED_ROLES: AdminRole[] = [
-  "customer",
-  "support",
-  "editor",
-  "admin",
-  "super_admin",
-];
+const ALLOWED_ROLES: AppRole[] = ["customer", "admin"];
 
 export async function updateMemberRole(
   userId: string,
   role: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!ALLOWED_ROLES.includes(role as AdminRole)) {
+  if (!ALLOWED_ROLES.includes(role as AppRole)) {
     return { ok: false, error: "Rôle invalide" };
   }
 
-  // Seul super_admin peut promouvoir/déclasser des admins
-  const auth = await requireAdminRole(["super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  // Empêcher de se déclasser soi-même
-  if (userId === auth.userId && role !== "super_admin") {
+  // Empêcher de se rétrograder soi-même (sinon plus aucun admin sur le shop)
+  if (userId === auth.userId && role !== "admin") {
     return {
       ok: false,
-      error: "Vous ne pouvez pas modifier votre propre rôle de super-admin",
+      error: "Vous ne pouvez pas retirer votre propre rôle d'admin",
     };
   }
 
   const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
-    .update({ role: role as AdminRole })
+    .update({ role: role as AppRole })
     .eq("id", userId);
 
   if (error) {
@@ -58,7 +46,7 @@ export async function toggleMemberActive(
   userId: string,
   isActive: boolean,
 ): Promise<{ ok: boolean; error?: string }> {
-  const auth = await requireAdminRole(["super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   if (userId === auth.userId && !isActive) {
