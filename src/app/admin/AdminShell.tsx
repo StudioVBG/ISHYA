@@ -33,13 +33,10 @@ import {
 import { cn } from "@/lib/utils";
 import { adminSignOut } from "./actions";
 
-type AdminRole = "super_admin" | "admin" | "editor" | "support";
-
 interface NavItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  roles: AdminRole[];
 }
 
 interface NavGroup {
@@ -47,66 +44,58 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const ALL: AdminRole[] = ["super_admin", "admin", "editor", "support"];
-const STAFF_NO_SUPPORT: AdminRole[] = ["super_admin", "admin", "editor"];
-const SALES: AdminRole[] = ["super_admin", "admin", "support"];
-const ADMIN_ONLY: AdminRole[] = ["super_admin", "admin"];
-const SUPER_ONLY: AdminRole[] = ["super_admin"];
-
 const navGroups: NavGroup[] = [
   {
     label: "Principal",
-    items: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ALL },
-    ],
+    items: [{ label: "Dashboard", href: "/admin", icon: LayoutDashboard }],
   },
   {
     label: "Catalogue",
     items: [
-      { label: "Produits", href: "/admin/produits", icon: Package, roles: STAFF_NO_SUPPORT },
-      { label: "Catégories", href: "/admin/categories", icon: FolderTree, roles: STAFF_NO_SUPPORT },
-      { label: "Collections", href: "/admin/collections", icon: Layers, roles: STAFF_NO_SUPPORT },
-      { label: "Packs", href: "/admin/packs", icon: Gift, roles: STAFF_NO_SUPPORT },
+      { label: "Produits", href: "/admin/produits", icon: Package },
+      { label: "Catégories", href: "/admin/categories", icon: FolderTree },
+      { label: "Collections", href: "/admin/collections", icon: Layers },
+      { label: "Packs", href: "/admin/packs", icon: Gift },
     ],
   },
   {
     label: "Ventes",
     items: [
-      { label: "Commandes", href: "/admin/commandes", icon: ShoppingCart, roles: SALES },
-      { label: "Clients", href: "/admin/clients", icon: Users, roles: SALES },
-      { label: "Stocks", href: "/admin/stocks", icon: Warehouse, roles: ADMIN_ONLY },
-      { label: "Promotions", href: "/admin/promotions", icon: Percent, roles: ADMIN_ONLY },
+      { label: "Commandes", href: "/admin/commandes", icon: ShoppingCart },
+      { label: "Clients", href: "/admin/clients", icon: Users },
+      { label: "Stocks", href: "/admin/stocks", icon: Warehouse },
+      { label: "Promotions", href: "/admin/promotions", icon: Percent },
     ],
   },
   {
     label: "Support",
     items: [
-      { label: "Retours", href: "/admin/retours", icon: RotateCcw, roles: SALES },
-      { label: "Tickets", href: "/admin/tickets", icon: Headphones, roles: SALES },
-      { label: "Avis", href: "/admin/avis", icon: Star, roles: SALES },
+      { label: "Retours", href: "/admin/retours", icon: RotateCcw },
+      { label: "Tickets", href: "/admin/tickets", icon: Headphones },
+      { label: "Avis", href: "/admin/avis", icon: Star },
     ],
   },
   {
     label: "Contenu",
     items: [
-      { label: "Blog", href: "/admin/blog", icon: FileText, roles: STAFF_NO_SUPPORT },
-      { label: "Pages", href: "/admin/pages", icon: LayoutTemplate, roles: STAFF_NO_SUPPORT },
-      { label: "Bannières", href: "/admin/bannieres", icon: ImageIcon, roles: STAFF_NO_SUPPORT },
-      { label: "SEO", href: "/admin/seo", icon: Search, roles: STAFF_NO_SUPPORT },
+      { label: "Blog", href: "/admin/blog", icon: FileText },
+      { label: "Pages", href: "/admin/pages", icon: LayoutTemplate },
+      { label: "Bannières", href: "/admin/bannieres", icon: ImageIcon },
+      { label: "SEO", href: "/admin/seo", icon: Search },
     ],
   },
   {
     label: "Analyse",
     items: [
-      { label: "Rapports", href: "/admin/rapports", icon: BarChart3, roles: ADMIN_ONLY },
+      { label: "Rapports", href: "/admin/rapports", icon: BarChart3 },
     ],
   },
   {
     label: "Système",
     items: [
-      { label: "Paramètres", href: "/admin/parametres", icon: Settings, roles: ADMIN_ONLY },
-      { label: "Équipe", href: "/admin/equipe", icon: UserCog, roles: SUPER_ONLY },
-      { label: "Audit", href: "/admin/audit", icon: Shield, roles: ADMIN_ONLY },
+      { label: "Paramètres", href: "/admin/parametres", icon: Settings },
+      { label: "Équipe", href: "/admin/equipe", icon: UserCog },
+      { label: "Audit", href: "/admin/audit", icon: Shield },
     ],
   },
 ];
@@ -135,25 +124,10 @@ const pageTitles: Record<string, string> = {
   "/admin/audit": "Journal d'audit",
 };
 
-const ROLE_LABELS: Record<AdminRole, string> = {
-  super_admin: "Super Admin",
-  admin: "Admin",
-  editor: "Éditeur",
-  support: "Support",
-};
-
-const ROLE_BADGE_CLASS: Record<AdminRole, string> = {
-  super_admin: "bg-gold/10 text-gold-dark",
-  admin: "bg-terracotta/10 text-terracotta",
-  editor: "bg-blue-500/10 text-blue-700",
-  support: "bg-emerald-500/10 text-emerald-700",
-};
-
 interface AdminShellProps {
   user: {
     displayName: string;
     initials: string;
-    role: AdminRole;
   };
   children: React.ReactNode;
 }
@@ -172,13 +146,6 @@ export function AdminShell({ user, children }: AdminShellProps) {
     Object.entries(pageTitles).find(([key]) => pathname.startsWith(key))?.[1] ||
     "Administration";
 
-  const visibleGroups = navGroups
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => item.roles.includes(user.role)),
-    }))
-    .filter((group) => group.items.length > 0);
-
   const sidebarContent = (
     <div className="flex flex-col h-full">
       <div className="px-6 py-5 border-b border-gray-700">
@@ -196,7 +163,7 @@ export function AdminShell({ user, children }: AdminShellProps) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {visibleGroups.map((group) => (
+        {navGroups.map((group) => (
           <div key={group.label}>
             <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
               {group.label}
@@ -307,13 +274,8 @@ export function AdminShell({ user, children }: AdminShellProps) {
                 <p className="text-sm font-medium text-gray-900">
                   {user.displayName}
                 </p>
-                <span
-                  className={cn(
-                    "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
-                    ROLE_BADGE_CLASS[user.role],
-                  )}
-                >
-                  {ROLE_LABELS[user.role]}
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-terracotta/10 text-terracotta">
+                  Admin
                 </span>
               </div>
             </div>

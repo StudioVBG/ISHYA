@@ -197,7 +197,7 @@ export async function markOrderShipped(
 export async function refundOrder(
   orderId: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  const auth = await requireAdminRole(["admin", "super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   if (!stripe) {

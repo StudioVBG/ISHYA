@@ -28,7 +28,7 @@ export async function upsertSetting(
     return { ok: false, error: "Clé requise" };
   }
 
-  const auth = await requireAdminRole(["admin", "super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   const value = input.rawValue !== undefined
@@ -76,7 +76,7 @@ export async function upsertSetting(
 export async function deleteSetting(
   id: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  const auth = await requireAdminRole(["super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();

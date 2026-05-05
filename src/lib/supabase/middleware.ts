@@ -52,11 +52,7 @@ export async function updateSession(request: NextRequest) {
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
-      target =
-        profile &&
-        ["admin", "super_admin", "editor", "support"].includes(profile.role)
-          ? "/admin"
-          : "/compte";
+      target = profile?.role === "admin" ? "/admin" : "/compte";
     }
     const url = request.nextUrl.clone();
     url.pathname = target;
@@ -71,10 +67,7 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (
-      !profile ||
-      !["admin", "super_admin", "editor", "support"].includes(profile.role)
-    ) {
+    if (profile?.role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);

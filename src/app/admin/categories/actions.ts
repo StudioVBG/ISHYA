@@ -105,7 +105,7 @@ export async function updateCategory(
 export async function deleteCategory(
   id: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  const auth = await requireAdminRole(["admin", "super_admin"]);
+  const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();

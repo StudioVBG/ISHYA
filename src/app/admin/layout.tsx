@@ -2,9 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminShell } from "./AdminShell";
 
-const ADMIN_ROLES = ["super_admin", "admin", "editor", "support"] as const;
-type AdminRole = (typeof ADMIN_ROLES)[number];
-
 function buildInitials(
   firstName: string | null | undefined,
   lastName: string | null | undefined,
@@ -39,14 +36,10 @@ export default async function AdminLayout({
     .eq("id", user.id)
     .maybeSingle();
 
-  if (
-    !profile?.role ||
-    !ADMIN_ROLES.includes(profile.role as AdminRole)
-  ) {
+  if (profile?.role !== "admin") {
     redirect("/");
   }
 
-  const role = profile.role as AdminRole;
   const displayName =
     [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim() ||
     profile.email ||
@@ -59,7 +52,5 @@ export default async function AdminLayout({
     profile.email ?? user.email,
   );
 
-  return (
-    <AdminShell user={{ displayName, initials, role }}>{children}</AdminShell>
-  );
+  return <AdminShell user={{ displayName, initials }}>{children}</AdminShell>;
 }

@@ -35,8 +35,6 @@ export default function ConnexionPage() {
   );
 }
 
-const ADMIN_ROLES = ["admin", "super_admin", "editor", "support"] as const;
-
 function ConnexionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,10 +84,7 @@ function ConnexionContent() {
         .select("role")
         .eq("id", signInData.user.id)
         .maybeSingle();
-      target =
-        profile?.role && ADMIN_ROLES.includes(profile.role as (typeof ADMIN_ROLES)[number])
-          ? "/admin"
-          : "/compte";
+      target = profile?.role === "admin" ? "/admin" : "/compte";
     }
     router.push(target ?? "/compte");
     router.refresh();
