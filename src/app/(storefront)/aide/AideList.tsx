@@ -4,12 +4,29 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Search, HelpCircle, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import type {
   PublicFaqArticle,
   PublicFaqCategory,
 } from "@/lib/queries/storefront";
+
+// Catégories FAQ qui ont une page dédiée — on lie vers la page rich, pas
+// vers une drill-down /aide/<slug> (qui n'existe plus).
+const STATIC_PAGE_BY_FAQ_SLUG: Record<string, { href: string; label: string }> =
+  {
+    livraison: { href: "/livraison", label: "Voir la page Livraison" },
+    retours: { href: "/retours", label: "Voir la page Retours" },
+    entretien: { href: "/entretien", label: "Voir la page Entretien" },
+    materiaux: { href: "/materiaux", label: "Voir la page Matériaux" },
+    "programme-fidelite": {
+      href: "/programme-fidelite",
+      label: "Voir le Programme fidélité",
+    },
+    tailles: {
+      href: "/guide-des-tailles",
+      label: "Voir le Guide des tailles",
+    },
+  };
 
 export function AideList({
   categories,
@@ -29,6 +46,17 @@ export function AideList({
         a.answer.toLowerCase().includes(q),
     );
   }, [articles, search]);
+
+  const articlesByCategory = useMemo(() => {
+    const map = new Map<string, PublicFaqArticle[]>();
+    for (const a of articles) {
+      const key = a.category ?? "Autres";
+      const arr = map.get(key) ?? [];
+      arr.push(a);
+      map.set(key, arr);
+    }
+    return map;
+  }, [articles]);
 
   return (
     <>
@@ -71,7 +99,7 @@ export function AideList({
       </section>
 
       <div className="py-16 px-4">
-        <div className="container max-w-5xl mx-auto">
+        <div className="container max-w-4xl mx-auto">
           {search.trim() ? (
             <div>
               <p className="text-sm text-muted mb-6">
@@ -94,7 +122,7 @@ export function AideList({
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-3 max-w-3xl mx-auto">
+                <div className="space-y-3">
                   {matched.map((a) => (
                     <details
                       key={a.id}
@@ -123,39 +151,103 @@ export function AideList({
               </p>
             </div>
           ) : (
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={staggerContainer}
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              {categories.map((cat) => (
-                <motion.div key={cat.slug} variants={staggerItem}>
-                  <Link
-                    href={`/aide/${cat.slug}`}
-                    className={cn(
-                      "group block bg-white border border-border rounded-2xl p-6 transition-all duration-300",
-                      "hover:shadow-lg hover:shadow-terracotta/5 hover:border-terracotta/30",
-                    )}
+            <div className="space-y-12">
+              {/* Sommaire — ancres */}
+              <nav
+                aria-label="Sommaire de l'aide"
+                className="flex flex-wrap gap-2 justify-center"
+              >
+                {categories.map((cat) => (
+                  <a
+                    key={cat.slug}
+                    href={`#${cat.slug}`}
+                    className="text-xs px-3 py-1.5 rounded-full bg-beige-nude-light hover:bg-terracotta/10 hover:text-terracotta transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center mb-4">
-                      <HelpCircle className="w-6 h-6 text-terracotta" />
+                    {cat.name}
+                  </a>
+                ))}
+              </nav>
+
+              {/* Articles groupés par catégorie */}
+              {categories.map((cat) => {
+                const items = articlesByCategory.get(cat.name) ?? [];
+                if (items.length === 0) return null;
+                const linked = STATIC_PAGE_BY_FAQ_SLUG[cat.slug];
+                return (
+                  <motion.section
+                    key={cat.slug}
+                    id={cat.slug}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-80px" }}
+                    variants={staggerContainer}
+                    className="scroll-mt-24"
+                  >
+                    <motion.div
+                      variants={staggerItem}
+                      className="flex items-center justify-between gap-4 mb-5 pb-3 border-b border-border"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-terracotta/10 flex items-center justify-center shrink-0">
+                          <HelpCircle className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="font-display text-2xl">{cat.name}</h2>
+                      </div>
+                      {linked && (
+                        <Link
+                          href={linked.href}
+                          className="hidden sm:inline-flex items-center gap-1 text-sm text-terracotta hover:underline whitespace-nowrap"
+                        >
+                          {linked.label}
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      )}
+                    </motion.div>
+                    <div className="space-y-3">
+                      {items.map((a) => (
+                        <motion.details
+                          key={a.id}
+                          variants={staggerItem}
+                          className="bg-white rounded-xl border border-border p-5 group"
+                        >
+                          <summary className="flex items-center justify-between cursor-pointer font-medium list-none">
+                            <span>{a.question}</span>
+                            <span className="text-muted group-open:rotate-180 transition-transform">
+                              ▾
+                            </span>
+                          </summary>
+                          <p className="mt-3 pt-3 border-t border-border/50 text-sm text-muted leading-relaxed whitespace-pre-line">
+                            {a.answer}
+                          </p>
+                        </motion.details>
+                      ))}
                     </div>
-                    <h2 className="font-display text-lg mb-2 group-hover:text-terracotta transition-colors">
-                      {cat.name}
-                    </h2>
-                    <p className="text-xs text-muted">
-                      {cat.count} article{cat.count > 1 ? "s" : ""}
-                    </p>
-                    <span className="inline-flex items-center gap-1 text-sm text-terracotta font-medium mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Voir les questions
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
+                    {linked && (
+                      <Link
+                        href={linked.href}
+                        className="sm:hidden inline-flex items-center gap-1 text-sm text-terracotta hover:underline mt-4"
+                      >
+                        {linked.label}
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
+                  </motion.section>
+                );
+              })}
+
+              {/* Bloc contact */}
+              <div className="bg-beige-nude-light rounded-2xl p-8 text-center">
+                <h2 className="font-display text-xl mb-2">
+                  Vous n&apos;avez pas trouvé votre réponse ?
+                </h2>
+                <p className="text-sm text-muted mb-4">
+                  Notre équipe répond à toutes vos questions sous 24 h ouvrées.
+                </p>
+                <Link href="/contact" className="btn-primary text-sm inline-flex">
+                  Nous contacter
+                </Link>
+              </div>
+            </div>
           )}
         </div>
       </div>

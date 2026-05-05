@@ -221,6 +221,10 @@ INSERT INTO categories (id, parent_id, name, slug, description, image_url, sort_
 VALUES (gen_random_uuid(), cat_packs, 'Coffrets cadeaux', 'coffrets-cadeaux', 'Coffrets cadeaux prêts à offrir dans un écrin ISHYA.', '/images/categories/coffrets-cadeaux.jpg', 3, true)
 RETURNING id INTO sub_coffrets;
 
+-- Sous-catégories : on ne dispose pas d'images dédiées dans /public/images/categories,
+-- on nullifie les image_url pour laisser le placeholder du composant prendre le relais.
+UPDATE public.categories SET image_url = NULL WHERE parent_id IS NOT NULL;
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 2. COLLECTIONS
 -- ════════════════════════════════════════════════════════════════════════════

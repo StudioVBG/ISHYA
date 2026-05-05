@@ -15,25 +15,15 @@ function revalidateStorefrontProductPaths(
   slug?: string | null,
   extraSlugs: string[] = [],
 ) {
-  const paths = [
-    "/",
-    "/boutique",
-    "/nouveautes",
-    "/promotions",
-    "/best-sellers",
-    "/idees-cadeaux",
-    "/recherche",
-    "/collections",
-  ];
-  for (const p of paths) revalidatePath(p);
+  // /boutique est l'unique page liste (filtres en query params).
+  // Toutes les anciennes URLs (/nouveautes, /promotions, etc.) sont des
+  // redirections 301 — pas besoin de les revalider.
+  revalidatePath("/");
+  revalidatePath("/boutique");
   if (slug) revalidatePath(`/produit/${slug}`);
   for (const s of extraSlugs) {
     if (s) revalidatePath(`/produit/${s}`);
   }
-  // Toutes les pages catégories/collections individuelles partagent la
-  // même file d'attente de cache ; on les invalide via leur racine.
-  revalidatePath("/boutique/[categorie]", "page");
-  revalidatePath("/collections/[slug]", "page");
 }
 
 async function revalidateForProductId(

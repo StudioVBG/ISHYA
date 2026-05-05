@@ -4,7 +4,6 @@ import {
   getAllPackSlugs,
   getAllBlogSlugs,
   getAllPublishedCmsSlugs,
-  getPublicFaqCategories,
 } from "@/lib/queries/storefront";
 
 const STATIC_ROUTES = [
@@ -73,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let dynamicEntries: MetadataRoute.Sitemap = [];
   try {
-    const [products, categories, collections, packs, posts, cmsSlugs, faqCats] =
+    const [products, categories, collections, packs, posts, cmsSlugs] =
       await Promise.all([
         getAllSlugs("products"),
         getAllSlugs("categories"),
@@ -81,7 +80,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         getAllPackSlugs(),
         getAllBlogSlugs(),
         getAllPublishedCmsSlugs(),
-        getPublicFaqCategories(),
       ]);
 
     dynamicEntries = [
@@ -120,12 +118,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: now,
         changeFrequency: "monthly" as const,
         priority: 0.4,
-      })),
-      ...faqCats.map((cat) => ({
-        url: `${root}/aide/${cat.slug}`,
-        lastModified: now,
-        changeFrequency: "monthly" as const,
-        priority: 0.5,
       })),
     ];
   } catch (error) {

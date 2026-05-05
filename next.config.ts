@@ -51,6 +51,24 @@ const nextConfig: NextConfig = {
         destination: "/boutique?categorie=:categorie",
         permanent: true,
       },
+      // FAQ catégories : /aide/[slug] supprimé, on redirige vers la page
+      // dédiée quand elle existe, sinon vers /aide#<slug>.
+      { source: "/aide/livraison", destination: "/livraison", permanent: true },
+      { source: "/aide/retours", destination: "/retours", permanent: true },
+      { source: "/aide/entretien", destination: "/entretien", permanent: true },
+      { source: "/aide/materiaux", destination: "/materiaux", permanent: true },
+      {
+        source: "/aide/programme-fidelite",
+        destination: "/programme-fidelite",
+        permanent: true,
+      },
+      {
+        source: "/aide/tailles",
+        destination: "/guide-des-tailles",
+        permanent: true,
+      },
+      // Catégories restantes (paiement, personnalisation, etc.) → ancre dans /aide
+      { source: "/aide/:slug", destination: "/aide#:slug", permanent: true },
     ];
   },
 };
