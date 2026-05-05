@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { logAuditEvent } from "@/lib/auth/audit-log";
 
 export type AppRole = "customer" | "admin";
 
@@ -19,7 +20,6 @@ export async function updateMemberRole(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  // Empêcher de se rétrograder soi-même (sinon plus aucun admin sur le shop)
   if (userId === auth.userId && role !== "admin") {
     return {
       ok: false,
@@ -28,6 +28,12 @@ export async function updateMemberRole(
   }
 
   const admin = createAdminClient();
+  const { data: previous } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
   const { error } = await admin
     .from("profiles")
     .update({ role: role as AppRole })
@@ -37,6 +43,15 @@ export async function updateMemberRole(
     console.error("[updateMemberRole]", error);
     return { ok: false, error: "Erreur de mise à jour" };
   }
+
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "profiles",
+    recordId: userId,
+    oldData: { role: previous?.role ?? null },
+    newData: { role },
+  });
 
   revalidatePath("/admin/equipe");
   return { ok: true };
@@ -66,6 +81,14 @@ export async function toggleMemberActive(
     console.error("[toggleMemberActive]", error);
     return { ok: false, error: "Erreur" };
   }
+
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "profiles",
+    recordId: userId,
+    newData: { is_active: isActive },
+  });
 
   revalidatePath("/admin/equipe");
   return { ok: true };

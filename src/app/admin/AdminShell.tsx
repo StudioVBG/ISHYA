@@ -29,6 +29,9 @@ import {
   Menu,
   ExternalLink,
   LogOut,
+  Mail,
+  Send,
+  Ticket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminSignOut } from "./actions";
@@ -66,6 +69,7 @@ const navGroups: NavGroup[] = [
       { label: "Clients", href: "/admin/clients", icon: Users },
       { label: "Stocks", href: "/admin/stocks", icon: Warehouse },
       { label: "Promotions", href: "/admin/promotions", icon: Percent },
+      { label: "Cartes cadeaux", href: "/admin/cartes-cadeaux", icon: Ticket },
     ],
   },
   {
@@ -73,6 +77,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Retours", href: "/admin/retours", icon: RotateCcw },
       { label: "Tickets", href: "/admin/tickets", icon: Headphones },
+      { label: "Messages", href: "/admin/messages", icon: Mail },
       { label: "FAQ", href: "/admin/faq", icon: HelpCircle },
       { label: "Avis", href: "/admin/avis", icon: Star },
     ],
@@ -83,6 +88,7 @@ const navGroups: NavGroup[] = [
       { label: "Blog", href: "/admin/blog", icon: FileText },
       { label: "Pages", href: "/admin/pages", icon: LayoutTemplate },
       { label: "Bannières", href: "/admin/bannieres", icon: ImageIcon },
+      { label: "Newsletter", href: "/admin/newsletter", icon: Send },
       { label: "SEO", href: "/admin/seo", icon: Search },
     ],
   },
@@ -113,13 +119,16 @@ const pageTitles: Record<string, string> = {
   "/admin/clients": "Clients",
   "/admin/stocks": "Stocks",
   "/admin/promotions": "Promotions",
+  "/admin/cartes-cadeaux": "Cartes cadeaux",
   "/admin/retours": "Retours",
   "/admin/tickets": "Tickets",
+  "/admin/messages": "Messages",
   "/admin/faq": "FAQ",
   "/admin/avis": "Avis clients",
   "/admin/blog": "Blog",
   "/admin/pages": "Pages",
   "/admin/bannieres": "Bannières",
+  "/admin/newsletter": "Newsletter",
   "/admin/seo": "SEO",
   "/admin/rapports": "Rapports",
   "/admin/parametres": "Paramètres",

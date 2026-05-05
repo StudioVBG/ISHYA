@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { logAuditEvent } from "@/lib/auth/audit-log";
 
 export interface SettingInput {
   key: string;
@@ -48,6 +49,12 @@ export async function upsertSetting(
   };
 
   if (input.id) {
+    const { data: previous } = await admin
+      .from("settings")
+      .select("value")
+      .eq("id", input.id)
+      .maybeSingle();
+
     const { error } = await admin
       .from("settings")
       .update(payload)
@@ -56,8 +63,20 @@ export async function upsertSetting(
       console.error("[upsertSetting] update:", error);
       return { ok: false, error: "Erreur de mise à jour" };
     }
+    await logAuditEvent({
+      userId: auth.userId,
+      action: "update",
+      tableName: "settings",
+      recordId: input.id,
+      oldData: { value: previous?.value ?? null },
+      newData: { key: payload.key, value: payload.value },
+    });
   } else {
-    const { error } = await admin.from("settings").insert(payload);
+    const { data: created, error } = await admin
+      .from("settings")
+      .insert(payload)
+      .select("id")
+      .single();
     if (error) {
       console.error("[upsertSetting] insert:", error);
       return {
@@ -67,6 +86,13 @@ export async function upsertSetting(
           : "Erreur de création",
       };
     }
+    await logAuditEvent({
+      userId: auth.userId,
+      action: "insert",
+      tableName: "settings",
+      recordId: created?.id ?? null,
+      newData: { key: payload.key, value: payload.value },
+    });
   }
 
   revalidatePath("/admin/parametres");
@@ -80,11 +106,24 @@ export async function deleteSetting(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const { data: previous } = await admin
+    .from("settings")
+    .select("key, value")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await admin.from("settings").delete().eq("id", id);
   if (error) {
     console.error("[deleteSetting]", error);
     return { ok: false, error: "Erreur de suppression" };
   }
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "delete",
+    tableName: "settings",
+    recordId: id,
+    oldData: previous ?? null,
+  });
   revalidatePath("/admin/parametres");
   return { ok: true };
 }
