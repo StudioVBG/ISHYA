@@ -10,10 +10,6 @@
 --   editor      → customer (rétrogradé : aucun staff dédié au contenu)
 --   support     → customer (rétrogradé : aucun staff dédié au support)
 --   customer    → customer
---
--- Si tu avais des comptes editor/support, ils redeviennent simplement
--- des comptes clients ; tu peux toujours les promouvoir en admin
--- depuis /admin/equipe.
 -- ============================================================================
 
 -- 1. NORMALISER LES DONNÉES EXISTANTES
@@ -21,7 +17,17 @@
 UPDATE public.profiles SET role = 'admin'    WHERE role = 'super_admin';
 UPDATE public.profiles SET role = 'customer' WHERE role IN ('editor', 'support');
 
--- 2. RECRÉER L'ENUM AVEC SEULEMENT 2 VALEURS
+-- 2. DROP LES POLICIES QUI RÉFÉRENCENT profiles.role
+-- ----------------------------------------------------------------------------
+-- Postgres refuse de modifier le type d'une colonne tant qu'une policy en
+-- dépend. On supprime ces policies maintenant, on recrée la colonne, puis
+-- on les recrée avec la nouvelle valeur 'admin' à l'étape 4.
+
+DROP POLICY IF EXISTS "Admins can upload products-media" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can delete products-media" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can update products-media" ON storage.objects;
+
+-- 3. RECRÉER L'ENUM AVEC SEULEMENT 2 VALEURS
 -- ----------------------------------------------------------------------------
 -- Postgres ne sait pas DROP VALUE sur un enum ; on en crée un nouveau,
 -- on convertit la colonne, puis on jette l'ancien.
@@ -38,12 +44,8 @@ ALTER TABLE public.profiles
 
 DROP TYPE public.user_role_old;
 
--- 3. RECRÉER LES POLICIES STORAGE QUI RÉFÉRENÇAIENT LES ANCIENS RÔLES
+-- 4. RECRÉER LES POLICIES STORAGE
 -- ----------------------------------------------------------------------------
--- Les policies de la migration 003 utilisaient role IN ('admin','super_admin','editor').
--- On les recrée avec role = 'admin'.
-
-DROP POLICY IF EXISTS "Admins can upload products-media" ON storage.objects;
 CREATE POLICY "Admins can upload products-media"
   ON storage.objects FOR INSERT
   TO authenticated
@@ -56,7 +58,6 @@ CREATE POLICY "Admins can upload products-media"
     )
   );
 
-DROP POLICY IF EXISTS "Admins can delete products-media" ON storage.objects;
 CREATE POLICY "Admins can delete products-media"
   ON storage.objects FOR DELETE
   TO authenticated
@@ -69,7 +70,6 @@ CREATE POLICY "Admins can delete products-media"
     )
   );
 
-DROP POLICY IF EXISTS "Admins can update products-media" ON storage.objects;
 CREATE POLICY "Admins can update products-media"
   ON storage.objects FOR UPDATE
   TO authenticated
@@ -82,7 +82,7 @@ CREATE POLICY "Admins can update products-media"
     )
   );
 
--- 4. SANITY CHECK (commenté — décommente dans le SQL editor pour vérifier)
+-- 5. SANITY CHECK (commenté — décommente dans le SQL editor pour vérifier)
 -- ----------------------------------------------------------------------------
 -- SELECT role, count(*) FROM public.profiles GROUP BY role;
 -- Doit ne contenir que 'customer' et 'admin'.
