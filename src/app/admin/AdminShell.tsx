@@ -33,6 +33,7 @@ import {
   Send,
   Ticket,
   Truck,
+  ShoppingBag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminSignOut } from "./actions";
@@ -71,6 +72,11 @@ const navGroups: NavGroup[] = [
       { label: "Stocks", href: "/admin/stocks", icon: Warehouse },
       { label: "Promotions", href: "/admin/promotions", icon: Percent },
       { label: "Cartes cadeaux", href: "/admin/cartes-cadeaux", icon: Ticket },
+      {
+        label: "Paniers abandonnés",
+        href: "/admin/paniers-abandonnes",
+        icon: ShoppingBag,
+      },
     ],
   },
   {
@@ -122,6 +128,7 @@ const pageTitles: Record<string, string> = {
   "/admin/stocks": "Stocks",
   "/admin/promotions": "Promotions",
   "/admin/cartes-cadeaux": "Cartes cadeaux",
+  "/admin/paniers-abandonnes": "Paniers abandonnés",
   "/admin/retours": "Retours",
   "/admin/tickets": "Tickets",
   "/admin/messages": "Messages",

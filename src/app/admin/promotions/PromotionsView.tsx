@@ -13,7 +13,11 @@ import {
 import { toast } from "sonner";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
-import type { AdminPromotionRow } from "@/lib/queries/admin";
+import type {
+  AdminCategoryOption,
+  AdminProductOption,
+  AdminPromotionRow,
+} from "@/lib/queries/admin";
 import {
   createPromotion,
   deletePromotion,
@@ -34,6 +38,8 @@ interface FormState {
   maximumDiscount: string;
   perUserLimit: string;
   usageLimit: string;
+  applicableProductIds: string[];
+  applicableCategoryIds: string[];
   startsAt: string;
   endsAt: string;
   isActive: boolean;
@@ -48,6 +54,8 @@ const emptyForm: FormState = {
   maximumDiscount: "",
   perUserLimit: "",
   usageLimit: "",
+  applicableProductIds: [],
+  applicableCategoryIds: [],
   startsAt: "",
   endsAt: "",
   isActive: true,
@@ -82,8 +90,12 @@ function formatDiscount(p: AdminPromotionRow): string {
 
 export function PromotionsView({
   promotions,
+  products,
+  categories,
 }: {
   promotions: AdminPromotionRow[];
+  products: AdminProductOption[];
+  categories: AdminCategoryOption[];
 }) {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -110,6 +122,8 @@ export function PromotionsView({
         p.maximumDiscount != null ? String(p.maximumDiscount) : "",
       perUserLimit: p.perUserLimit != null ? String(p.perUserLimit) : "",
       usageLimit: p.usageLimit != null ? String(p.usageLimit) : "",
+      applicableProductIds: p.applicableProductIds,
+      applicableCategoryIds: p.applicableCategoryIds,
       startsAt: toDatetimeLocal(p.startsAt),
       endsAt: toDatetimeLocal(p.endsAt),
       isActive: p.isActive,
@@ -136,6 +150,8 @@ export function PromotionsView({
           : null,
         perUserLimit: form.perUserLimit ? Number(form.perUserLimit) : null,
         usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
+        applicableProductIds: form.applicableProductIds,
+        applicableCategoryIds: form.applicableCategoryIds,
         startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : null,
         endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : null,
         isActive: form.isActive,
@@ -467,6 +483,107 @@ export function PromotionsView({
                     />
                   </div>
                 </div>
+                <div className="border-t border-border pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-3">
+                    Ciblage (laisser vide pour tout le catalogue)
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className={labelClass}>
+                        Catégories applicables
+                      </label>
+                      <div className="border border-border rounded-lg max-h-32 overflow-y-auto p-2 space-y-1">
+                        {categories.length === 0 ? (
+                          <p className="text-xs text-muted px-2 py-1">
+                            Aucune catégorie
+                          </p>
+                        ) : (
+                          categories.map((c) => {
+                            const checked = form.applicableCategoryIds.includes(
+                              c.id,
+                            );
+                            return (
+                              <label
+                                key={c.id}
+                                className="flex items-center gap-2 text-sm text-foreground hover:bg-muted-soft px-2 py-1 rounded cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    setForm({
+                                      ...form,
+                                      applicableCategoryIds: e.target.checked
+                                        ? [...form.applicableCategoryIds, c.id]
+                                        : form.applicableCategoryIds.filter(
+                                            (id) => id !== c.id,
+                                          ),
+                                    });
+                                  }}
+                                  className="rounded accent-terracotta"
+                                />
+                                {c.name}
+                              </label>
+                            );
+                          })
+                        )}
+                      </div>
+                      {form.applicableCategoryIds.length > 0 ? (
+                        <p className="text-xs text-muted mt-1">
+                          {form.applicableCategoryIds.length} sélectionnée(s)
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>
+                        Produits applicables
+                      </label>
+                      <div className="border border-border rounded-lg max-h-32 overflow-y-auto p-2 space-y-1">
+                        {products.length === 0 ? (
+                          <p className="text-xs text-muted px-2 py-1">
+                            Aucun produit
+                          </p>
+                        ) : (
+                          products.map((p) => {
+                            const checked = form.applicableProductIds.includes(
+                              p.id,
+                            );
+                            return (
+                              <label
+                                key={p.id}
+                                className="flex items-center gap-2 text-sm text-foreground hover:bg-muted-soft px-2 py-1 rounded cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    setForm({
+                                      ...form,
+                                      applicableProductIds: e.target.checked
+                                        ? [...form.applicableProductIds, p.id]
+                                        : form.applicableProductIds.filter(
+                                            (id) => id !== p.id,
+                                          ),
+                                    });
+                                  }}
+                                  className="rounded accent-terracotta"
+                                />
+                                {p.name}
+                              </label>
+                            );
+                          })
+                        )}
+                      </div>
+                      {form.applicableProductIds.length > 0 ? (
+                        <p className="text-xs text-muted mt-1">
+                          {form.applicableProductIds.length} sélectionné(s)
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
                 <label className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="checkbox"

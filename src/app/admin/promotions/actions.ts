@@ -14,6 +14,8 @@ export interface PromotionInput {
   maximumDiscount: number | null;
   perUserLimit: number | null;
   usageLimit: number | null;
+  applicableProductIds: string[];
+  applicableCategoryIds: string[];
   startsAt: string | null;
   endsAt: string | null;
   isActive: boolean;
@@ -57,6 +59,14 @@ export async function createPromotion(
       maximum_discount: input.maximumDiscount,
       per_user_limit: input.perUserLimit,
       usage_limit: input.usageLimit,
+      applicable_product_ids:
+        input.applicableProductIds.length > 0
+          ? input.applicableProductIds
+          : null,
+      applicable_category_ids:
+        input.applicableCategoryIds.length > 0
+          ? input.applicableCategoryIds
+          : null,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       is_active: input.isActive,
@@ -106,6 +116,14 @@ export async function updatePromotion(
       maximum_discount: input.maximumDiscount,
       per_user_limit: input.perUserLimit,
       usage_limit: input.usageLimit,
+      applicable_product_ids:
+        input.applicableProductIds.length > 0
+          ? input.applicableProductIds
+          : null,
+      applicable_category_ids:
+        input.applicableCategoryIds.length > 0
+          ? input.applicableCategoryIds
+          : null,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       is_active: input.isActive,

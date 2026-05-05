@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { logAuditEvent } from "@/lib/auth/audit-log";
 
 export async function updateVariantStock(
   variantId: string,
@@ -16,6 +17,12 @@ export async function updateVariantStock(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const { data: previous } = await admin
+    .from("product_variants")
+    .select("stock_quantity")
+    .eq("id", variantId)
+    .maybeSingle();
+
   const { error: variantError } = await admin
     .from("product_variants")
     .update({ stock_quantity: newQuantity })
@@ -26,7 +33,6 @@ export async function updateVariantStock(
     return { ok: false, error: "Erreur de mise à jour" };
   }
 
-  // Synchroniser inventory si présent
   const { data: inv } = await admin
     .from("inventory")
     .select("id")
@@ -39,6 +45,15 @@ export async function updateVariantStock(
       .update({ quantity: newQuantity })
       .eq("id", inv.id);
   }
+
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "product_variants",
+    recordId: variantId,
+    oldData: { stock_quantity: previous?.stock_quantity ?? null },
+    newData: { stock_quantity: newQuantity },
+  });
 
   revalidatePath("/admin/stocks");
   revalidatePath("/admin");

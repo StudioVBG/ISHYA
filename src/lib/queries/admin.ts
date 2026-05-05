@@ -265,6 +265,8 @@ export interface AdminPromotionRow {
   perUserLimit: number | null;
   usageLimit: number | null;
   usageCount: number;
+  applicableProductIds: string[];
+  applicableCategoryIds: string[];
   startsAt: string | null;
   endsAt: string | null;
   isActive: boolean;
@@ -1199,6 +1201,26 @@ export async function getAdminCategoryOptions(): Promise<AdminCategoryOption[]> 
   return data ?? [];
 }
 
+export interface AdminProductOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export async function getAdminProductOptions(): Promise<AdminProductOption[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("products")
+    .select("id, name, slug")
+    .order("name", { ascending: true })
+    .limit(500);
+  if (error) {
+    console.error("[getAdminProductOptions]", error);
+    return [];
+  }
+  return data ?? [];
+}
+
 export async function getAdminCollectionOptions(): Promise<
   AdminCollectionOption[]
 > {
@@ -1384,7 +1406,7 @@ export async function getAdminPromotions(): Promise<AdminPromotionRow[]> {
   const { data, error } = await admin
     .from("discount_codes")
     .select(
-      "id, code, description, discount_type, discount_value, minimum_order_amount, maximum_discount, per_user_limit, usage_limit, usage_count, starts_at, ends_at, is_active",
+      "id, code, description, discount_type, discount_value, minimum_order_amount, maximum_discount, per_user_limit, usage_limit, usage_count, applicable_product_ids, applicable_category_ids, starts_at, ends_at, is_active",
     )
     .order("created_at", { ascending: false });
 
@@ -1408,6 +1430,8 @@ export async function getAdminPromotions(): Promise<AdminPromotionRow[]> {
     perUserLimit: row.per_user_limit ?? null,
     usageLimit: row.usage_limit ?? null,
     usageCount: row.usage_count ?? 0,
+    applicableProductIds: row.applicable_product_ids ?? [],
+    applicableCategoryIds: row.applicable_category_ids ?? [],
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     isActive: row.is_active ?? false,
