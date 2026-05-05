@@ -21,7 +21,7 @@ export default sentryEnabled
       authToken: process.env.SENTRY_AUTH_TOKEN,
       silent: !process.env.CI,
       widenClientFileUpload: true,
-      hideSourceMaps: true,
+      sourcemaps: { disable: false },
       disableLogger: true,
     })
   : nextConfig;

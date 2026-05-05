@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Json } from "@/types/supabase";
 
 // Idempotence des emails transactionnels via la table email_logs (migration 006).
 // La clé de déduplication doit être stable et unique pour la fenêtre voulue
@@ -9,7 +10,7 @@ export interface LogEmailParams {
   emailType: string;
   dedupKey: string;
   userId?: string | null;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, Json>;
 }
 
 export async function hasEmailBeenSent(
@@ -38,7 +39,7 @@ export async function logEmailSent(params: LogEmailParams): Promise<void> {
     email_type: params.emailType,
     dedup_key: params.dedupKey,
     user_id: params.userId ?? null,
-    metadata: params.metadata ?? null,
+    metadata: (params.metadata ?? null) as Json | null,
   });
 
   if (error && error.code !== "23505") {
