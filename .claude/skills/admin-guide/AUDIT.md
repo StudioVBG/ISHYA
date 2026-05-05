@@ -6,16 +6,14 @@
 
 ## 1. Vue d'ensemble
 
-| Indicateur | Valeur |
-|---|---|
-| Tables dans la base | **52** |
-| Tables réellement utilisées par l'admin | **24** |
-| Tables existantes mais sans UI admin | **19** ❌ |
-| Champs SQL non exposés en UI | ~10 |
-| Fonctions RPC en base | 4 |
-| Fonctions RPC utilisées par l'admin | **0** |
-| Pages admin existantes | 21 |
-| Manques fonctionnels critiques | **5** |
+| Indicateur | Avant | Après Sprints 1-5 |
+|---|---|---|
+| Tables dans la base | 52 | **50** (admin_users + admin_roles supprimées) |
+| Tables réellement utilisées par l'admin | 24 | **39** |
+| Tables existantes mais sans UI admin | 19 ❌ | **9** ⚠️ (les restantes sont consultatives/techniques) |
+| Pages admin existantes | 21 | **26** (+ messages, newsletter, cartes-cadeaux, livraison, paniers-abandonnés) |
+| Manques fonctionnels critiques | 5 ❌ | **0** ✅ |
+| Audit logs écrits | 0 fichiers | **10 fichiers** d'actions |
 
 ---
 
@@ -40,7 +38,7 @@
 | SEO | settings | ✅ |
 | Avis | reviews, products, profiles | ✅ partiel |
 | Tickets | tickets, ticket_messages | ✅ |
-| Équipe | profiles | ⚠️ (n'utilise pas `admin_users`) |
+| Équipe | profiles | ✅ (admin_users / admin_roles supprimées — migration 007) |
 | Rapports | orders, order_items, products, categories | ✅ |
 | Audit | audit_logs | ⚠️ (lit mais rien n'écrit) |
 | Paramètres | settings | ✅ |
@@ -106,11 +104,11 @@ Ces tables sont créées en base mais **aucune page admin** ne les gère.
 - Conséquence : la page Audit affiche probablement une table **vide** en production
 - **Fix** : soit ajouter un trigger SQL générique sur les tables sensibles (`AFTER INSERT/UPDATE/DELETE`), soit logger explicitement dans chaque server action via un helper `logAuditEvent()`
 
-### 4.2 `admin_users` / `admin_roles` non utilisés
+### 4.2 ✅ `admin_users` / `admin_roles` supprimées (migration 007)
 - Le contrôle d'accès se fait sur `profiles.role = 'admin'` uniquement
-- Tables `admin_users` (FK role_id) et `admin_roles.permissions` JSONB **jamais lues ni écrites**
-- Conséquence : pas de granularité (un admin peut tout faire), `last_login_at` admin non tracé
-- **Fix** : soit supprimer ces tables (KISS), soit les brancher sur un système de permissions
+- Tables `admin_users` / `admin_roles` étaient **jamais lues ni écrites** par le code
+- **Décision retenue** (Sprint 5, option A) : suppression pour simplifier le schéma
+- Si on a besoin un jour de permissions granulaires (super_admin, support, editor), repartir d'une nouvelle migration
 
 ### 4.3 RPC `decrement_variant_stock` non utilisée
 - Fonction atomique présente en base
@@ -198,9 +196,9 @@ Ces tables sont créées en base mais **aucune page admin** ne les gère.
 12. Détail commande : Promos appliquées, Tracking événements
 13. **Cleanup storage** (supprimer fichier au `deleteMedia`)
 
-### Sprint 5 — Décision admin_users (0.5 j)
-14. Soit on **supprime** `admin_users` / `admin_roles` (simplification)
-15. Soit on **branche** un système de permissions granulaires (super_admin, support, editor)
+### ✅ Sprint 5 — Décision admin_users (terminé)
+14. **Choix retenu** : suppression de `admin_users` / `admin_roles` via la migration `007_drop_admin_users_admin_roles.sql`
+15. `profiles.role` reste l'unique source d'autorisation admin
 
 ---
 
@@ -211,4 +209,4 @@ Ces tables sont créées en base mais **aucune page admin** ne les gère.
 - ⚠️ Aucune écriture d'audit → impossible de tracer "qui a fait quoi"
 - ⚠️ Pas de rate-limiting sur les actions admin
 - ⚠️ Pas de 2FA pour les comptes admin
-- ⚠️ `admin_users.last_login_at` jamais mis à jour
+- ⚠️ Pas de tracking `last_login_at` admin dédié (à brancher sur `profiles.last_login_at` si besoin)

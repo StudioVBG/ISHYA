@@ -18,10 +18,10 @@ Toutes les pages sont en `force-dynamic` (pas de cache statique) et protégées 
 - **`src/lib/auth/require-admin.ts`** : helper `requireAdminRole(allowed = ["admin"])` utilisé en tête de chaque server action et chaque route API admin. Retourne `{ ok, userId, role } | { ok:false, error }`.
 
 ### Tables de rôle
-- `profiles.role` (enum `user_role` : customer / support / editor / admin / super_admin)
-- `admin_users` (FK vers `admin_roles`, métadonnées : last_login_at, is_active)
-- `admin_roles` (permissions JSONB — préparé pour contrôle granulaire futur, non utilisé en UI aujourd'hui)
+- `profiles.role` (enum `user_role` : customer / admin) — **seule source de vérité pour l'autorisation admin**
 - `audit_logs` (user_id, action, table_name, record_id, old_data/new_data JSONB, ip_address)
+
+> Note : les tables `admin_users` / `admin_roles` ont été supprimées (migration 007) car elles n'étaient jamais branchées au code. Si on doit reintroduire un système de permissions granulaires (super_admin, support, editor), partir d'une nouvelle migration.
 
 ### Sidebar (`src/app/admin/AdminShell.tsx`)
 7 groupes — toutes les entrées sont visibles pour tous les admins (pas de filtrage par permission côté UI).
