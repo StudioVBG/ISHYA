@@ -32,6 +32,8 @@ import {
   Mail,
   Send,
   Ticket,
+  Truck,
+  ShoppingBag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminSignOut } from "./actions";
@@ -70,6 +72,11 @@ const navGroups: NavGroup[] = [
       { label: "Stocks", href: "/admin/stocks", icon: Warehouse },
       { label: "Promotions", href: "/admin/promotions", icon: Percent },
       { label: "Cartes cadeaux", href: "/admin/cartes-cadeaux", icon: Ticket },
+      {
+        label: "Paniers abandonnés",
+        href: "/admin/paniers-abandonnes",
+        icon: ShoppingBag,
+      },
     ],
   },
   {
@@ -102,6 +109,7 @@ const navGroups: NavGroup[] = [
     label: "Système",
     items: [
       { label: "Paramètres", href: "/admin/parametres", icon: Settings },
+      { label: "Livraison", href: "/admin/livraison", icon: Truck },
       { label: "Équipe", href: "/admin/equipe", icon: UserCog },
       { label: "Audit", href: "/admin/audit", icon: Shield },
     ],
@@ -120,6 +128,7 @@ const pageTitles: Record<string, string> = {
   "/admin/stocks": "Stocks",
   "/admin/promotions": "Promotions",
   "/admin/cartes-cadeaux": "Cartes cadeaux",
+  "/admin/paniers-abandonnes": "Paniers abandonnés",
   "/admin/retours": "Retours",
   "/admin/tickets": "Tickets",
   "/admin/messages": "Messages",
@@ -132,6 +141,7 @@ const pageTitles: Record<string, string> = {
   "/admin/seo": "SEO",
   "/admin/rapports": "Rapports",
   "/admin/parametres": "Paramètres",
+  "/admin/livraison": "Livraison",
   "/admin/equipe": "Équipe",
   "/admin/audit": "Journal d'audit",
 };
