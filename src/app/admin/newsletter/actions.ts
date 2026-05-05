@@ -5,17 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { logAuditEvent } from "@/lib/auth/audit-log";
 
-type UntypedClient = {
-  from: (t: string) => {
-    update: (p: Record<string, unknown>) => {
-      eq: (k: string, v: string) => Promise<{ error: { message: string } | null }>;
-    };
-    delete: () => {
-      eq: (k: string, v: string) => Promise<{ error: { message: string } | null }>;
-    };
-  };
-};
-
 export async function unsubscribeNewsletter(
   id: string,
   reason: string | null,
@@ -23,7 +12,7 @@ export async function unsubscribeNewsletter(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  const admin = createAdminClient() as unknown as UntypedClient;
+  const admin = createAdminClient();
   const { error } = await admin
     .from("newsletter_subscribers")
     .update({
@@ -55,7 +44,7 @@ export async function resubscribeNewsletter(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  const admin = createAdminClient() as unknown as UntypedClient;
+  const admin = createAdminClient();
   const { error } = await admin
     .from("newsletter_subscribers")
     .update({ unsubscribed_at: null, unsubscribe_reason: null })
@@ -84,7 +73,7 @@ export async function deleteNewsletterSubscriber(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  const admin = createAdminClient() as unknown as UntypedClient;
+  const admin = createAdminClient();
   const { error } = await admin
     .from("newsletter_subscribers")
     .delete()

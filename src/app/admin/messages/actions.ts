@@ -20,18 +20,6 @@ const ALLOWED_STATUSES: ContactMessageStatus[] = [
   "archived",
 ];
 
-// contact_messages n'est pas (encore) dans Database (types/supabase.ts) — cf migration 006_newsletter_giftcards_contact.sql
-type UntypedClient = {
-  from: (t: string) => {
-    update: (p: Record<string, unknown>) => {
-      eq: (k: string, v: string) => Promise<{ error: { message: string } | null }>;
-    };
-    delete: () => {
-      eq: (k: string, v: string) => Promise<{ error: { message: string } | null }>;
-    };
-  };
-};
-
 export async function updateContactMessageStatus(
   id: string,
   status: ContactMessageStatus,
@@ -42,7 +30,7 @@ export async function updateContactMessageStatus(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  const admin = createAdminClient() as unknown as UntypedClient;
+  const admin = createAdminClient();
   const { error } = await admin
     .from("contact_messages")
     .update({ status })
@@ -71,7 +59,7 @@ export async function deleteContactMessage(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  const admin = createAdminClient() as unknown as UntypedClient;
+  const admin = createAdminClient();
   const { error } = await admin
     .from("contact_messages")
     .delete()

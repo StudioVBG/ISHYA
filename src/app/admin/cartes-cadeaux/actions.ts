@@ -22,14 +22,6 @@ const ALLOWED_STATUSES: GiftCardStatus[] = [
   "cancelled",
 ];
 
-type UntypedClient = {
-  from: (t: string) => {
-    update: (p: Record<string, unknown>) => {
-      eq: (k: string, v: string) => Promise<{ error: { message: string } | null }>;
-    };
-  };
-};
-
 export async function updateGiftCardStatus(
   id: string,
   status: GiftCardStatus,
@@ -40,15 +32,14 @@ export async function updateGiftCardStatus(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
-  const admin = createAdminClient() as unknown as UntypedClient;
-  const patch: Record<string, unknown> = { status };
+  const admin = createAdminClient();
+  const patch: { status: GiftCardStatus; sent_at?: string; paid_at?: string } = {
+    status,
+  };
   if (status === "sent") patch.sent_at = new Date().toISOString();
   if (status === "paid") patch.paid_at = new Date().toISOString();
 
-  const { error } = await admin
-    .from("gift_cards")
-    .update(patch)
-    .eq("id", id);
+  const { error } = await admin.from("gift_cards").update(patch).eq("id", id);
 
   if (error) {
     console.error("[updateGiftCardStatus]", error);

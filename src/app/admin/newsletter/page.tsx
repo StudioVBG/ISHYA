@@ -7,29 +7,8 @@ export const metadata = {
   title: "Newsletter — Admin ISHYA",
 };
 
-interface RawNewsletterRow {
-  id: string;
-  email: string;
-  source: string | null;
-  subscribed_at: string | null;
-  unsubscribed_at: string | null;
-  unsubscribe_reason: string | null;
-}
-
 export default async function AdminNewsletterPage() {
-  const admin = createAdminClient() as unknown as {
-    from: (t: string) => {
-      select: (cols: string) => {
-        order: (
-          c: string,
-          o: { ascending: boolean },
-        ) => Promise<{
-          data: RawNewsletterRow[] | null;
-          error: { message: string } | null;
-        }>;
-      };
-    };
-  };
+  const admin = createAdminClient();
 
   const { data, error } = await admin
     .from("newsletter_subscribers")

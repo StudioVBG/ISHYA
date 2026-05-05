@@ -7,33 +7,8 @@ export const metadata = {
   title: "Messages — Admin ISHYA",
 };
 
-interface RawContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  subject: string | null;
-  message: string;
-  status: string;
-  ip_address: string | null;
-  created_at: string | null;
-}
-
 export default async function AdminMessagesPage() {
-  const admin = createAdminClient() as unknown as {
-    from: (t: string) => {
-      select: (cols: string) => {
-        order: (
-          c: string,
-          o: { ascending: boolean },
-        ) => {
-          limit: (n: number) => Promise<{
-            data: RawContactMessage[] | null;
-            error: { message: string } | null;
-          }>;
-        };
-      };
-    };
-  };
+  const admin = createAdminClient();
 
   const { data, error } = await admin
     .from("contact_messages")
@@ -52,7 +27,7 @@ export default async function AdminMessagesPage() {
     subject: m.subject,
     message: m.message,
     status: (m.status ?? "new") as ContactMessageRow["status"],
-    ipAddress: m.ip_address,
+    ipAddress: m.ip_address ? String(m.ip_address) : null,
     createdAt: m.created_at,
   }));
 

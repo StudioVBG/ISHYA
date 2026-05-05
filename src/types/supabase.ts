@@ -617,6 +617,45 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: unknown
+          message: string
+          name: string
+          status: string
+          subject: string | null
+          updated_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: unknown
+          message: string
+          name: string
+          status?: string
+          subject?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: unknown
+          message?: string
+          name?: string
+          status?: string
+          subject?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           applicable_category_ids: string[] | null
@@ -753,7 +792,15 @@ export type Database = {
           sent_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       faq_articles: {
         Row: {
@@ -784,6 +831,72 @@ export type Database = {
           is_active?: boolean | null
           question?: string
           sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gift_cards: {
+        Row: {
+          amount_remaining: number
+          code: string
+          created_at: string | null
+          currency: string
+          delivery_date: string | null
+          expires_at: string | null
+          id: string
+          initial_amount: number
+          message: string | null
+          paid_at: string | null
+          recipient_email: string
+          recipient_name: string | null
+          sender_email: string | null
+          sender_name: string | null
+          sent_at: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount_remaining: number
+          code: string
+          created_at?: string | null
+          currency?: string
+          delivery_date?: string | null
+          expires_at?: string | null
+          id?: string
+          initial_amount: number
+          message?: string | null
+          paid_at?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          sender_email?: string | null
+          sender_name?: string | null
+          sent_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount_remaining?: number
+          code?: string
+          created_at?: string | null
+          currency?: string
+          delivery_date?: string | null
+          expires_at?: string | null
+          id?: string
+          initial_amount?: number
+          message?: string | null
+          paid_at?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          sender_email?: string | null
+          sender_name?: string | null
+          sent_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -949,6 +1062,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          source: string | null
+          subscribed_at: string | null
+          unsubscribe_reason: string | null
+          unsubscribed_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          source?: string | null
+          subscribed_at?: string | null
+          unsubscribe_reason?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          source?: string | null
+          subscribed_at?: string | null
+          unsubscribe_reason?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       notification_preferences: {
         Row: {
@@ -1376,6 +1522,78 @@ export type Database = {
           },
         ]
       }
+      product_categories: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          product_id: string
+          sort_order: number
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          product_id: string
+          sort_order?: number
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          product_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_collections: {
+        Row: {
+          collection_id: string
+          created_at: string | null
+          product_id: string
+          sort_order: number
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string | null
+          product_id: string
+          sort_order?: number
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string | null
+          product_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_collections_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_collections_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_media: {
         Row: {
           alt_text: string | null
@@ -1426,78 +1644,6 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_collections: {
-        Row: {
-          collection_id: string
-          created_at: string | null
-          product_id: string
-          sort_order: number
-        }
-        Insert: {
-          collection_id: string
-          created_at?: string | null
-          product_id: string
-          sort_order?: number
-        }
-        Update: {
-          collection_id?: string
-          created_at?: string | null
-          product_id?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_collections_collection_id_fkey"
-            columns: ["collection_id"]
-            isOneToOne: false
-            referencedRelation: "collections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_collections_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_categories: {
-        Row: {
-          category_id: string
-          created_at: string | null
-          product_id: string
-          sort_order: number
-        }
-        Insert: {
-          category_id: string
-          created_at?: string | null
-          product_id: string
-          sort_order?: number
-        }
-        Update: {
-          category_id?: string
-          created_at?: string | null
-          product_id?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_categories_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_categories_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -2414,13 +2560,10 @@ export type Database = {
     }
     Functions: {
       decrement_variant_stock: {
-        Args: {
-          p_variant_id: string
-          p_quantity: number
-        }
+        Args: { p_quantity: number; p_variant_id: string }
         Returns: {
-          variant_id: string
           new_quantity: number
+          variant_id: string
         }[]
       }
     }
@@ -2739,4 +2882,3 @@ export const Constants = {
     },
   },
 } as const
-

@@ -7,39 +7,8 @@ export const metadata = {
   title: "Cartes cadeaux — Admin ISHYA",
 };
 
-interface RawGiftCard {
-  id: string;
-  code: string;
-  initial_amount: number | string;
-  amount_remaining: number | string;
-  currency: string | null;
-  recipient_email: string;
-  recipient_name: string | null;
-  sender_name: string | null;
-  sender_email: string | null;
-  message: string | null;
-  delivery_date: string | null;
-  status: string;
-  paid_at: string | null;
-  sent_at: string | null;
-  expires_at: string | null;
-  created_at: string | null;
-}
-
 export default async function AdminGiftCardsPage() {
-  const admin = createAdminClient() as unknown as {
-    from: (t: string) => {
-      select: (cols: string) => {
-        order: (
-          c: string,
-          o: { ascending: boolean },
-        ) => Promise<{
-          data: RawGiftCard[] | null;
-          error: { message: string } | null;
-        }>;
-      };
-    };
-  };
+  const admin = createAdminClient();
 
   const { data, error } = await admin
     .from("gift_cards")
