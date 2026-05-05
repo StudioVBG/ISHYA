@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +19,8 @@ import {
 import { useCartStore } from "@/stores/cart-store";
 import { cn, formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { ProductCard, type ProductCardProduct } from "@/components/product/ProductCard";
+import { fetchCartCrossSell } from "@/lib/actions/cart";
 
 const DISCOUNT_CODES: Record<
   string,
@@ -28,37 +30,6 @@ const DISCOUNT_CODES: Record<
   ISHYA20: { type: "fixed", value: 20, label: "-20,00 €" },
   LIVGRATUITE: { type: "free_shipping", value: 0, label: "Livraison offerte" },
 };
-
-const CROSS_SELL = [
-  {
-    id: "cs-1",
-    name: "Collier Pétale de Rose",
-    price: 56,
-    image: "/images/products/collier-petale-rose-1.jpg",
-    slug: "/produit/collier-petale-rose",
-  },
-  {
-    id: "cs-2",
-    name: "Jonc Lavande",
-    price: 38,
-    image: "/images/products/jonc-lavande-1.jpg",
-    slug: "/produit/jonc-lavande",
-  },
-  {
-    id: "cs-3",
-    name: "Sautoir Hortensia",
-    price: 64,
-    image: "/images/products/sautoir-hortensia-1.jpg",
-    slug: "/produit/sautoir-hortensia",
-  },
-  {
-    id: "cs-4",
-    name: "Bracelet Marguerite",
-    price: 42,
-    image: "/images/products/bracelet-marguerite-1.jpg",
-    slug: "/produit/bracelet-marguerite",
-  },
-];
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
@@ -77,6 +48,26 @@ export default function CartPage() {
   const [codeInput, setCodeInput] = useState("");
   const [codeError, setCodeError] = useState("");
   const [codeSuccess, setCodeSuccess] = useState("");
+  const [crossSell, setCrossSell] = useState<ProductCardProduct[]>([]);
+
+  // Charge les produits cross-sell en fonction du contenu du panier.
+  // useEffect debouncé via JSON.stringify : se relance seulement si les ids
+  // distincts changent (pas à chaque ajustement de quantité).
+  const productIdsKey = items.map((i) => i.productId).sort().join(",");
+  useEffect(() => {
+    let cancelled = false;
+    const ids = productIdsKey ? productIdsKey.split(",") : [];
+    fetchCartCrossSell({ productIds: ids, limit: 4 })
+      .then((res) => {
+        if (!cancelled) setCrossSell(res);
+      })
+      .catch(() => {
+        if (!cancelled) setCrossSell([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [productIdsKey]);
 
   const giftWrapCost = giftWrap ? 3 : 0;
   const isFreeShippingCode =
@@ -552,40 +543,22 @@ export default function CartPage() {
       </div>
 
       {/* Cross-sell */}
-      <motion.section
-        variants={fadeInUp}
-        initial="hidden"
-        animate="visible"
-        transition={{ delay: 0.3 }}
-        className="mt-16 mb-8"
-      >
-        <h2 className="font-display text-xl mb-6">Vous aimerez aussi</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-          {CROSS_SELL.map((product) => (
-            <Link
-              key={product.id}
-              href={product.slug}
-              className="group"
-            >
-              <div className="relative aspect-square rounded-xl overflow-hidden bg-beige-nude-light mb-3">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
-              </div>
-              <h3 className="font-display text-sm group-hover:text-terracotta transition-colors">
-                {product.name}
-              </h3>
-              <p className="text-sm text-muted mt-0.5">
-                {formatPrice(product.price)}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </motion.section>
+      {crossSell.length > 0 && (
+        <motion.section
+          variants={fadeInUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.3 }}
+          className="mt-16 mb-8"
+        >
+          <h2 className="font-display text-xl mb-6">Vous aimerez aussi</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            {crossSell.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+        </motion.section>
+      )}
     </div>
   );
 }

@@ -172,10 +172,7 @@ export default function SurMesurePage() {
             Le premier échange est gratuit et sans engagement. Racontez-nous
             votre projet, nous vous répondons sous 48 h.
           </p>
-          <Link
-            href="/contact?sujet=sur-mesure"
-            className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
+          <Link href="/contact?sujet=sur-mesure" className="btn-primary gap-2">
             Demander un devis
             <ArrowRight className="w-4 h-4" />
           </Link>

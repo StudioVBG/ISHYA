@@ -153,10 +153,7 @@ export default function AtelierPage() {
           <p className="text-white/70 mb-8">
             Chaque bijou ISHYA est unique. Trouvez celui qui vous ressemble.
           </p>
-          <Link
-            href="/boutique"
-            className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors"
-          >
+          <Link href="/boutique" className="btn-primary gap-2">
             <Flower2 className="w-4 h-4" />
             Explorer la boutique
           </Link>

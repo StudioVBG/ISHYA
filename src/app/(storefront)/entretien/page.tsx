@@ -164,7 +164,7 @@ export default function EntretienPage() {
           </p>
           <Link
             href="/garantie"
-            className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-8 py-3 rounded-lg text-sm font-medium transition-colors"
+            className="btn-primary gap-2"
           >
             Voir la garantie
           </Link>
