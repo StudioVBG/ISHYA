@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -11,7 +11,9 @@ import {
   Instagram,
   Facebook,
   MessageCircle,
+  Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 
 const subjects = [
@@ -63,10 +65,16 @@ export default function ContactPage() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    startTransition(async () => {
+      // TODO: brancher l'envoi via Resend (action serveur)
+      await new Promise((r) => setTimeout(r, 600));
+      toast.success("Message envoyé ! Nous vous répondrons sous 24-48h.");
+      setSubmitted(true);
+    });
   }
 
   return (
@@ -217,9 +225,22 @@ export default function ContactPage() {
                   </motion.div>
 
                   <motion.div variants={fadeInUp}>
-                    <button type="submit" className="btn-primary w-full gap-2">
-                      <Send className="w-4 h-4" />
-                      Envoyer le message
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="btn-primary w-full gap-2"
+                    >
+                      {isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Envoi en cours…
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Envoyer le message
+                        </>
+                      )}
                     </button>
                   </motion.div>
                 </form>
