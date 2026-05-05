@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { logAuditEvent } from "@/lib/auth/audit-log";
 
 export interface PromotionInput {
   code: string;
@@ -44,19 +45,24 @@ export async function createPromotion(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
-  const { error } = await admin.from("discount_codes").insert({
-    code: input.code.trim().toUpperCase(),
-    description: input.description,
-    discount_type: input.discountType,
-    discount_value: input.discountValue,
-    minimum_order_amount: input.minimumOrderAmount,
-    maximum_discount: input.maximumDiscount,
-    per_user_limit: input.perUserLimit,
-    usage_limit: input.usageLimit,
-    starts_at: input.startsAt,
-    ends_at: input.endsAt,
-    is_active: input.isActive,
-  });
+  const code = input.code.trim().toUpperCase();
+  const { data: created, error } = await admin
+    .from("discount_codes")
+    .insert({
+      code,
+      description: input.description,
+      discount_type: input.discountType,
+      discount_value: input.discountValue,
+      minimum_order_amount: input.minimumOrderAmount,
+      maximum_discount: input.maximumDiscount,
+      per_user_limit: input.perUserLimit,
+      usage_limit: input.usageLimit,
+      starts_at: input.startsAt,
+      ends_at: input.endsAt,
+      is_active: input.isActive,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     console.error("[createPromotion]", error);
@@ -67,6 +73,13 @@ export async function createPromotion(
         : "Erreur de création",
     };
   }
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "insert",
+    tableName: "discount_codes",
+    recordId: created?.id ?? null,
+    newData: { code, discount_type: input.discountType, discount_value: input.discountValue },
+  });
   revalidateAll();
   return { ok: true };
 }
@@ -108,6 +121,18 @@ export async function updatePromotion(
         : "Erreur de mise à jour",
     };
   }
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "discount_codes",
+    recordId: id,
+    newData: {
+      code: input.code.trim().toUpperCase(),
+      discount_type: input.discountType,
+      discount_value: input.discountValue,
+      is_active: input.isActive,
+    },
+  });
   revalidateAll();
   return { ok: true };
 }
@@ -119,11 +144,24 @@ export async function deletePromotion(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const { data: previous } = await admin
+    .from("discount_codes")
+    .select("code")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await admin.from("discount_codes").delete().eq("id", id);
   if (error) {
     console.error("[deletePromotion]", error);
     return { ok: false, error: "Erreur de suppression" };
   }
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "delete",
+    tableName: "discount_codes",
+    recordId: id,
+    oldData: previous ?? null,
+  });
   revalidateAll();
   return { ok: true };
 }
