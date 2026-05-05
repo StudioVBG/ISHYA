@@ -16,6 +16,12 @@ import {
   Package,
   Cake,
   ShieldOff,
+  Heart,
+  Ruler,
+  Bell,
+  Coins,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
@@ -364,6 +370,197 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                   </div>
                 ))}
               </div>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            className="bg-white rounded-xl border border-border p-5"
+          >
+            <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
+              <Heart className="w-4 h-4 text-terracotta" />
+              Wishlist ({client.wishlist.length})
+            </h3>
+            {client.wishlist.length === 0 ? (
+              <p className="text-sm text-muted-light">
+                Aucun produit en favoris.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {client.wishlist.slice(0, 10).map((w) => (
+                  <li
+                    key={w.id}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <Link
+                      href={`/produit/${w.productSlug}`}
+                      target="_blank"
+                      className="text-foreground hover:text-terracotta truncate"
+                    >
+                      {w.productName}
+                    </Link>
+                    <span className="text-xs text-muted-light shrink-0">
+                      {w.createdAt ? formatDate(w.createdAt) : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            className="bg-white rounded-xl border border-border p-5"
+          >
+            <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
+              <Ruler className="w-4 h-4 text-muted" />
+              Tailles enregistrées ({client.savedSizes.length})
+            </h3>
+            {client.savedSizes.length === 0 ? (
+              <p className="text-sm text-muted-light">
+                Aucune taille enregistrée.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {client.savedSizes.map((s) => (
+                  <div
+                    key={s.id}
+                    className="border border-border rounded-lg p-3"
+                  >
+                    <p className="text-xs uppercase tracking-wide text-muted font-semibold mb-2">
+                      {s.label}
+                    </p>
+                    <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                      {s.ringSize && (
+                        <>
+                          <dt className="text-muted">Bague</dt>
+                          <dd className="text-foreground font-medium">
+                            {s.ringSize}
+                          </dd>
+                        </>
+                      )}
+                      {s.braceletSize && (
+                        <>
+                          <dt className="text-muted">Bracelet</dt>
+                          <dd className="text-foreground font-medium">
+                            {s.braceletSize}
+                          </dd>
+                        </>
+                      )}
+                      {s.necklaceLength && (
+                        <>
+                          <dt className="text-muted">Collier</dt>
+                          <dd className="text-foreground font-medium">
+                            {s.necklaceLength}
+                          </dd>
+                        </>
+                      )}
+                      {s.ankletLength && (
+                        <>
+                          <dt className="text-muted">Cheville</dt>
+                          <dd className="text-foreground font-medium">
+                            {s.ankletLength}
+                          </dd>
+                        </>
+                      )}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            className="bg-white rounded-xl border border-border p-5"
+          >
+            <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
+              <Bell className="w-4 h-4 text-muted" />
+              Préférences de notification
+            </h3>
+            {client.notificationPreferences ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                {(
+                  [
+                    ["emailMarketing", "Email · Marketing"],
+                    ["emailOrderUpdates", "Email · Suivi commandes"],
+                    ["emailReviewReplies", "Email · Réponses aux avis"],
+                    ["smsMarketing", "SMS · Marketing"],
+                    ["smsOrderUpdates", "SMS · Suivi commandes"],
+                    ["pushEnabled", "Notifications push"],
+                  ] as const
+                ).map(([key, label]) => {
+                  const enabled =
+                    client.notificationPreferences?.[key] ?? false;
+                  return (
+                    <div
+                      key={key}
+                      className="flex items-center gap-2"
+                    >
+                      {enabled ? (
+                        <CheckCircle2 className="w-4 h-4 text-success" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-muted-light" />
+                      )}
+                      <span
+                        className={cn(
+                          "text-sm",
+                          enabled ? "text-foreground" : "text-muted-light",
+                        )}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-light">
+                Préférences par défaut (le client n&apos;a rien personnalisé).
+              </p>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            className="bg-white rounded-xl border border-border p-5"
+          >
+            <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
+              <Coins className="w-4 h-4 text-gold" />
+              Points de fidélité — historique
+            </h3>
+            {client.loyaltyTransactions.length === 0 ? (
+              <p className="text-sm text-muted-light">
+                Aucune transaction enregistrée.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {client.loyaltyTransactions.slice(0, 12).map((t) => (
+                  <li
+                    key={t.id}
+                    className="flex items-center justify-between gap-3 text-sm border-b border-border/40 last:border-0 pb-2 last:pb-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-foreground">
+                        {t.description ?? t.type}
+                      </p>
+                      <p className="text-xs text-muted-light">
+                        {t.orderNumber ? `Commande ${t.orderNumber} · ` : ""}
+                        {t.createdAt ? formatDate(t.createdAt) : ""}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "shrink-0 font-mono font-semibold",
+                        t.points >= 0 ? "text-success" : "text-destructive",
+                      )}
+                    >
+                      {t.points >= 0 ? "+" : ""}
+                      {t.points}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
           </motion.div>
         </div>

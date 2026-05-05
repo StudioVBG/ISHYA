@@ -16,7 +16,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -192,6 +192,16 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                 <div className="flex justify-between text-success">
                   <span>Remise</span>
                   <span>-{formatPrice(order.discountTotal)}</span>
+                </div>
+              )}
+              {order.appliedDiscounts.length > 0 && (
+                <div className="pl-4 -mt-1 space-y-0.5 text-xs text-muted">
+                  {order.appliedDiscounts.map((d) => (
+                    <div key={d.id} className="flex justify-between">
+                      <span className="font-mono">{d.code}</span>
+                      <span>-{formatPrice(d.amountSaved)}</span>
+                    </div>
+                  ))}
                 </div>
               )}
               {order.taxTotal > 0 && (
@@ -510,6 +520,47 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                   </p>
                 )}
               </div>
+
+              {order.trackingEvents.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-3">
+                    Historique de suivi
+                  </p>
+                  <ol className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    {order.trackingEvents.map((e, idx) => (
+                      <li key={e.id} className="flex gap-3 text-sm">
+                        <div className="relative shrink-0">
+                          <span
+                            className={cn(
+                              "block w-2 h-2 rounded-full mt-1.5",
+                              idx === 0
+                                ? "bg-terracotta"
+                                : "bg-muted-light",
+                            )}
+                          />
+                          {idx < order.trackingEvents.length - 1 ? (
+                            <span className="absolute left-1/2 top-3 -translate-x-1/2 w-px h-full bg-border" />
+                          ) : null}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground">
+                            {e.status}
+                          </p>
+                          {e.description ? (
+                            <p className="text-xs text-muted">
+                              {e.description}
+                            </p>
+                          ) : null}
+                          <p className="text-[10px] text-muted-light">
+                            {formatDate(e.occurredAt)}
+                            {e.location ? ` · ${e.location}` : ""}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
             </motion.div>
           )}
         </div>

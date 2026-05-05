@@ -65,6 +65,20 @@ export interface AdminOrderDetail {
     estimatedDelivery: string | null;
     deliveredAt: string | null;
   } | null;
+  appliedDiscounts: Array<{
+    id: string;
+    code: string;
+    discountType: string;
+    discountValue: number;
+    amountSaved: number;
+  }>;
+  trackingEvents: Array<{
+    id: string;
+    status: string;
+    description: string | null;
+    location: string | null;
+    occurredAt: string;
+  }>;
 }
 
 export interface AdminCategoryOption {
@@ -232,6 +246,42 @@ export interface AdminClientActivityItem {
   event: string;
 }
 
+export interface AdminClientWishlistItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  variantId: string | null;
+  createdAt: string | null;
+}
+
+export interface AdminClientSavedSize {
+  id: string;
+  label: string;
+  ringSize: string | null;
+  braceletSize: string | null;
+  necklaceLength: string | null;
+  ankletLength: string | null;
+}
+
+export interface AdminClientNotificationPrefs {
+  emailMarketing: boolean;
+  emailOrderUpdates: boolean;
+  emailReviewReplies: boolean;
+  smsMarketing: boolean;
+  smsOrderUpdates: boolean;
+  pushEnabled: boolean;
+}
+
+export interface AdminClientLoyaltyTransaction {
+  id: string;
+  points: number;
+  type: string;
+  description: string | null;
+  orderNumber: string | null;
+  createdAt: string | null;
+}
+
 export interface AdminClientDetail {
   id: string;
   email: string | null;
@@ -252,6 +302,10 @@ export interface AdminClientDetail {
   orders: AdminClientOrderSummary[];
   reviews: AdminClientReviewSummary[];
   activity: AdminClientActivityItem[];
+  wishlist: AdminClientWishlistItem[];
+  savedSizes: AdminClientSavedSize[];
+  notificationPreferences: AdminClientNotificationPrefs | null;
+  loyaltyTransactions: AdminClientLoyaltyTransaction[];
 }
 
 export interface AdminPromotionRow {
@@ -609,6 +663,45 @@ export async function getAdminOrderById(
     delivered_at: string | null;
   }>;
 
+  const shipmentIds = shipments.map((s) => s.id);
+
+  const [discountsResult, trackingResult] = await Promise.all([
+    admin
+      .from("applied_discounts")
+      .select("id, code, discount_type, discount_value, amount_saved")
+      .eq("order_id", id),
+    shipmentIds.length > 0
+      ? admin
+          .from("tracking_events")
+          .select("id, status, description, location, occurred_at")
+          .in("shipment_id", shipmentIds)
+          .order("occurred_at", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  if (discountsResult.error) {
+    console.error("[getAdminOrderById] discounts:", discountsResult.error);
+  }
+  if (trackingResult.error) {
+    console.error("[getAdminOrderById] tracking:", trackingResult.error);
+  }
+
+  const appliedDiscounts = (discountsResult.data ?? []).map((d) => ({
+    id: d.id,
+    code: d.code,
+    discountType: d.discount_type,
+    discountValue: Number(d.discount_value ?? 0),
+    amountSaved: Number(d.amount_saved ?? 0),
+  }));
+
+  const trackingEvents = (trackingResult.data ?? []).map((e) => ({
+    id: e.id,
+    status: e.status,
+    description: e.description,
+    location: e.location,
+    occurredAt: e.occurred_at ?? new Date().toISOString(),
+  }));
+
   return {
     id: data.id,
     orderNumber: data.order_number,
@@ -672,6 +765,8 @@ export async function getAdminOrderById(
           deliveredAt: shipments[0].delivered_at,
         }
       : null,
+    appliedDiscounts,
+    trackingEvents,
   };
 }
 
@@ -832,7 +927,15 @@ export async function getAdminClientById(
     return null;
   }
 
-  const [addressesResult, ordersResult, reviewsResult] = await Promise.all([
+  const [
+    addressesResult,
+    ordersResult,
+    reviewsResult,
+    wishlistResult,
+    savedSizesResult,
+    notifPrefsResult,
+    loyaltyResult,
+  ] = await Promise.all([
     admin
       .from("addresses")
       .select(
@@ -859,6 +962,38 @@ export async function getAdminClientById(
       .eq("user_id", id)
       .order("created_at", { ascending: false })
       .limit(20),
+    admin
+      .from("wishlists")
+      .select(
+        `id, variant_id, created_at,
+         product:products ( id, name, slug )`,
+      )
+      .eq("user_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    admin
+      .from("saved_sizes")
+      .select(
+        "id, label, ring_size, bracelet_size, necklace_length, anklet_length",
+      )
+      .eq("user_id", id)
+      .order("created_at", { ascending: true }),
+    admin
+      .from("notification_preferences")
+      .select(
+        "email_marketing, email_order_updates, email_review_replies, sms_marketing, sms_order_updates, push_enabled",
+      )
+      .eq("user_id", id)
+      .maybeSingle(),
+    admin
+      .from("loyalty_transactions")
+      .select(
+        `id, points, type, description, created_at,
+         order:orders ( order_number )`,
+      )
+      .eq("user_id", id)
+      .order("created_at", { ascending: false })
+      .limit(30),
   ]);
 
   if (addressesResult.error) {
@@ -869,6 +1004,18 @@ export async function getAdminClientById(
   }
   if (reviewsResult.error) {
     console.error("[getAdminClientById] reviews:", reviewsResult.error);
+  }
+  if (wishlistResult.error) {
+    console.error("[getAdminClientById] wishlist:", wishlistResult.error);
+  }
+  if (savedSizesResult.error) {
+    console.error("[getAdminClientById] sizes:", savedSizesResult.error);
+  }
+  if (notifPrefsResult.error) {
+    console.error("[getAdminClientById] notif:", notifPrefsResult.error);
+  }
+  if (loyaltyResult.error) {
+    console.error("[getAdminClientById] loyalty:", loyaltyResult.error);
   }
 
   const orderRows = (ordersResult.data ?? []) as Array<{
@@ -949,6 +1096,77 @@ export async function getAdminClientById(
     };
   });
 
+  type WishlistRow = {
+    id: string;
+    variant_id: string | null;
+    created_at: string | null;
+    product?:
+      | { id: string; name: string; slug: string }
+      | Array<{ id: string; name: string; slug: string }>
+      | null;
+  };
+  const wishlist: AdminClientWishlistItem[] = (
+    (wishlistResult.data ?? []) as WishlistRow[]
+  ).map((w) => {
+    const product = Array.isArray(w.product) ? w.product[0] : w.product;
+    return {
+      id: w.id,
+      productId: product?.id ?? "",
+      productName: product?.name ?? "Produit inconnu",
+      productSlug: product?.slug ?? "",
+      variantId: w.variant_id,
+      createdAt: w.created_at,
+    };
+  });
+
+  const savedSizes: AdminClientSavedSize[] = (savedSizesResult.data ?? []).map(
+    (s) => ({
+      id: s.id,
+      label: s.label ?? "default",
+      ringSize: s.ring_size,
+      braceletSize: s.bracelet_size,
+      necklaceLength: s.necklace_length,
+      ankletLength: s.anklet_length,
+    }),
+  );
+
+  const np = notifPrefsResult.data;
+  const notificationPreferences: AdminClientNotificationPrefs | null = np
+    ? {
+        emailMarketing: np.email_marketing ?? true,
+        emailOrderUpdates: np.email_order_updates ?? true,
+        emailReviewReplies: np.email_review_replies ?? true,
+        smsMarketing: np.sms_marketing ?? false,
+        smsOrderUpdates: np.sms_order_updates ?? true,
+        pushEnabled: np.push_enabled ?? false,
+      }
+    : null;
+
+  type LoyaltyRow = {
+    id: string;
+    points: number;
+    type: string;
+    description: string | null;
+    created_at: string | null;
+    order?:
+      | { order_number: string }
+      | Array<{ order_number: string }>
+      | null;
+  };
+  const loyaltyTransactions: AdminClientLoyaltyTransaction[] = (
+    (loyaltyResult.data ?? []) as LoyaltyRow[]
+  ).map((t) => {
+    const order = Array.isArray(t.order) ? t.order[0] : t.order;
+    return {
+      id: t.id,
+      points: t.points,
+      type: t.type,
+      description: t.description,
+      orderNumber: order?.order_number ?? null,
+      createdAt: t.created_at,
+    };
+  });
+
   // Build activity timeline: orders + reviews + last login
   const activity: AdminClientActivityItem[] = [];
   for (const o of orders.slice(0, 10)) {
@@ -993,6 +1211,10 @@ export async function getAdminClientById(
     orders,
     reviews,
     activity: activity.slice(0, 15),
+    wishlist,
+    savedSizes,
+    notificationPreferences,
+    loyaltyTransactions,
   };
 }
 
