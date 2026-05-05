@@ -2182,3 +2182,180 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     topProducts,
   };
 }
+
+// ============================================================================
+// FAQ
+// ============================================================================
+
+export interface AdminFaqArticle {
+  id: string;
+  question: string;
+  answer: string;
+  category: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export async function getAdminFaqArticles(): Promise<AdminFaqArticle[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("faq_articles")
+    .select("id, question, answer, category, sort_order, is_active, created_at, updated_at")
+    .order("category", { ascending: true })
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    console.error("[getAdminFaqArticles]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    question: row.question,
+    answer: row.answer,
+    category: row.category,
+    sortOrder: row.sort_order ?? 0,
+    isActive: row.is_active ?? true,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+}
+
+// ============================================================================
+// Détail d'un ticket admin (avec messages)
+// ============================================================================
+
+export interface TicketMessage {
+  id: string;
+  body: string;
+  attachments: string[];
+  isInternal: boolean;
+  authorId: string;
+  authorName: string | null;
+  authorIsAdmin: boolean;
+  createdAt: string;
+}
+
+export interface AdminTicketDetail extends AdminTicketRow {
+  messages: TicketMessage[];
+  customerEmail: string | null;
+  customerName: string | null;
+}
+
+export async function getAdminTicketById(
+  id: string,
+): Promise<AdminTicketDetail | null> {
+  const admin = createAdminClient();
+  const { data: ticket, error } = await admin
+    .from("tickets")
+    .select(
+      `id, subject, status, priority, channel, category, user_id, order_id,
+       assigned_to, created_at, updated_at,
+       order:orders ( order_number )`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !ticket) {
+    if (error) console.error("[getAdminTicketById]", error);
+    return null;
+  }
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("first_name, last_name, email")
+    .eq("id", ticket.user_id)
+    .maybeSingle();
+
+  const customerName =
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || null;
+
+  const { data: messages } = await admin
+    .from("ticket_messages")
+    .select("id, body, attachments, is_internal, user_id, created_at")
+    .eq("ticket_id", id)
+    .order("created_at", { ascending: true });
+
+  const authorIds = Array.from(
+    new Set((messages ?? []).map((m) => m.user_id).filter(Boolean) as string[]),
+  );
+  const authorMap = new Map<
+    string,
+    { first_name: string | null; last_name: string | null; role: string | null }
+  >();
+  if (authorIds.length > 0) {
+    const { data: authors } = await admin
+      .from("profiles")
+      .select("id, first_name, last_name, role")
+      .in("id", authorIds);
+    for (const a of authors ?? []) {
+      authorMap.set(a.id, {
+        first_name: a.first_name,
+        last_name: a.last_name,
+        role: a.role,
+      });
+    }
+  }
+
+  const order = Array.isArray(ticket.order) ? ticket.order[0] : ticket.order;
+
+  return {
+    id: ticket.id,
+    subject: ticket.subject,
+    status: ticket.status ?? "open",
+    priority: ticket.priority ?? "medium",
+    channel: ticket.channel,
+    category: ticket.category,
+    orderId: ticket.order_id,
+    orderNumber: order?.order_number ?? null,
+    assignedTo: ticket.assigned_to,
+    customerEmail: profile?.email ?? null,
+    customerName,
+    createdAt: ticket.created_at,
+    updatedAt: ticket.updated_at,
+    messages: (messages ?? []).map((m) => {
+      const author = authorMap.get(m.user_id);
+      return {
+        id: m.id,
+        body: m.body,
+        attachments: m.attachments ?? [],
+        isInternal: m.is_internal ?? false,
+        authorId: m.user_id,
+        authorName:
+          [author?.first_name, author?.last_name].filter(Boolean).join(" ") ||
+          null,
+        authorIsAdmin: author?.role === "admin",
+        createdAt: m.created_at ?? "",
+      };
+    }),
+  };
+}
+
+export async function getAdminFaqArticleById(
+  id: string,
+): Promise<AdminFaqArticle | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("faq_articles")
+    .select("id, question, answer, category, sort_order, is_active, created_at, updated_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("[getAdminFaqArticleById]", error);
+    return null;
+  }
+
+  return {
+    id: data.id,
+    question: data.question,
+    answer: data.answer,
+    category: data.category,
+    sortOrder: data.sort_order ?? 0,
+    isActive: data.is_active ?? true,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}

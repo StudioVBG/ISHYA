@@ -95,5 +95,60 @@ export async function assignTicketToMe(
   }
 
   revalidatePath("/admin/tickets");
+  revalidatePath(`/admin/tickets/${id}`);
+  return { ok: true };
+}
+
+export async function replyToTicketAsAdmin(
+  ticketId: string,
+  body: string,
+  options: { isInternal?: boolean; nextStatus?: string } = {},
+): Promise<{ ok: boolean; error?: string }> {
+  const trimmed = body.trim();
+  if (!trimmed) return { ok: false, error: "Le message ne peut pas être vide." };
+  if (trimmed.length > 5000)
+    return { ok: false, error: "Message trop long (5000 caractères max)." };
+
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  const { error: msgError } = await admin.from("ticket_messages").insert({
+    ticket_id: ticketId,
+    user_id: auth.userId!,
+    body: trimmed,
+    is_internal: options.isInternal ?? false,
+  });
+
+  if (msgError) {
+    console.error("[replyToTicketAsAdmin] message:", msgError);
+    return { ok: false, error: "Impossible d'envoyer la réponse." };
+  }
+
+  // Touche updated_at + statut éventuel
+  const patch: Record<string, string> = {
+    updated_at: new Date().toISOString(),
+  };
+  if (
+    options.nextStatus &&
+    ALLOWED_STATUSES.includes(options.nextStatus as TicketStatus)
+  ) {
+    patch.status = options.nextStatus;
+    if (options.nextStatus === "resolved") patch.resolved_at = patch.updated_at;
+    if (options.nextStatus === "closed") patch.closed_at = patch.updated_at;
+  } else if (!options.isInternal) {
+    // Réponse publique → on bascule en "attente client" si on était sur "open"
+    patch.status = "waiting_customer";
+  }
+
+  const { error: tErr } = await admin
+    .from("tickets")
+    .update(patch)
+    .eq("id", ticketId);
+  if (tErr) console.error("[replyToTicketAsAdmin] ticket update:", tErr);
+
+  revalidatePath("/admin/tickets");
+  revalidatePath(`/admin/tickets/${ticketId}`);
   return { ok: true };
 }

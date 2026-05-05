@@ -16,6 +16,7 @@ import {
   Percent,
   RotateCcw,
   Headphones,
+  HelpCircle,
   Star,
   FileText,
   LayoutTemplate,
@@ -72,6 +73,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Retours", href: "/admin/retours", icon: RotateCcw },
       { label: "Tickets", href: "/admin/tickets", icon: Headphones },
+      { label: "FAQ", href: "/admin/faq", icon: HelpCircle },
       { label: "Avis", href: "/admin/avis", icon: Star },
     ],
   },
@@ -113,6 +115,7 @@ const pageTitles: Record<string, string> = {
   "/admin/promotions": "Promotions",
   "/admin/retours": "Retours",
   "/admin/tickets": "Tickets",
+  "/admin/faq": "FAQ",
   "/admin/avis": "Avis clients",
   "/admin/blog": "Blog",
   "/admin/pages": "Pages",
