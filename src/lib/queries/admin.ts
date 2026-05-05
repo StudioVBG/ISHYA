@@ -673,7 +673,7 @@ export async function getAdminProducts(): Promise<AdminProductRow[]> {
     .from("products")
     .select(
       `id, name, slug, sku, base_price, is_active, is_featured,
-       category:categories ( name ),
+       category:categories!products_category_id_fkey ( name ),
        product_variants ( stock_quantity ),
        product_media ( url, is_primary, sort_order )`,
     )
@@ -1904,7 +1904,7 @@ export async function getAdminAnalytics(): Promise<AdminAnalyticsSummary> {
         `product_id, product_name_snapshot, quantity, total,
          product:products (
            id, name,
-           category:categories ( name )
+           category:categories!products_category_id_fkey ( name )
          )`,
       )
       .gte("created_at", start30.toISOString())
