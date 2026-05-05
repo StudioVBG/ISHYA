@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -19,6 +20,20 @@ import {
 } from "@/lib/queries/storefront";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "ISHYA — Bijoux floraux artisanaux en fleurs séchées et résine",
+  description:
+    "Découvrez les créations ISHYA : colliers, bagues, bracelets et boucles d'oreilles uniques en fleurs séchées et résine, façonnés à la main dans notre atelier parisien.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "ISHYA — Bijoux floraux artisanaux",
+    description:
+      "Bijoux uniques en fleurs séchées et résine, façonnés à la main à Paris.",
+    type: "website",
+    url: "/",
+  },
+};
 
 const trustItems = [
   { icon: Truck, title: "Livraison offerte", desc: "Dès 60€ d'achat" },

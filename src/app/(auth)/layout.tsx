@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Mon compte",
+  title: {
+    default: "Mon compte",
+    template: "%s — ISHYA",
+  },
+  robots: { index: false, follow: false },
 };
 
 export default function AuthLayout({

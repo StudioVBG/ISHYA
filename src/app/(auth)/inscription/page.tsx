@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { translateAuthError } from "@/lib/auth/error-messages";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 
@@ -99,11 +100,7 @@ export default function InscriptionPage() {
     });
 
     if (error) {
-      if (error.message.includes("already registered")) {
-        toast.error("Cet email est déjà utilisé. Essayez de vous connecter.");
-      } else {
-        toast.error("Erreur lors de la création du compte. Veuillez réessayer.");
-      }
+      toast.error(translateAuthError(error));
       return;
     }
 
