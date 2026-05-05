@@ -164,7 +164,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs text-white/40">
-            <span>&copy; 2026 ISHYA - Création Florales</span>
+            <span>&copy; {new Date().getFullYear()} ISHYA - Création Florales</span>
             <span className="hidden sm:inline">|</span>
             <span>Bijoux artisanaux en fleurs séchées et résine</span>
           </div>

@@ -32,31 +32,31 @@ const DISCOUNT_CODES: Record<
 const CROSS_SELL = [
   {
     id: "cs-1",
-    name: "Bague Pétale de Rose",
-    price: 42,
-    image: "/images/products/bague-petale.jpg",
-    slug: "/produit/bague-petale-de-rose",
+    name: "Collier Pétale de Rose",
+    price: 56,
+    image: "/images/products/collier-petale-rose-1.jpg",
+    slug: "/produit/collier-petale-rose",
   },
   {
     id: "cs-2",
-    name: "Bracelet Fleur d'Oranger",
+    name: "Jonc Lavande",
     price: 38,
-    image: "/images/products/bracelet-oranger.jpg",
-    slug: "/produit/bracelet-fleur-oranger",
+    image: "/images/products/jonc-lavande-1.jpg",
+    slug: "/produit/jonc-lavande",
   },
   {
     id: "cs-3",
-    name: "Collier Hortensia",
-    price: 56,
-    image: "/images/products/collier-hortensia.jpg",
-    slug: "/produit/collier-hortensia",
+    name: "Sautoir Hortensia",
+    price: 64,
+    image: "/images/products/sautoir-hortensia-1.jpg",
+    slug: "/produit/sautoir-hortensia",
   },
   {
     id: "cs-4",
-    name: "Boucles Lavande",
-    price: 34,
-    image: "/images/products/boucles-lavande.jpg",
-    slug: "/produit/boucles-lavande",
+    name: "Bracelet Marguerite",
+    price: 42,
+    image: "/images/products/bracelet-marguerite-1.jpg",
+    slug: "/produit/bracelet-marguerite",
   },
 ];
 
@@ -412,7 +412,7 @@ export default function CartPage() {
                   />
                   <button
                     onClick={applyDiscount}
-                    className="px-5 py-2.5 bg-foreground text-white text-sm font-medium rounded-lg hover:bg-foreground/90 transition-colors"
+                    className="btn-primary text-sm whitespace-nowrap"
                   >
                     Appliquer
                   </button>
