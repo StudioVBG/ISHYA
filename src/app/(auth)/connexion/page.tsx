@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { translateAuthError } from "@/lib/auth/error-messages";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 
@@ -60,13 +61,7 @@ function ConnexionContent() {
     });
 
     if (error) {
-      if (error.message.includes("Invalid login")) {
-        toast.error("Email ou mot de passe incorrect");
-      } else if (error.message.includes("Email not confirmed")) {
-        toast.error("Veuillez confirmer votre email avant de vous connecter");
-      } else {
-        toast.error("Erreur de connexion. Veuillez réessayer.");
-      }
+      toast.error(translateAuthError(error));
       return;
     }
 

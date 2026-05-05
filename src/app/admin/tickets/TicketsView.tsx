@@ -259,7 +259,12 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
                         </span>
                       )}
                     </div>
-                    <p className="font-medium text-foreground">{t.subject}</p>
+                    <Link
+                      href={`/admin/tickets/${t.id}`}
+                      className="font-medium text-foreground hover:text-terracotta transition-colors block"
+                    >
+                      {t.subject}
+                    </Link>
                     <p className="text-sm text-muted mt-1">
                       {t.customerName ?? t.customerEmail ?? "Client inconnu"}
                       {t.customerEmail && t.customerName && (

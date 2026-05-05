@@ -16,6 +16,7 @@ import {
   Percent,
   RotateCcw,
   Headphones,
+  HelpCircle,
   Star,
   FileText,
   LayoutTemplate,
@@ -25,13 +26,13 @@ import {
   Settings,
   UserCog,
   Shield,
-  Bell,
   Menu,
   ExternalLink,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminSignOut } from "./actions";
+import { NotificationBell } from "./NotificationBell";
 
 interface NavItem {
   label: string;
@@ -72,6 +73,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Retours", href: "/admin/retours", icon: RotateCcw },
       { label: "Tickets", href: "/admin/tickets", icon: Headphones },
+      { label: "FAQ", href: "/admin/faq", icon: HelpCircle },
       { label: "Avis", href: "/admin/avis", icon: Star },
     ],
   },
@@ -113,6 +115,7 @@ const pageTitles: Record<string, string> = {
   "/admin/promotions": "Promotions",
   "/admin/retours": "Retours",
   "/admin/tickets": "Tickets",
+  "/admin/faq": "FAQ",
   "/admin/avis": "Avis clients",
   "/admin/blog": "Blog",
   "/admin/pages": "Pages",
@@ -129,10 +132,17 @@ interface AdminShellProps {
     displayName: string;
     initials: string;
   };
+  notificationCounts: {
+    pendingOrders: number;
+    pendingReturns: number;
+    openTickets: number;
+    unmoderatedReviews: number;
+    total: number;
+  };
   children: React.ReactNode;
 }
 
-export function AdminShell({ user, children }: AdminShellProps) {
+export function AdminShell({ user, notificationCounts, children }: AdminShellProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -260,10 +270,7 @@ export function AdminShell({ user, children }: AdminShellProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-terracotta rounded-full" />
-            </button>
+            <NotificationBell counts={notificationCounts} />
             <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200">
               <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center">
                 <span className="text-sm font-semibold text-terracotta">

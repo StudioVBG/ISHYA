@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Lock, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { translateAuthError } from "@/lib/auth/error-messages";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 
@@ -81,11 +82,7 @@ export default function ResetPasswordPage() {
     });
 
     if (error) {
-      if (error.message.includes("same password")) {
-        toast.error("Le nouveau mot de passe doit être différent de l'ancien");
-      } else {
-        toast.error("Erreur lors de la réinitialisation. Veuillez réessayer.");
-      }
+      toast.error(translateAuthError(error));
       return;
     }
 

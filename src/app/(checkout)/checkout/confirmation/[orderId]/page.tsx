@@ -19,6 +19,7 @@ import {
 import { useCartStore, type CartItemLocal } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { trackPurchase } from "@/lib/analytics";
 
 export default function ConfirmationPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -32,21 +33,48 @@ export default function ConfirmationPage() {
   useEffect(() => {
     const stored = useCartStore.getState();
     const storedEmail = sessionStorage.getItem("checkout_email");
+    const orderNumber =
+      sessionStorage.getItem("checkout_order_number") ?? orderId;
+    const trackedKey = `purchase_tracked_${orderId}`;
+    const alreadyTracked = sessionStorage.getItem(trackedKey);
 
     queueMicrotask(() => {
+      const itemsSnapshot = [...stored.items];
+      const shipping = parseFloat(
+        sessionStorage.getItem("checkout_shipping_cost") ?? "0"
+      );
+
       if (stored.items.length > 0) {
-        setOrderItems([...stored.items]);
+        setOrderItems(itemsSnapshot);
         const sub = stored.getSubtotal();
-        const shipping = parseFloat(
-          sessionStorage.getItem("checkout_shipping_cost") ?? "0"
-        );
         const gift = stored.giftWrap ? 3 : 0;
-        setOrderTotal(sub - stored.discountAmount + shipping + gift);
+        const totalValue = sub - stored.discountAmount + shipping + gift;
+        setOrderTotal(totalValue);
+
+        if (!alreadyTracked) {
+          trackPurchase({
+            orderId,
+            orderNumber,
+            value: totalValue,
+            shipping,
+            discount: stored.discountAmount,
+            items: itemsSnapshot.map((it) => ({
+              id: it.productId,
+              name: it.name,
+              price: it.price,
+              quantity: it.quantity,
+              variantId: it.variantId,
+            })),
+          });
+          sessionStorage.setItem(trackedKey, "1");
+        }
+
         clearCart();
       }
       if (storedEmail) setEmail(storedEmail);
+      sessionStorage.removeItem("checkout_idempotency_key");
     });
-  }, [clearCart]);
+  }, [clearCart, orderId]);
 
   useEffect(() => {
     if (confettiRef.current) return;

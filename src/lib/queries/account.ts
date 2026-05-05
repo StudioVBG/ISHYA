@@ -818,3 +818,149 @@ export async function getCurrentUserStats(): Promise<AccountStats> {
     reviewsCount: reviews.count ?? 0,
   };
 }
+
+// ============================================================================
+// Tickets utilisateur
+// ============================================================================
+
+export interface AccountTicketListItem {
+  id: string;
+  subject: string;
+  status: string;
+  priority: string;
+  category: string | null;
+  orderNumber: string | null;
+  lastMessageAt: string;
+  createdAt: string;
+}
+
+export interface AccountTicketMessage {
+  id: string;
+  body: string;
+  attachments: string[];
+  isFromAdmin: boolean;
+  authorName: string | null;
+  createdAt: string;
+}
+
+export interface AccountTicketDetail {
+  id: string;
+  subject: string;
+  status: string;
+  priority: string;
+  category: string | null;
+  orderId: string | null;
+  orderNumber: string | null;
+  createdAt: string;
+  messages: AccountTicketMessage[];
+}
+
+export async function getCurrentUserTickets(): Promise<AccountTicketListItem[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("tickets")
+    .select(
+      `id, subject, status, priority, category, created_at, updated_at,
+       order:orders ( order_number )`,
+    )
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("[getCurrentUserTickets]", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => {
+    const order = Array.isArray(row.order) ? row.order[0] : row.order;
+    return {
+      id: row.id,
+      subject: row.subject,
+      status: row.status ?? "open",
+      priority: row.priority ?? "medium",
+      category: row.category,
+      orderNumber: order?.order_number ?? null,
+      lastMessageAt: row.updated_at ?? row.created_at ?? "",
+      createdAt: row.created_at ?? "",
+    };
+  });
+}
+
+export async function getCurrentUserTicketById(
+  id: string,
+): Promise<AccountTicketDetail | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: ticket, error } = await supabase
+    .from("tickets")
+    .select(
+      `id, subject, status, priority, category, order_id, created_at,
+       order:orders ( order_number )`,
+    )
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error || !ticket) {
+    if (error) console.error("[getCurrentUserTicketById]", error);
+    return null;
+  }
+
+  const { data: messages } = await supabase
+    .from("ticket_messages")
+    .select("id, body, attachments, user_id, created_at")
+    .eq("ticket_id", id)
+    .order("created_at", { ascending: true });
+
+  const adminIds = Array.from(
+    new Set(
+      (messages ?? [])
+        .map((m) => m.user_id)
+        .filter((uid): uid is string => !!uid && uid !== user.id),
+    ),
+  );
+
+  const adminNames = new Map<string, string>();
+  if (adminIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, first_name")
+      .in("id", adminIds);
+    for (const p of profiles ?? []) {
+      adminNames.set(p.id, p.first_name ?? "ISHYA");
+    }
+  }
+
+  const order = Array.isArray(ticket.order) ? ticket.order[0] : ticket.order;
+
+  return {
+    id: ticket.id,
+    subject: ticket.subject,
+    status: ticket.status ?? "open",
+    priority: ticket.priority ?? "medium",
+    category: ticket.category,
+    orderId: ticket.order_id,
+    orderNumber: order?.order_number ?? null,
+    createdAt: ticket.created_at ?? "",
+    messages: (messages ?? []).map((m) => ({
+      id: m.id,
+      body: m.body,
+      attachments: m.attachments ?? [],
+      isFromAdmin: m.user_id !== user.id,
+      authorName:
+        m.user_id === user.id
+          ? "Vous"
+          : adminNames.get(m.user_id) ?? "ISHYA",
+      createdAt: m.created_at ?? "",
+    })),
+  };
+}

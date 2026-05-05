@@ -725,6 +725,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          dedup_key: string
+          email: string
+          email_type: string
+          id: string
+          metadata: Json | null
+          sent_at: string
+          user_id: string | null
+        }
+        Insert: {
+          dedup_key: string
+          email: string
+          email_type: string
+          id?: string
+          metadata?: Json | null
+          sent_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          dedup_key?: string
+          email?: string
+          email_type?: string
+          id?: string
+          metadata?: Json | null
+          sent_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       faq_articles: {
         Row: {
           answer: string
@@ -1053,6 +1083,7 @@ export type Database = {
           gift_wrap: boolean | null
           grand_total: number
           id: string
+          idempotency_key: string | null
           internal_note: string | null
           order_number: string
           phone: string | null
@@ -1078,6 +1109,7 @@ export type Database = {
           gift_wrap?: boolean | null
           grand_total?: number
           id?: string
+          idempotency_key?: string | null
           internal_note?: string | null
           order_number: string
           phone?: string | null
@@ -1103,6 +1135,7 @@ export type Database = {
           gift_wrap?: boolean | null
           grand_total?: number
           id?: string
+          idempotency_key?: string | null
           internal_note?: string | null
           order_number?: string
           phone?: string | null

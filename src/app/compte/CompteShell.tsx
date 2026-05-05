@@ -15,6 +15,7 @@ import {
   Bell,
   Gift,
   RotateCcw,
+  Headphones,
   Ruler,
   LogOut,
   ChevronRight,
@@ -40,6 +41,7 @@ const accountNav = [
   { href: "/compte/notifications", label: "Notifications", icon: Bell },
   { href: "/compte/fidelite", label: "Fidélité", icon: Gift },
   { href: "/compte/retours", label: "Retours", icon: RotateCcw },
+  { href: "/compte/tickets", label: "Aide & messages", icon: Headphones },
   { href: "/compte/tailles", label: "Mes tailles", icon: Ruler },
 ];
 
@@ -54,9 +56,10 @@ const labelMap: Record<string, string> = {
   notifications: "Notifications",
   fidelite: "Fidélité",
   retours: "Retours",
+  tickets: "Aide & messages",
   tailles: "Mes tailles",
   suivi: "Suivi",
-  nouveau: "Nouveau retour",
+  nouveau: "Nouveau",
 };
 
 function getBreadcrumb(pathname: string) {

@@ -135,9 +135,23 @@ export default function PaiementPage() {
           : null;
       const shippingAddress = addressRaw ? JSON.parse(addressRaw) : undefined;
 
+      let idempotencyKey =
+        typeof window !== "undefined"
+          ? sessionStorage.getItem("checkout_idempotency_key")
+          : null;
+      if (!idempotencyKey) {
+        idempotencyKey = crypto.randomUUID();
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("checkout_idempotency_key", idempotencyKey);
+        }
+      }
+
       const res = await fetch("/api/stripe/create-payment-intent", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey,
+        },
         body: JSON.stringify({
           items: items.map((i) => ({
             productId: i.productId,

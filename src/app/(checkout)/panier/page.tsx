@@ -19,6 +19,7 @@ import {
 import { useCartStore } from "@/stores/cart-store";
 import { cn, formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { trackBeginCheckout } from "@/lib/analytics";
 import { ProductCard, type ProductCardProduct } from "@/components/product/ProductCard";
 import { fetchCartCrossSell } from "@/lib/actions/cart";
 
@@ -522,6 +523,18 @@ export default function CartPage() {
             <div className="px-6 pb-6">
               <Link
                 href="/checkout/identification"
+                onClick={() =>
+                  trackBeginCheckout(
+                    items.map((it) => ({
+                      id: it.productId,
+                      name: it.name,
+                      price: it.price,
+                      quantity: it.quantity,
+                      variantId: it.variantId,
+                    })),
+                    total,
+                  )
+                }
                 className="btn-primary w-full text-center group"
               >
                 Commander
