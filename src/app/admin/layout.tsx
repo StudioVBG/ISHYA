@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminNotificationCounts } from "@/lib/queries/admin-notifications";
 import { AdminShell } from "./AdminShell";
+
+export const dynamic = "force-dynamic";
 
 function buildInitials(
   firstName: string | null | undefined,
@@ -52,5 +55,14 @@ export default async function AdminLayout({
     profile.email ?? user.email,
   );
 
-  return <AdminShell user={{ displayName, initials }}>{children}</AdminShell>;
+  const notificationCounts = await getAdminNotificationCounts();
+
+  return (
+    <AdminShell
+      user={{ displayName, initials }}
+      notificationCounts={notificationCounts}
+    >
+      {children}
+    </AdminShell>
+  );
 }

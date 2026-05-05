@@ -93,6 +93,46 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = createAdminClient();
+
+  // Idempotence : si le client renvoie deux fois la même clé (double-clic,
+  // retry réseau), on retourne la commande déjà créée plutôt que d'en créer
+  // une nouvelle. La clé est aussi propagée à Stripe pour dédupliquer le PI.
+  const idempotencyKey =
+    request.headers.get("idempotency-key")?.trim() || null;
+
+  if (idempotencyKey) {
+    const { data: existing } = await admin
+      .from("orders")
+      .select("id, order_number")
+      .eq("idempotency_key", idempotencyKey)
+      .maybeSingle();
+
+    if (existing) {
+      const { data: existingPayment } = await admin
+        .from("payments")
+        .select("stripe_payment_intent_id")
+        .eq("order_id", existing.id)
+        .maybeSingle();
+
+      if (existingPayment?.stripe_payment_intent_id && stripe) {
+        try {
+          const pi = await stripe.paymentIntents.retrieve(
+            existingPayment.stripe_payment_intent_id,
+          );
+          return Response.json({
+            clientSecret: pi.client_secret,
+            paymentIntentId: pi.id,
+            orderId: existing.id,
+            orderNumber: existing.order_number,
+            replayed: true,
+          });
+        } catch (e) {
+          console.error("[create-payment-intent] retrieve PI failed:", e);
+        }
+      }
+    }
+  }
+
   const orderNumber = generateOrderNumber();
 
   // 1. Créer la commande (status pending)
@@ -118,6 +158,7 @@ export async function POST(request: NextRequest) {
       billing_address_snapshot: shippingAddress
         ? JSON.parse(JSON.stringify(shippingAddress))
         : null,
+      idempotency_key: idempotencyKey,
     })
     .select("id, order_number")
     .single();
@@ -175,17 +216,20 @@ export async function POST(request: NextRequest) {
 
   let paymentIntent;
   try {
-    paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
-      currency: "eur",
-      automatic_payment_methods: { enabled: true },
-      metadata: {
-        order_id: order.id,
-        order_number: order.order_number,
-        ...(userId && { user_id: userId }),
+    paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: amountInCents,
+        currency: "eur",
+        automatic_payment_methods: { enabled: true },
+        metadata: {
+          order_id: order.id,
+          order_number: order.order_number,
+          ...(userId && { user_id: userId }),
+        },
+        ...(email && { receipt_email: email }),
       },
-      ...(email && { receipt_email: email }),
-    });
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
   } catch (error) {
     console.error("[create-payment-intent] Erreur Stripe:", error);
     // Rollback en cascade via FK

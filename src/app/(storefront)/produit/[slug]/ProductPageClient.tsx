@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,6 +28,7 @@ import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { RelatedCarousel } from "@/components/product/RelatedCarousel";
 import { type ProductCardProduct } from "@/components/product/ProductCard";
 import { useCartStore } from "@/stores/cart-store";
+import { trackAddToCart, trackViewItem } from "@/lib/analytics";
 import type { ProductDetail } from "@/lib/queries/storefront";
 
 interface ProductPageClientProps {
@@ -143,12 +144,29 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
       ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
       : 0;
 
+  useEffect(() => {
+    trackViewItem({
+      id: product.id,
+      name: product.name,
+      price: displayedPrice,
+      category: category?.name ?? null,
+    });
+  }, [product.id, product.name, displayedPrice, category?.name]);
+
   const handleAddToCart = () => {
     if (currentStock === 0) return;
     const qty = Math.min(quantity, currentStock);
     for (let i = 0; i < qty; i++) {
       addItem(product, currentVariant, sortedMedia[0]?.url);
     }
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      price: displayedPrice,
+      quantity: qty,
+      variantId: currentVariant?.id ?? null,
+      category: category?.name ?? null,
+    });
     setTimeout(() => openCart(), 700);
   };
 

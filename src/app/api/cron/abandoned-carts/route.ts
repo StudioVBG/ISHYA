@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireCronAuth } from "@/lib/auth/require-cron";
+import { hasEmailBeenSent, logEmailSent } from "@/lib/email-logs";
 import {
   sendAbandonedCartEmail1,
   sendAbandonedCartEmail2,
@@ -29,10 +31,9 @@ interface ItemSnapshot {
  *   confirmée postérieure à abandoned_at.
  */
 export async function GET(request: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = requireCronAuth(request);
+  if (!auth.ok) {
+    return Response.json({ error: auth.message }, { status: auth.status });
   }
 
   const admin = createAdminClient();
@@ -92,46 +93,62 @@ export async function GET(request: NextRequest) {
 
     const remindersCount = row.reminders_count ?? 0;
 
+    const tryStep = async (
+      step: 1 | 2 | 3,
+      send: () => Promise<unknown>,
+    ): Promise<boolean> => {
+      const dedupKey = `${row.id}:${step}`;
+      if (await hasEmailBeenSent(`abandoned_cart_${step}`, dedupKey)) {
+        return false;
+      }
+      await send();
+      await logEmailSent({
+        email: row.email!,
+        emailType: `abandoned_cart_${step}`,
+        dedupKey,
+        metadata: { cart_id: row.cart_id },
+      });
+      await admin
+        .from("abandoned_carts")
+        .update({
+          reminders_count: step,
+          reminder_sent_at: new Date().toISOString(),
+        })
+        .eq("id", row.id);
+      return true;
+    };
+
     try {
       if (remindersCount === 0 && ageMs >= 1 * HOUR_MS) {
-        await sendAbandonedCartEmail1(row.email, {
-          products,
-          cartUrl: `${baseUrl}/panier`,
-        });
-        await admin
-          .from("abandoned_carts")
-          .update({
-            reminders_count: 1,
-            reminder_sent_at: new Date().toISOString(),
-          })
-          .eq("id", row.id);
-        sent1++;
+        if (
+          await tryStep(1, () =>
+            sendAbandonedCartEmail1(row.email!, {
+              products,
+              cartUrl: `${baseUrl}/panier`,
+            }),
+          )
+        )
+          sent1++;
       } else if (remindersCount === 1 && ageMs >= 24 * HOUR_MS) {
-        await sendAbandonedCartEmail2(row.email, {
-          products,
-          checkoutUrl: `${baseUrl}/checkout/identification`,
-        });
-        await admin
-          .from("abandoned_carts")
-          .update({
-            reminders_count: 2,
-            reminder_sent_at: new Date().toISOString(),
-          })
-          .eq("id", row.id);
-        sent2++;
+        if (
+          await tryStep(2, () =>
+            sendAbandonedCartEmail2(row.email!, {
+              products,
+              checkoutUrl: `${baseUrl}/checkout/identification`,
+            }),
+          )
+        )
+          sent2++;
       } else if (remindersCount === 2 && ageMs >= 48 * HOUR_MS) {
-        await sendAbandonedCartEmail3(row.email, {
-          products,
-          promoUrl: `${baseUrl}/panier?promo=COMEBACK10`,
-        });
-        await admin
-          .from("abandoned_carts")
-          .update({
-            reminders_count: 3,
-            reminder_sent_at: new Date().toISOString(),
-          })
-          .eq("id", row.id);
-        sent3++;
+        if (
+          await tryStep(3, () =>
+            sendAbandonedCartEmail3(row.email!, {
+              products,
+              promoUrl: `${baseUrl}/panier?promo=COMEBACK10`,
+            }),
+          )
+        )
+          sent3++;
       }
     } catch (e) {
       console.error("[cron/abandoned-carts] email error:", e);

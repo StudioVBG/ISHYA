@@ -61,13 +61,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && adminRoutes.some((route) => pathname.startsWith(route))) {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (profile?.role !== "admin") {
+    if (profileError || profile?.role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);
