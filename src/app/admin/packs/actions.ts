@@ -238,6 +238,66 @@ export async function setPackItemRequired(
   return { ok: true };
 }
 
+export interface PackItemVariantOptionInput {
+  variantId: string;
+  priceAdjustment: number;
+}
+
+export async function setPackItemVariantOptions(
+  packId: string,
+  packItemId: string,
+  options: PackItemVariantOptionInput[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  // Vérifie l'appartenance pack_item ↔ pack pour éviter qu'un appel forge
+  // un packItemId qui n'est pas dans ce pack.
+  const { data: ownership } = await admin
+    .from("pack_items")
+    .select("id")
+    .eq("id", packItemId)
+    .eq("pack_id", packId)
+    .maybeSingle();
+  if (!ownership) {
+    return { ok: false, error: "Élément introuvable dans ce pack" };
+  }
+
+  // Stratégie : remplacement complet (delete-then-insert). Le volume est
+  // au plus quelques dizaines d'options par item, donc pas un risque.
+  const { error: delError } = await admin
+    .from("pack_variant_options")
+    .delete()
+    .eq("pack_item_id", packItemId);
+  if (delError) {
+    console.error("[setPackItemVariantOptions] delete:", delError);
+    return { ok: false, error: "Erreur" };
+  }
+
+  if (options.length > 0) {
+    const rows = options.map((o) => ({
+      pack_item_id: packItemId,
+      variant_id: o.variantId,
+      price_adjustment: Number.isFinite(o.priceAdjustment)
+        ? o.priceAdjustment
+        : 0,
+    }));
+    const { error: insError } = await admin
+      .from("pack_variant_options")
+      .insert(rows);
+    if (insError) {
+      console.error("[setPackItemVariantOptions] insert:", insError);
+      return { ok: false, error: "Erreur d'enregistrement" };
+    }
+  }
+
+  revalidatePath(`/admin/packs/${packId}`);
+  await revalidatePackBySlug(packId);
+  return { ok: true };
+}
+
 export async function reorderPackItems(
   packId: string,
   orderedIds: string[],

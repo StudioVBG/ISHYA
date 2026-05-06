@@ -31,12 +31,21 @@ const inputClass =
   "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
+// Seuls les types réellement appliqués au panier sont exposés en création.
+// `free_shipping` n'a pas de sens sur un pack (la livraison est calculée au
+// panier global) et `buy_x_get_y` n'est pas implémenté côté checkout. Les
+// packs existants qui auraient l'un de ces types restent affichés en édition.
 const TYPE_LABELS: Record<PackDiscountType, string> = {
   percentage: "% (pourcentage)",
   fixed_amount: "€ (montant fixe)",
-  free_shipping: "Livraison offerte",
-  buy_x_get_y: "Achetez X, obtenez Y",
+  free_shipping: "Livraison offerte (héritage)",
+  buy_x_get_y: "Achetez X, obtenez Y (héritage)",
 };
+
+const SUPPORTED_DISCOUNT_TYPES: PackDiscountType[] = [
+  "percentage",
+  "fixed_amount",
+];
 
 interface FormState {
   name: string;
@@ -374,11 +383,16 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                       }
                       className={inputClass}
                     >
-                      {Object.entries(TYPE_LABELS).map(([key, label]) => (
+                      {SUPPORTED_DISCOUNT_TYPES.map((key) => (
                         <option key={key} value={key}>
-                          {label}
+                          {TYPE_LABELS[key]}
                         </option>
                       ))}
+                      {!SUPPORTED_DISCOUNT_TYPES.includes(form.discountType) && (
+                        <option value={form.discountType}>
+                          {TYPE_LABELS[form.discountType]}
+                        </option>
+                      )}
                     </select>
                   </div>
                   <div>

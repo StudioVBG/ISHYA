@@ -440,6 +440,18 @@ export interface AdminPackRow {
   itemCount: number;
 }
 
+export interface AdminPackVariantOption {
+  variantId: string;
+  priceAdjustment: number;
+}
+
+export interface AdminPackProductVariant {
+  id: string;
+  name: string | null;
+  sku: string | null;
+  isActive: boolean;
+}
+
 export interface AdminPackDetail extends AdminPackRow {
   items: Array<{
     id: string;
@@ -449,6 +461,8 @@ export interface AdminPackDetail extends AdminPackRow {
     productImageUrl: string | null;
     sortOrder: number;
     isRequired: boolean;
+    availableVariants: AdminPackProductVariant[];
+    variantOptions: AdminPackVariantOption[];
   }>;
 }
 
@@ -1847,37 +1861,40 @@ export async function getAdminPackById(
       `id, product_id, sort_order, is_required,
        product:products (
          name, slug,
-         product_media ( url, is_primary, sort_order )
-       )`,
+         product_media ( url, is_primary, sort_order ),
+         product_variants ( id, name, sku, is_active )
+       ),
+       pack_variant_options ( variant_id, price_adjustment )`,
     )
     .eq("pack_id", id)
     .order("sort_order", { ascending: true });
 
+  type VariantRow = {
+    id: string;
+    name: string | null;
+    sku: string | null;
+    is_active: boolean | null;
+  };
+  type ProductRow = {
+    name: string;
+    slug: string;
+    product_media: Array<{
+      url: string;
+      is_primary: boolean | null;
+      sort_order: number | null;
+    }>;
+    product_variants: VariantRow[];
+  };
   type ItemRow = {
     id: string;
     product_id: string;
     sort_order: number | null;
     is_required: boolean | null;
-    product?:
-      | {
-          name: string;
-          slug: string;
-          product_media: Array<{
-            url: string;
-            is_primary: boolean | null;
-            sort_order: number | null;
-          }>;
-        }
-      | Array<{
-          name: string;
-          slug: string;
-          product_media: Array<{
-            url: string;
-            is_primary: boolean | null;
-            sort_order: number | null;
-          }>;
-        }>
-      | null;
+    product?: ProductRow | ProductRow[] | null;
+    pack_variant_options?: Array<{
+      variant_id: string;
+      price_adjustment: number | string | null;
+    }> | null;
   };
 
   return {
@@ -1898,6 +1915,16 @@ export async function getAdminPackById(
       const primary =
         media.find((m) => m.is_primary) ??
         media.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+      const variants = (product?.product_variants ?? []).map((v) => ({
+        id: v.id,
+        name: v.name,
+        sku: v.sku,
+        isActive: v.is_active ?? true,
+      }));
+      const options = (it.pack_variant_options ?? []).map((o) => ({
+        variantId: o.variant_id,
+        priceAdjustment: Number(o.price_adjustment ?? 0),
+      }));
       return {
         id: it.id,
         productId: it.product_id,
@@ -1906,6 +1933,8 @@ export async function getAdminPackById(
         productImageUrl: primary?.url ?? null,
         sortOrder: it.sort_order ?? 0,
         isRequired: it.is_required ?? true,
+        availableVariants: variants,
+        variantOptions: options,
       };
     }),
   };
