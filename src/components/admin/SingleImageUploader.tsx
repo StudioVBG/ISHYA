@@ -15,6 +15,7 @@ import {
   deleteAdminImage,
   isAdminMediaUrl,
   uploadAdminImage,
+  type CropTarget,
 } from "@/lib/admin/image-upload";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,12 @@ interface Props {
   onChange: (url: string | null) => void;
   folder: string;
   aspect?: "square" | "16/10" | "16/9" | "2/1" | "1200/630";
+  /**
+   * Si défini, l'image sera recadrée en center-crop puis redimensionnée
+   * exactement à cette taille avant l'upload. Utile pour les images dont les
+   * dimensions ET le ratio doivent être garantis (og:image 1200×630).
+   */
+  cropTo?: CropTarget;
   disabled?: boolean;
   hint?: string;
 }
@@ -40,10 +47,12 @@ export function SingleImageUploader({
   onChange,
   folder,
   aspect = "16/10",
+  cropTo,
   disabled,
   hint,
 }: Props) {
   const [busy, setBusy] = useState(false);
+  const [lastSizeKb, setLastSizeKb] = useState<number | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputId = useId();
   const cameraInputId = useId();
@@ -58,14 +67,15 @@ export function SingleImageUploader({
       try {
         // Si on remplace une image qui appartient à notre bucket, cleanup après upload réussi
         const previous = value;
-        const result = await uploadAdminImage(file, folder);
+        const result = await uploadAdminImage(file, folder, { crop: cropTo });
         onChange(result.url);
+        setLastSizeKb(result.sizeKb);
         if (previous && isAdminMediaUrl(previous)) {
           deleteAdminImage(previous).catch((err) => {
             console.warn("[SingleImageUploader] cleanup ancienne:", err);
           });
         }
-        toast.success("Image envoyée");
+        toast.success(`Image envoyée · ${result.sizeKb} ko`);
       } catch (err) {
         console.error("[SingleImageUploader] upload:", err);
         const message =
@@ -75,7 +85,7 @@ export function SingleImageUploader({
         setBusy(false);
       }
     },
-    [busy, disabled, folder, onChange, value],
+    [busy, cropTo, disabled, folder, onChange, value],
   );
 
   const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +115,7 @@ export function SingleImageUploader({
       }
     }
     onChange(null);
+    setLastSizeKb(null);
   };
 
   if (value) {
@@ -159,6 +170,11 @@ export function SingleImageUploader({
             <Trash2 className="w-3.5 h-3.5" />
             Retirer
           </button>
+          {lastSizeKb !== null && (
+            <span className="text-xs text-muted-light ml-auto">
+              {lastSizeKb} ko
+            </span>
+          )}
         </div>
       </div>
     );

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
 import { slugify } from "@/lib/utils";
 
 export type PackDiscountType =
@@ -141,11 +142,18 @@ export async function deletePack(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  // Récupère l'URL d'image avant le delete pour cleanup Storage post-DELETE.
+  const { data: existing } = await admin
+    .from("packs")
+    .select("image_url")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await admin.from("packs").delete().eq("id", id);
   if (error) {
     console.error("[deletePack]", error);
     return { ok: false, error: "Erreur de suppression" };
   }
+  await cleanupManagedUrlsServer(admin.storage, [existing?.image_url]);
   revalidateAll();
   return { ok: true };
 }

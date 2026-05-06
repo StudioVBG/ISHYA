@@ -109,8 +109,9 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             onChange={(url) => update("homeOgImageUrl", url ?? "")}
             folder="seo"
             aspect="1200/630"
+            cropTo={{ width: 1200, height: 630 }}
             disabled={isPending}
-            hint="Format recommandé : 1200×630, JPG / PNG / WebP / HEIC."
+            hint="Recadrée automatiquement en 1200×630 (center-crop)."
           />
         </div>
         <div>
