@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -150,6 +151,7 @@ interface AdminShellProps {
   user: {
     displayName: string;
     initials: string;
+    avatarUrl: string | null;
   };
   notificationCounts: {
     pendingOrders: number;
@@ -290,11 +292,26 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
 
           <div className="flex items-center gap-4">
             <NotificationBell counts={notificationCounts} />
-            <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center">
-                <span className="text-sm font-semibold text-terracotta">
-                  {user.initials}
-                </span>
+            <Link
+              href="/compte/profil"
+              className="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200 hover:opacity-80 transition-opacity"
+              title="Modifier mon profil"
+            >
+              <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center overflow-hidden">
+                {user.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-sm font-semibold text-terracotta">
+                    {user.initials}
+                  </span>
+                )}
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
@@ -304,7 +321,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
                   Admin
                 </span>
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 

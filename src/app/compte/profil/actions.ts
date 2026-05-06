@@ -8,6 +8,7 @@ export interface ProfileUpdateInput {
   lastName: string;
   phone: string | null;
   birthDate: string | null;
+  avatarUrl: string | null;
   newsletter: boolean;
 }
 
@@ -34,6 +35,7 @@ export async function updateProfile(
       last_name: input.lastName.trim(),
       phone: input.phone?.trim() || null,
       date_of_birth: input.birthDate || null,
+      avatar_url: input.avatarUrl,
     })
     .eq("id", user.id);
 
@@ -63,6 +65,8 @@ export async function updateProfile(
 
   revalidatePath("/compte/profil");
   revalidatePath("/compte");
+  // Le header admin charge avatar_url depuis profiles → revalider le layout.
+  revalidatePath("/admin", "layout");
   return { ok: true };
 }
 
