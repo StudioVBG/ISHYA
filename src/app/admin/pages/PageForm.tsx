@@ -29,7 +29,6 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
   const isEditing = !!page;
 
   const [title, setTitle] = useState(page?.title ?? "");
-  const [slug, setSlug] = useState(page?.slug ?? "");
   const [body, setBody] = useState(page?.body ?? "");
   const [metaTitle, setMetaTitle] = useState(page?.metaTitle ?? "");
   const [metaDescription, setMetaDescription] = useState(
@@ -42,7 +41,6 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
 
   const buildPayload = (): CmsPageInput => ({
     title: title.trim(),
-    slug: slug.trim() || slugify(title),
     body: body.trim() || null,
     metaTitle: metaTitle.trim() || null,
     metaDescription: metaDescription.trim() || null,
@@ -144,31 +142,18 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
               <input
                 type="text"
                 value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  if (!isEditing && (!slug || slug === slugify(title))) {
-                    setSlug(slugify(e.target.value));
-                  }
-                }}
+                onChange={(e) => setTitle(e.target.value)}
                 className={cn(inputClass, "text-base")}
                 placeholder="À propos, FAQ, Newsletter..."
               />
-            </div>
-            <div>
-              <label className={labelClass}>Slug *</label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-light font-mono">/p/</span>
-                <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  className={cn(inputClass, "font-mono text-xs flex-1")}
-                  placeholder="a-propos"
-                />
-              </div>
-              <p className="text-xs text-muted-light mt-1">
-                Lettres minuscules, chiffres et tirets uniquement.
-              </p>
+              {(title.trim() || page?.slug) && (
+                <p className="text-xs text-muted mt-1">
+                  Adresse de la page : /p/
+                  <span className="font-mono">
+                    {page?.slug ?? slugify(title)}
+                  </span>
+                </p>
+              )}
             </div>
           </motion.div>
 

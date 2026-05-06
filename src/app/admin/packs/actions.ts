@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
-import { slugify } from "@/lib/utils";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 export type PackDiscountType =
   | "percentage"
@@ -59,28 +59,6 @@ async function revalidatePackBySlug(packId: string) {
   revalidatePath("/boutique");
 }
 
-// Le slug est généré et garanti unique côté serveur : l'admin ne saisit
-// jamais d'URL. Si "pack-orchidee" existe déjà on tente "pack-orchidee-2",
-// puis "-3", etc. `pack-` n'est pas un préfixe imposé : c'est l'admin qui
-// nomme librement, slugify se charge du reste.
-async function uniquePackSlug(
-  admin: ReturnType<typeof createAdminClient>,
-  base: string,
-): Promise<string> {
-  const root = slugify(base) || "pack";
-  let candidate = root;
-  for (let i = 2; i < 1000; i++) {
-    const { data } = await admin
-      .from("packs")
-      .select("id")
-      .eq("slug", candidate)
-      .limit(1);
-    if (!data || data.length === 0) return candidate;
-    candidate = `${root}-${i}`;
-  }
-  return `${root}-${Date.now()}`;
-}
-
 export async function createPack(
   input: PackInput,
 ): Promise<{ ok: boolean; error?: string }> {
@@ -91,7 +69,7 @@ export async function createPack(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
-  const slug = await uniquePackSlug(admin, input.name);
+  const slug = await uniqueSlug(admin, "packs", input.name, "pack");
   const { error } = await admin.from("packs").insert({
     name: input.name.trim(),
     slug,

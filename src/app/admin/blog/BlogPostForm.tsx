@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
+// slugify reste utilisé pour l'aperçu d'URL en création (le slug réel
+// est calculé par le serveur, qui résoud les collisions automatiquement).
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminBlogPostDetail } from "@/lib/queries/admin";
@@ -32,7 +34,6 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
   const isEditing = !!post;
 
   const [title, setTitle] = useState(post?.title ?? "");
-  const [slug, setSlug] = useState(post?.slug ?? "");
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [body, setBody] = useState(post?.body ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(post?.coverImageUrl ?? "");
@@ -49,7 +50,6 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
 
   const buildPayload = (): BlogPostInput => ({
     title: title.trim(),
-    slug: slug.trim() || slugify(title),
     excerpt: excerpt.trim() || null,
     body: body.trim() || null,
     coverImageUrl: coverImageUrl.trim() || null,
@@ -170,24 +170,18 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
               <input
                 type="text"
                 value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  if (!isEditing && (!slug || slug === slugify(title))) {
-                    setSlug(slugify(e.target.value));
-                  }
-                }}
+                onChange={(e) => setTitle(e.target.value)}
                 className={cn(inputClass, "text-base")}
                 placeholder="Comment entretenir vos bijoux en fleurs séchées"
               />
-            </div>
-            <div>
-              <label className={labelClass}>Slug *</label>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className={cn(inputClass, "font-mono text-xs")}
-              />
+              {(title.trim() || post?.slug) && (
+                <p className="text-xs text-muted mt-1">
+                  Adresse de l&apos;article : /blog/
+                  <span className="font-mono">
+                    {post?.slug ?? slugify(title)}
+                  </span>
+                </p>
+              )}
             </div>
             <div>
               <label className={labelClass}>Extrait</label>

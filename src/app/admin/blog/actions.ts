@@ -6,11 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
-import { slugify } from "@/lib/utils";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 export interface BlogPostInput {
   title: string;
-  slug: string;
   excerpt: string | null;
   body: string | null;
   coverImageUrl: string | null;
@@ -23,7 +22,6 @@ export interface BlogPostInput {
 
 function validate(input: BlogPostInput): string | null {
   if (!input.title.trim()) return "Le titre est requis";
-  if (!input.slug.trim()) return "Le slug est requis";
   return null;
 }
 
@@ -54,11 +52,12 @@ export async function createBlogPost(
       ? new Date().toISOString()
       : input.publishedAt;
 
+  const slug = await uniqueSlug(admin, "blog_posts", input.title, "article");
   const { data, error } = await admin
     .from("blog_posts")
     .insert({
       title: input.title.trim(),
-      slug: input.slug.trim() || slugify(input.title),
+      slug,
       excerpt: input.excerpt,
       body: input.body,
       cover_image_url: input.coverImageUrl,
@@ -74,15 +73,10 @@ export async function createBlogPost(
 
   if (error || !data) {
     console.error("[createBlogPost]", error);
-    return {
-      ok: false,
-      error: error?.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de création",
-    };
+    return { ok: false, error: "Erreur de création" };
   }
 
-  revalidateAll(input.slug);
+  revalidateAll(slug);
   redirect(`/admin/blog/${data.id}`);
 }
 
@@ -109,11 +103,11 @@ export async function updateBlogPost(
     publishedAt = current?.published_at ?? new Date().toISOString();
   }
 
-  const { error } = await admin
+  // Slug figé à l'édition pour préserver les URLs déjà partagées.
+  const { data: updated, error } = await admin
     .from("blog_posts")
     .update({
       title: input.title.trim(),
-      slug: input.slug.trim(),
       excerpt: input.excerpt,
       body: input.body,
       cover_image_url: input.coverImageUrl,
@@ -123,19 +117,16 @@ export async function updateBlogPost(
       seo_title: input.seoTitle,
       seo_description: input.seoDescription,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select("slug")
+    .maybeSingle();
 
   if (error) {
     console.error("[updateBlogPost]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de mise à jour",
-    };
+    return { ok: false, error: "Erreur de mise à jour" };
   }
 
-  revalidateAll(input.slug);
+  revalidateAll(updated?.slug);
   return { ok: true };
 }
 

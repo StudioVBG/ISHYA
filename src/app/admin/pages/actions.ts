@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 export interface CmsPageInput {
   title: string;
-  slug: string;
   body: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -16,10 +16,6 @@ export interface CmsPageInput {
 
 function validate(input: CmsPageInput): string | null {
   if (!input.title.trim()) return "Le titre est requis";
-  if (!input.slug.trim()) return "Le slug est requis";
-  if (!/^[a-z0-9-]+$/.test(input.slug.trim())) {
-    return "Le slug ne doit contenir que des lettres minuscules, chiffres et tirets";
-  }
   return null;
 }
 
@@ -38,11 +34,12 @@ export async function createCmsPage(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const slug = await uniqueSlug(admin, "cms_pages", input.title, "page");
   const { data, error } = await admin
     .from("cms_pages")
     .insert({
       title: input.title.trim(),
-      slug: input.slug.trim(),
+      slug,
       body: input.body,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
@@ -54,12 +51,7 @@ export async function createCmsPage(
 
   if (error || !data) {
     console.error("[createCmsPage]", error);
-    return {
-      ok: false,
-      error: error?.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de création",
-    };
+    return { ok: false, error: "Erreur de création" };
   }
 
   revalidateAll(data.slug);
@@ -89,30 +81,27 @@ export async function updateCmsPage(
     publishedAt = current?.published_at ?? new Date().toISOString();
   }
 
-  const { error } = await admin
+  // Slug figé à l'édition pour préserver les URLs déjà partagées.
+  const { data: updated, error } = await admin
     .from("cms_pages")
     .update({
       title: input.title.trim(),
-      slug: input.slug.trim(),
       body: input.body,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
       is_published: input.isPublished,
       published_at: input.isPublished ? publishedAt : null,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select("slug")
+    .maybeSingle();
 
   if (error) {
     console.error("[updateCmsPage]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de mise à jour",
-    };
+    return { ok: false, error: "Erreur de mise à jour" };
   }
 
-  revalidateAll(input.slug);
+  revalidateAll(updated?.slug);
   return { ok: true };
 }
 
