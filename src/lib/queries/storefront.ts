@@ -1235,7 +1235,6 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
     )
     .eq("slug", slug)
     .or("is_active.is.null,is_active.eq.true")
-    .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
     .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
     .maybeSingle();
 
