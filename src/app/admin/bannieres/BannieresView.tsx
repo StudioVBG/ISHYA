@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminBannerRow } from "@/lib/queries/admin";
 import {
   createBanner,
@@ -298,15 +299,15 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>URL image</label>
-                  <input
-                    type="url"
-                    value={form.imageUrl}
-                    onChange={(e) =>
-                      setForm({ ...form, imageUrl: e.target.value })
+                  <label className={labelClass}>Image de la bannière</label>
+                  <SingleImageUploader
+                    value={form.imageUrl || null}
+                    onChange={(url) =>
+                      setForm({ ...form, imageUrl: url ?? "" })
                     }
-                    className={inputClass}
-                    placeholder="https://..."
+                    folder="banners"
+                    aspect="2/1"
+                    disabled={isSavePending}
                   />
                 </div>
                 <div>

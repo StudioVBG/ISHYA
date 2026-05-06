@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatPrice, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminPackRow } from "@/lib/queries/admin";
 import {
   createPack,
@@ -347,15 +348,15 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>URL image</label>
-                  <input
-                    type="url"
-                    value={form.imageUrl}
-                    onChange={(e) =>
-                      setForm({ ...form, imageUrl: e.target.value })
+                  <label className={labelClass}>Image du pack</label>
+                  <SingleImageUploader
+                    value={form.imageUrl || null}
+                    onChange={(url) =>
+                      setForm({ ...form, imageUrl: url ?? "" })
                     }
-                    className={inputClass}
-                    placeholder="https://..."
+                    folder="packs"
+                    aspect="16/10"
+                    disabled={isSavePending}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -429,8 +430,8 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   Pack actif
                 </label>
                 <p className="text-xs text-muted-light italic">
-                  Les produits inclus dans le pack se gèrent depuis la table
-                  pack_items en base (UI dédiée à venir).
+                  Les produits inclus dans le pack se gèrent depuis la page
+                  Composer (bouton sur chaque carte de pack).
                 </p>
               </div>
               <div className="flex gap-3 p-6 border-t border-border">

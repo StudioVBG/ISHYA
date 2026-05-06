@@ -12,6 +12,11 @@ import Image from "next/image";
 import { Camera, ImagePlus, Loader2, Star, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import {
+  ADMIN_MEDIA_BUCKET,
+  compressImage,
+  convertHeicIfNeeded,
+} from "@/lib/admin/image-upload";
 import { cn } from "@/lib/utils";
 
 export interface UploadedPhoto {
@@ -31,10 +36,8 @@ interface Props {
   disabled?: boolean;
 }
 
-const BUCKET = "products-media";
+const BUCKET = ADMIN_MEDIA_BUCKET;
 const MAX_FILES_AT_ONCE = 12;
-const COMPRESSION_TARGET_MB = 1;
-const MAX_DIMENSION = 2000;
 
 function makeId() {
   return `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -49,40 +52,6 @@ function makeStoragePath(productId: string | null, originalName: string) {
       : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   void originalName;
   return `${folder}/${random}.${ext}`;
-}
-
-async function convertHeicIfNeeded(file: File): Promise<File> {
-  const isHeic =
-    /\.heic$/i.test(file.name) ||
-    /\.heif$/i.test(file.name) ||
-    file.type === "image/heic" ||
-    file.type === "image/heif";
-  if (!isHeic) return file;
-
-  const heic2any = (await import("heic2any")).default;
-  const blob = (await heic2any({
-    blob: file,
-    toType: "image/jpeg",
-    quality: 0.92,
-  })) as Blob;
-  return new File([blob], file.name.replace(/\.(heic|heif)$/i, ".jpg"), {
-    type: "image/jpeg",
-  });
-}
-
-async function compressImage(file: File): Promise<File> {
-  const imageCompression = (await import("browser-image-compression")).default;
-  const compressed = await imageCompression(file, {
-    maxSizeMB: COMPRESSION_TARGET_MB,
-    maxWidthOrHeight: MAX_DIMENSION,
-    useWebWorker: true,
-    fileType: "image/jpeg",
-    initialQuality: 0.85,
-  });
-  if (compressed instanceof File) return compressed;
-  return new File([compressed], file.name.replace(/\.[^.]+$/, ".jpg"), {
-    type: "image/jpeg",
-  });
 }
 
 export function ImageUploader({ productId, value, onChange, disabled }: Props) {
