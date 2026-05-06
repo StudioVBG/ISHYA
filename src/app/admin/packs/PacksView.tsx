@@ -15,7 +15,7 @@ import {
   Package,
 } from "lucide-react";
 import { toast } from "sonner";
-import { cn, formatPrice, slugify, formatDate } from "@/lib/utils";
+import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminPackRow } from "@/lib/queries/admin";
@@ -49,7 +49,6 @@ const SUPPORTED_DISCOUNT_TYPES: PackDiscountType[] = [
 
 interface FormState {
   name: string;
-  slug: string;
   description: string;
   imageUrl: string;
   discountType: PackDiscountType;
@@ -61,7 +60,6 @@ interface FormState {
 
 const emptyForm: FormState = {
   name: "",
-  slug: "",
   description: "",
   imageUrl: "",
   discountType: "percentage",
@@ -108,7 +106,6 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
     setEditingId(p.id);
     setForm({
       name: p.name,
-      slug: p.slug,
       description: p.description ?? "",
       imageUrl: p.imageUrl ?? "",
       discountType: p.discountType,
@@ -128,7 +125,6 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
     startSaveTransition(async () => {
       const payload: PackInput = {
         name: form.name.trim(),
-        slug: form.slug.trim() || slugify(form.name),
         description: form.description.trim() || null,
         imageUrl: form.imageUrl.trim() || null,
         discountType: form.discountType,
@@ -321,28 +317,8 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   <input
                     type="text"
                     value={form.name}
-                    onChange={(e) => {
-                      setForm((f) => {
-                        const next = { ...f, name: e.target.value };
-                        if (
-                          !editingId &&
-                          (!f.slug || f.slug === slugify(f.name))
-                        ) {
-                          next.slug = slugify(e.target.value);
-                        }
-                        return next;
-                      });
-                    }}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Slug *</label>
-                  <input
-                    type="text"
-                    value={form.slug}
                     onChange={(e) =>
-                      setForm({ ...form, slug: e.target.value })
+                      setForm({ ...form, name: e.target.value })
                     }
                     className={inputClass}
                   />
