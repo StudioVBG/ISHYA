@@ -35,12 +35,12 @@ interface ProductSearchResult {
   imageUrl: string | null;
 }
 
-function discountLabel(p: AdminPackDetail): string {
+function discountLabel(p: AdminPackDetail): string | null {
   switch (p.discountType) {
     case "percentage":
-      return `-${p.discountValue}%`;
+      return p.discountValue > 0 ? `-${p.discountValue}%` : null;
     case "fixed_amount":
-      return `-${formatPrice(p.discountValue)}`;
+      return p.discountValue > 0 ? `-${formatPrice(p.discountValue)}` : null;
     case "free_shipping":
       return "Livraison offerte";
     case "buy_x_get_y":
@@ -187,9 +187,11 @@ export function PackDetailView({ pack }: { pack: AdminPackDetail }) {
               >
                 {pack.isActive ? "Actif" : "Inactif"}
               </span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/10 text-terracotta">
-                {discountLabel(pack)}
-              </span>
+              {discountLabel(pack) && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/10 text-terracotta">
+                  {discountLabel(pack)}
+                </span>
+              )}
             </p>
           </div>
           <Link

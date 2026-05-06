@@ -69,12 +69,12 @@ function toDatetimeLocal(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function formatDiscount(p: AdminPackRow): string {
+function formatDiscount(p: AdminPackRow): string | null {
   switch (p.discountType) {
     case "percentage":
-      return `-${p.discountValue}%`;
+      return p.discountValue > 0 ? `-${p.discountValue}%` : null;
     case "fixed_amount":
-      return `-${formatPrice(p.discountValue)}`;
+      return p.discountValue > 0 ? `-${formatPrice(p.discountValue)}` : null;
     case "free_shipping":
       return "Livraison offerte";
     case "buy_x_get_y":
@@ -223,9 +223,11 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                 >
                   {p.isActive ? "Actif" : "Inactif"}
                 </span>
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/90 text-white">
-                  {formatDiscount(p)}
-                </span>
+                {formatDiscount(p) && (
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/90 text-white">
+                    {formatDiscount(p)}
+                  </span>
+                )}
               </div>
               <div className="p-4 flex-1 flex flex-col">
                 <p className="font-medium text-foreground">{p.name}</p>

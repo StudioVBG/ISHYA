@@ -33,6 +33,13 @@ function validate(input: PackInput): string | null {
     input.discountValue > 100
   )
     return "Le pourcentage ne peut excéder 100";
+  if (input.startsAt && input.endsAt) {
+    const start = Date.parse(input.startsAt);
+    const end = Date.parse(input.endsAt);
+    if (Number.isFinite(start) && Number.isFinite(end) && end <= start) {
+      return "La date de fin doit être postérieure à la date de début";
+    }
+  }
   return null;
 }
 
@@ -240,13 +247,19 @@ export async function reorderPackItems(
 
   const admin = createAdminClient();
 
-  // Mise à jour individuelle (pas de batch generic update)
-  for (let i = 0; i < orderedIds.length; i++) {
-    await admin
-      .from("pack_items")
-      .update({ sort_order: i })
-      .eq("id", orderedIds[i])
-      .eq("pack_id", packId);
+  const results = await Promise.all(
+    orderedIds.map((id, i) =>
+      admin
+        .from("pack_items")
+        .update({ sort_order: i })
+        .eq("id", id)
+        .eq("pack_id", packId),
+    ),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    console.error("[reorderPackItems]", failed.error);
+    return { ok: false, error: "Erreur de réordonnancement" };
   }
 
   revalidatePath(`/admin/packs/${packId}`);

@@ -1227,6 +1227,7 @@ import { computePackPrice } from "@/lib/pack-pricing";
 
 export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
   const supabase = await createClient();
+  const nowIso = new Date().toISOString();
   const { data: pack, error } = await supabase
     .from("packs")
     .select(
@@ -1234,6 +1235,8 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
     )
     .eq("slug", slug)
     .or("is_active.is.null,is_active.eq.true")
+    .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
+    .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
     .maybeSingle();
 
   if (error || !pack) {
@@ -1388,10 +1391,12 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
 
 export async function getAllPackSlugs(): Promise<{ slug: string }[]> {
   const supabase = createBuildClient();
+  const nowIso = new Date().toISOString();
   const { data, error } = await supabase
     .from("packs")
     .select("slug")
-    .or("is_active.is.null,is_active.eq.true");
+    .or("is_active.is.null,is_active.eq.true")
+    .or(`ends_at.is.null,ends_at.gte.${nowIso}`);
   if (error) {
     console.error("[getAllPackSlugs]", error);
     return [];
