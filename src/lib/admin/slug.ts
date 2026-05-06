@@ -10,6 +10,7 @@ type SlugTable =
   | "categories"
   | "collections"
   | "blog_posts"
+  | "cms_pages"
   | "packs";
 
 // Slug généré côté serveur à partir d'un nom : NFD-stripped + lowercase + ASCII.
