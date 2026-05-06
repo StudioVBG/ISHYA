@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatPrice, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminPackRow } from "@/lib/queries/admin";
 import {
   createPack,
@@ -30,12 +31,21 @@ const inputClass =
   "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
+// Seuls les types réellement appliqués au panier sont exposés en création.
+// `free_shipping` n'a pas de sens sur un pack (la livraison est calculée au
+// panier global) et `buy_x_get_y` n'est pas implémenté côté checkout. Les
+// packs existants qui auraient l'un de ces types restent affichés en édition.
 const TYPE_LABELS: Record<PackDiscountType, string> = {
   percentage: "% (pourcentage)",
   fixed_amount: "€ (montant fixe)",
-  free_shipping: "Livraison offerte",
-  buy_x_get_y: "Achetez X, obtenez Y",
+  free_shipping: "Livraison offerte (héritage)",
+  buy_x_get_y: "Achetez X, obtenez Y (héritage)",
 };
+
+const SUPPORTED_DISCOUNT_TYPES: PackDiscountType[] = [
+  "percentage",
+  "fixed_amount",
+];
 
 interface FormState {
   name: string;
@@ -68,12 +78,12 @@ function toDatetimeLocal(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function formatDiscount(p: AdminPackRow): string {
+function formatDiscount(p: AdminPackRow): string | null {
   switch (p.discountType) {
     case "percentage":
-      return `-${p.discountValue}%`;
+      return p.discountValue > 0 ? `-${p.discountValue}%` : null;
     case "fixed_amount":
-      return `-${formatPrice(p.discountValue)}`;
+      return p.discountValue > 0 ? `-${formatPrice(p.discountValue)}` : null;
     case "free_shipping":
       return "Livraison offerte";
     case "buy_x_get_y":
@@ -222,9 +232,11 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                 >
                   {p.isActive ? "Actif" : "Inactif"}
                 </span>
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/90 text-white">
-                  {formatDiscount(p)}
-                </span>
+                {formatDiscount(p) && (
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/90 text-white">
+                    {formatDiscount(p)}
+                  </span>
+                )}
               </div>
               <div className="p-4 flex-1 flex flex-col">
                 <p className="font-medium text-foreground">{p.name}</p>
@@ -347,15 +359,15 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>URL image</label>
-                  <input
-                    type="url"
-                    value={form.imageUrl}
-                    onChange={(e) =>
-                      setForm({ ...form, imageUrl: e.target.value })
+                  <label className={labelClass}>Image du pack</label>
+                  <SingleImageUploader
+                    value={form.imageUrl || null}
+                    onChange={(url) =>
+                      setForm({ ...form, imageUrl: url ?? "" })
                     }
-                    className={inputClass}
-                    placeholder="https://..."
+                    folder="packs"
+                    aspect="16/10"
+                    disabled={isSavePending}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -371,11 +383,16 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                       }
                       className={inputClass}
                     >
-                      {Object.entries(TYPE_LABELS).map(([key, label]) => (
+                      {SUPPORTED_DISCOUNT_TYPES.map((key) => (
                         <option key={key} value={key}>
-                          {label}
+                          {TYPE_LABELS[key]}
                         </option>
                       ))}
+                      {!SUPPORTED_DISCOUNT_TYPES.includes(form.discountType) && (
+                        <option value={form.discountType}>
+                          {TYPE_LABELS[form.discountType]}
+                        </option>
+                      )}
                     </select>
                   </div>
                   <div>
@@ -429,8 +446,8 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   Pack actif
                 </label>
                 <p className="text-xs text-muted-light italic">
-                  Les produits inclus dans le pack se gèrent depuis la table
-                  pack_items en base (UI dédiée à venir).
+                  Les produits inclus dans le pack se gèrent depuis la page
+                  Composer (bouton sur chaque carte de pack).
                 </p>
               </div>
               <div className="flex gap-3 p-6 border-t border-border">

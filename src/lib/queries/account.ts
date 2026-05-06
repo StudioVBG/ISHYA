@@ -55,6 +55,7 @@ export interface AccountProfile {
   lastName: string | null;
   phone: string | null;
   birthDate: string | null;
+  avatarUrl: string | null;
   loyaltyPoints: number;
   loyaltyTier: string;
   newsletterOptin: boolean;
@@ -198,7 +199,7 @@ export async function getCurrentUserProfile(): Promise<AccountProfile | null> {
     supabase
       .from("profiles")
       .select(
-        "id, first_name, last_name, phone, date_of_birth, loyalty_points, loyalty_tier, created_at",
+        "id, first_name, last_name, phone, date_of_birth, avatar_url, loyalty_points, loyalty_tier, created_at",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -216,6 +217,7 @@ export async function getCurrentUserProfile(): Promise<AccountProfile | null> {
     lastName: profileResult.data?.last_name ?? null,
     phone: profileResult.data?.phone ?? null,
     birthDate: profileResult.data?.date_of_birth ?? null,
+    avatarUrl: profileResult.data?.avatar_url ?? null,
     loyaltyPoints: profileResult.data?.loyalty_points ?? 0,
     loyaltyTier: profileResult.data?.loyalty_tier ?? "bronze",
     newsletterOptin: prefsResult.data?.email_marketing ?? false,

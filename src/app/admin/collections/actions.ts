@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
 import { slugify } from "@/lib/utils";
 
 export interface CollectionInput {
@@ -111,6 +112,11 @@ export async function deleteCollection(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const { data: existing } = await admin
+    .from("collections")
+    .select("image_url")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await admin.from("collections").delete().eq("id", id);
   if (error) {
     console.error("[deleteCollection]", error);
@@ -119,6 +125,7 @@ export async function deleteCollection(
       error: "Impossible de supprimer (utilisée par des produits ?)",
     };
   }
+  await cleanupManagedUrlsServer(admin.storage, [existing?.image_url]);
   revalidateAll();
   return { ok: true };
 }

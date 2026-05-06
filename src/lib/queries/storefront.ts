@@ -1227,6 +1227,7 @@ import { computePackPrice } from "@/lib/pack-pricing";
 
 export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
   const supabase = await createClient();
+  const nowIso = new Date().toISOString();
   const { data: pack, error } = await supabase
     .from("packs")
     .select(
@@ -1234,6 +1235,8 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
     )
     .eq("slug", slug)
     .or("is_active.is.null,is_active.eq.true")
+    .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
+    .or(`ends_at.is.null,ends_at.gte.${nowIso}`)
     .maybeSingle();
 
   if (error || !pack) {
@@ -1250,70 +1253,48 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
          product_media ( url, is_primary, sort_order ),
          product_variants ( id, name, sku, size, color, stone, material_variant,
                             length_cm, price_override, stock_quantity, is_active, sort_order )
-       )`,
+       ),
+       pack_variant_options ( variant_id, price_adjustment )`,
     )
     .eq("pack_id", pack.id)
     .order("sort_order", { ascending: true });
 
+  type ProductRow = {
+    id: string;
+    name: string;
+    slug: string;
+    short_description: string | null;
+    base_price: number | string;
+    product_media: Array<{
+      url: string;
+      is_primary: boolean | null;
+      sort_order: number | null;
+    }>;
+    product_variants: Array<{
+      id: string;
+      name: string | null;
+      sku: string | null;
+      size: string | null;
+      color: string | null;
+      stone: string | null;
+      material_variant: string | null;
+      length_cm: number | string | null;
+      price_override: number | string | null;
+      stock_quantity: number;
+      is_active: boolean | null;
+      sort_order: number | null;
+    }>;
+  };
   type ItemRow = {
     id: string;
     product_id: string;
     sort_order: number | null;
     is_required: boolean | null;
-    product?:
-      | {
-          id: string;
-          name: string;
-          slug: string;
-          short_description: string | null;
-          base_price: number | string;
-          product_media: Array<{
-            url: string;
-            is_primary: boolean | null;
-            sort_order: number | null;
-          }>;
-          product_variants: Array<{
-            id: string;
-            name: string | null;
-            sku: string | null;
-            size: string | null;
-            color: string | null;
-            stone: string | null;
-            material_variant: string | null;
-            length_cm: number | string | null;
-            price_override: number | string | null;
-            stock_quantity: number;
-            is_active: boolean | null;
-            sort_order: number | null;
-          }>;
-        }
-      | Array<{
-          id: string;
-          name: string;
-          slug: string;
-          short_description: string | null;
-          base_price: number | string;
-          product_media: Array<{
-            url: string;
-            is_primary: boolean | null;
-            sort_order: number | null;
-          }>;
-          product_variants: Array<{
-            id: string;
-            name: string | null;
-            sku: string | null;
-            size: string | null;
-            color: string | null;
-            stone: string | null;
-            material_variant: string | null;
-            length_cm: number | string | null;
-            price_override: number | string | null;
-            stock_quantity: number;
-            is_active: boolean | null;
-            sort_order: number | null;
-          }>;
-        }>
-      | null;
+    product?: ProductRow | ProductRow[] | null;
+    pack_variant_options?: Array<{
+      variant_id: string;
+      price_adjustment: number | string | null;
+    }> | null;
   };
 
   const packItems: PackItem[] = ((items ?? []) as ItemRow[]).flatMap((it) => {
@@ -1326,22 +1307,49 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
         .slice()
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
 
+    // Index des options pack pour cette ligne. Si vide → toutes les variantes
+    // actives du produit sont proposées (comportement historique). Sinon, on
+    // ne conserve que celles listées et on ajoute price_adjustment au
+    // price_override pour ce contexte pack uniquement.
+    const optionsList = it.pack_variant_options ?? [];
+    const optionByVariant = new Map<string, number>();
+    for (const o of optionsList) {
+      optionByVariant.set(o.variant_id, Number(o.price_adjustment ?? 0));
+    }
+    const restrict = optionByVariant.size > 0;
+
+    const productBasePrice = Number(product.base_price);
     const variants: PackVariantOption[] = (product.product_variants ?? [])
       .filter((v) => v.is_active !== false)
+      .filter((v) => !restrict || optionByVariant.has(v.id))
       .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      .map((v) => ({
-        id: v.id,
-        name: v.name,
-        size: v.size,
-        color: v.color,
-        stone: v.stone,
-        material_variant: v.material_variant,
-        length_cm: v.length_cm == null ? null : Number(v.length_cm),
-        price_override:
-          v.price_override == null ? null : Number(v.price_override),
-        stock_quantity: v.stock_quantity,
-        sku: v.sku,
-      }));
+      .map((v) => {
+        const adjustment = optionByVariant.get(v.id) ?? 0;
+        const overrideRaw =
+          v.price_override == null ? null : Number(v.price_override);
+        // Le prix effectif côté pack = override-ou-base + ajustement.
+        // On expose ce résultat dans price_override pour que le client utilise
+        // sa logique habituelle `chosen?.price_override ?? it.base_price`.
+        let adjustedOverride: number | null;
+        if (adjustment === 0) {
+          adjustedOverride = overrideRaw;
+        } else {
+          adjustedOverride =
+            (overrideRaw ?? productBasePrice) + adjustment;
+        }
+        return {
+          id: v.id,
+          name: v.name,
+          size: v.size,
+          color: v.color,
+          stone: v.stone,
+          material_variant: v.material_variant,
+          length_cm: v.length_cm == null ? null : Number(v.length_cm),
+          price_override: adjustedOverride,
+          stock_quantity: v.stock_quantity,
+          sku: v.sku,
+        };
+      });
 
     const item: PackItem = {
       id: it.id,
@@ -1388,10 +1396,12 @@ export async function getPackBySlug(slug: string): Promise<PackDetail | null> {
 
 export async function getAllPackSlugs(): Promise<{ slug: string }[]> {
   const supabase = createBuildClient();
+  const nowIso = new Date().toISOString();
   const { data, error } = await supabase
     .from("packs")
     .select("slug")
-    .or("is_active.is.null,is_active.eq.true");
+    .or("is_active.is.null,is_active.eq.true")
+    .or(`ends_at.is.null,ends_at.gte.${nowIso}`);
   if (error) {
     console.error("[getAllPackSlugs]", error);
     return [];

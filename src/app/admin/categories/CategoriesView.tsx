@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { cn, slugify } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminCategoryRow } from "@/lib/queries/admin";
 import {
   createCategory,
@@ -325,30 +326,28 @@ export function CategoriesView({
                     className={cn(inputClass, "resize-none")}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={labelClass}>URL image</label>
-                    <input
-                      type="url"
-                      value={form.imageUrl}
-                      onChange={(e) =>
-                        setForm({ ...form, imageUrl: e.target.value })
-                      }
-                      className={inputClass}
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Ordre</label>
-                    <input
-                      type="number"
-                      value={form.sortOrder}
-                      onChange={(e) =>
-                        setForm({ ...form, sortOrder: e.target.value })
-                      }
-                      className={inputClass}
-                    />
-                  </div>
+                <div>
+                  <label className={labelClass}>Image de la catégorie</label>
+                  <SingleImageUploader
+                    value={form.imageUrl || null}
+                    onChange={(url) =>
+                      setForm({ ...form, imageUrl: url ?? "" })
+                    }
+                    folder="categories"
+                    aspect="16/10"
+                    disabled={isSavePending}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Ordre</label>
+                  <input
+                    type="number"
+                    value={form.sortOrder}
+                    onChange={(e) =>
+                      setForm({ ...form, sortOrder: e.target.value })
+                    }
+                    className={inputClass}
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Catégorie parente</label>

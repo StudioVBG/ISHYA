@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminCollectionRow } from "@/lib/queries/admin";
 import {
   createCollection,
@@ -341,15 +342,15 @@ export function CollectionsView({
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>URL image</label>
-                  <input
-                    type="url"
-                    value={form.imageUrl}
-                    onChange={(e) =>
-                      setForm({ ...form, imageUrl: e.target.value })
+                  <label className={labelClass}>Image de la collection</label>
+                  <SingleImageUploader
+                    value={form.imageUrl || null}
+                    onChange={(url) =>
+                      setForm({ ...form, imageUrl: url ?? "" })
                     }
-                    className={inputClass}
-                    placeholder="https://..."
+                    folder="collections"
+                    aspect="16/10"
+                    disabled={isSavePending}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">

@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -12,11 +11,11 @@ import {
   ExternalLink,
   X,
   Plus,
-  ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminBlogPostDetail } from "@/lib/queries/admin";
 import {
   createBlogPost,
@@ -312,28 +311,12 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
             className="bg-white rounded-xl border border-border p-5"
           >
             <h3 className="font-semibold text-foreground mb-3">Image de couverture</h3>
-            {coverImageUrl ? (
-              <div className="relative aspect-[16/10] rounded-lg overflow-hidden bg-muted-soft mb-3">
-                <Image
-                  src={coverImageUrl}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="320px"
-                  unoptimized
-                />
-              </div>
-            ) : (
-              <div className="aspect-[16/10] rounded-lg bg-muted-soft flex items-center justify-center mb-3">
-                <ImageIcon className="w-8 h-8 text-muted-light" />
-              </div>
-            )}
-            <input
-              type="url"
-              value={coverImageUrl}
-              onChange={(e) => setCoverImageUrl(e.target.value)}
-              placeholder="https://..."
-              className={inputClass}
+            <SingleImageUploader
+              value={coverImageUrl || null}
+              onChange={(url) => setCoverImageUrl(url ?? "")}
+              folder="blog"
+              aspect="16/10"
+              disabled={isSavePending}
             />
           </motion.div>
 

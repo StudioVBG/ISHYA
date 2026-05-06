@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +10,7 @@ import { Eye, EyeOff, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AccountProfile } from "@/lib/queries/account";
 import { updatePassword, updateProfile } from "./actions";
 
@@ -47,6 +49,10 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
   const [isProfilePending, startProfileTransition] = useTransition();
   const [isPasswordPending, startPasswordTransition] = useTransition();
   const [profileSaved, setProfileSaved] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    profile.avatarUrl ?? null,
+  );
+  const [isAvatarPending, startAvatarTransition] = useTransition();
 
   const initials = (
     (profile.firstName ?? profile.email).charAt(0) +
@@ -85,6 +91,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
         lastName: data.lastName,
         phone: data.phone || null,
         birthDate: data.birthDate || null,
+        avatarUrl,
         newsletter: data.newsletter,
       });
       if (!res.ok) {
@@ -94,6 +101,26 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
       toast.success("Profil mis à jour");
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 2000);
+    });
+  };
+
+  const persistAvatar = (next: string | null) => {
+    setAvatarUrl(next);
+    // L'avatar a sa propre persistance pour ne pas dépendre du bouton
+    // "Enregistrer" du formulaire principal — sinon on perdrait le fichier
+    // déjà uploadé dans Storage si l'utilisateur quitte sans enregistrer.
+    startAvatarTransition(async () => {
+      const res = await updateProfile({
+        firstName: profile.firstName ?? "",
+        lastName: profile.lastName ?? "",
+        phone: profile.phone,
+        birthDate: profile.birthDate,
+        avatarUrl: next,
+        newsletter: profile.newsletterOptin,
+      });
+      if (!res.ok) {
+        toast.error(res.error ?? "Erreur");
+      }
     });
   };
 
@@ -133,19 +160,48 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
           variants={staggerItem}
           className="bg-white rounded-xl border border-border p-6"
         >
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-beige-nude flex items-center justify-center overflow-hidden">
-              <span className="text-2xl font-display font-semibold text-terracotta">
-                {initials}
-              </span>
+          <div className="flex items-start gap-6">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-beige-nude flex items-center justify-center overflow-hidden">
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt="Avatar"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-2xl font-display font-semibold text-terracotta">
+                    {initials}
+                  </span>
+                )}
+              </div>
+              {isAvatarPending && (
+                <div className="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                </div>
+              )}
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="font-medium">
                 {[profile.firstName, profile.lastName]
                   .filter(Boolean)
                   .join(" ") || "Mon compte"}
               </p>
-              <p className="text-sm text-muted mt-0.5">{profile.email}</p>
+              <p className="text-sm text-muted mt-0.5 mb-3">{profile.email}</p>
+              <div className="max-w-xs">
+                <SingleImageUploader
+                  value={avatarUrl}
+                  onChange={persistAvatar}
+                  folder="avatars"
+                  aspect="square"
+                  cropTo={{ width: 256, height: 256 }}
+                  disabled={isAvatarPending}
+                  hint="Recadrée auto en 256×256 (carré)."
+                />
+              </div>
             </div>
           </div>
         </motion.div>

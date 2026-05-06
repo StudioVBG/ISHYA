@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
 import { slugify } from "@/lib/utils";
 
 export interface BlogPostInput {
@@ -147,7 +148,7 @@ export async function deleteBlogPost(
   const admin = createAdminClient();
   const { data: post } = await admin
     .from("blog_posts")
-    .select("slug")
+    .select("slug, cover_image_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -157,6 +158,7 @@ export async function deleteBlogPost(
     return { ok: false, error: "Erreur de suppression" };
   }
 
+  await cleanupManagedUrlsServer(admin.storage, [post?.cover_image_url]);
   revalidateAll(post?.slug);
   redirect("/admin/blog");
 }

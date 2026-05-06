@@ -6,6 +6,7 @@ import { Save, Loader2, Globe, Twitter, ShieldCheck, Info } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminSeoConfig } from "@/lib/queries/admin";
 import { updateSeoConfig } from "./actions";
 
@@ -102,13 +103,15 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
           </p>
         </div>
         <div>
-          <label className={labelClass}>URL image OpenGraph (1200×630)</label>
-          <input
-            type="url"
-            value={state.homeOgImageUrl}
-            onChange={(e) => update("homeOgImageUrl", e.target.value)}
-            placeholder="https://..."
-            className={inputClass}
+          <label className={labelClass}>Image OpenGraph (1200×630)</label>
+          <SingleImageUploader
+            value={state.homeOgImageUrl || null}
+            onChange={(url) => update("homeOgImageUrl", url ?? "")}
+            folder="seo"
+            aspect="1200/630"
+            cropTo={{ width: 1200, height: 630 }}
+            disabled={isPending}
+            hint="Recadrée automatiquement en 1200×630 (center-crop)."
           />
         </div>
         <div>

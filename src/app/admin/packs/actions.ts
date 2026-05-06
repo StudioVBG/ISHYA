@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
 import { slugify } from "@/lib/utils";
 
 export type PackDiscountType =
@@ -33,6 +34,13 @@ function validate(input: PackInput): string | null {
     input.discountValue > 100
   )
     return "Le pourcentage ne peut excéder 100";
+  if (input.startsAt && input.endsAt) {
+    const start = Date.parse(input.startsAt);
+    const end = Date.parse(input.endsAt);
+    if (Number.isFinite(start) && Number.isFinite(end) && end <= start) {
+      return "La date de fin doit être postérieure à la date de début";
+    }
+  }
   return null;
 }
 
@@ -134,11 +142,18 @@ export async function deletePack(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  // Récupère l'URL d'image avant le delete pour cleanup Storage post-DELETE.
+  const { data: existing } = await admin
+    .from("packs")
+    .select("image_url")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await admin.from("packs").delete().eq("id", id);
   if (error) {
     console.error("[deletePack]", error);
     return { ok: false, error: "Erreur de suppression" };
   }
+  await cleanupManagedUrlsServer(admin.storage, [existing?.image_url]);
   revalidateAll();
   return { ok: true };
 }
@@ -231,6 +246,66 @@ export async function setPackItemRequired(
   return { ok: true };
 }
 
+export interface PackItemVariantOptionInput {
+  variantId: string;
+  priceAdjustment: number;
+}
+
+export async function setPackItemVariantOptions(
+  packId: string,
+  packItemId: string,
+  options: PackItemVariantOptionInput[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  // Vérifie l'appartenance pack_item ↔ pack pour éviter qu'un appel forge
+  // un packItemId qui n'est pas dans ce pack.
+  const { data: ownership } = await admin
+    .from("pack_items")
+    .select("id")
+    .eq("id", packItemId)
+    .eq("pack_id", packId)
+    .maybeSingle();
+  if (!ownership) {
+    return { ok: false, error: "Élément introuvable dans ce pack" };
+  }
+
+  // Stratégie : remplacement complet (delete-then-insert). Le volume est
+  // au plus quelques dizaines d'options par item, donc pas un risque.
+  const { error: delError } = await admin
+    .from("pack_variant_options")
+    .delete()
+    .eq("pack_item_id", packItemId);
+  if (delError) {
+    console.error("[setPackItemVariantOptions] delete:", delError);
+    return { ok: false, error: "Erreur" };
+  }
+
+  if (options.length > 0) {
+    const rows = options.map((o) => ({
+      pack_item_id: packItemId,
+      variant_id: o.variantId,
+      price_adjustment: Number.isFinite(o.priceAdjustment)
+        ? o.priceAdjustment
+        : 0,
+    }));
+    const { error: insError } = await admin
+      .from("pack_variant_options")
+      .insert(rows);
+    if (insError) {
+      console.error("[setPackItemVariantOptions] insert:", insError);
+      return { ok: false, error: "Erreur d'enregistrement" };
+    }
+  }
+
+  revalidatePath(`/admin/packs/${packId}`);
+  await revalidatePackBySlug(packId);
+  return { ok: true };
+}
+
 export async function reorderPackItems(
   packId: string,
   orderedIds: string[],
@@ -240,13 +315,19 @@ export async function reorderPackItems(
 
   const admin = createAdminClient();
 
-  // Mise à jour individuelle (pas de batch generic update)
-  for (let i = 0; i < orderedIds.length; i++) {
-    await admin
-      .from("pack_items")
-      .update({ sort_order: i })
-      .eq("id", orderedIds[i])
-      .eq("pack_id", packId);
+  const results = await Promise.all(
+    orderedIds.map((id, i) =>
+      admin
+        .from("pack_items")
+        .update({ sort_order: i })
+        .eq("id", id)
+        .eq("pack_id", packId),
+    ),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    console.error("[reorderPackItems]", failed.error);
+    return { ok: false, error: "Erreur de réordonnancement" };
   }
 
   revalidatePath(`/admin/packs/${packId}`);

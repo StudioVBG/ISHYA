@@ -35,7 +35,7 @@ export default async function AdminLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("first_name, last_name, email, role")
+    .select("first_name, last_name, email, role, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -59,7 +59,11 @@ export default async function AdminLayout({
 
   return (
     <AdminShell
-      user={{ displayName, initials }}
+      user={{
+        displayName,
+        initials,
+        avatarUrl: profile.avatar_url ?? null,
+      }}
       notificationCounts={notificationCounts}
     >
       {children}
