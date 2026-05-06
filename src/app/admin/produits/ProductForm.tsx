@@ -237,7 +237,6 @@ export function ProductForm({
 
   const buildPayload = (active: boolean): ProductInput => ({
     name: name.trim(),
-    slug: product?.slug ?? slugify(name),
     shortDescription: shortDescription.trim(),
     description: description.trim(),
     basePrice: Number(basePrice) || 0,

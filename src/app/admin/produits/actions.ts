@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
-import { slugify } from "@/lib/utils";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 /**
  * Invalide tous les caches storefront susceptibles d'afficher un produit.
@@ -47,7 +47,6 @@ interface CreateProductResult {
 
 export interface ProductInput {
   name: string;
-  slug: string;
   shortDescription: string;
   description: string;
   basePrice: number;
@@ -96,7 +95,6 @@ export interface MediaInput {
 
 function validate(input: ProductInput): string | null {
   if (!input.name.trim()) return "Le nom est requis";
-  if (!input.slug.trim()) return "Le slug est requis";
   if (!Number.isFinite(input.basePrice) || input.basePrice < 0)
     return "Le prix doit être positif";
   if (
@@ -162,7 +160,7 @@ export async function createProduct(
   const primaryCollectionId =
     input.collectionId ?? input.collectionIds[0] ?? null;
 
-  const finalSlug = input.slug.trim() || slugify(input.name);
+  const finalSlug = await uniqueSlug(admin, "products", input.name, "produit");
 
   const { data: product, error: productError } = await admin
     .from("products")
@@ -192,13 +190,7 @@ export async function createProduct(
 
   if (productError || !product) {
     console.error("[createProduct]", productError);
-    return {
-      ok: false,
-      error:
-        productError?.message?.includes("duplicate")
-          ? "Ce slug est déjà utilisé"
-          : "Erreur lors de la création du produit",
-    };
+    return { ok: false, error: "Erreur lors de la création du produit" };
   }
 
   if (variants.length > 0) {
@@ -288,19 +280,12 @@ export async function updateProduct(
   const primaryCollectionId =
     input.collectionId ?? input.collectionIds[0] ?? null;
 
-  const { data: previous } = await admin
-    .from("products")
-    .select("slug")
-    .eq("id", id)
-    .maybeSingle();
-
-  const newSlug = input.slug.trim();
-
+  // Le slug n'est pas modifié à l'édition : on protège les URLs déjà
+  // partagées / indexées. Renommer le produit ne casse pas le lien.
   const { error } = await admin
     .from("products")
     .update({
       name: input.name.trim(),
-      slug: newSlug,
       short_description: input.shortDescription || null,
       description: input.description || null,
       base_price: input.basePrice,
@@ -323,12 +308,7 @@ export async function updateProduct(
 
   if (error) {
     console.error("[updateProduct]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de mise à jour",
-    };
+    return { ok: false, error: "Erreur de mise à jour" };
   }
 
   const collectionIds = Array.from(
@@ -351,11 +331,7 @@ export async function updateProduct(
   revalidatePath(`/admin/produits/${id}`);
   revalidatePath("/admin/collections");
   revalidatePath("/admin/categories");
-  const previousSlug = previous?.slug ?? null;
-  revalidateStorefrontProductPaths(
-    newSlug,
-    previousSlug && previousSlug !== newSlug ? [previousSlug] : [],
-  );
+  await revalidateForProductId(admin, id);
   return { ok: true };
 }
 

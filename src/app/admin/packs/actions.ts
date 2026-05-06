@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
-import { slugify } from "@/lib/utils";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 export type PackDiscountType =
   | "percentage"
@@ -14,7 +14,6 @@ export type PackDiscountType =
 
 export interface PackInput {
   name: string;
-  slug: string;
   description: string | null;
   imageUrl: string | null;
   discountType: PackDiscountType;
@@ -26,7 +25,6 @@ export interface PackInput {
 
 function validate(input: PackInput): string | null {
   if (!input.name.trim()) return "Le nom est requis";
-  if (!input.slug.trim()) return "Le slug est requis";
   if (!Number.isFinite(input.discountValue) || input.discountValue < 0)
     return "La valeur doit être positive";
   if (
@@ -71,9 +69,10 @@ export async function createPack(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const slug = await uniqueSlug(admin, "packs", input.name, "pack");
   const { error } = await admin.from("packs").insert({
     name: input.name.trim(),
-    slug: input.slug.trim() || slugify(input.name),
+    slug,
     description: input.description,
     image_url: input.imageUrl,
     discount_type: input.discountType,
@@ -85,12 +84,7 @@ export async function createPack(
 
   if (error) {
     console.error("[createPack]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de création",
-    };
+    return { ok: false, error: "Erreur de création" };
   }
   revalidateAll();
   return { ok: true };
@@ -107,11 +101,12 @@ export async function updatePack(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  // Le slug n'est pas modifié à l'édition : on protège les URLs déjà
+  // partagées / indexées. Renommer le pack ne casse pas le lien.
   const { error } = await admin
     .from("packs")
     .update({
       name: input.name.trim(),
-      slug: input.slug.trim(),
       description: input.description,
       image_url: input.imageUrl,
       discount_type: input.discountType,
@@ -124,12 +119,7 @@ export async function updatePack(
 
   if (error) {
     console.error("[updatePack]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de mise à jour",
-    };
+    return { ok: false, error: "Erreur de mise à jour" };
   }
   revalidateAll();
   return { ok: true };

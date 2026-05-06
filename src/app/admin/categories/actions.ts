@@ -4,11 +4,10 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
-import { slugify } from "@/lib/utils";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 export interface CategoryInput {
   name: string;
-  slug: string;
   description: string | null;
   imageUrl: string | null;
   parentId: string | null;
@@ -18,7 +17,6 @@ export interface CategoryInput {
 
 function validate(input: CategoryInput): string | null {
   if (!input.name.trim()) return "Le nom est requis";
-  if (!input.slug.trim()) return "Le slug est requis";
   return null;
 }
 
@@ -39,11 +37,12 @@ export async function createCategory(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const slug = await uniqueSlug(admin, "categories", input.name, "categorie");
   const { data, error } = await admin
     .from("categories")
     .insert({
       name: input.name.trim(),
-      slug: input.slug.trim() || slugify(input.name),
+      slug,
       description: input.description,
       image_url: input.imageUrl,
       parent_id: input.parentId,
@@ -55,13 +54,7 @@ export async function createCategory(
 
   if (error || !data) {
     console.error("[createCategory]", error);
-    return {
-      ok: false,
-      error:
-        error?.message?.includes("duplicate")
-          ? "Ce slug est déjà utilisé"
-          : "Erreur de création",
-    };
+    return { ok: false, error: "Erreur de création" };
   }
   revalidateAll();
   return { ok: true, id: data.id };
@@ -78,11 +71,11 @@ export async function updateCategory(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  // Slug figé à l'édition pour préserver les URLs déjà partagées.
   const { error } = await admin
     .from("categories")
     .update({
       name: input.name.trim(),
-      slug: input.slug.trim(),
       description: input.description,
       image_url: input.imageUrl,
       parent_id: input.parentId,
@@ -93,12 +86,7 @@ export async function updateCategory(
 
   if (error) {
     console.error("[updateCategory]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de mise à jour",
-    };
+    return { ok: false, error: "Erreur de mise à jour" };
   }
   revalidateAll();
   return { ok: true };

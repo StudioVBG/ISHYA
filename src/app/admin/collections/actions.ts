@@ -4,11 +4,10 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { cleanupManagedUrlsServer } from "@/lib/admin/image-upload";
-import { slugify } from "@/lib/utils";
+import { uniqueSlug } from "@/lib/admin/slug";
 
 export interface CollectionInput {
   name: string;
-  slug: string;
   description: string | null;
   imageUrl: string | null;
   startsAt: string | null;
@@ -19,7 +18,6 @@ export interface CollectionInput {
 
 function validate(input: CollectionInput): string | null {
   if (!input.name.trim()) return "Le nom est requis";
-  if (!input.slug.trim()) return "Le slug est requis";
   return null;
 }
 
@@ -39,11 +37,12 @@ export async function createCollection(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  const slug = await uniqueSlug(admin, "collections", input.name, "collection");
   const { data, error } = await admin
     .from("collections")
     .insert({
       name: input.name.trim(),
-      slug: input.slug.trim() || slugify(input.name),
+      slug,
       description: input.description,
       image_url: input.imageUrl,
       starts_at: input.startsAt,
@@ -56,12 +55,7 @@ export async function createCollection(
 
   if (error || !data) {
     console.error("[createCollection]", error);
-    return {
-      ok: false,
-      error: error?.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de création",
-    };
+    return { ok: false, error: "Erreur de création" };
   }
   revalidateAll();
   return { ok: true, id: data.id };
@@ -78,11 +72,11 @@ export async function updateCollection(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+  // Slug figé à l'édition pour préserver les URLs déjà partagées.
   const { error } = await admin
     .from("collections")
     .update({
       name: input.name.trim(),
-      slug: input.slug.trim(),
       description: input.description,
       image_url: input.imageUrl,
       starts_at: input.startsAt,
@@ -94,12 +88,7 @@ export async function updateCollection(
 
   if (error) {
     console.error("[updateCollection]", error);
-    return {
-      ok: false,
-      error: error.message?.includes("duplicate")
-        ? "Ce slug est déjà utilisé"
-        : "Erreur de mise à jour",
-    };
+    return { ok: false, error: "Erreur de mise à jour" };
   }
   revalidateAll();
   return { ok: true };
