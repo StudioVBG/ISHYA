@@ -321,3 +321,66 @@ export async function deleteShippingMethod(
   revalidateAll();
   return { ok: true };
 }
+
+/**
+ * Réordonne les méthodes d'une zone (sort_order). Bulk upsert pour 1
+ * round-trip au lieu de N. Vérifie que tous les ids appartiennent bien à
+ * la zone (anti-injection).
+ */
+export async function reorderShippingMethods(
+  zoneId: string,
+  orderedIds: string[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  if (orderedIds.length === 0) return { ok: true };
+
+  const admin = createAdminClient();
+
+  // Vérifie l'appartenance + récupère les NOT NULL pour le upsert.
+  const { data: existing, error: fetchError } = await admin
+    .from("shipping_methods")
+    .select(
+      "id, zone_id, name, carrier, description, price, free_above, estimated_days_min, estimated_days_max, is_active",
+    )
+    .eq("zone_id", zoneId)
+    .in("id", orderedIds);
+
+  if (fetchError) {
+    console.error("[reorderShippingMethods] fetch", fetchError);
+    return { ok: false, error: "Erreur de lecture" };
+  }
+  if (!existing || existing.length !== orderedIds.length) {
+    return { ok: false, error: "Méthodes invalides ou hors zone" };
+  }
+
+  type ExistingRow = (typeof existing)[number];
+  const byId = new Map<string, ExistingRow>(
+    existing.map((r) => [r.id as string, r]),
+  );
+  const rows = orderedIds.map((id, i) => {
+    const r = byId.get(id)!;
+    return { ...r, sort_order: i };
+  });
+
+  const { error } = await admin
+    .from("shipping_methods")
+    .upsert(rows, { onConflict: "id" });
+
+  if (error) {
+    console.error("[reorderShippingMethods] upsert", error);
+    return { ok: false, error: "Erreur de réordonnancement" };
+  }
+
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "reorder",
+    tableName: "shipping_methods",
+    recordId: zoneId,
+    newData: { count: orderedIds.length, zone_id: zoneId },
+  });
+
+  revalidateAll();
+  return { ok: true };
+}

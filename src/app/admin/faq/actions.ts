@@ -189,3 +189,71 @@ export async function toggleFaqActive(
   revalidateAll();
   return { ok: true };
 }
+
+/**
+ * Réordonne un groupe d'articles FAQ via upsert bulk : on envoie l'ordre
+ * complet d'un groupe (typiquement une catégorie) et le serveur écrit les
+ * `sort_order` en une seule requête.
+ */
+export async function reorderFaqArticles(
+  orderedIds: string[],
+): Promise<{ ok: boolean; error?: string }> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  if (orderedIds.length === 0) return { ok: true };
+
+  const admin = createAdminClient();
+
+  // On lit les rows existantes pour préserver les autres colonnes lors du
+  // upsert (Supabase exige tous les NOT NULL — on ne peut pas faire un
+  // upsert partiel sans risque).
+  const { data: existing, error: fetchError } = await admin
+    .from("faq_articles")
+    .select("id, question, answer, category, category_slug, is_active")
+    .in("id", orderedIds);
+
+  if (fetchError) {
+    console.error("[reorderFaqArticles] fetch", fetchError);
+    return { ok: false, error: "Erreur de lecture" };
+  }
+  if (!existing || existing.length !== orderedIds.length) {
+    return { ok: false, error: "Items invalides" };
+  }
+
+  type ExistingRow = {
+    id: string;
+    question: string;
+    answer: string;
+    category: string | null;
+    category_slug: string | null;
+    is_active: boolean | null;
+  };
+  const byId = new Map<string, ExistingRow>(
+    (existing as ExistingRow[]).map((r) => [r.id, r]),
+  );
+  const rows = orderedIds.map((id, i) => {
+    const r = byId.get(id)!;
+    return {
+      id: r.id,
+      question: r.question,
+      answer: r.answer,
+      category: r.category,
+      category_slug: r.category_slug,
+      is_active: r.is_active,
+      sort_order: i,
+    };
+  });
+
+  const { error } = await admin
+    .from("faq_articles")
+    .upsert(rows, { onConflict: "id" });
+
+  if (error) {
+    console.error("[reorderFaqArticles] upsert", error);
+    return { ok: false, error: "Erreur de réordonnancement" };
+  }
+
+  revalidateAll();
+  return { ok: true };
+}

@@ -11,7 +11,26 @@ import {
   Globe,
   Truck,
   Package,
+  GripVertical,
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
@@ -20,6 +39,7 @@ import {
   createShippingZone,
   deleteShippingMethod,
   deleteShippingZone,
+  reorderShippingMethods,
   updateShippingMethod,
   updateShippingZone,
   type ShippingMethodInput,
@@ -119,6 +139,38 @@ export function LivraisonView({
   const [isMethodPending, startMethodTransition] = useTransition();
   const [deletingMethod, setDeletingMethod] =
     useState<ShippingMethodRow | null>(null);
+
+  // Override d'ordre local pour les méthodes (optimistic update). Stocké
+  // comme map zoneId → liste d'ids. On NE reset PAS sur prop change : à
+  // la place, on filtre au render les ids qui n'existent plus dans
+  // `methods` (stale entries deviennent no-op naturellement).
+  const [methodsOrderById, setMethodsOrderById] = useState<
+    Record<string, string[]>
+  >({});
+
+  const handleReorderMethods = (
+    zoneId: string,
+    reordered: ShippingMethodRow[],
+  ) => {
+    setMethodsOrderById((prev) => ({
+      ...prev,
+      [zoneId]: reordered.map((m) => m.id),
+    }));
+    startMethodTransition(async () => {
+      const res = await reorderShippingMethods(
+        zoneId,
+        reordered.map((m) => m.id),
+      );
+      if (!res.ok) {
+        toast.error(res.error ?? "Réordonnancement échoué");
+        setMethodsOrderById((prev) => {
+          const next = { ...prev };
+          delete next[zoneId];
+          return next;
+        });
+      }
+    });
+  };
 
   const methodsByZone = useMemo(() => {
     const m = new Map<string, ShippingMethodRow[]>();
@@ -284,7 +336,19 @@ export function LivraisonView({
       ) : (
         <div className="space-y-4">
           {zones.map((z) => {
-            const zoneMethods = methodsByZone.get(z.id) ?? [];
+            const baseMethods = methodsByZone.get(z.id) ?? [];
+            const order = methodsOrderById[z.id];
+            // Si on a un override d'ordre, on réorganise les méthodes en
+            // gardant les éventuels nouveaux items (qui ne sont pas dans
+            // l'override) à la fin.
+            const zoneMethods = order
+              ? [
+                  ...order
+                    .map((id) => baseMethods.find((m) => m.id === id))
+                    .filter((m): m is ShippingMethodRow => !!m),
+                  ...baseMethods.filter((m) => !order.includes(m.id)),
+                ]
+              : baseMethods;
             return (
               <div
                 key={z.id}
@@ -337,75 +401,14 @@ export function LivraisonView({
                     Aucune méthode dans cette zone
                   </div>
                 ) : (
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted-soft/30 text-xs uppercase tracking-wide text-muted">
-                      <tr>
-                        <th className="text-left px-5 py-2 font-semibold">Méthode</th>
-                        <th className="text-left px-5 py-2 font-semibold">Transporteur</th>
-                        <th className="text-right px-5 py-2 font-semibold">Prix</th>
-                        <th className="text-right px-5 py-2 font-semibold">Gratuit dès</th>
-                        <th className="text-left px-5 py-2 font-semibold">Délais</th>
-                        <th className="text-left px-5 py-2 font-semibold">Statut</th>
-                        <th className="text-right px-5 py-2 font-semibold">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {zoneMethods.map((m) => (
-                        <tr key={m.id} className="hover:bg-muted-soft/30">
-                          <td className="px-5 py-3">
-                            <p className="font-medium text-foreground">{m.name}</p>
-                            {m.description ? (
-                              <p className="text-xs text-muted mt-0.5">
-                                {m.description}
-                              </p>
-                            ) : null}
-                          </td>
-                          <td className="px-5 py-3 text-muted">{m.carrier ?? "—"}</td>
-                          <td className="px-5 py-3 text-right font-medium">
-                            {formatMoney(m.price)}
-                          </td>
-                          <td className="px-5 py-3 text-right text-muted">
-                            {m.freeAbove != null ? formatMoney(m.freeAbove) : "—"}
-                          </td>
-                          <td className="px-5 py-3 text-muted">
-                            {m.estimatedDaysMin != null && m.estimatedDaysMax != null
-                              ? `${m.estimatedDaysMin}–${m.estimatedDaysMax} j`
-                              : m.estimatedDaysMin != null
-                                ? `${m.estimatedDaysMin}+ j`
-                                : "—"}
-                          </td>
-                          <td className="px-5 py-3">
-                            {m.isActive ? (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                Actif
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                                Inactif
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-5 py-3">
-                            <div className="flex justify-end gap-1.5">
-                              <button
-                                onClick={() => openMethodEdit(m)}
-                                className="inline-flex items-center px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                              </button>
-                              <button
-                                disabled={isMethodPending}
-                                onClick={() => setDeletingMethod(m)}
-                                className="inline-flex items-center px-2 py-1 text-xs border border-destructive/30 text-destructive bg-destructive-soft rounded hover:bg-destructive/15 disabled:opacity-50"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <SortableMethodsTable
+                    zoneId={z.id}
+                    methods={zoneMethods}
+                    isMethodPending={isMethodPending}
+                    onEdit={openMethodEdit}
+                    onDelete={(m) => setDeletingMethod(m)}
+                    onReorder={handleReorderMethods}
+                  />
                 )}
               </div>
             );
@@ -752,5 +755,183 @@ export function LivraisonView({
         onConfirm={handleConfirmDeleteMethod}
       />
     </div>
+  );
+}
+
+function SortableMethodsTable({
+  zoneId,
+  methods,
+  isMethodPending,
+  onEdit,
+  onDelete,
+  onReorder,
+}: {
+  zoneId: string;
+  methods: ShippingMethodRow[];
+  isMethodPending: boolean;
+  onEdit: (m: ShippingMethodRow) => void;
+  onDelete: (m: ShippingMethodRow) => void;
+  onReorder: (zoneId: string, reordered: ShippingMethodRow[]) => void;
+}) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = methods.findIndex((m) => m.id === active.id);
+    const newIdx = methods.findIndex((m) => m.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    onReorder(zoneId, arrayMove(methods, oldIdx, newIdx));
+  };
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <table className="w-full text-sm">
+        <thead className="bg-muted-soft/30 text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th className="w-8 px-2 py-2"></th>
+            <th className="text-left px-5 py-2 font-semibold">Méthode</th>
+            <th className="text-left px-5 py-2 font-semibold">Transporteur</th>
+            <th className="text-right px-5 py-2 font-semibold">Prix</th>
+            <th className="text-right px-5 py-2 font-semibold">Gratuit dès</th>
+            <th className="text-left px-5 py-2 font-semibold">Délais</th>
+            <th className="text-left px-5 py-2 font-semibold">Statut</th>
+            <th className="text-right px-5 py-2 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <SortableContext
+          items={methods.map((m) => m.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <tbody className="divide-y divide-border">
+            {methods.map((m) => (
+              <SortableMethodRow
+                key={m.id}
+                method={m}
+                isMethodPending={isMethodPending}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </tbody>
+        </SortableContext>
+      </table>
+    </DndContext>
+  );
+}
+
+function SortableMethodRow({
+  method: m,
+  isMethodPending,
+  onEdit,
+  onDelete,
+}: {
+  method: ShippingMethodRow;
+  isMethodPending: boolean;
+  onEdit: (m: ShippingMethodRow) => void;
+  onDelete: (m: ShippingMethodRow) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: m.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={
+        isDragging
+          ? "bg-white shadow-md relative z-10"
+          : "hover:bg-muted-soft/30"
+      }
+    >
+      <td className="w-8 px-2 py-3 text-center">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={`Réordonner ${m.name}`}
+          className="p-1 rounded text-muted-light hover:text-foreground hover:bg-muted-soft cursor-grab active:cursor-grabbing touch-none"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+      </td>
+      <td className="px-5 py-3">
+        <p className="font-medium text-foreground">{m.name}</p>
+        {m.description ? (
+          <p className="text-xs text-muted mt-0.5">{m.description}</p>
+        ) : null}
+      </td>
+      <td className="px-5 py-3 text-muted">{m.carrier ?? "—"}</td>
+      <td className="px-5 py-3 text-right font-medium">
+        {new Intl.NumberFormat("fr-FR", {
+          style: "currency",
+          currency: "EUR",
+        }).format(m.price)}
+      </td>
+      <td className="px-5 py-3 text-right text-muted">
+        {m.freeAbove != null
+          ? new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+            }).format(m.freeAbove)
+          : "—"}
+      </td>
+      <td className="px-5 py-3 text-muted">
+        {m.estimatedDaysMin != null && m.estimatedDaysMax != null
+          ? `${m.estimatedDaysMin}–${m.estimatedDaysMax} j`
+          : m.estimatedDaysMin != null
+            ? `${m.estimatedDaysMin}+ j`
+            : "—"}
+      </td>
+      <td className="px-5 py-3">
+        {m.isActive ? (
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-success-soft text-success border border-success/30">
+            Actif
+          </span>
+        ) : (
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted-soft text-muted border border-border">
+            Inactif
+          </span>
+        )}
+      </td>
+      <td className="px-5 py-3">
+        <div className="flex justify-end gap-1.5">
+          <button
+            onClick={() => onEdit(m)}
+            aria-label={`Modifier ${m.name}`}
+            className="inline-flex items-center px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40"
+          >
+            <Edit2 className="w-3 h-3" />
+          </button>
+          <button
+            disabled={isMethodPending}
+            onClick={() => onDelete(m)}
+            aria-label={`Supprimer ${m.name}`}
+            className="inline-flex items-center px-2 py-1 text-xs border border-destructive/30 text-destructive bg-destructive-soft rounded hover:bg-destructive/15 disabled:opacity-50"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 }

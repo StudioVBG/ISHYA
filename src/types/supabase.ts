@@ -741,6 +741,7 @@ export type Database = {
         Row: {
           answer: string
           category: string | null
+          category_slug: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
@@ -751,6 +752,7 @@ export type Database = {
         Insert: {
           answer: string
           category?: string | null
+          category_slug?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -761,6 +763,7 @@ export type Database = {
         Update: {
           answer?: string
           category?: string | null
+          category_slug?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
