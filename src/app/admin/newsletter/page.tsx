@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { NewsletterView, type NewsletterRow } from "./NewsletterView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 // Limite de chargement pour éviter de tirer toute la table en RAM.
 // Au-delà, prévoir une vraie pagination cursor (P2).

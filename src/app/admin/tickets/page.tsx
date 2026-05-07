@@ -1,7 +1,7 @@
 import { getAdminTickets } from "@/lib/queries/admin";
 import { TicketsView } from "./TicketsView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Tickets — Admin ISHYA",

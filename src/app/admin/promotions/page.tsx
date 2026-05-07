@@ -5,7 +5,7 @@ import {
 } from "@/lib/queries/admin";
 import { PromotionsView } from "./PromotionsView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Codes promo — Admin ISHYA",

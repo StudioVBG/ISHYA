@@ -1,7 +1,7 @@
 import { getAdminCmsPages } from "@/lib/queries/admin";
 import { PagesList } from "./PagesList";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Pages CMS — Admin ISHYA",

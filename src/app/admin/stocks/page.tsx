@@ -5,7 +5,7 @@ export const metadata = {
   title: "Stocks — Admin ISHYA",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function AdminStocksPage() {
   const rows = await getAdminVariantStocks();

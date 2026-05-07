@@ -3,7 +3,7 @@ import { getAdminSettings } from "@/lib/queries/admin";
 import { createClient } from "@/lib/supabase/server";
 import { ParametresView } from "./ParametresView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Paramètres — Admin ISHYA",

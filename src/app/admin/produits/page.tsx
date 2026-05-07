@@ -5,7 +5,7 @@ export const metadata = {
   title: "Produits — Admin ISHYA",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function AdminProduitsPage() {
   const products = await getAdminProducts();

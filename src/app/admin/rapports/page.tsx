@@ -1,7 +1,7 @@
 import { getAdminAnalytics } from "@/lib/queries/admin";
 import { RapportsView } from "./RapportsView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata = {
   title: "Rapports — Admin ISHYA",

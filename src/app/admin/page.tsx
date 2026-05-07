@@ -9,7 +9,7 @@ export const metadata = {
   title: "Dashboard — Admin ISHYA",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function AdminDashboardPage() {
   const [stats, recentOrders, lowStock] = await Promise.all([

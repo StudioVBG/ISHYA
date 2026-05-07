@@ -1,7 +1,7 @@
 import { getAdminPacks } from "@/lib/queries/admin";
 import { PacksView } from "./PacksView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Packs — Admin ISHYA",

@@ -1,7 +1,7 @@
 import { getAdminBanners } from "@/lib/queries/admin";
 import { BannieresView } from "./BannieresView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Bannières — Admin ISHYA",
