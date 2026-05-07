@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import {
   Loader2,
   Layers,
   Package,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
@@ -57,6 +58,27 @@ function toDatetimeLocal(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+type SortKey =
+  | "order-asc"
+  | "order-desc"
+  | "name-asc"
+  | "name-desc"
+  | "products-desc"
+  | "products-asc"
+  | "starts-desc"
+  | "starts-asc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  "order-asc": "Ordre (1 → 9)",
+  "order-desc": "Ordre (9 → 1)",
+  "name-asc": "Nom (A → Z)",
+  "name-desc": "Nom (Z → A)",
+  "products-desc": "Produits (plus → moins)",
+  "products-asc": "Produits (moins → plus)",
+  "starts-desc": "Début (récent → ancien)",
+  "starts-asc": "Début (ancien → récent)",
+};
+
 export function CollectionsView({
   collections,
 }: {
@@ -70,6 +92,48 @@ export function CollectionsView({
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">(
+    "",
+  );
+  const [sortKey, setSortKey] = useState<SortKey>("order-asc");
+
+  const visibleCollections = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const filtered = collections.filter((c) => {
+      if (q) {
+        const haystack = `${c.name} ${c.slug} ${c.description ?? ""}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      if (statusFilter === "active" && !c.isActive) return false;
+      if (statusFilter === "inactive" && c.isActive) return false;
+      return true;
+    });
+    const startsAtMs = (c: AdminCollectionRow) =>
+      c.startsAt ? new Date(c.startsAt).getTime() : 0;
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortKey) {
+        case "order-asc":
+          return a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, "fr");
+        case "order-desc":
+          return b.sortOrder - a.sortOrder || a.name.localeCompare(b.name, "fr");
+        case "name-asc":
+          return a.name.localeCompare(b.name, "fr");
+        case "name-desc":
+          return b.name.localeCompare(a.name, "fr");
+        case "products-desc":
+          return b.productCount - a.productCount;
+        case "products-asc":
+          return a.productCount - b.productCount;
+        case "starts-desc":
+          return startsAtMs(b) - startsAtMs(a);
+        case "starts-asc":
+          return startsAtMs(a) - startsAtMs(b);
+      }
+    });
+    return sorted;
+  }, [collections, search, statusFilter, sortKey]);
 
   const deletingCollection = collections.find((c) => c.id === deletingId);
 
@@ -174,6 +238,57 @@ export function CollectionsView({
         </button>
       </motion.div>
 
+      {collections.length > 0 && (
+        <motion.div
+          variants={staggerItem}
+          className="bg-white rounded-xl border border-border p-4"
+        >
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+              <input
+                type="text"
+                placeholder="Rechercher une collection..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              />
+            </div>
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as SortKey)}
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              aria-label="Trier les collections"
+            >
+              {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+                <option key={key} value={key}>
+                  {SORT_LABELS[key]}
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as "" | "active" | "inactive")
+              }
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              aria-label="Filtrer par statut"
+            >
+              <option value="">Tous statuts</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          {visibleCollections.length !== collections.length && (
+            <p className="mt-3 pt-3 border-t border-border/50 text-xs text-muted">
+              {visibleCollections.length} collection
+              {visibleCollections.length > 1 ? "s" : ""} affichée
+              {visibleCollections.length > 1 ? "s" : ""} sur {collections.length}
+            </p>
+          )}
+        </motion.div>
+      )}
+
       <motion.div
         variants={staggerItem}
         className="bg-white rounded-xl border border-border overflow-hidden"
@@ -211,8 +326,18 @@ export function CollectionsView({
                     Aucune collection. Créez-en une pour commencer.
                   </td>
                 </tr>
+              ) : visibleCollections.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-4 py-12 text-center text-muted-light"
+                  >
+                    <Layers className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+                    Aucune collection ne correspond à votre recherche.
+                  </td>
+                </tr>
               ) : (
-                collections.map((c) => (
+                visibleCollections.map((c) => (
                   <tr
                     key={c.id}
                     className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
