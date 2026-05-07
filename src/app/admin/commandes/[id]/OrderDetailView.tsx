@@ -87,7 +87,13 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
         toast.error(res.error ?? "Erreur");
         return;
       }
-      toast.success("Remboursement effectué");
+      if (res.status === "pending") {
+        toast.success(
+          "Remboursement initié — Stripe confirmera le statut sous peu",
+        );
+      } else {
+        toast.success("Remboursement effectué");
+      }
     });
   };
 
