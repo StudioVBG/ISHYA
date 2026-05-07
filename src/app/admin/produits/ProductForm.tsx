@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { cn, slugify } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { ImageUploader, type UploadedPhoto } from "@/components/admin/ImageUploader";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type {
   AdminCategoryOption,
   AdminCollectionOption,
@@ -227,6 +228,7 @@ export function ProductForm({
 
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const allCategoryIds = useMemo(() => {
     const ids = primaryCategoryId
@@ -326,19 +328,15 @@ export function ProductForm({
     });
   };
 
-  const handleDelete = () => {
+  const handleConfirmDelete = () => {
     if (!product) return;
-    if (
-      !window.confirm(
-        `Supprimer définitivement « ${product.name} » ? Les photos seront aussi effacées.`,
-      )
-    )
-      return;
     startDeleteTransition(async () => {
       const res = await deleteProduct(product.id);
       if (res && !res.ok) {
         toast.error(res.error ?? "Erreur");
+        setConfirmDelete(false);
       }
+      // Sur succès → redirect()
     });
   };
 
@@ -397,7 +395,7 @@ export function ProductForm({
             )}
             {isEditing && (
               <button
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={isDeletePending || isSavePending}
                 className="inline-flex items-center gap-1.5 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
@@ -984,6 +982,21 @@ export function ProductForm({
           </motion.div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Supprimer définitivement ce produit ?"
+        description={
+          product
+            ? `« ${product.name} » sera supprimé. Les photos, variantes et appartenances aux catégories/collections/packs seront aussi effacées.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

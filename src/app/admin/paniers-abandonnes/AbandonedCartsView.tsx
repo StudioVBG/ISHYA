@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { deleteAbandonedCart, sendReminderEmail } from "./actions";
 
 export interface AbandonedCartRow {
@@ -48,7 +49,10 @@ function formatMoney(n: number): string {
 export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
   const [filter, setFilter] = useState<Filter>("open");
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const deletingCart = rows.find((r) => r.id === deletingId);
 
   const counts = useMemo(
     () => ({
@@ -110,10 +114,12 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Supprimer définitivement ce panier ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startTransition(async () => {
       const res = await deleteAbandonedCart(id);
+      setDeletingId(null);
       if (res.ok) toast.success("Supprimé");
       else toast.error(res.error || "Erreur");
     });
@@ -283,7 +289,7 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
                       ) : null}
                       <button
                         disabled={isPending}
-                        onClick={() => handleDelete(r.id)}
+                        onClick={() => setDeletingId(r.id)}
                         className="inline-flex items-center px-2 py-1 text-xs border border-destructive/30 text-destructive bg-destructive-soft rounded hover:bg-destructive/15 disabled:opacity-50"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -303,6 +309,23 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
         Le cron <code>/api/cron/abandoned-carts</code> envoie automatiquement à
         1h / 24h / 48h.
       </p>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer définitivement ce panier ?"
+        description={
+          deletingCart
+            ? `Le panier de ${deletingCart.email ?? "(invité)"} sera supprimé. L'historique des relances sera perdu.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isPending}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

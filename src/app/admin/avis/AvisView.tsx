@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminReviewRow } from "@/lib/queries/admin";
 import {
   approveReview,
@@ -36,6 +37,11 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
   const [isPending, startTransition] = useTransition();
   const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
+  const [deletingReview, setDeletingReview] = useState<AdminReviewRow | null>(
+    null,
+  );
+  const [deletingReplyFor, setDeletingReplyFor] =
+    useState<AdminReviewRow | null>(null);
 
   const filtered = useMemo(() => {
     return reviews.filter((r) => {
@@ -85,12 +91,14 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
     });
   };
 
-  const handleDelete = (r: AdminReviewRow) => {
-    if (!window.confirm("Supprimer définitivement cet avis ?")) return;
+  const handleConfirmDeleteReview = () => {
+    if (!deletingReview) return;
+    const r = deletingReview;
     setPendingId(r.id);
     startTransition(async () => {
       const res = await deleteReview(r.id, r.productSlug);
       setPendingId(null);
+      setDeletingReview(null);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
         return;
@@ -123,13 +131,15 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
     });
   };
 
-  const handleReplyDelete = (r: AdminReviewRow) => {
-    if (!r.response) return;
-    if (!window.confirm("Supprimer cette réponse ?")) return;
+  const handleConfirmDeleteReply = () => {
+    if (!deletingReplyFor || !deletingReplyFor.response) return;
+    const r = deletingReplyFor;
+    const responseId = r.response!.id;
     setPendingId(r.id);
     startTransition(async () => {
-      const res = await deleteReviewResponse(r.response!.id, r.productSlug);
+      const res = await deleteReviewResponse(responseId, r.productSlug);
       setPendingId(null);
+      setDeletingReplyFor(null);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
         return;
@@ -311,7 +321,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                     </button>
                   )}
                   <button
-                    onClick={() => handleDelete(r)}
+                    onClick={() => setDeletingReview(r)}
                     disabled={isPending && pendingId === r.id}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-destructive-soft text-destructive rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
                   >
@@ -335,7 +345,7 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
                         Modifier
                       </button>
                       <button
-                        onClick={() => handleReplyDelete(r)}
+                        onClick={() => setDeletingReplyFor(r)}
                         disabled={isPending && pendingId === r.id}
                         className="inline-flex items-center gap-1 text-xs text-destructive hover:underline disabled:opacity-50"
                       >
@@ -400,6 +410,36 @@ export function AvisView({ reviews }: { reviews: AdminReviewRow[] }) {
           ))}
         </motion.div>
       )}
+
+      <ConfirmDialog
+        open={deletingReview !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingReview(null);
+        }}
+        title="Supprimer définitivement cet avis ?"
+        description={
+          deletingReview
+            ? `L'avis « ${deletingReview.title ?? "(sans titre)"} » sur ${deletingReview.productName} sera supprimé. Cette action est définitive.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isPending && pendingId === deletingReview?.id}
+        onConfirm={handleConfirmDeleteReview}
+      />
+
+      <ConfirmDialog
+        open={deletingReplyFor !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingReplyFor(null);
+        }}
+        title="Supprimer cette réponse ?"
+        description="La réponse de la boutique à cet avis sera retirée publiquement."
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isPending && pendingId === deletingReplyFor?.id}
+        onConfirm={handleConfirmDeleteReply}
+      />
     </motion.div>
   );
 }

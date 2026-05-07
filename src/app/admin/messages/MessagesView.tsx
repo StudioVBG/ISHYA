@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import {
   deleteContactMessage,
   updateContactMessageStatus,
@@ -61,7 +62,10 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
   const [filter, setFilter] = useState<"all" | ContactMessageStatus>("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<ContactMessageRow | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const deletingMessage = messages.find((m) => m.id === deletingId);
 
   const counts = useMemo(() => {
     return {
@@ -99,10 +103,12 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Supprimer définitivement ce message ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startTransition(async () => {
       const res = await deleteContactMessage(id);
+      setDeletingId(null);
       if (res.ok) {
         toast.success("Message supprimé");
         if (selected?.id === id) setSelected(null);
@@ -302,7 +308,7 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
 
               <button
                 disabled={isPending}
-                onClick={() => handleDelete(selected.id)}
+                onClick={() => setDeletingId(selected.id)}
                 className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
                 {isPending ? (
@@ -320,6 +326,23 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer définitivement ce message ?"
+        description={
+          deletingMessage
+            ? `Le message de ${deletingMessage.email} sera supprimé. Cette action est définitive.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isPending}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

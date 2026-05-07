@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminCmsPageDetail } from "@/lib/queries/admin";
 import {
   createCmsPage,
@@ -36,6 +37,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
   );
   const [isPublished, setIsPublished] = useState(page?.isPublished ?? false);
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
 
@@ -70,13 +72,13 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
     });
   };
 
-  const handleDelete = () => {
+  const handleConfirmDelete = () => {
     if (!page) return;
-    if (!window.confirm("Supprimer définitivement cette page ?")) return;
     startDeleteTransition(async () => {
       const res = await deleteCmsPage(page.id);
       if (res && !res.ok) {
         toast.error(res.error ?? "Erreur");
+        setConfirmDelete(false);
       }
     });
   };
@@ -103,7 +105,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
           <div className="flex gap-2">
             {isEditing && (
               <button
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={isDeletePending}
                 className="inline-flex items-center gap-2 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
@@ -242,6 +244,21 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
           </motion.div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Supprimer définitivement cette page ?"
+        description={
+          page
+            ? `« ${page.title} » sera supprimée. Cette action est irréversible.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

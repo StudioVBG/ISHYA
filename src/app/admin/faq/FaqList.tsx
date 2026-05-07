@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Search, Eye, EyeOff, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminFaqArticle } from "@/lib/queries/admin";
 import { deleteFaqArticle, toggleFaqActive } from "./actions";
 
@@ -13,7 +14,10 @@ interface FaqListProps {
 
 export function FaqList({ articles }: FaqListProps) {
   const [query, setQuery] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const deletingArticle = articles.find((a) => a.id === deletingId);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -47,12 +51,18 @@ export function FaqList({ articles }: FaqListProps) {
     });
   };
 
-  const onDelete = (id: string, question: string) => {
-    if (!confirm(`Supprimer la question « ${question} » ?`)) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startTransition(async () => {
       const res = await deleteFaqArticle(id);
-      if (res.ok) toast.success("Question supprimée");
-      else toast.error(res.error ?? "Erreur");
+      if (res.ok) {
+        toast.success("Question supprimée");
+        setDeletingId(null);
+      } else {
+        toast.error(res.error ?? "Erreur");
+        setDeletingId(null);
+      }
     });
   };
 
@@ -131,7 +141,7 @@ export function FaqList({ articles }: FaqListProps) {
                       <Pencil className="w-4 h-4" />
                     </Link>
                     <button
-                      onClick={() => onDelete(a.id, a.question)}
+                      onClick={() => setDeletingId(a.id)}
                       disabled={pending}
                       className="p-1.5 rounded-md text-red-500 hover:bg-red-50"
                       title="Supprimer"
@@ -145,6 +155,23 @@ export function FaqList({ articles }: FaqListProps) {
           </div>
         ))
       )}
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer cette question ?"
+        description={
+          deletingArticle
+            ? `« ${deletingArticle.question} » sera supprimée. Cette action est définitive.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={pending}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

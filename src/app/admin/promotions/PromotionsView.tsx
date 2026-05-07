@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type {
   AdminCategoryOption,
   AdminProductOption,
@@ -99,9 +100,12 @@ export function PromotionsView({
 }) {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const deletingPromo = promotions.find((p) => p.id === deletingId);
 
   const openCreate = () => {
     setEditingId(null);
@@ -168,15 +172,18 @@ export function PromotionsView({
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Supprimer ce code promo ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startDeleteTransition(async () => {
       const res = await deletePromotion(id);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
+        setDeletingId(null);
         return;
       }
       toast.success("Code supprimé");
+      setDeletingId(null);
     });
   };
 
@@ -297,7 +304,7 @@ export function PromotionsView({
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(p.id)}
+                          onClick={() => setDeletingId(p.id)}
                           disabled={isDeletePending}
                           className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                         >
@@ -619,6 +626,23 @@ export function PromotionsView({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer ce code promo ?"
+        description={
+          deletingPromo
+            ? `Le code « ${deletingPromo.code} » sera supprimé. Si des commandes l'ont déjà utilisé, elles ne seront pas affectées.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }
