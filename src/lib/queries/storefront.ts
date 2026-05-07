@@ -53,6 +53,15 @@ function pickCategory(
   return cat;
 }
 
+// Type local de la vue : pas (encore) dans les types générés `supabase.ts`,
+// car elle est créée par la migration 018. À retirer quand `supabase gen types`
+// sera relancé après application de la migration en prod.
+type ReviewStatsRow = {
+  product_id: string;
+  average: number | string;
+  count: number | string;
+};
+
 async function attachReviewStats(
   supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createBuildClient>,
   cards: ProductCardProduct[],
@@ -62,10 +71,16 @@ async function attachReviewStats(
     .map((c) => c.id);
   if (productIds.length === 0) return cards;
 
-  const { data, error } = await supabase
-    .from("product_review_stats")
+  // `from("product_review_stats" as never)` : la vue n'est pas connue des
+  // types statiques (cf. ReviewStatsRow ci-dessus). Le résultat est ensuite
+  // casté localement via `as unknown as { ... }`.
+  const { data, error } = (await supabase
+    .from("product_review_stats" as never)
     .select("product_id, average, count")
-    .in("product_id", productIds);
+    .in("product_id", productIds)) as unknown as {
+    data: ReviewStatsRow[] | null;
+    error: { message: string } | null;
+  };
 
   if (error || !data) {
     if (error) console.error("[attachReviewStats]", error);
