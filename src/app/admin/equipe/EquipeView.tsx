@@ -2,12 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import type { AdminTeamMember } from "@/lib/queries/admin";
-import { toggleMemberActive, updateMemberRole } from "./actions";
+import {
+  promoteUserByEmail,
+  toggleMemberActive,
+  updateMemberRole,
+} from "./actions";
 
 const ROLE_LABELS: Record<string, { label: string; className: string }> = {
   admin: {
@@ -31,6 +35,22 @@ export function EquipeView({
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [promoteEmail, setPromoteEmail] = useState("");
+  const [isPromotePending, startPromoteTransition] = useTransition();
+
+  const handlePromote = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promoteEmail.trim()) return;
+    startPromoteTransition(async () => {
+      const res = await promoteUserByEmail(promoteEmail);
+      if (!res.ok) {
+        toast.error(res.error ?? "Erreur");
+        return;
+      }
+      toast.success(`${promoteEmail.trim()} est maintenant admin`);
+      setPromoteEmail("");
+    });
+  };
 
   const handleRoleChange = (userId: string, role: string) => {
     setPendingId(userId);
@@ -71,8 +91,46 @@ export function EquipeView({
           {members.length} admin{members.length > 1 ? "s" : ""}
         </p>
         <p className="text-xs text-muted-light mt-1">
-          Promeut un client en admin pour lui donner accès au tableau de bord.
+          Promeut un client existant en admin pour lui donner accès au tableau
+          de bord.
         </p>
+      </motion.div>
+
+      <motion.div
+        variants={staggerItem}
+        className="bg-white rounded-xl border border-border p-5"
+      >
+        <h3 className="text-sm font-semibold text-foreground mb-1 inline-flex items-center gap-2">
+          <UserPlus className="w-4 h-4 text-terracotta" />
+          Promouvoir un client en admin
+        </h3>
+        <p className="text-xs text-muted-light mb-3">
+          Saisissez l&apos;email d&apos;un compte client existant. L&apos;action
+          est tracée dans le journal d&apos;audit.
+        </p>
+        <form onSubmit={handlePromote} className="flex gap-2">
+          <input
+            type="email"
+            value={promoteEmail}
+            onChange={(e) => setPromoteEmail(e.target.value)}
+            placeholder="email@exemple.com"
+            disabled={isPromotePending}
+            className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
+            aria-label="Email du client à promouvoir"
+          />
+          <button
+            type="submit"
+            disabled={isPromotePending || !promoteEmail.trim()}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-foreground text-white rounded-lg text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
+          >
+            {isPromotePending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <UserPlus className="w-4 h-4" />
+            )}
+            Promouvoir
+          </button>
+        </form>
       </motion.div>
 
       <motion.div
