@@ -1000,11 +1000,15 @@ export type Database = {
       }
       newsletter_subscribers: {
         Row: {
+          bounce_count: number
           confirmation_token: string | null
           confirmed_at: string | null
           created_at: string | null
           email: string
           id: string
+          last_bounce_reason: string | null
+          last_bounce_type: string | null
+          last_bounced_at: string | null
           marketing_consent: boolean
           source: string | null
           subscribed_at: string | null
@@ -1013,11 +1017,15 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          bounce_count?: number
           confirmation_token?: string | null
           confirmed_at?: string | null
           created_at?: string | null
           email: string
           id?: string
+          last_bounce_reason?: string | null
+          last_bounce_type?: string | null
+          last_bounced_at?: string | null
           marketing_consent?: boolean
           source?: string | null
           subscribed_at?: string | null
@@ -1026,11 +1034,15 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          bounce_count?: number
           confirmation_token?: string | null
           confirmed_at?: string | null
           created_at?: string | null
           email?: string
           id?: string
+          last_bounce_reason?: string | null
+          last_bounce_type?: string | null
+          last_bounced_at?: string | null
           marketing_consent?: boolean
           source?: string | null
           subscribed_at?: string | null
