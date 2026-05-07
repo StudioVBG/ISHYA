@@ -44,6 +44,26 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Comptes désactivés (profiles.is_active = false) : on les déconnecte et
+  // on les renvoie vers /connexion. Sans ça, le toggle "désactiver" de
+  // /admin/equipe n'avait aucun effet réel sur l'accès.
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.is_active === false) {
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = "/connexion";
+      url.search = "";
+      url.searchParams.set("error", "account_disabled");
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (user && authRoutes.some((route) => pathname.startsWith(route))) {
     let target = request.nextUrl.searchParams.get("redirect_to");
     if (!target) {

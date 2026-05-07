@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -40,9 +40,20 @@ function ConnexionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const explicitRedirect = searchParams.get("redirect_to");
+  const errorCode = searchParams.get("error");
 
   const [showPassword, setShowPassword] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (errorCode === "account_disabled") {
+      toast.error(
+        "Votre compte a été désactivé. Contactez le support pour plus d'informations.",
+      );
+    } else if (errorCode === "auth_callback_failed") {
+      toast.error("Échec de la connexion. Veuillez réessayer.");
+    }
+  }, [errorCode]);
 
   const {
     register,

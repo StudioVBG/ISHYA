@@ -11,6 +11,7 @@ import { Mail, Lock, Eye, EyeOff, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { translateAuthError } from "@/lib/auth/error-messages";
+import { TERMS_VERSION } from "@/lib/auth/terms";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 
@@ -89,12 +90,19 @@ export default function InscriptionPage() {
   async function onSubmit(data: RegisterFormData) {
     const supabase = createClient();
 
-    const { data: authData, error } = await supabase.auth.signUp({
+    // Tout passe par les metadata du signup : le trigger handle_new_user
+    // (migration 013) crée profiles + notification_preferences +
+    // newsletter_subscribers en une seule transaction côté DB. Pas
+    // d'updates client-side, pas de course RLS.
+    const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         data: {
           first_name: data.firstName,
+          newsletter: data.newsletter ?? false,
+          terms_version: TERMS_VERSION,
+          terms_accepted_at: new Date().toISOString(),
         },
       },
     });
@@ -102,13 +110,6 @@ export default function InscriptionPage() {
     if (error) {
       toast.error(translateAuthError(error));
       return;
-    }
-
-    if (authData.user) {
-      await supabase
-        .from("profiles")
-        .update({ first_name: data.firstName })
-        .eq("id", authData.user.id);
     }
 
     toast.success("Compte créé ! Vérifiez votre email pour l'activer.");
