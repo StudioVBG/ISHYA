@@ -17,6 +17,7 @@ import { cn, slugify, formatDate } from "@/lib/utils";
 // slugify reste utilisé pour l'aperçu d'URL en création (le slug réel
 // est calculé par le serveur, qui résoud les collisions automatiquement).
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminBlogPostDetail } from "@/lib/queries/admin";
@@ -207,24 +208,20 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
             className="bg-white rounded-xl border border-border p-6"
           >
             <label className={labelClass}>Contenu</label>
-            <textarea
+            <RichTextEditor
               value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={20}
-              className={cn(inputClass, "resize-none font-mono text-xs")}
-              placeholder={`Markdown léger pris en charge :
-
-## Titre de section
-
-Paragraphe de contenu. Saut de ligne simple = ligne, double saut = nouveau paragraphe.
-
-### Sous-titre
-
-- Élément de liste 1
-- Élément de liste 2
-
-Du HTML brut (commençant par <) sera injecté tel quel.`}
+              onChange={setBody}
+              placeholder="Commencez à écrire l'article…"
+              imageFolder="blog"
+              disabled={isSavePending || isDeletePending}
             />
+            <p className="text-xs text-muted-light mt-2">
+              Sortie : HTML, sanitizé côté storefront via DOMPurify (les tags
+              dangereux comme <code>&lt;script&gt;</code> sont strippés).
+              L&apos;ancien contenu markdown léger reste compatible : il
+              s&apos;affichera tel quel si jamais l&apos;éditeur ne le
+              parse pas.
+            </p>
           </motion.div>
 
           <motion.div
