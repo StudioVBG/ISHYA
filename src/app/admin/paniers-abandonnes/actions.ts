@@ -16,6 +16,11 @@ interface ItemSnapshot {
   unitPrice?: number;
 }
 
+// Code promo envoyé au palier 3. Configurable via env pour permettre des
+// campagnes saisonnières sans déploiement (NOEL15, RENTREE10, etc.).
+const COMEBACK_PROMO_CODE =
+  process.env.ABANDONED_CART_PROMO_CODE?.trim() || "COMEBACK10";
+
 export async function sendReminderEmail(
   id: string,
 ): Promise<{ ok: boolean; error?: string; step?: number }> {
@@ -58,6 +63,23 @@ export async function sendReminderEmail(
     price: Number(it.unitPrice ?? 0),
   }));
 
+  // Pour le palier 3, on envoie un code promo. On vérifie qu'il existe et
+  // est actif dans `discount_codes` AVANT d'envoyer (sinon le client cliquera
+  // sur un lien mort, mauvaise UX).
+  if (step === 3) {
+    const { data: promo } = await admin
+      .from("discount_codes")
+      .select("id, is_active")
+      .eq("code", COMEBACK_PROMO_CODE)
+      .maybeSingle();
+    if (!promo || !promo.is_active) {
+      return {
+        ok: false,
+        error: `Code promo « ${COMEBACK_PROMO_CODE} » introuvable ou inactif. Créez-le dans /admin/promotions ou définissez ABANDONED_CART_PROMO_CODE.`,
+      };
+    }
+  }
+
   try {
     if (step === 1) {
       await sendAbandonedCartEmail1(cart.email, {
@@ -72,7 +94,7 @@ export async function sendReminderEmail(
     } else {
       await sendAbandonedCartEmail3(cart.email, {
         products,
-        promoUrl: `${baseUrl}/panier?promo=COMEBACK10`,
+        promoUrl: `${baseUrl}/panier?promo=${encodeURIComponent(COMEBACK_PROMO_CODE)}`,
       });
     }
   } catch (e) {
