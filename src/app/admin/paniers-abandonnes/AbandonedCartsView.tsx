@@ -138,7 +138,7 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
               {formatMoney(totalOpen)}
             </strong>{" "}
             · Récupéré :{" "}
-            <strong className="text-emerald-700">
+            <strong className="text-success">
               {formatMoney(totalRecovered)}
             </strong>
           </p>
@@ -243,12 +243,12 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
                   </td>
                   <td className="px-4 py-3">
                     {r.recovered ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-success-soft text-success border border-success/30">
                         <CheckCircle2 className="w-3 h-3" />
                         Récupéré
                       </span>
                     ) : r.reminderSentAt ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-warning-soft text-warning border border-warning/30">
                         Relancé
                       </span>
                     ) : (

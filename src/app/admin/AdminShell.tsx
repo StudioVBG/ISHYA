@@ -179,7 +179,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-gray-700">
+      <div className="px-6 py-5 border-b border-border">
         <Link href="/admin" className="flex items-center gap-2">
           <span
             className="text-xl font-bold tracking-wide text-white"
@@ -187,7 +187,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
           >
             ISHYA
           </span>
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-widest">
+          <span className="text-xs font-medium text-muted uppercase tracking-widest">
             Admin
           </span>
         </Link>
@@ -196,7 +196,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {navGroups.map((group) => (
           <div key={group.label}>
-            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
               {group.label}
             </p>
             <div className="space-y-0.5">
@@ -212,7 +212,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                       active
                         ? "bg-terracotta/20 text-terracotta-light"
-                        : "text-gray-400 hover:bg-gray-800 hover:text-gray-200",
+                        : "text-muted hover:bg-foreground hover:text-muted-light",
                     )}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
@@ -225,11 +225,11 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
         ))}
       </nav>
 
-      <div className="px-3 py-4 border-t border-gray-700 space-y-1">
+      <div className="px-3 py-4 border-t border-border space-y-1">
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-200 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:bg-foreground hover:text-muted-light transition-colors"
         >
           <ExternalLink className="w-4 h-4" />
           Voir la boutique
@@ -237,7 +237,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
         <form action={adminSignOut}>
           <button
             type="submit"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-red-400 transition-colors w-full"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted hover:bg-foreground hover:text-destructive transition-colors w-full"
           >
             <LogOut className="w-4 h-4" />
             Déconnexion
@@ -249,7 +249,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
 
   return (
     <div className="flex h-screen bg-ivory">
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col bg-gray-900 border-r border-gray-800 shrink-0">
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col bg-foreground border-r border-border shrink-0">
         {sidebarContent}
       </aside>
 
@@ -268,7 +268,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-64 bg-gray-900 z-50 lg:hidden"
+              className="fixed inset-y-0 left-0 w-64 bg-foreground z-50 lg:hidden"
             >
               {sidebarContent}
             </motion.aside>
@@ -277,15 +277,15 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
       </AnimatePresence>
 
       <div className="flex flex-col flex-1 min-w-0">
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8 shrink-0">
+        <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 lg:px-8 shrink-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-muted-soft transition-colors"
             >
-              <Menu className="w-5 h-5 text-gray-600" />
+              <Menu className="w-5 h-5 text-foreground" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-lg font-semibold text-foreground">
               {pageTitle}
             </h1>
           </div>
@@ -294,7 +294,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
             <NotificationBell counts={notificationCounts} />
             <Link
               href="/compte/profil"
-              className="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200 hover:opacity-80 transition-opacity"
+              className="hidden sm:flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity"
               title="Modifier mon profil"
             >
               <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center overflow-hidden">
@@ -314,7 +314,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
                 )}
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-foreground">
                   {user.displayName}
                 </p>
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-terracotta/10 text-terracotta">

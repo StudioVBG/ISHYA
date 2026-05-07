@@ -245,11 +245,11 @@ export function NewsletterView({
                   </td>
                   <td className="px-4 py-3">
                     {r.unsubscribedAt ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-red-50 text-red-700 text-xs font-medium border border-red-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-destructive-soft text-destructive text-xs font-medium border border-destructive/30">
                         Désabonné
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-success-soft text-success text-xs font-medium border border-success/30">
                         Actif
                       </span>
                     )}

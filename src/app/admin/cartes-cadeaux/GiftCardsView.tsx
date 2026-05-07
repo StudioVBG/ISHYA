@@ -35,12 +35,12 @@ const STATUS_LABELS: Record<GiftCardStatus, string> = {
 };
 
 const STATUS_STYLE: Record<GiftCardStatus, string> = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
-  paid: "bg-blue-50 text-blue-700 border-blue-200",
-  sent: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  redeemed: "bg-slate-100 text-slate-700 border-slate-200",
-  expired: "bg-gray-100 text-gray-600 border-gray-200",
-  cancelled: "bg-red-50 text-red-700 border-red-200",
+  pending: "bg-warning-soft text-warning border-warning/30",
+  paid: "bg-info-soft text-info border-info/30",
+  sent: "bg-success-soft text-success border-success/30",
+  redeemed: "bg-muted-soft text-foreground border-border",
+  expired: "bg-muted-soft text-foreground border-border",
+  cancelled: "bg-destructive-soft text-destructive border-destructive/30",
 };
 
 function formatMoney(amount: number, currency: string): string {

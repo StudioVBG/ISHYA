@@ -296,7 +296,7 @@ export function LivraisonView({
                       <Globe className="w-4 h-4 text-muted" />
                       <h3 className="font-semibold text-foreground">{z.name}</h3>
                       {!z.isActive ? (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted-soft text-foreground border border-border">
                           Inactive
                         </span>
                       ) : null}
@@ -376,11 +376,11 @@ export function LivraisonView({
                           </td>
                           <td className="px-5 py-3">
                             {m.isActive ? (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-success-soft text-success border border-success/30">
                                 Actif
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted-soft text-foreground border border-border">
                                 Inactif
                               </span>
                             )}

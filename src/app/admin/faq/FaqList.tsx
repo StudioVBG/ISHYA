@@ -69,19 +69,19 @@ export function FaqList({ articles }: FaqListProps) {
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
         <input
           type="search"
           placeholder="Rechercher une question…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
         />
       </div>
 
       {grouped.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="bg-white border border-border rounded-lg p-12 text-center">
+          <p className="text-sm text-muted">
             {query
               ? "Aucune question ne correspond à votre recherche."
               : "Aucune question pour l'instant. Créez la première."}
@@ -91,28 +91,28 @@ export function FaqList({ articles }: FaqListProps) {
         grouped.map(([category, items]) => (
           <div
             key={category}
-            className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+            className="bg-white border border-border rounded-lg overflow-hidden"
           >
-            <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+            <div className="px-4 py-2.5 bg-muted-soft border-b border-border">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground">
                 {category}{" "}
-                <span className="text-gray-400">({items.length})</span>
+                <span className="text-muted">({items.length})</span>
               </h2>
             </div>
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-border">
               {items.map((a) => (
                 <li
                   key={a.id}
-                  className="px-4 py-3 flex items-start justify-between gap-4 hover:bg-gray-50/60"
+                  className="px-4 py-3 flex items-start justify-between gap-4 hover:bg-muted-soft/60"
                 >
                   <Link
                     href={`/admin/faq/${a.id}`}
                     className="flex-1 min-w-0"
                   >
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {a.question}
                     </p>
-                    <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                    <p className="text-xs text-muted line-clamp-1 mt-0.5">
                       {a.answer}
                     </p>
                   </Link>
@@ -122,8 +122,8 @@ export function FaqList({ articles }: FaqListProps) {
                       disabled={pending}
                       className={
                         a.isActive
-                          ? "p-1.5 rounded-md text-green-600 hover:bg-green-50"
-                          : "p-1.5 rounded-md text-gray-400 hover:bg-gray-100"
+                          ? "p-1.5 rounded-md text-success hover:bg-success-soft"
+                          : "p-1.5 rounded-md text-muted hover:bg-muted-soft"
                       }
                       title={a.isActive ? "Publiée" : "Masquée"}
                     >
@@ -135,7 +135,7 @@ export function FaqList({ articles }: FaqListProps) {
                     </button>
                     <Link
                       href={`/admin/faq/${a.id}`}
-                      className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"
+                      className="p-1.5 rounded-md text-muted hover:bg-muted-soft"
                       title="Modifier"
                     >
                       <Pencil className="w-4 h-4" />
@@ -143,7 +143,7 @@ export function FaqList({ articles }: FaqListProps) {
                     <button
                       onClick={() => setDeletingId(a.id)}
                       disabled={pending}
-                      className="p-1.5 rounded-md text-red-500 hover:bg-red-50"
+                      className="p-1.5 rounded-md text-destructive hover:bg-destructive-soft"
                       title="Supprimer"
                     >
                       <Trash2 className="w-4 h-4" />

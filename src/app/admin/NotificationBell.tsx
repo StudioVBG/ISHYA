@@ -58,9 +58,9 @@ export function NotificationBell({ counts }: NotificationBellProps) {
             : "Aucune notification"
         }
         aria-expanded={open}
-        className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="relative p-2 rounded-lg hover:bg-muted-soft transition-colors"
       >
-        <Bell className="w-5 h-5 text-gray-600" />
+        <Bell className="w-5 h-5 text-foreground" />
         {hasAlerts && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-terracotta text-white text-[10px] font-semibold flex items-center justify-center">
             {counts.total > 99 ? "99+" : counts.total}
@@ -81,20 +81,20 @@ export function NotificationBell({ counts }: NotificationBellProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden"
+              className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-border z-50 overflow-hidden"
             >
-              <div className="px-4 py-3 border-b border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-900">
+              <div className="px-4 py-3 border-b border-border">
+                <h3 className="text-sm font-semibold text-foreground">
                   Notifications
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-muted mt-0.5">
                   {hasAlerts
                     ? `${counts.total} action${counts.total > 1 ? "s" : ""} en attente`
                     : "Tout est à jour"}
                 </p>
               </div>
 
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-border">
                 {items.map((item) => {
                   const Icon = item.icon;
                   const active = item.count > 0;
@@ -104,13 +104,13 @@ export function NotificationBell({ counts }: NotificationBellProps) {
                       href={item.href}
                       onClick={() => setOpen(false)}
                       className={cn(
-                        "flex items-center justify-between gap-3 px-4 py-3 hover:bg-gray-50 transition-colors",
+                        "flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted-soft transition-colors",
                         !active && "opacity-60",
                       )}
                     >
                       <span className="flex items-center gap-3">
-                        <Icon className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-800">
+                        <Icon className="w-4 h-4 text-muted" />
+                        <span className="text-sm text-foreground">
                           {item.label}
                         </span>
                       </span>
@@ -119,7 +119,7 @@ export function NotificationBell({ counts }: NotificationBellProps) {
                           "text-xs font-semibold px-2 py-0.5 rounded-full",
                           active
                             ? "bg-terracotta/10 text-terracotta"
-                            : "bg-gray-100 text-gray-500",
+                            : "bg-muted-soft text-muted",
                         )}
                       >
                         {item.count}
