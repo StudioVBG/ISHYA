@@ -15,6 +15,13 @@ import { cn, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { DraftRestoreBanner } from "@/components/admin/DraftRestoreBanner";
+import {
+  buildDraftKey,
+  clearDraft,
+  useAutosave,
+  useStoredDraft,
+} from "@/lib/admin/draft-autosave";
 import type { AdminCmsPageDetail } from "@/lib/queries/admin";
 import {
   createCmsPage,
@@ -39,8 +46,52 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
   const [isPublished, setIsPublished] = useState(page?.isPublished ?? false);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [draftDismissed, setDraftDismissed] = useState(false);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  // Autosave brouillon : restauration proposée si un brouillon plus
+  // récent que la dernière sauvegarde serveur est trouvé.
+  const draftKey = buildDraftKey("page", page?.id ?? null);
+  const storedDraft = useStoredDraft(draftKey);
+  const serverSavedAt = page?.updatedAt
+    ? new Date(page.updatedAt).getTime()
+    : 0;
+  const showDraftBanner =
+    !draftDismissed &&
+    !!storedDraft &&
+    storedDraft.savedAt > serverSavedAt;
+
+  useAutosave(draftKey, {
+    title,
+    body,
+    metaTitle,
+    metaDescription,
+    isPublished,
+  });
+
+  const handleRestoreDraft = () => {
+    if (!storedDraft) return;
+    const d = storedDraft.data as Partial<{
+      title: string;
+      body: string;
+      metaTitle: string;
+      metaDescription: string;
+      isPublished: boolean;
+    }>;
+    if (typeof d.title === "string") setTitle(d.title);
+    if (typeof d.body === "string") setBody(d.body);
+    if (typeof d.metaTitle === "string") setMetaTitle(d.metaTitle);
+    if (typeof d.metaDescription === "string") setMetaDescription(d.metaDescription);
+    if (typeof d.isPublished === "boolean") setIsPublished(d.isPublished);
+    setDraftDismissed(true);
+    toast.success("Brouillon restauré");
+  };
+
+  const handleDismissDraft = () => {
+    clearDraft(draftKey);
+    setDraftDismissed(true);
+  };
 
   const buildPayload = (): CmsPageInput => ({
     title: title.trim(),
@@ -63,11 +114,14 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
           toast.error(res.error ?? "Erreur");
           return;
         }
+        clearDraft(draftKey);
         toast.success("Page mise à jour");
       } else {
         const res = await createCmsPage(payload);
         if (res && !res.ok) {
           toast.error(res.error ?? "Erreur");
+        } else {
+          clearDraft(draftKey);
         }
       }
     });
@@ -133,6 +187,13 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
           </div>
         </div>
       </motion.div>
+
+      <DraftRestoreBanner
+        savedAt={storedDraft?.savedAt ?? 0}
+        show={showDraftBanner}
+        onRestore={handleRestoreDraft}
+        onDismiss={handleDismissDraft}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
         <div className="space-y-6">
