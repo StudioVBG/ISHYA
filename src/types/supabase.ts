@@ -2510,6 +2510,29 @@ export type Database = {
           variant_id: string
         }[]
       }
+      report_top_products: {
+        Args: { p_start: string; p_end: string; p_limit?: number }
+        Returns: {
+          product_id: string
+          name: string
+          quantity: number
+          revenue: number
+        }[]
+      }
+      report_revenue_by_category: {
+        Args: { p_start: string; p_end: string }
+        Returns: {
+          category_name: string
+          revenue: number
+        }[]
+      }
+      report_orders_by_status: {
+        Args: Record<string, never>
+        Returns: {
+          status: string
+          total: number
+        }[]
+      }
     }
     Enums: {
       address_type: "shipping" | "billing"
