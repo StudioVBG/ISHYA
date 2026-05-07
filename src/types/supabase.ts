@@ -1000,9 +1000,12 @@ export type Database = {
       }
       newsletter_subscribers: {
         Row: {
+          confirmation_token: string | null
+          confirmed_at: string | null
           created_at: string | null
           email: string
           id: string
+          marketing_consent: boolean
           source: string | null
           subscribed_at: string | null
           unsubscribe_reason: string | null
@@ -1010,9 +1013,12 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          confirmation_token?: string | null
+          confirmed_at?: string | null
           created_at?: string | null
           email: string
           id?: string
+          marketing_consent?: boolean
           source?: string | null
           subscribed_at?: string | null
           unsubscribe_reason?: string | null
@@ -1020,9 +1026,12 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          confirmation_token?: string | null
+          confirmed_at?: string | null
           created_at?: string | null
           email?: string
           id?: string
+          marketing_consent?: boolean
           source?: string | null
           subscribed_at?: string | null
           unsubscribe_reason?: string | null
