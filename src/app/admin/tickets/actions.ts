@@ -3,25 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { logAuditEvent } from "@/lib/auth/audit-log";
+import {
+  TICKET_STATUSES,
+  validateTicketTransition,
+  type TicketStatus,
+} from "@/lib/workflows/ticket-status";
 
-export type TicketStatus =
-  | "open"
-  | "in_progress"
-  | "waiting_customer"
-  | "waiting_internal"
-  | "resolved"
-  | "closed";
+export type { TicketStatus };
 
 export type TicketPriority = "low" | "medium" | "high" | "urgent";
 
-const ALLOWED_STATUSES: TicketStatus[] = [
-  "open",
-  "in_progress",
-  "waiting_customer",
-  "waiting_internal",
-  "resolved",
-  "closed",
-];
+const ALLOWED_STATUSES = TICKET_STATUSES;
 
 const ALLOWED_PRIORITIES: TicketPriority[] = ["low", "medium", "high", "urgent"];
 
@@ -37,6 +30,19 @@ export async function updateTicketStatus(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  // Lecture du statut courant pour valider la transition + audit log
+  const { data: current } = await admin
+    .from("tickets")
+    .select("status")
+    .eq("id", id)
+    .maybeSingle();
+  if (!current) return { ok: false, error: "Ticket introuvable" };
+
+  const previousStatus = current.status as string;
+  const validation = validateTicketTransition(previousStatus, status);
+  if (!validation.ok) return validation;
+
   const patch: Record<string, string> = { status };
   const now = new Date().toISOString();
   if (status === "resolved") patch.resolved_at = now;
@@ -48,7 +54,17 @@ export async function updateTicketStatus(
     return { ok: false, error: "Erreur de mise à jour" };
   }
 
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "tickets",
+    recordId: id,
+    oldData: { status: previousStatus },
+    newData: { status },
+  });
+
   revalidatePath("/admin/tickets");
+  revalidatePath(`/admin/tickets/${id}`);
   revalidatePath("/admin");
   return { ok: true };
 }
