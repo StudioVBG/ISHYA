@@ -1,32 +1,44 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
-export interface AddressInput {
-  label: string | null;
-  firstName: string;
-  lastName: string;
-  addressLine1: string;
-  addressLine2: string | null;
-  postalCode: string;
-  city: string;
-  country: string;
-  phone: string | null;
-  type: "shipping" | "billing";
-  isDefault: boolean;
-}
+const addressSchema = z.object({
+  label: z.string().trim().max(40).nullable(),
+  firstName: z
+    .string()
+    .trim()
+    .min(2, "Prénom requis (2 caractères min.)")
+    .max(80),
+  lastName: z
+    .string()
+    .trim()
+    .min(2, "Nom requis (2 caractères min.)")
+    .max(80),
+  addressLine1: z
+    .string()
+    .trim()
+    .min(5, "Adresse requise (5 caractères min.)")
+    .max(200),
+  addressLine2: z.string().trim().max(200).nullable(),
+  postalCode: z
+    .string()
+    .trim()
+    .regex(/^\d{4,5}$/, "Code postal invalide"),
+  city: z.string().trim().min(2, "Ville requise").max(100),
+  country: z.string().trim().min(2, "Pays requis").max(80),
+  phone: z.string().trim().max(30).nullable(),
+  type: z.enum(["shipping", "billing"]),
+  isDefault: z.boolean(),
+});
+
+export type AddressInput = z.infer<typeof addressSchema>;
 
 function validate(input: AddressInput): string | null {
-  if (!input.firstName.trim() || input.firstName.trim().length < 2)
-    return "Prénom requis";
-  if (!input.lastName.trim() || input.lastName.trim().length < 2)
-    return "Nom requis";
-  if (input.addressLine1.trim().length < 5) return "Adresse requise";
-  if (!/^\d{4,5}$/.test(input.postalCode.trim())) return "Code postal invalide";
-  if (input.city.trim().length < 2) return "Ville requise";
-  if (input.country.trim().length < 2) return "Pays requis";
-  return null;
+  const parsed = addressSchema.safeParse(input);
+  if (parsed.success) return null;
+  return parsed.error.issues[0]?.message ?? "Données invalides";
 }
 
 async function ensureAuth() {

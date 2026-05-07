@@ -6,6 +6,36 @@
 
 ---
 
+## ⚠️ Errata (corrections post-audit)
+
+Les vérifications faites pendant l'exécution du plan d'action ont révélé **4 points où l'audit était trop pessimiste** — la fonctionnalité existait déjà :
+
+| Faux signalement | Réalité |
+|---|---|
+| « Avis invisibles côté front » | `ProductReviews` est branché sur `/produit/[slug]/page.tsx:149` avec étoiles, formulaire, distribution et badge « Achat vérifié ». Le `getProductReviewSummary` alimente le résumé. |
+| « Pas de Breadcrumb sur produit » | Un breadcrumb inline existait déjà dans `ProductPageClient`. Il a été remplacé par le composant `<Breadcrumb>` réutilisable, mais la fonctionnalité existait. |
+| « Pas de `BreadcrumbList` JSON-LD » | Déjà présent dans `produit/[slug]/page.tsx:112-147`. |
+| « Bandeau promo sitewide manquant » | `getAnnouncementBanner()` existe, est chargé dans `(storefront)/layout.tsx`, passé au `Header` qui gère un cookie de dismiss. |
+
+Ces points sont conservés tels quels dans le corps du rapport ci-dessous pour préserver l'historique de l'audit, mais **considérés résolus**. Le plan d'action a été ajusté en conséquence.
+
+## ✅ Avancement (commits sur la branche)
+
+- `ff9b852` — rapport d'audit (ce fichier)
+- `9178a90` — tri/recherche/filtres admin (packs, catégories, collections)
+- `d25ca76` — P0 + P1 partiel + P2 partiel (lien cassé fixé, 2 orphelins supprimés, fallback image blog, Footer enrichi, Breadcrumb réutilisable, StarRating, Field/Modal/Skeleton, migration 017 field-level guards SQL)
+- `49a94f5` — P1 reliquat + P2 reliquat + P3 (`product_review_stats` vue + branchement, `/suivi` réelle, popup newsletter, points fidélité, `safeAction`, `database.ts` supprimé)
+- `7fa95ff` — fix CI (cast vue non-typée pour passer le typecheck Vercel)
+- `<HEAD>` — Accordion/Tabs/Pagination/EmptyState, migration Zod (addresses, retours), workflow CI types Supabase, errata du rapport
+
+État du plan :
+- **P0** : 100 % livré
+- **P1** : 100 % livré (dont la connexion `reviewAverage`/`reviewCount` aux requêtes storefront via vue SQL)
+- **P2** : ~90 % livré (composants UI principaux, field-level guards, types nettoyés, helper `safeAction`, 4 actions migrées sur les ~36) — refactor Zod systématique sur les autres actions à terminer progressivement
+- **P3** : 100 % livré (popup newsletter, fidélité dans tunnel, page suivi sans compte ; bandeau promo déjà existant — voir errata)
+
+---
+
 ## TL;DR (lecture en 30 secondes)
 
 - **102 pages**, **24 layouts**, **14 routes API**, **54 tables** Supabase, **36 server actions** : la couverture fonctionnelle est très large.
