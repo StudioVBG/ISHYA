@@ -28,14 +28,19 @@ export interface NewsletterRow {
   unsubscribeReason: string | null;
   confirmedAt: string | null;
   marketingConsent: boolean;
+  bounceCount: number;
+  lastBouncedAt: string | null;
+  lastBounceType: string | null;
+  lastBounceReason: string | null;
 }
 
-type Filter = "all" | "active" | "unsubscribed";
+type Filter = "all" | "active" | "unsubscribed" | "bounced";
 
 const FILTERS: Array<{ value: Filter; label: string }> = [
   { value: "all", label: "Tous" },
   { value: "active", label: "Actifs" },
   { value: "unsubscribed", label: "Désabonnés" },
+  { value: "bounced", label: "Bounces" },
 ];
 
 function exportCsv(rows: NewsletterRow[]) {
@@ -82,6 +87,7 @@ export function NewsletterView({
       all: rows.length,
       active: rows.filter((r) => !r.unsubscribedAt).length,
       unsubscribed: rows.filter((r) => r.unsubscribedAt).length,
+      bounced: rows.filter((r) => (r.bounceCount ?? 0) > 0).length,
     }),
     [rows],
   );
@@ -91,6 +97,7 @@ export function NewsletterView({
     return rows.filter((r) => {
       if (filter === "active" && r.unsubscribedAt) return false;
       if (filter === "unsubscribed" && !r.unsubscribedAt) return false;
+      if (filter === "bounced" && (r.bounceCount ?? 0) === 0) return false;
       if (!q) return true;
       return (
         r.email.toLowerCase().includes(q) ||
@@ -216,13 +223,14 @@ export function NewsletterView({
               <th className="text-left px-4 py-3 font-semibold">Source</th>
               <th className="text-left px-4 py-3 font-semibold">Inscription</th>
               <th className="text-left px-4 py-3 font-semibold">Statut</th>
+              <th className="text-left px-4 py-3 font-semibold">Délivrabilité</th>
               <th className="text-right px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-12 text-muted">
+                <td colSpan={6} className="text-center py-12 text-muted">
                   <Mail className="w-8 h-8 mx-auto mb-2 opacity-40" />
                   <p>Aucun abonné</p>
                 </td>
@@ -245,13 +253,39 @@ export function NewsletterView({
                   </td>
                   <td className="px-4 py-3">
                     {r.unsubscribedAt ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-red-50 text-red-700 text-xs font-medium border border-red-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-destructive-soft text-destructive text-xs font-medium border border-destructive/30">
                         Désabonné
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-success-soft text-success text-xs font-medium border border-success/30">
                         Actif
                       </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {r.bounceCount > 0 ? (
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border",
+                          r.lastBounceType === "complaint"
+                            ? "bg-destructive-soft text-destructive border-destructive/30"
+                            : r.lastBounceType === "hard"
+                              ? "bg-destructive-soft text-destructive border-destructive/30"
+                              : "bg-warning-soft text-warning border-warning/30",
+                        )}
+                        title={
+                          r.lastBounceReason ??
+                          `Type ${r.lastBounceType ?? "?"} · ${r.bounceCount} bounce(s)`
+                        }
+                      >
+                        {r.lastBounceType === "complaint"
+                          ? "🚫 Plainte"
+                          : r.lastBounceType === "hard"
+                            ? `❌ ${r.bounceCount}× hard`
+                            : `⚠ ${r.bounceCount}× soft`}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-light">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
