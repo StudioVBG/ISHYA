@@ -130,7 +130,7 @@ export function CompteShell({
 
   return (
     <>
-      <Header account={account} />
+      <Header account={account} social={social} />
       <CartDrawer />
       <main className="flex-1 bg-background">
         <div className="border-b border-border bg-white/50">
