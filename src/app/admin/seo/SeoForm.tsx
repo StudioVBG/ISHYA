@@ -2,13 +2,24 @@
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { Save, Loader2, Globe, Twitter, ShieldCheck, Info } from "lucide-react";
+import {
+  Save,
+  Loader2,
+  Globe,
+  Twitter,
+  ShieldCheck,
+  Info,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import type { AdminSeoConfig } from "@/lib/queries/admin";
 import { updateSeoConfig } from "./actions";
+import { SerpPreview } from "./SerpPreview";
+import { OgPreview } from "./OgPreview";
 
 const inputClass =
   "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
@@ -18,6 +29,8 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
   const [state, setState] = useState<AdminSeoConfig>(config);
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [showGoogleToken, setShowGoogleToken] = useState(false);
+  const [showBingToken, setShowBingToken] = useState(false);
 
   const update = <K extends keyof AdminSeoConfig>(
     key: K,
@@ -127,6 +140,18 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
         </div>
       </motion.section>
 
+      <motion.section variants={staggerItem} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SerpPreview
+          title={state.homeMetaTitle}
+          description={state.homeMetaDescription}
+        />
+        <OgPreview
+          title={state.homeMetaTitle}
+          description={state.homeMetaDescription}
+          imageUrl={state.homeOgImageUrl || null}
+        />
+      </motion.section>
+
       <motion.section
         variants={staggerItem}
         className="bg-white rounded-xl border border-border p-6 space-y-4"
@@ -161,23 +186,61 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
         </div>
         <div>
           <label className={labelClass}>Google Search Console (token)</label>
-          <input
-            type="text"
-            value={state.googleSiteVerification}
-            onChange={(e) => update("googleSiteVerification", e.target.value)}
-            placeholder="Ex: ABCD1234..."
-            className={cn(inputClass, "font-mono text-xs")}
-          />
+          <div className="relative">
+            <input
+              type={showGoogleToken ? "text" : "password"}
+              value={state.googleSiteVerification}
+              onChange={(e) =>
+                update("googleSiteVerification", e.target.value)
+              }
+              placeholder="Ex: ABCD1234..."
+              autoComplete="off"
+              className={cn(inputClass, "font-mono text-xs pr-10")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowGoogleToken((v) => !v)}
+              aria-label={
+                showGoogleToken ? "Masquer le token" : "Révéler le token"
+              }
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-foreground"
+            >
+              {showGoogleToken ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
         <div>
           <label className={labelClass}>Bing Webmaster (token)</label>
-          <input
-            type="text"
-            value={state.bingSiteVerification}
-            onChange={(e) => update("bingSiteVerification", e.target.value)}
-            placeholder="Ex: ABCD1234..."
-            className={cn(inputClass, "font-mono text-xs")}
-          />
+          <div className="relative">
+            <input
+              type={showBingToken ? "text" : "password"}
+              value={state.bingSiteVerification}
+              onChange={(e) =>
+                update("bingSiteVerification", e.target.value)
+              }
+              placeholder="Ex: ABCD1234..."
+              autoComplete="off"
+              className={cn(inputClass, "font-mono text-xs pr-10")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowBingToken((v) => !v)}
+              aria-label={
+                showBingToken ? "Masquer le token" : "Révéler le token"
+              }
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-foreground"
+            >
+              {showBingToken ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </motion.section>
 
