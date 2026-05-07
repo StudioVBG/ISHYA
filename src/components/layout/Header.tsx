@@ -13,11 +13,17 @@ import {
   X,
   ChevronRight,
   Shield,
+  Instagram,
+  Facebook,
+  Youtube,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { slideInLeft, fadeIn, drawerTransition } from "@/lib/animations";
 import { useCartStore } from "@/stores/cart-store";
 import { SearchModal } from "./SearchModal";
+import { PinterestIcon, TikTokIcon } from "@/components/icons/social";
+import type { SocialLinks } from "@/lib/queries/storefront";
 
 const NAV_LINKS = [
   { label: "Colliers", href: "/boutique?categorie=colliers" },
@@ -65,9 +71,11 @@ const DEFAULT_ANNOUNCEMENT: HeaderAnnouncement = {
 export function Header({
   account = DEFAULT_ACCOUNT,
   announcement,
+  social,
 }: {
   account?: HeaderAccount;
   announcement?: HeaderAnnouncement | null;
+  social?: SocialLinks;
 } = {}) {
   const banner = announcement === undefined ? DEFAULT_ANNOUNCEMENT : announcement;
   const pathname = usePathname();
@@ -330,6 +338,7 @@ export function Header({
                     Mes favoris
                   </Link>
                 )}
+                {social ? <MobileSocialRow social={social} /> : null}
               </div>
             </motion.div>
           </>
@@ -339,5 +348,56 @@ export function Header({
       {/* Search Modal */}
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
+  );
+}
+
+function MobileSocialRow({ social }: { social: SocialLinks }) {
+  const items: Array<{
+    href: string;
+    label: string;
+    Icon: React.ComponentType<{ className?: string }>;
+  }> = [];
+  if (social.instagramUrl)
+    items.push({ href: social.instagramUrl, label: "Instagram", Icon: Instagram });
+  if (social.facebookUrl)
+    items.push({ href: social.facebookUrl, label: "Facebook", Icon: Facebook });
+  if (social.pinterestUrl)
+    items.push({ href: social.pinterestUrl, label: "Pinterest", Icon: PinterestIcon });
+  if (social.tiktokUrl)
+    items.push({ href: social.tiktokUrl, label: "TikTok", Icon: TikTokIcon });
+  if (social.youtubeUrl)
+    items.push({ href: social.youtubeUrl, label: "YouTube", Icon: Youtube });
+
+  if (items.length === 0 && !social.contactEmail) return null;
+
+  return (
+    <div className="pt-3 border-t border-border">
+      <p className="px-2 text-[11px] font-medium uppercase tracking-wider text-muted mb-2">
+        Suivez-nous
+      </p>
+      <div className="flex items-center gap-2 px-2">
+        {items.map(({ href, label, Icon }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted hover:text-terracotta hover:border-terracotta/40 transition-colors"
+          >
+            <Icon className="w-4 h-4" />
+          </a>
+        ))}
+        {social.contactEmail && (
+          <a
+            href={`mailto:${social.contactEmail}`}
+            aria-label="Email"
+            className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted hover:text-terracotta hover:border-terracotta/40 transition-colors"
+          >
+            <Mail className="w-4 h-4" />
+          </a>
+        )}
+      </div>
+    </div>
   );
 }

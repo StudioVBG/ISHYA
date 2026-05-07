@@ -21,7 +21,7 @@ export default async function NotFound() {
   ]);
   return (
     <>
-      <Header account={account} announcement={announcement} />
+      <Header account={account} announcement={announcement} social={social} />
       <CartDrawer />
       <main className="flex-1 flex items-center justify-center py-20 px-4 bg-beige-nude-light/30">
         <div className="container max-w-2xl text-center">

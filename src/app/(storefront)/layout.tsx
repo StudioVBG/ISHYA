@@ -25,7 +25,7 @@ export default async function StorefrontLayout({
   return (
     <>
       <CustomCursor />
-      <Header account={account} announcement={announcement} />
+      <Header account={account} announcement={announcement} social={social} />
       <CartDrawer />
       <WishlistHydrator productIds={wishlistIds} />
       <main className="flex-1">
