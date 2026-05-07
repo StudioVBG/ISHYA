@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -166,6 +166,8 @@ interface AdminShellProps {
 export function AdminShell({ user, notificationCounts, children }: AdminShellProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const mobileNavId = "admin-mobile-nav";
 
   const isActive = (href: string) => {
     if (href === "/admin") return pathname === "/admin";
@@ -176,6 +178,23 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
     pageTitles[pathname] ||
     Object.entries(pageTitles).find(([key]) => pathname.startsWith(key))?.[1] ||
     "Administration";
+
+  // Fermeture clavier (Escape) du drawer mobile + restauration du focus
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const triggerEl = hamburgerRef.current;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", handler);
+    return () => {
+      window.removeEventListener("keydown", handler);
+      triggerEl?.focus();
+    };
+  }, [sidebarOpen]);
+
+  // Le drawer mobile se ferme via le onClick de chaque Link (cf. nav).
+  // Pas besoin d'un effet sur pathname (déclencherait set-state-in-effect).
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -193,7 +212,10 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      <nav
+        aria-label="Navigation principale du back-office"
+        className="flex-1 overflow-y-auto px-3 py-4 space-y-6"
+      >
         {navGroups.map((group) => (
           <div key={group.label}>
             <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
@@ -229,6 +251,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
         <Link
           href="/"
           target="_blank"
+          rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-200 transition-colors"
         >
           <ExternalLink className="w-4 h-4" />
@@ -249,7 +272,10 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
 
   return (
     <div className="flex h-screen bg-ivory">
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col bg-gray-900 border-r border-gray-800 shrink-0">
+      <aside
+        aria-label="Sidebar de navigation"
+        className="hidden lg:flex lg:w-64 lg:flex-col bg-gray-900 border-r border-gray-800 shrink-0"
+      >
         {sidebarContent}
       </aside>
 
@@ -262,13 +288,18 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 z-40 lg:hidden"
               onClick={() => setSidebarOpen(false)}
+              aria-hidden="true"
             />
             <motion.aside
+              id={mobileNavId}
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-64 bg-gray-900 z-50 lg:hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu de navigation"
             >
               {sidebarContent}
             </motion.aside>
@@ -280,7 +311,12 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8 shrink-0">
           <div className="flex items-center gap-4">
             <button
+              ref={hamburgerRef}
+              type="button"
               onClick={() => setSidebarOpen(true)}
+              aria-label="Ouvrir le menu de navigation"
+              aria-expanded={sidebarOpen}
+              aria-controls={mobileNavId}
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <Menu className="w-5 h-5 text-gray-600" />
