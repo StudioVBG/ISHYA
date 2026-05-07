@@ -303,20 +303,48 @@ export async function reorderPackItems(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
+  if (orderedIds.length === 0) return { ok: true };
+
   const admin = createAdminClient();
 
-  const results = await Promise.all(
-    orderedIds.map((id, i) =>
-      admin
-        .from("pack_items")
-        .update({ sort_order: i })
-        .eq("id", id)
-        .eq("pack_id", packId),
-    ),
+  // Vérifie que tous les ids appartiennent bien au pack avant l'upsert
+  // (l'upsert insère sinon des lignes orphelines avec un pack_id inexistant).
+  const { data: existing, error: fetchError } = await admin
+    .from("pack_items")
+    .select("id, product_id")
+    .eq("pack_id", packId)
+    .in("id", orderedIds);
+
+  if (fetchError) {
+    console.error("[reorderPackItems] fetch", fetchError);
+    return { ok: false, error: "Erreur de réordonnancement" };
+  }
+  if (!existing || existing.length !== orderedIds.length) {
+    return { ok: false, error: "Items invalides" };
+  }
+
+  const productById = new Map<string, string>(
+    existing.map((row) => [row.id, row.product_id as string]),
   );
-  const failed = results.find((r) => r.error);
-  if (failed?.error) {
-    console.error("[reorderPackItems]", failed.error);
+  const rows: Array<{
+    id: string;
+    pack_id: string;
+    product_id: string;
+    sort_order: number;
+  }> = [];
+  for (let i = 0; i < orderedIds.length; i++) {
+    const id = orderedIds[i];
+    const productId = productById.get(id);
+    if (!productId) return { ok: false, error: "Items invalides" };
+    rows.push({ id, pack_id: packId, product_id: productId, sort_order: i });
+  }
+
+  const { error } = await admin
+    .from("pack_items")
+    .upsert(rows, { onConflict: "id" });
+
+  if (error) {
+    console.error("[reorderPackItems] upsert", error);
     return { ok: false, error: "Erreur de réordonnancement" };
   }
 

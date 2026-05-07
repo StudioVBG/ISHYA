@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -60,6 +61,8 @@ export function CollectionsView({
 }: {
   collections: AdminCollectionRow[];
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -85,6 +88,17 @@ export function CollectionsView({
     });
     setShowModal(true);
   };
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId) return;
+    const target = collections.find((c) => c.id === editId);
+    if (target) {
+      openEdit(target);
+      router.replace("/admin/collections", { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, collections]);
 
   const handleSave = () => {
     if (!form.name.trim()) {

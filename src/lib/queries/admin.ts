@@ -1940,12 +1940,25 @@ export async function getAdminPackById(
   };
 }
 
-export async function searchAdminProducts(query: string, limit = 10) {
+export interface AdminProductSearchResult {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string | null;
+  imageUrl: string | null;
+  basePrice: number;
+  isActive: boolean;
+}
+
+export async function searchAdminProducts(
+  query: string,
+  limit = 10,
+): Promise<AdminProductSearchResult[]> {
   const admin = createAdminClient();
   let req = admin
     .from("products")
     .select(
-      `id, name, slug, sku,
+      `id, name, slug, sku, base_price, is_active,
        product_media ( url, is_primary, sort_order )`,
     )
     .order("name", { ascending: true })
@@ -1973,6 +1986,8 @@ export async function searchAdminProducts(query: string, limit = 10) {
       slug: row.slug,
       sku: row.sku ?? null,
       imageUrl: primary?.url ?? null,
+      basePrice: Number(row.base_price ?? 0),
+      isActive: row.is_active ?? false,
     };
   });
 }

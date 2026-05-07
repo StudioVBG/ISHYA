@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -52,6 +53,8 @@ export function CategoriesView({
 }: {
   categories: AdminCategoryRow[];
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -76,6 +79,17 @@ export function CategoriesView({
     });
     setShowModal(true);
   };
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId) return;
+    const target = categories.find((c) => c.id === editId);
+    if (target) {
+      openEdit(target);
+      router.replace("/admin/categories", { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, categories]);
 
   const handleSave = () => {
     if (!form.name.trim()) {

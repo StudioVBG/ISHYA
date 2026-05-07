@@ -206,14 +206,24 @@ export async function reorderCollectionProducts(
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
+  if (orderedProductIds.length === 0) return { ok: true };
+
   const admin = createAdminClient();
-  for (let i = 0; i < orderedProductIds.length; i++) {
-    await admin
-      .from("product_collections")
-      .update({ sort_order: i })
-      .eq("collection_id", collectionId)
-      .eq("product_id", orderedProductIds[i]);
+  const rows = orderedProductIds.map((productId, index) => ({
+    collection_id: collectionId,
+    product_id: productId,
+    sort_order: index,
+  }));
+
+  const { error } = await admin
+    .from("product_collections")
+    .upsert(rows, { onConflict: "collection_id,product_id" });
+
+  if (error) {
+    console.error("[reorderCollectionProducts]", error);
+    return { ok: false, error: "Erreur lors du réordonnancement" };
   }
+
   revalidatePath(`/admin/collections/${collectionId}`);
   revalidatePath("/boutique");
   return { ok: true };
