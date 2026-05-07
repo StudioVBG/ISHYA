@@ -9,6 +9,7 @@ import {
   Loader2,
   Trash2,
   ExternalLink,
+  Eye,
   X,
   Plus,
 } from "lucide-react";
@@ -27,6 +28,7 @@ import {
   useAutosave,
   useStoredDraft,
 } from "@/lib/admin/draft-autosave";
+import { openPreview } from "@/lib/admin/preview";
 import type { AdminBlogPostDetail } from "@/lib/queries/admin";
 import {
   createBlogPost,
@@ -153,6 +155,24 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
     });
   };
 
+  const handlePreview = () => {
+    if (!title.trim() && !body.trim()) {
+      toast.error("Saisissez au moins un titre ou du contenu pour prévisualiser");
+      return;
+    }
+    openPreview({
+      kind: "blog",
+      title: title.trim(),
+      excerpt: excerpt.trim() || null,
+      body: body.trim() || null,
+      coverImageUrl: coverImageUrl.trim() || null,
+      tags,
+      authorName: post?.authorName ?? null,
+      publishedAt: post?.publishedAt ?? null,
+      savedAt: Date.now(),
+    });
+  };
+
   const handleConfirmDelete = () => {
     if (!post) return;
     startDeleteTransition(async () => {
@@ -213,6 +233,15 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 Supprimer
               </button>
             )}
+            <button
+              onClick={handlePreview}
+              disabled={isSavePending || isDeletePending}
+              className="inline-flex items-center gap-2 px-3 py-2 border border-border text-foreground bg-white rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors disabled:opacity-50"
+              title="Ouvrir l'aperçu dans un nouvel onglet"
+            >
+              <Eye className="w-4 h-4" />
+              Aperçu
+            </button>
             <button
               onClick={handleSave}
               disabled={isSavePending}
