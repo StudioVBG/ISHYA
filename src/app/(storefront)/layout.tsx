@@ -4,6 +4,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { WishlistHydrator } from "@/components/wishlist/WishlistHydrator";
+import { NewsletterPopup } from "@/components/marketing/NewsletterPopup";
 import { getAccountLink } from "@/lib/auth/account-link";
 import {
   getAnnouncementBanner,
@@ -32,6 +33,7 @@ export default async function StorefrontLayout({
         <PageTransition>{children}</PageTransition>
       </main>
       <Footer social={social} />
+      <NewsletterPopup />
     </>
   );
 }

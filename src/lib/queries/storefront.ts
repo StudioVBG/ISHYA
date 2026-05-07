@@ -53,6 +53,39 @@ function pickCategory(
   return cat;
 }
 
+async function attachReviewStats(
+  supabase: Awaited<ReturnType<typeof createClient>> | ReturnType<typeof createBuildClient>,
+  cards: ProductCardProduct[],
+): Promise<ProductCardProduct[]> {
+  const productIds = cards
+    .filter((c) => c.productType !== "pack")
+    .map((c) => c.id);
+  if (productIds.length === 0) return cards;
+
+  const { data, error } = await supabase
+    .from("product_review_stats")
+    .select("product_id, average, count")
+    .in("product_id", productIds);
+
+  if (error || !data) {
+    if (error) console.error("[attachReviewStats]", error);
+    return cards;
+  }
+
+  const map = new Map<string, { average: number; count: number }>();
+  for (const row of data) {
+    map.set(row.product_id, {
+      average: Number(row.average) || 0,
+      count: Number(row.count) || 0,
+    });
+  }
+  return cards.map((c) => {
+    const stat = map.get(c.id);
+    if (!stat) return c;
+    return { ...c, reviewAverage: stat.average, reviewCount: stat.count };
+  });
+}
+
 function rowToCard(row: ProductRow): ProductCardProduct {
   const badges: string[] = [];
   if (row.is_new) badges.push("nouveau");
@@ -355,6 +388,8 @@ export async function searchProducts(
   }
 
   if (filters.limit) combined = combined.slice(0, filters.limit);
+  const supabaseForStats = await createClient();
+  combined = await attachReviewStats(supabaseForStats, combined);
   return combined;
 }
 
@@ -1177,7 +1212,8 @@ export async function getCartCrossSell(
       console.error("[getCartCrossSell] best-sellers fallback", error);
       return [];
     }
-    return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+    const cards = ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+    return attachReviewStats(supabase, cards);
   }
 
   // 1. Récupérer les catégories des produits du panier
@@ -1232,7 +1268,7 @@ export async function getCartCrossSell(
     }
   }
 
-  return related.slice(0, limit);
+  return attachReviewStats(supabase, related.slice(0, limit));
 }
 
 export async function getRelatedProducts(productId: string, limit = 4) {
@@ -1261,7 +1297,8 @@ export async function getRelatedProducts(productId: string, limit = 4) {
     console.error("[getRelatedProducts]", error);
     return [];
   }
-  return ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+  const cards = ((data ?? []) as unknown as ProductRow[]).map(rowToCard);
+  return attachReviewStats(supabase, cards);
 }
 
 // ============================================================================

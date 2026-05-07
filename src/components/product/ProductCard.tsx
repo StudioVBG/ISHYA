@@ -19,7 +19,18 @@ import { useCartStore } from "@/stores/cart-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { toggleWishlist } from "@/app/compte/favoris/actions";
 import { StarRating } from "@/components/ui/StarRating";
-import type { ProductMedia, ProductVariant } from "@/types/database";
+// Types projetés sur ce que la carte affiche (sous-ensemble des colonnes
+// `product_media` et `product_variants` côté Supabase). Définis en local
+// pour ne pas dépendre d'une façade typée séparée.
+type ProductMediaProjection = {
+  url: string;
+  alt_text: string | null;
+  position: number;
+  is_primary: boolean;
+};
+type ProductVariantProjection = {
+  stock_quantity: number;
+};
 
 export interface ProductCardProduct {
   id: string;
@@ -28,9 +39,9 @@ export interface ProductCardProduct {
   base_price: number;
   compare_at_price: number | null;
   is_featured?: boolean;
-  media?: Pick<ProductMedia, "url" | "alt_text" | "position" | "is_primary">[];
+  media?: ProductMediaProjection[];
   category?: { name: string; slug: string };
-  variants?: Pick<ProductVariant, "stock_quantity">[];
+  variants?: ProductVariantProjection[];
   badges?: string[];
   productType?: "product" | "pack";
   material?: string | null;
