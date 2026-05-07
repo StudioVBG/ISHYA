@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { LivraisonView, type ShippingMethodRow, type ShippingZoneRow } from "./LivraisonView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Livraison — Admin ISHYA",

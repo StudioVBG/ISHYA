@@ -1,7 +1,7 @@
 import { getAdminReturns } from "@/lib/queries/admin";
 import { RetoursView } from "./RetoursView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Retours — Admin ISHYA",

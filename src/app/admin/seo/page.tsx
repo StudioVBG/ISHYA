@@ -1,7 +1,7 @@
 import { getAdminSeoConfig } from "@/lib/queries/admin";
 import { SeoForm } from "./SeoForm";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "SEO — Admin ISHYA",

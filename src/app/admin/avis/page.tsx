@@ -1,7 +1,7 @@
 import { getAdminReviews } from "@/lib/queries/admin";
 import { AvisView } from "./AvisView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Avis — Admin ISHYA",

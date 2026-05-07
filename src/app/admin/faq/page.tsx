@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { getAdminFaqArticles } from "@/lib/queries/admin";
 import { FaqList } from "./FaqList";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "FAQ — Admin ISHYA",

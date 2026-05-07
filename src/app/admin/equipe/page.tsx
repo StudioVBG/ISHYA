@@ -3,7 +3,7 @@ import { getAdminTeamMembers } from "@/lib/queries/admin";
 import { createClient } from "@/lib/supabase/server";
 import { EquipeView } from "./EquipeView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Équipe — Admin ISHYA",

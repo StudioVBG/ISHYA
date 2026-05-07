@@ -4,7 +4,7 @@ import {
   type AbandonedCartRow,
 } from "./AbandonedCartsView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Paniers abandonnés — Admin ISHYA",

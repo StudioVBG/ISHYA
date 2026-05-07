@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { GiftCardsView, type GiftCardRow } from "./GiftCardsView";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata = {
   title: "Cartes cadeaux — Admin ISHYA",
