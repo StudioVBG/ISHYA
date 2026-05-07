@@ -15,6 +15,43 @@ const tierConfig: Record<string, { label: string; className: string }> = {
   platinum: { label: "Platine", className: "bg-accent-purple-soft text-accent-purple" },
 };
 
+function exportClientsCsv(rows: AdminClientRow[]) {
+  const header = [
+    "first_name",
+    "last_name",
+    "email",
+    "loyalty_tier",
+    "orders_count",
+    "total_spent",
+    "created_at",
+  ];
+  const lines = [
+    header.join(","),
+    ...rows.map((c) =>
+      [
+        c.firstName ?? "",
+        c.lastName ?? "",
+        c.email ?? "",
+        c.loyaltyTier,
+        c.ordersCount,
+        c.totalSpent,
+        c.createdAt ?? "",
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(","),
+    ),
+  ];
+  const blob = new Blob([lines.join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `clients-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState("");
@@ -57,7 +94,12 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
             {clients.length > 1 ? "s" : ""}
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg font-medium text-sm text-foreground hover:bg-muted-soft transition-colors">
+        <button
+          type="button"
+          onClick={() => exportClientsCsv(filtered)}
+          disabled={filtered.length === 0}
+          className="inline-flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg font-medium text-sm text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <Download className="w-4 h-4" /> Export CSV
         </button>
       </motion.div>

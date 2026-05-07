@@ -204,10 +204,15 @@ export default async function OrderDetailPage({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button className="btn-secondary text-sm gap-2">
+            <a
+              href={`/api/compte/factures/${encodeURIComponent(order.orderNumber)}`}
+              target="_blank"
+              rel="noopener"
+              className="btn-secondary text-sm gap-2"
+            >
               <FileText className="w-4 h-4" />
               Télécharger la facture
-            </button>
+            </a>
             {(order.status === "delivered" || order.status === "shipped") && (
               <Link
                 href={`/compte/retours/nouveau/${order.id}`}

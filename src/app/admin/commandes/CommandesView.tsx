@@ -23,6 +23,43 @@ const statusFilterOptions: { value: string; label: string }[] = [
   { value: "failed", label: "Échec" },
 ];
 
+function exportOrdersCsv(rows: AdminOrderListItem[]) {
+  const header = [
+    "order_number",
+    "created_at",
+    "customer_name",
+    "customer_email",
+    "status",
+    "item_count",
+    "total",
+  ];
+  const lines = [
+    header.join(","),
+    ...rows.map((o) =>
+      [
+        o.orderNumber,
+        o.createdAt ?? "",
+        o.customerName ?? "",
+        o.customerEmail ?? "",
+        o.status,
+        o.itemCount,
+        o.total,
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(","),
+    ),
+  ];
+  const blob = new Blob([lines.join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `commandes-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function CommandesView({
   orders,
 }: {
@@ -60,7 +97,13 @@ export function CommandesView({
           <h2 className="text-xl font-bold text-foreground">Commandes</h2>
           <p className="text-sm text-muted">{orders.length} commandes</p>
         </div>
-        <Button variant="secondary" size="md" icon={Download}>
+        <Button
+          variant="secondary"
+          size="md"
+          icon={Download}
+          onClick={() => exportOrdersCsv(filtered)}
+          disabled={filtered.length === 0}
+        >
           Export CSV
         </Button>
       </motion.div>
