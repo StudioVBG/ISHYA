@@ -3,37 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
+import { logAuditEvent } from "@/lib/auth/audit-log";
 import { stripe } from "@/lib/stripe";
 import {
   sendShippingNotification,
   sendDeliveryEmail,
 } from "@/lib/email";
 import { formatDate } from "@/lib/utils";
-
-type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled"
-  | "refunded"
-  | "partially_refunded"
-  | "on_hold"
-  | "failed";
-
-const ALLOWED_STATUSES: OrderStatus[] = [
-  "pending",
-  "confirmed",
-  "processing",
-  "shipped",
-  "delivered",
-  "cancelled",
-  "refunded",
-  "partially_refunded",
-  "on_hold",
-  "failed",
-];
+import {
+  ORDER_STATUSES,
+  validateOrderTransition,
+  type OrderStatus,
+} from "@/lib/workflows/order-status";
 
 function revalidateOrder(id: string) {
   revalidatePath(`/admin/commandes/${id}`);
@@ -45,7 +26,7 @@ export async function updateOrderStatus(
   orderId: string,
   newStatus: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!ALLOWED_STATUSES.includes(newStatus as OrderStatus)) {
+  if (!ORDER_STATUSES.includes(newStatus as OrderStatus)) {
     return { ok: false, error: "Statut invalide" };
   }
 
@@ -53,6 +34,19 @@ export async function updateOrderStatus(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  // Lecture du statut courant pour valider la transition
+  const { data: current } = await admin
+    .from("orders")
+    .select("status")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!current) return { ok: false, error: "Commande introuvable" };
+
+  const previousStatus = current.status as string;
+  const validation = validateOrderTransition(previousStatus, newStatus);
+  if (!validation.ok) return validation;
+
   const patch: Record<string, string | null> = { status: newStatus };
   if (newStatus === "delivered") patch.delivered_at = new Date().toISOString();
   if (newStatus === "cancelled") patch.cancelled_at = new Date().toISOString();
@@ -66,6 +60,15 @@ export async function updateOrderStatus(
     console.error("[updateOrderStatus]", error);
     return { ok: false, error: "Erreur de mise à jour" };
   }
+
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "orders",
+    recordId: orderId,
+    oldData: { status: previousStatus },
+    newData: { status: newStatus },
+  });
 
   // Email "livré" → ReviewRequest workflow déclenché ici si livré
   if (newStatus === "delivered") {
