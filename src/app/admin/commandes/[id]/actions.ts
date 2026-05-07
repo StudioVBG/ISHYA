@@ -199,7 +199,11 @@ export async function markOrderShipped(
 
 export async function refundOrder(
   orderId: string,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{
+  ok: boolean;
+  error?: string;
+  status?: "succeeded" | "pending";
+}> {
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
@@ -233,8 +237,14 @@ export async function refundOrder(
     return { ok: false, error: "Déjà remboursée" };
   }
 
+  // Création du remboursement Stripe. La méthode renvoie un objet Refund avec
+  // un champ `status` qui peut être :
+  //   - succeeded : remboursement confirmé immédiatement (carte standard)
+  //   - pending : en attente (certaines méthodes / banques)
+  //   - failed | canceled : rare pour un nouveau refund, traité comme erreur
+  let refund: Awaited<ReturnType<typeof stripe.refunds.create>>;
   try {
-    await stripe.refunds.create({
+    refund = await stripe.refunds.create({
       payment_intent: payment.stripe_payment_intent_id,
     });
   } catch (e) {
@@ -243,21 +253,55 @@ export async function refundOrder(
     return { ok: false, error: msg };
   }
 
-  // Le webhook charge.refunded mettra à jour la base, mais on anticipe
-  await admin
-    .from("orders")
-    .update({ status: "refunded" })
-    .eq("id", orderId);
-  await admin
-    .from("payments")
-    .update({
-      status: "refunded",
-      refunded_at: new Date().toISOString(),
-    })
-    .eq("id", payment.id);
+  if (refund.status === "failed" || refund.status === "canceled") {
+    const reason = refund.failure_reason ?? refund.status;
+    console.error("[refundOrder] refund non valide:", reason);
+    return {
+      ok: false,
+      error: `Stripe a refusé le remboursement (${reason})`,
+    };
+  }
+
+  // **Important** : on ne pré-patche la base que si Stripe confirme déjà
+  // l'aboutissement (refund.status === "succeeded"). Sinon, on laisse le
+  // webhook `charge.refunded` faire foi quand Stripe traite réellement
+  // l'opération côté banque. Cela évite l'incohérence si la requête côté
+  // client réussit mais que le refund n'aboutit pas à la banque.
+  if (refund.status === "succeeded") {
+    await admin
+      .from("orders")
+      .update({ status: "refunded" })
+      .eq("id", orderId);
+    await admin
+      .from("payments")
+      .update({
+        status: "refunded",
+        refunded_at: new Date().toISOString(),
+        stripe_refund_id: refund.id,
+      })
+      .eq("id", payment.id);
+  }
+
+  await logAuditEvent({
+    userId: auth.userId,
+    action: "update",
+    tableName: "orders",
+    recordId: orderId,
+    oldData: { status: order.status, payment_status: payment.status },
+    newData: {
+      action: "refund",
+      stripe_refund_id: refund.id,
+      refund_status: refund.status,
+      amount: refund.amount,
+      currency: refund.currency,
+    },
+  });
 
   revalidateOrder(orderId);
-  return { ok: true };
+  return {
+    ok: true,
+    status: refund.status === "succeeded" ? "succeeded" : "pending",
+  };
 }
 
 export async function updateInternalNote(
