@@ -360,6 +360,35 @@ export async function deleteProduct(
   redirect("/admin/produits");
 }
 
+export async function deleteProducts(
+  ids: string[],
+): Promise<{ ok: boolean; deleted?: number; error?: string }> {
+  if (ids.length === 0) return { ok: true, deleted: 0 };
+
+  const auth = await requireAdminRole();
+  if (!auth.ok) return auth;
+
+  const admin = createAdminClient();
+
+  const { data: previous } = await admin
+    .from("products")
+    .select("slug")
+    .in("id", ids);
+
+  const { error } = await admin.from("products").delete().in("id", ids);
+  if (error) {
+    console.error("[deleteProducts]", error);
+    return { ok: false, error: "Erreur de suppression" };
+  }
+
+  revalidatePath("/admin/produits");
+  const slugs = (previous ?? [])
+    .map((p) => p.slug)
+    .filter((s): s is string => !!s);
+  revalidateStorefrontProductPaths(null, slugs);
+  return { ok: true, deleted: ids.length };
+}
+
 export async function upsertVariant(
   productId: string,
   variant: VariantInput,

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Package, ChevronRight, Search, Filter } from "lucide-react";
+import { Package, ChevronRight, Search } from "lucide-react";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
@@ -67,23 +67,15 @@ export function CommandesView({ orders }: { orders: AccountOrderListItem[] }) {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold">
           Mes commandes
         </h1>
-        <div className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-            <input
-              type="text"
-              placeholder="Rechercher une commande..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all w-48 sm:w-56"
-            />
-          </div>
-          <button
-            className="p-2.5 rounded-lg border border-border bg-white hover:border-terracotta/30 transition-colors"
-            aria-label="Filtres"
-          >
-            <Filter className="w-4 h-4 text-muted" />
-          </button>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+          <input
+            type="text"
+            placeholder="Rechercher une commande..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 pr-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all w-48 sm:w-56"
+          />
         </div>
       </motion.div>
 
