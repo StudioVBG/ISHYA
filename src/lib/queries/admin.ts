@@ -416,6 +416,28 @@ export interface AdminAuditLog {
   userName: string | null;
   ipAddress: string | null;
   createdAt: string | null;
+  oldData: unknown;
+  newData: unknown;
+}
+
+export interface AdminAuditFilters {
+  action?: string;
+  tableName?: string;
+  userId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+}
+
+export interface AdminAuditPage {
+  logs: AdminAuditLog[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasNext: boolean;
+  // Tables / actions distinctes pour alimenter les selects
+  knownTables: string[];
+  knownActions: string[];
 }
 
 export interface AdminSettingRow {
@@ -2105,19 +2127,81 @@ export async function getAdminTeamMembers(): Promise<AdminTeamMember[]> {
   }));
 }
 
-export async function getAdminAuditLogs(): Promise<AdminAuditLog[]> {
+export const AUDIT_PAGE_SIZE = 50;
+
+export async function getAdminAuditLogs(
+  filters: AdminAuditFilters = {},
+  page = 1,
+  pageSize = AUDIT_PAGE_SIZE,
+): Promise<AdminAuditPage> {
   const admin = createAdminClient();
-  const { data, error } = await admin
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  // Listes distinctes pour les selects (chargement en parallèle, indépendant
+  // des filtres pour offrir toutes les options même quand un filtre est actif).
+  const [tablesRes, actionsRes] = await Promise.all([
+    admin
+      .from("audit_logs")
+      .select("table_name")
+      .not("table_name", "is", null)
+      .limit(1000),
+    admin
+      .from("audit_logs")
+      .select("action")
+      .not("action", "is", null)
+      .limit(1000),
+  ]);
+  const knownTables = Array.from(
+    new Set(
+      (tablesRes.data ?? [])
+        .map((r) => r.table_name as string | null)
+        .filter((v): v is string => !!v),
+    ),
+  ).sort();
+  const knownActions = Array.from(
+    new Set(
+      (actionsRes.data ?? [])
+        .map((r) => r.action as string | null)
+        .filter((v): v is string => !!v),
+    ),
+  ).sort();
+
+  // Query principale + count
+  let query = admin
     .from("audit_logs")
     .select(
-      "id, action, table_name, record_id, user_id, ip_address, created_at",
+      "id, action, table_name, record_id, user_id, ip_address, created_at, old_data, new_data",
+      { count: "exact" },
     )
-    .order("created_at", { ascending: false })
-    .limit(200);
+    .order("created_at", { ascending: false });
+
+  if (filters.action) query = query.eq("action", filters.action);
+  if (filters.tableName) query = query.eq("table_name", filters.tableName);
+  if (filters.userId) query = query.eq("user_id", filters.userId);
+  if (filters.dateFrom) query = query.gte("created_at", filters.dateFrom);
+  if (filters.dateTo) query = query.lte("created_at", filters.dateTo);
+  if (filters.search) {
+    const s = filters.search.replace(/[%_]/g, "");
+    query = query.or(
+      `action.ilike.%${s}%,table_name.ilike.%${s}%,record_id.ilike.%${s}%`,
+    );
+  }
+
+  const { data, count, error } = await query.range(from, to);
 
   if (error) {
     console.error("[getAdminAuditLogs]", error);
-    return [];
+    return {
+      logs: [],
+      total: 0,
+      page: safePage,
+      pageSize,
+      hasNext: false,
+      knownTables,
+      knownActions,
+    };
   }
 
   const userIds = Array.from(
@@ -2138,7 +2222,8 @@ export async function getAdminAuditLogs(): Promise<AdminAuditLog[]> {
     }
   }
 
-  return (data ?? []).map((row) => ({
+  const total = count ?? 0;
+  const logs: AdminAuditLog[] = (data ?? []).map((row) => ({
     id: row.id,
     action: row.action,
     tableName: row.table_name,
@@ -2147,7 +2232,19 @@ export async function getAdminAuditLogs(): Promise<AdminAuditLog[]> {
     userName: row.user_id ? namesById.get(row.user_id) ?? null : null,
     ipAddress: row.ip_address ? String(row.ip_address) : null,
     createdAt: row.created_at,
+    oldData: row.old_data ?? null,
+    newData: row.new_data ?? null,
   }));
+
+  return {
+    logs,
+    total,
+    page: safePage,
+    pageSize,
+    hasNext: from + logs.length < total,
+    knownTables,
+    knownActions,
+  };
 }
 
 export async function getAdminSettings(): Promise<AdminSettingRow[]> {
