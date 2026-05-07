@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { logAuditEvent } from "@/lib/auth/audit-log";
 import { sendNewsletterConfirmation } from "@/lib/email";
+import { decodeCursor, encodeCursor, type NewsletterRow } from "./types";
 
 function buildConfirmUrl(token: string): string {
   const base =
@@ -156,4 +157,109 @@ export async function deleteNewsletterSubscriber(
 
   revalidatePath("/admin/newsletter");
   return { ok: true };
+}
+
+const NEWSLETTER_SELECT =
+  "id, email, source, subscribed_at, unsubscribed_at, unsubscribe_reason, confirmed_at, marketing_consent, bounce_count, last_bounced_at, last_bounce_type, last_bounce_reason";
+
+const MAX_PAGE_SIZE = 200;
+const DEFAULT_PAGE_SIZE = 100;
+
+interface RawNewsletterRow {
+  id: string;
+  email: string;
+  source: string | null;
+  subscribed_at: string | null;
+  unsubscribed_at: string | null;
+  unsubscribe_reason: string | null;
+  confirmed_at: string | null;
+  marketing_consent: boolean | null;
+  bounce_count: number | null;
+  last_bounced_at: string | null;
+  last_bounce_type: string | null;
+  last_bounce_reason: string | null;
+}
+
+function mapNewsletterRow(r: RawNewsletterRow): NewsletterRow {
+  return {
+    id: r.id,
+    email: r.email,
+    source: r.source,
+    subscribedAt: r.subscribed_at,
+    unsubscribedAt: r.unsubscribed_at,
+    unsubscribeReason: r.unsubscribe_reason,
+    confirmedAt: r.confirmed_at ?? null,
+    marketingConsent: r.marketing_consent ?? false,
+    bounceCount: r.bounce_count ?? 0,
+    lastBouncedAt: r.last_bounced_at ?? null,
+    lastBounceType: r.last_bounce_type ?? null,
+    lastBounceReason: r.last_bounce_reason ?? null,
+  };
+}
+
+/**
+ * Pagination cursor — ordonné par `(subscribed_at desc, id desc)`.
+ *
+ * - `cursor: null` → première page (les plus récents).
+ * - `cursor: "<subscribed_at>|<id>"` → page suivante (strictement avant).
+ * - `withTotal: true` → calcule aussi `total` (à appeler une seule fois,
+ *   c'est un COUNT(*) exact qui peut être lent sur très grosse table).
+ */
+export async function loadNewsletterPage(
+  cursor: string | null,
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  options: { withTotal?: boolean } = {},
+): Promise<{
+  ok: boolean;
+  error?: string;
+  data?: { rows: NewsletterRow[]; nextCursor: string | null; total?: number };
+}> {
+  const auth = await requireAdminRole();
+  if (!auth.ok) return { ok: false, error: auth.error };
+
+  const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, pageSize));
+
+  const admin = createAdminClient();
+  let query = admin
+    .from("newsletter_subscribers")
+    // Si withTotal : on demande le count exact en un seul aller-retour.
+    .select(NEWSLETTER_SELECT, options.withTotal ? { count: "exact" } : {})
+    .order("subscribed_at", { ascending: false })
+    .order("id", { ascending: false })
+    // +1 pour détecter hasMore sans seconde requête.
+    .limit(limit + 1);
+
+  if (cursor) {
+    const decoded = decodeCursor(cursor);
+    if (!decoded) return { ok: false, error: "Cursor invalide" };
+    // Tuple comparison via `or` : strict < sur (subscribed_at, id).
+    query = query.or(
+      `subscribed_at.lt.${decoded.subscribedAt},and(subscribed_at.eq.${decoded.subscribedAt},id.lt.${decoded.id})`,
+    );
+  }
+
+  const { data, error, count } = await query;
+  if (error) {
+    console.error("[loadNewsletterPage]", error);
+    return { ok: false, error: "Erreur de chargement" };
+  }
+
+  const all = (data ?? []) as RawNewsletterRow[];
+  const hasMore = all.length > limit;
+  const sliced = hasMore ? all.slice(0, limit) : all;
+  const rows = sliced.map(mapNewsletterRow);
+  const last = sliced[sliced.length - 1];
+  const nextCursor =
+    hasMore && last?.subscribed_at
+      ? encodeCursor(last.subscribed_at, last.id)
+      : null;
+
+  return {
+    ok: true,
+    data: {
+      rows,
+      nextCursor,
+      total: options.withTotal ? (count ?? undefined) : undefined,
+    },
+  };
 }

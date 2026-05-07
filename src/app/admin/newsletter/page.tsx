@@ -1,17 +1,15 @@
 import { redirect } from "next/navigation";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { NewsletterView, type NewsletterRow } from "./NewsletterView";
+import { NewsletterView } from "./NewsletterView";
+import { loadNewsletterPage } from "./actions";
 
 export const revalidate = 60;
-
-// Limite de chargement pour éviter de tirer toute la table en RAM.
-// Au-delà, prévoir une vraie pagination cursor (P2).
-const PAGE_LIMIT = 1000;
 
 export const metadata = {
   title: "Newsletter — Admin ISHYA",
 };
+
+const INITIAL_PAGE_SIZE = 100;
 
 export default async function AdminNewsletterPage() {
   const supabase = await createClient();
@@ -20,34 +18,27 @@ export default async function AdminNewsletterPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/connexion?redirect_to=/admin/newsletter");
 
-  const admin = createAdminClient();
+  // Le serveur action assure le check `requireAdminRole` ; ici on a juste
+  // le check de session pour rediriger vers /connexion.
+  const res = await loadNewsletterPage(null, INITIAL_PAGE_SIZE, {
+    withTotal: true,
+  });
 
-  const { data, error } = await admin
-    .from("newsletter_subscribers")
-    .select(
-      "id, email, source, subscribed_at, unsubscribed_at, unsubscribe_reason, confirmed_at, marketing_consent, bounce_count, last_bounced_at, last_bounce_type, last_bounce_reason",
-    )
-    .order("subscribed_at", { ascending: false })
-    .limit(PAGE_LIMIT);
-
-  if (error) {
-    console.error("[AdminNewsletterPage]", error);
+  if (!res.ok || !res.data) {
+    console.error("[AdminNewsletterPage]", res.error);
+    return (
+      <div className="rounded-lg border border-destructive/30 bg-destructive-soft px-4 py-3 text-sm text-destructive">
+        Erreur de chargement de la newsletter : {res.error ?? "Inconnue"}
+      </div>
+    );
   }
 
-  const rows: NewsletterRow[] = (data ?? []).map((r) => ({
-    id: r.id,
-    email: r.email,
-    source: r.source,
-    subscribedAt: r.subscribed_at,
-    unsubscribedAt: r.unsubscribed_at,
-    unsubscribeReason: r.unsubscribe_reason,
-    confirmedAt: r.confirmed_at ?? null,
-    marketingConsent: r.marketing_consent ?? false,
-    bounceCount: r.bounce_count ?? 0,
-    lastBouncedAt: r.last_bounced_at ?? null,
-    lastBounceType: r.last_bounce_type ?? null,
-    lastBounceReason: r.last_bounce_reason ?? null,
-  }));
-
-  return <NewsletterView rows={rows} totalLimit={PAGE_LIMIT} />;
+  return (
+    <NewsletterView
+      initialRows={res.data.rows}
+      initialNextCursor={res.data.nextCursor}
+      total={res.data.total ?? res.data.rows.length}
+      pageSize={INITIAL_PAGE_SIZE}
+    />
+  );
 }

@@ -9,30 +9,20 @@ import {
   Loader2,
   UserMinus,
   UserPlus,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import {
   deleteNewsletterSubscriber,
+  loadNewsletterPage,
   resubscribeNewsletter,
   unsubscribeNewsletter,
 } from "./actions";
+import type { NewsletterRow } from "./types";
 
-export interface NewsletterRow {
-  id: string;
-  email: string;
-  source: string | null;
-  subscribedAt: string | null;
-  unsubscribedAt: string | null;
-  unsubscribeReason: string | null;
-  confirmedAt: string | null;
-  marketingConsent: boolean;
-  bounceCount: number;
-  lastBouncedAt: string | null;
-  lastBounceType: string | null;
-  lastBounceReason: string | null;
-}
+export type { NewsletterRow };
 
 type Filter = "all" | "active" | "unsubscribed" | "bounced";
 
@@ -69,16 +59,23 @@ function exportCsv(rows: NewsletterRow[]) {
 }
 
 export function NewsletterView({
-  rows,
-  totalLimit,
+  initialRows,
+  initialNextCursor,
+  total,
+  pageSize,
 }: {
-  rows: NewsletterRow[];
-  totalLimit?: number;
+  initialRows: NewsletterRow[];
+  initialNextCursor: string | null;
+  total: number;
+  pageSize: number;
 }) {
+  const [rows, setRows] = useState(initialRows);
+  const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor);
   const [filter, setFilter] = useState<Filter>("active");
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isLoadingMore, startLoadingMore] = useTransition();
 
   const deletingRow = rows.find((r) => r.id === deletingId);
 
@@ -145,24 +142,37 @@ export function NewsletterView({
     });
   };
 
-  const isTruncated = totalLimit != null && rows.length >= totalLimit;
+  const handleLoadMore = () => {
+    if (!nextCursor) return;
+    startLoadingMore(async () => {
+      const res = await loadNewsletterPage(nextCursor, pageSize);
+      if (!res.ok || !res.data) {
+        toast.error(res.error ?? "Erreur de chargement");
+        return;
+      }
+      setRows((prev) => {
+        // Dedupe par id au cas où une mutation server (resubscribe) a
+        // re-créé un row entre temps. La table garantit déjà l'unicité,
+        // mais ce filtre rend la fonction idempotente.
+        const seen = new Set(prev.map((r) => r.id));
+        const fresh = res.data!.rows.filter((r) => !seen.has(r.id));
+        return [...prev, ...fresh];
+      });
+      setNextCursor(res.data.nextCursor);
+    });
+  };
+
+  const remaining = Math.max(0, total - rows.length);
 
   return (
     <div className="space-y-6">
-      {isTruncated ? (
-        <div className="rounded-lg border border-warning bg-warning-soft px-4 py-3 text-sm text-foreground">
-          La liste est tronquée à {totalLimit} abonnés (les plus récents).
-          Pour exporter l&apos;intégralité, utilisez le bouton « Export CSV »
-          (limité à la même fenêtre) ou demandez un export complet via une
-          requête SQL côté Supabase.
-        </div>
-      ) : null}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-semibold text-foreground">Newsletter</h2>
           <p className="text-sm text-muted">
             {counts.active} actifs · {counts.unsubscribed} désabonnés ·{" "}
-            {counts.all} au total
+            {rows.length} chargés sur {total} au total
+            {remaining > 0 ? ` (${remaining} non chargés)` : ""}
           </p>
         </div>
         <div className="flex gap-2">
@@ -332,6 +342,28 @@ export function NewsletterView({
           </tbody>
         </table>
       </div>
+
+      {nextCursor ? (
+        <div className="flex flex-col items-center gap-2 py-2">
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-white rounded-lg text-sm font-medium hover:border-terracotta/40 disabled:opacity-50 transition-colors"
+          >
+            {isLoadingMore ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+            Charger {Math.min(pageSize, remaining)} de plus
+          </button>
+          <p className="text-xs text-muted-light">
+            {remaining} abonné{remaining > 1 ? "s" : ""} non chargé
+            {remaining > 1 ? "s" : ""}
+          </p>
+        </div>
+      ) : null}
 
       <ConfirmDialog
         open={deletingId !== null}
