@@ -2297,48 +2297,57 @@ export async function getAdminAnalytics(): Promise<AdminAnalyticsSummary> {
   const start60 = new Date(now);
   start60.setDate(start60.getDate() - 60);
   start60.setHours(0, 0, 0, 0);
+  const startStr = start30.toISOString();
+  const start60Str = start60.toISOString();
+  const nowStr = now.toISOString();
 
   const VALID_STATUSES: Array<
     "confirmed" | "processing" | "shipped" | "delivered"
   > = ["confirmed", "processing", "shipped", "delivered"];
 
-  const [last30, prev30, allStatusCounts, customers, items] = await Promise.all([
+  // Toutes les agrégations en parallèle. Top produits + byCategory passent
+  // désormais par des RPC SQL (migration 014) plutôt que par un SELECT
+  // limité à 1000 + GROUP BY côté JS.
+  const [
+    last30,
+    prev30,
+    statusByStatus,
+    customers,
+    topProductsRes,
+    byCategoryRes,
+  ] = await Promise.all([
     admin
       .from("orders")
-      .select("grand_total, created_at")
-      .gte("created_at", start30.toISOString())
+      .select("grand_total")
+      .gte("created_at", startStr)
       .in("status", VALID_STATUSES),
     admin
       .from("orders")
-      .select("grand_total, created_at")
-      .gte("created_at", start60.toISOString())
-      .lt("created_at", start30.toISOString())
+      .select("grand_total")
+      .gte("created_at", start60Str)
+      .lt("created_at", startStr)
       .in("status", VALID_STATUSES),
-    admin.from("orders").select("status"),
+    admin.rpc("report_orders_by_status"),
     admin
       .from("profiles")
       .select("id", { count: "exact", head: true })
-      .gte("created_at", start30.toISOString()),
-    admin
-      .from("order_items")
-      .select(
-        `product_id, product_name_snapshot, quantity, total,
-         product:products (
-           id, name,
-           category:categories!products_category_id_fkey ( name )
-         )`,
-      )
-      .gte("created_at", start30.toISOString())
-      .limit(1000),
+      .gte("created_at", startStr),
+    admin.rpc("report_top_products", {
+      p_start: startStr,
+      p_end: nowStr,
+      p_limit: 10,
+    }),
+    admin.rpc("report_revenue_by_category", {
+      p_start: startStr,
+      p_end: nowStr,
+    }),
   ]);
 
   const last30List = (last30.data ?? []) as Array<{
     grand_total: number | string;
-    created_at: string | null;
   }>;
   const prev30List = (prev30.data ?? []) as Array<{
     grand_total: number | string;
-    created_at: string | null;
   }>;
   const revenueLast30 = last30List.reduce(
     (s, o) => s + Number(o.grand_total ?? 0),
@@ -2352,55 +2361,32 @@ export async function getAdminAnalytics(): Promise<AdminAnalyticsSummary> {
     ? revenueLast30 / last30List.length
     : 0;
 
-  // Status counts
+  // Status counts (depuis RPC)
   const ordersByStatus: Record<string, number> = {};
-  for (const row of allStatusCounts.data ?? []) {
+  type StatusRow = { status: string | null; total: number | string };
+  for (const row of (statusByStatus.data ?? []) as StatusRow[]) {
     if (!row.status) continue;
-    ordersByStatus[row.status] = (ordersByStatus[row.status] ?? 0) + 1;
+    ordersByStatus[row.status] = Number(row.total ?? 0);
   }
 
-  // Top products + revenue par catégorie
-  type ItemRow = {
-    product_id: string | null;
-    product_name_snapshot: string;
-    quantity: number;
-    total: number | string;
-    product?:
-      | { id: string; name: string; category?: { name: string } | { name: string }[] | null }
-      | Array<{
-          id: string;
-          name: string;
-          category?: { name: string } | { name: string }[] | null;
-        }>
-      | null;
+  type TopRow = {
+    product_id: string;
+    name: string;
+    quantity: number | string;
+    revenue: number | string;
   };
-  const productAgg = new Map<
-    string,
-    { id: string; name: string; quantity: number; revenue: number }
-  >();
-  const categoryAgg = new Map<string, number>();
+  const topProducts = ((topProductsRes.data ?? []) as TopRow[]).map((r) => ({
+    id: r.product_id,
+    name: r.name,
+    quantity: Number(r.quantity ?? 0),
+    revenue: Math.round(Number(r.revenue ?? 0) * 100) / 100,
+  }));
 
-  for (const it of (items.data ?? []) as ItemRow[]) {
-    if (!it.product_id) continue;
-    const prev = productAgg.get(it.product_id);
-    productAgg.set(it.product_id, {
-      id: it.product_id,
-      name: prev?.name ?? it.product_name_snapshot,
-      quantity: (prev?.quantity ?? 0) + it.quantity,
-      revenue: (prev?.revenue ?? 0) + Number(it.total ?? 0),
-    });
-
-    const product = Array.isArray(it.product) ? it.product[0] : it.product;
-    const category = Array.isArray(product?.category)
-      ? product?.category[0]
-      : product?.category;
-    if (category?.name) {
-      categoryAgg.set(
-        category.name,
-        (categoryAgg.get(category.name) ?? 0) + Number(it.total ?? 0),
-      );
-    }
-  }
+  type CatRow = { category_name: string; revenue: number | string };
+  const byCategory = ((byCategoryRes.data ?? []) as CatRow[]).map((r) => ({
+    name: r.category_name,
+    revenue: Math.round(Number(r.revenue ?? 0) * 100) / 100,
+  }));
 
   return {
     revenueLast30: Math.round(revenueLast30 * 100) / 100,
@@ -2409,15 +2395,8 @@ export async function getAdminAnalytics(): Promise<AdminAnalyticsSummary> {
     ordersPrev30: prev30List.length,
     averageBasketLast30: Math.round(averageBasketLast30 * 100) / 100,
     newCustomersLast30: customers.count ?? 0,
-    topProducts: Array.from(productAgg.values())
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 10),
-    byCategory: Array.from(categoryAgg.entries())
-      .map(([name, revenue]) => ({
-        name,
-        revenue: Math.round(revenue * 100) / 100,
-      }))
-      .sort((a, b) => b.revenue - a.revenue),
+    topProducts,
+    byCategory,
     ordersByStatus,
   };
 }
