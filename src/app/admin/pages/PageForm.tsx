@@ -9,6 +9,7 @@ import {
   Loader2,
   Trash2,
   ExternalLink,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
@@ -22,6 +23,7 @@ import {
   useAutosave,
   useStoredDraft,
 } from "@/lib/admin/draft-autosave";
+import { openPreview } from "@/lib/admin/preview";
 import type { AdminCmsPageDetail } from "@/lib/queries/admin";
 import {
   createCmsPage,
@@ -127,6 +129,20 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
     });
   };
 
+  const handlePreview = () => {
+    if (!title.trim() && !body.trim()) {
+      toast.error("Saisissez au moins un titre ou du contenu pour prévisualiser");
+      return;
+    }
+    openPreview({
+      kind: "page",
+      title: title.trim(),
+      body: body.trim() || null,
+      publishedAt: page?.publishedAt ?? null,
+      savedAt: Date.now(),
+    });
+  };
+
   const handleConfirmDelete = () => {
     if (!page) return;
     startDeleteTransition(async () => {
@@ -172,6 +188,15 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 Supprimer
               </button>
             )}
+            <button
+              onClick={handlePreview}
+              disabled={isSavePending || isDeletePending}
+              className="inline-flex items-center gap-2 px-3 py-2 border border-border text-foreground bg-white rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors disabled:opacity-50"
+              title="Ouvrir l'aperçu dans un nouvel onglet"
+            >
+              <Eye className="w-4 h-4" />
+              Aperçu
+            </button>
             <button
               onClick={handleSave}
               disabled={isSavePending}
