@@ -1,6 +1,8 @@
 import "server-only";
+import { cache } from "react";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ProductCardProduct } from "@/components/product/ProductCard";
 import type { Database } from "@/types/supabase";
 
@@ -1407,3 +1409,47 @@ export async function getAllPackSlugs(): Promise<{ slug: string }[]> {
   }
   return data ?? [];
 }
+
+export interface FooterSocialLinks {
+  instagramUrl: string | null;
+  pinterestUrl: string | null;
+  facebookUrl: string | null;
+}
+
+const FOOTER_SOCIAL_KEYS = [
+  "seo.instagram_url",
+  "seo.pinterest_url",
+  "seo.facebook_url",
+] as const;
+
+// Caché par requête : la sidebar+footer rendent partout, on évite de
+// re-frapper Supabase pour chaque sous-route.
+export const getFooterSocialLinks = cache(
+  async (): Promise<FooterSocialLinks> => {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("settings")
+      .select("key, value")
+      .in("key", [...FOOTER_SOCIAL_KEYS]);
+
+    if (error) {
+      console.error("[getFooterSocialLinks]", error);
+      return { instagramUrl: null, pinterestUrl: null, facebookUrl: null };
+    }
+
+    const map = new Map<string, unknown>();
+    for (const row of data ?? []) map.set(row.key, row.value);
+
+    const asUrl = (key: string): string | null => {
+      const v = map.get(key);
+      const str = typeof v === "string" ? v.trim() : "";
+      return str.length > 0 ? str : null;
+    };
+
+    return {
+      instagramUrl: asUrl("seo.instagram_url"),
+      pinterestUrl: asUrl("seo.pinterest_url"),
+      facebookUrl: asUrl("seo.facebook_url"),
+    };
+  },
+);

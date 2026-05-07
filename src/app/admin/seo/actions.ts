@@ -11,6 +11,9 @@ const KEY_MAPPING: Array<{ key: keyof AdminSeoConfig; settingKey: string }> = [
   { key: "homeOgImageUrl", settingKey: "seo.home_og_image" },
   { key: "defaultKeywords", settingKey: "seo.default_keywords" },
   { key: "twitterHandle", settingKey: "seo.twitter_handle" },
+  { key: "instagramUrl", settingKey: "seo.instagram_url" },
+  { key: "pinterestUrl", settingKey: "seo.pinterest_url" },
+  { key: "facebookUrl", settingKey: "seo.facebook_url" },
   { key: "googleSiteVerification", settingKey: "seo.google_site_verification" },
   { key: "bingSiteVerification", settingKey: "seo.bing_site_verification" },
 ];

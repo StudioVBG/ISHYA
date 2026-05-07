@@ -378,6 +378,9 @@ export interface AdminSeoConfig {
   homeOgImageUrl: string;
   defaultKeywords: string;
   twitterHandle: string;
+  instagramUrl: string;
+  pinterestUrl: string;
+  facebookUrl: string;
   googleSiteVerification: string;
   bingSiteVerification: string;
 }
@@ -388,6 +391,9 @@ const SEO_KEYS = [
   "seo.home_og_image",
   "seo.default_keywords",
   "seo.twitter_handle",
+  "seo.instagram_url",
+  "seo.pinterest_url",
+  "seo.facebook_url",
   "seo.google_site_verification",
   "seo.bing_site_verification",
 ] as const;
@@ -2002,6 +2008,9 @@ export async function getAdminSeoConfig(): Promise<AdminSeoConfig> {
     homeOgImageUrl: asString("seo.home_og_image"),
     defaultKeywords: asString("seo.default_keywords"),
     twitterHandle: asString("seo.twitter_handle"),
+    instagramUrl: asString("seo.instagram_url"),
+    pinterestUrl: asString("seo.pinterest_url"),
+    facebookUrl: asString("seo.facebook_url"),
     googleSiteVerification: asString("seo.google_site_verification"),
     bingSiteVerification: asString("seo.bing_site_verification"),
   };

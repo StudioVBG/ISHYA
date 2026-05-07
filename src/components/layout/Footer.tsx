@@ -76,7 +76,16 @@ function PinterestIcon({ className }: { className?: string }) {
   );
 }
 
-export function Footer() {
+export interface FooterSocialLinks {
+  instagramUrl: string | null;
+  pinterestUrl: string | null;
+  facebookUrl: string | null;
+}
+
+export function Footer({ social }: { social?: FooterSocialLinks } = {}) {
+  const instagramUrl = social?.instagramUrl ?? null;
+  const pinterestUrl = social?.pinterestUrl ?? null;
+  const facebookUrl = social?.facebookUrl ?? null;
   const [email, setEmail] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -206,33 +215,39 @@ export function Footer() {
 
             {/* Social */}
             <div className="flex items-center gap-3">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://pinterest.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Pinterest"
-              >
-                <PinterestIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/60 hover:text-terracotta transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {pinterestUrl && (
+                <a
+                  href={pinterestUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/60 hover:text-terracotta transition-colors"
+                  aria-label="Pinterest"
+                >
+                  <PinterestIcon className="w-4 h-4" />
+                </a>
+              )}
+              {facebookUrl && (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/60 hover:text-terracotta transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
               <a
                 href="mailto:contact@ishya.fr"
                 className="text-white/60 hover:text-terracotta transition-colors"

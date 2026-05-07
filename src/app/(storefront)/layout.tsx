@@ -8,6 +8,7 @@ import { getAccountLink } from "@/lib/auth/account-link";
 import {
   getAnnouncementBanner,
   getMyWishlistProductIds,
+  getFooterSocialLinks,
 } from "@/lib/queries/storefront";
 
 export default async function StorefrontLayout({
@@ -15,10 +16,11 @@ export default async function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [account, announcement, wishlistIds] = await Promise.all([
+  const [account, announcement, wishlistIds, social] = await Promise.all([
     getAccountLink(),
     getAnnouncementBanner(),
     getMyWishlistProductIds(),
+    getFooterSocialLinks(),
   ]);
   return (
     <>
@@ -29,7 +31,7 @@ export default async function StorefrontLayout({
       <main className="flex-1">
         <PageTransition>{children}</PageTransition>
       </main>
-      <Footer />
+      <Footer social={social} />
     </>
   );
 }

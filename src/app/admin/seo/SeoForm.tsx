@@ -2,7 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { Save, Loader2, Globe, Twitter, ShieldCheck, Info } from "lucide-react";
+import {
+  Save,
+  Loader2,
+  Globe,
+  Twitter,
+  ShieldCheck,
+  Info,
+  Instagram,
+  Facebook,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
@@ -146,6 +155,56 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="@ishya"
             className={inputClass}
           />
+          <p className="text-xs text-muted-light mt-1">
+            Utilisé dans les méta tags Twitter Card.
+          </p>
+        </div>
+
+        <div className="pt-4 border-t border-border/50 space-y-4">
+          <p className="text-xs text-muted">
+            Liens affichés dans le pied de page du site. Laisse vide pour
+            masquer le lien correspondant.
+          </p>
+          <div>
+            <label className={labelClass}>
+              <span className="inline-flex items-center gap-1.5">
+                <Instagram className="w-3.5 h-3.5" />
+                URL Instagram
+              </span>
+            </label>
+            <input
+              type="url"
+              value={state.instagramUrl}
+              onChange={(e) => update("instagramUrl", e.target.value)}
+              placeholder="https://instagram.com/ishya"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>URL Pinterest</label>
+            <input
+              type="url"
+              value={state.pinterestUrl}
+              onChange={(e) => update("pinterestUrl", e.target.value)}
+              placeholder="https://pinterest.com/ishya"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>
+              <span className="inline-flex items-center gap-1.5">
+                <Facebook className="w-3.5 h-3.5" />
+                URL Facebook
+              </span>
+            </label>
+            <input
+              type="url"
+              value={state.facebookUrl}
+              onChange={(e) => update("facebookUrl", e.target.value)}
+              placeholder="https://facebook.com/ishya"
+              className={inputClass}
+            />
+          </div>
         </div>
       </motion.section>
 
