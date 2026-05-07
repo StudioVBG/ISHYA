@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   useReactTable,
   getCoreRowModel,
@@ -26,6 +27,7 @@ import {
 import { cn, formatPrice } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import type { AdminProductRow } from "@/lib/queries/admin";
+import { deleteProduct, deleteProducts } from "./actions";
 
 export function ProduitsView({ products }: { products: AdminProductRow[] }) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -33,6 +35,46 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
+  const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const handleDeleteOne = (id: string, name: string) => {
+    if (
+      !window.confirm(
+        `Supprimer définitivement « ${name} » ? Les variantes et photos seront aussi effacées.`,
+      )
+    )
+      return;
+    startDeleteTransition(async () => {
+      const res = await deleteProduct(id);
+      // deleteProduct fait un redirect() : si res est undefined la suppression a réussi.
+      if (res && !res.ok) {
+        toast.error(res.error ?? "Erreur de suppression");
+        return;
+      }
+      toast.success("Produit supprimé");
+    });
+  };
+
+  const handleDeleteSelected = (ids: string[]) => {
+    if (ids.length === 0) return;
+    if (
+      !window.confirm(
+        `Supprimer définitivement ${ids.length} produit${ids.length > 1 ? "s" : ""} ? Cette action est irréversible.`,
+      )
+    )
+      return;
+    startDeleteTransition(async () => {
+      const res = await deleteProducts(ids);
+      if (!res.ok) {
+        toast.error(res.error ?? "Erreur de suppression");
+        return;
+      }
+      toast.success(
+        `${res.deleted ?? ids.length} produit${(res.deleted ?? ids.length) > 1 ? "s supprimés" : " supprimé"}`,
+      );
+      setRowSelection({});
+    });
+  };
 
   const filteredData = useMemo(() => {
     let data = products;
@@ -172,7 +214,15 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
             >
               <Edit className="w-4 h-4" />
             </Link>
-            <button className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors">
+            <button
+              type="button"
+              onClick={() =>
+                handleDeleteOne(row.original.id, row.original.name)
+              }
+              disabled={isDeletePending}
+              className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label={`Supprimer ${row.original.name}`}
+            >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -180,7 +230,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         size: 80,
       },
     ],
-    [],
+    [isDeletePending],
   );
 
   const table = useReactTable({
@@ -270,9 +320,20 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
             <span className="text-sm text-muted">
               {selectedCount} sélectionné(s)
             </span>
-            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-destructive bg-destructive-soft rounded-lg hover:bg-destructive/15 transition-colors">
+            <button
+              type="button"
+              onClick={() =>
+                handleDeleteSelected(
+                  table
+                    .getSelectedRowModel()
+                    .rows.map((r) => r.original.id),
+                )
+              }
+              disabled={isDeletePending}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-destructive bg-destructive-soft rounded-lg hover:bg-destructive/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Trash2 className="w-3.5 h-3.5" />
-              Supprimer
+              {isDeletePending ? "Suppression..." : "Supprimer"}
             </button>
           </div>
         )}
