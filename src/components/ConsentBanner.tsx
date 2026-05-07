@@ -47,11 +47,11 @@ export function ConsentBanner() {
       aria-label="Préférences de cookies"
       className="fixed bottom-0 inset-x-0 z-[60] p-4 sm:p-6"
     >
-      <div className="mx-auto max-w-3xl rounded-2xl bg-white border border-gray-200 shadow-xl p-5 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">
+      <div className="mx-auto max-w-3xl rounded-2xl bg-white border border-border shadow-xl p-5 sm:p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-2">
           Nous respectons votre vie privée
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted leading-relaxed">
           ISHYA utilise des outils de mesure d&apos;audience anonymes pour
           améliorer le site, et — avec votre accord — des cookies marketing
           pour mesurer la performance de nos campagnes. Vous pouvez modifier
@@ -64,7 +64,7 @@ export function ConsentBanner() {
 
         {showDetails && (
           <div className="mt-4 space-y-3">
-            <label className="flex items-start gap-3 text-sm text-gray-700">
+            <label className="flex items-start gap-3 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked
@@ -72,14 +72,14 @@ export function ConsentBanner() {
                 className="mt-1 accent-terracotta"
               />
               <span>
-                <strong className="block text-gray-900">
+                <strong className="block text-foreground">
                   Strictement nécessaires
                 </strong>
                 Indispensables au fonctionnement (panier, session, sécurité).
                 Toujours actifs.
               </span>
             </label>
-            <label className="flex items-start gap-3 text-sm text-gray-700">
+            <label className="flex items-start gap-3 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={analytics}
@@ -87,14 +87,14 @@ export function ConsentBanner() {
                 className="mt-1 accent-terracotta"
               />
               <span>
-                <strong className="block text-gray-900">
+                <strong className="block text-foreground">
                   Mesure d&apos;audience
                 </strong>
                 Statistiques anonymisées (Vercel Analytics) — pages vues,
                 performance.
               </span>
             </label>
-            <label className="flex items-start gap-3 text-sm text-gray-700">
+            <label className="flex items-start gap-3 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={marketing}
@@ -102,7 +102,7 @@ export function ConsentBanner() {
                 className="mt-1 accent-terracotta"
               />
               <span>
-                <strong className="block text-gray-900">
+                <strong className="block text-foreground">
                   Marketing &amp; conversion
                 </strong>
                 Suivi des achats et campagnes (events e-commerce, pixels
@@ -116,14 +116,14 @@ export function ConsentBanner() {
           <button
             type="button"
             onClick={() => setShowDetails((v) => !v)}
-            className="text-sm text-gray-600 underline underline-offset-2 sm:mr-auto"
+            className="text-sm text-muted underline underline-offset-2 sm:mr-auto"
           >
             {showDetails ? "Masquer le détail" : "Personnaliser"}
           </button>
           <button
             type="button"
             onClick={refuseAll}
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-border text-foreground hover:bg-muted-soft"
           >
             Tout refuser
           </button>
@@ -131,7 +131,7 @@ export function ConsentBanner() {
             <button
               type="button"
               onClick={saveChoices}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-foreground text-white hover:bg-foreground/90"
             >
               Enregistrer mes choix
             </button>

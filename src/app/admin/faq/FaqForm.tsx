@@ -53,10 +53,10 @@ export function FaqForm({ article }: FaqFormProps) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-3xl">
-      <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-5">
+      <div className="bg-white border border-border rounded-lg p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Question <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            Question <span className="text-destructive">*</span>
           </label>
           <input
             type="text"
@@ -64,13 +64,13 @@ export function FaqForm({ article }: FaqFormProps) {
             onChange={(e) => setQuestion(e.target.value)}
             required
             placeholder="Quelle est la question fréquemment posée ?"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Réponse <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            Réponse <span className="text-destructive">*</span>
           </label>
           <textarea
             value={answer}
@@ -78,13 +78,13 @@ export function FaqForm({ article }: FaqFormProps) {
             required
             rows={6}
             placeholder="Rédigez la réponse complète. Le markdown simple est supporté côté affichage."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 resize-y"
+            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 resize-y"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Catégorie
             </label>
             <input
@@ -93,7 +93,7 @@ export function FaqForm({ article }: FaqFormProps) {
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Commandes, Livraison, Entretien…"
               list="faq-categories"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
             />
             <datalist id="faq-categories">
               <option value="Commandes" />
@@ -103,22 +103,22 @@ export function FaqForm({ article }: FaqFormProps) {
               <option value="Entretien des bijoux" />
               <option value="Mon compte" />
             </datalist>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted mt-1">
               Sert à regrouper les questions sur la page /aide.
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Ordre
             </label>
             <input
               type="number"
               value={sortOrder}
               onChange={(e) => setSortOrder(parseInt(e.target.value, 10) || 0)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
             />
-            <p className="text-xs text-gray-500 mt-1">Tri croissant.</p>
+            <p className="text-xs text-muted mt-1">Tri croissant.</p>
           </div>
         </div>
 
@@ -130,10 +130,10 @@ export function FaqForm({ article }: FaqFormProps) {
             className="mt-1 w-4 h-4 accent-terracotta"
           />
           <span className="text-sm">
-            <span className="font-medium text-gray-900 block">
+            <span className="font-medium text-foreground block">
               Visible publiquement
             </span>
-            <span className="text-gray-500">
+            <span className="text-muted">
               Décocher pour cacher la question sans la supprimer.
             </span>
           </span>
@@ -143,7 +143,7 @@ export function FaqForm({ article }: FaqFormProps) {
       <div className="flex items-center justify-between gap-3">
         <Link
           href="/admin/faq"
-          className="text-sm text-gray-600 hover:text-gray-900"
+          className="text-sm text-muted hover:text-foreground"
         >
           ← Retour à la liste
         </Link>
