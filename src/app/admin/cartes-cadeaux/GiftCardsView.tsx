@@ -1,10 +1,23 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { Gift, Search, Loader2, Copy } from "lucide-react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Gift,
+  Search,
+  Loader2,
+  Copy,
+  X,
+  Send,
+  ExternalLink,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
-import { updateGiftCardStatus, type GiftCardStatus } from "./actions";
+import {
+  resendGiftCardEmail,
+  updateGiftCardStatus,
+  type GiftCardStatus,
+} from "./actions";
 
 export interface GiftCardRow {
   id: string;
@@ -35,12 +48,12 @@ const STATUS_LABELS: Record<GiftCardStatus, string> = {
 };
 
 const STATUS_STYLE: Record<GiftCardStatus, string> = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
-  paid: "bg-blue-50 text-blue-700 border-blue-200",
-  sent: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  redeemed: "bg-slate-100 text-slate-700 border-slate-200",
-  expired: "bg-gray-100 text-gray-600 border-gray-200",
-  cancelled: "bg-red-50 text-red-700 border-red-200",
+  pending: "bg-warning-soft text-warning border-warning/30",
+  paid: "bg-info-soft text-info border-info/30",
+  sent: "bg-success-soft text-success border-success/30",
+  redeemed: "bg-muted-soft text-muted border-border",
+  expired: "bg-muted-soft text-muted-light border-border",
+  cancelled: "bg-destructive-soft text-destructive border-destructive/30",
 };
 
 function formatMoney(amount: number, currency: string): string {
@@ -52,12 +65,41 @@ function formatMoney(amount: number, currency: string): string {
 
 type Filter = "all" | GiftCardStatus;
 
-const FILTERS: Filter[] = ["all", "pending", "paid", "sent", "redeemed", "expired", "cancelled"];
+const FILTERS: Filter[] = [
+  "all",
+  "pending",
+  "paid",
+  "sent",
+  "redeemed",
+  "expired",
+  "cancelled",
+];
 
 export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [drawerCard, setDrawerCard] = useState<GiftCardRow | null>(null);
+  const [isResending, startResendTransition] = useTransition();
+
+  // Synchronise le drawer avec les rows (si la carte est mise à jour, on
+  // affiche les nouvelles valeurs sans la fermer).
+  useEffect(() => {
+    if (!drawerCard) return;
+    const fresh = cards.find((c) => c.id === drawerCard.id);
+    if (fresh && fresh !== drawerCard) setDrawerCard(fresh);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards]);
+
+  // Escape ferme le drawer
+  useEffect(() => {
+    if (!drawerCard) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDrawerCard(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [drawerCard]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: cards.length };
@@ -87,6 +129,17 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
     });
   };
 
+  const handleResend = (card: GiftCardRow) => {
+    startResendTransition(async () => {
+      const res = await resendGiftCardEmail(card.id);
+      if (res.ok) {
+        toast.success(`Email renvoyé à ${card.recipientEmail}`);
+      } else {
+        toast.error(res.error || "Erreur");
+      }
+    });
+  };
+
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     toast.success("Code copié");
@@ -103,12 +156,16 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold text-foreground">Cartes cadeaux</h2>
+          <h2 className="text-xl font-bold text-foreground">Cartes cadeaux</h2>
           <p className="text-sm text-muted">
             {cards.length} cartes · Émis :{" "}
-            <strong className="text-foreground">{formatMoney(totalIssued, "EUR")}</strong> · Solde
-            actif :{" "}
-            <strong className="text-foreground">{formatMoney(totalRemaining, "EUR")}</strong>
+            <strong className="text-foreground">
+              {formatMoney(totalIssued, "EUR")}
+            </strong>{" "}
+            · Solde actif :{" "}
+            <strong className="text-foreground">
+              {formatMoney(totalRemaining, "EUR")}
+            </strong>
           </p>
         </div>
         <div className="relative w-full sm:w-72">
@@ -176,10 +233,18 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
               </tr>
             ) : (
               filtered.map((c) => (
-                <tr key={c.id} className="hover:bg-muted-soft/40 transition-colors">
+                <tr
+                  key={c.id}
+                  className="hover:bg-muted-soft/40 transition-colors cursor-pointer"
+                  onClick={() => setDrawerCard(c)}
+                >
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => copyCode(c.code)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyCode(c.code);
+                      }}
+                      aria-label={`Copier le code ${c.code}`}
                       className="inline-flex items-center gap-1 font-mono text-xs px-2 py-1 rounded bg-muted-soft hover:bg-muted transition-colors"
                       title="Copier"
                     >
@@ -189,7 +254,9 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-foreground">{c.recipientName ?? "—"}</p>
+                      <p className="text-foreground">
+                        {c.recipientName ?? "—"}
+                      </p>
                       <p className="text-xs text-muted">{c.recipientEmail}</p>
                     </div>
                   </td>
@@ -218,7 +285,10 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                   <td className="px-4 py-3 text-muted text-xs">
                     {c.createdAt ? formatDate(c.createdAt) : "—"}
                   </td>
-                  <td className="px-4 py-3">
+                  <td
+                    className="px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="flex items-center justify-end gap-1">
                       <select
                         disabled={isPending}
@@ -226,13 +296,16 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                         onChange={(e) =>
                           handleStatus(c.id, e.target.value as GiftCardStatus)
                         }
+                        aria-label={`Statut de la carte ${c.code}`}
                         className="text-xs border border-border rounded px-2 py-1 bg-white disabled:opacity-50"
                       >
-                        {(Object.keys(STATUS_LABELS) as GiftCardStatus[]).map((s) => (
-                          <option key={s} value={s}>
-                            {STATUS_LABELS[s]}
-                          </option>
-                        ))}
+                        {(Object.keys(STATUS_LABELS) as GiftCardStatus[]).map(
+                          (s) => (
+                            <option key={s} value={s}>
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ),
+                        )}
                       </select>
                       {isPending ? (
                         <Loader2 className="w-3 h-3 animate-spin text-muted" />
@@ -245,6 +318,206 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
           </tbody>
         </table>
       </div>
+
+      <AnimatePresence>
+        {drawerCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={() => setDrawerCard(null)}
+          >
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="gift-drawer-title"
+            >
+              <div className="sticky top-0 bg-white border-b border-border px-6 py-4 flex items-center justify-between">
+                <h2
+                  id="gift-drawer-title"
+                  className="text-base font-semibold text-foreground inline-flex items-center gap-2"
+                >
+                  <Gift className="w-4 h-4 text-terracotta" />
+                  Carte cadeau
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setDrawerCard(null)}
+                  aria-label="Fermer"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5 text-sm">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => copyCode(drawerCard.code)}
+                    className="inline-flex items-center gap-2 font-mono text-base font-semibold px-3 py-2 rounded-lg bg-muted-soft hover:bg-muted transition-colors"
+                    title="Copier le code"
+                  >
+                    {drawerCard.code}
+                    <Copy className="w-4 h-4" />
+                  </button>
+                  <span
+                    className={cn(
+                      "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border",
+                      STATUS_STYLE[drawerCard.status],
+                    )}
+                  >
+                    {STATUS_LABELS[drawerCard.status]}
+                  </span>
+                </div>
+
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Montant initial
+                    </dt>
+                    <dd className="text-foreground mt-0.5 text-lg font-semibold">
+                      {formatMoney(drawerCard.initialAmount, drawerCard.currency)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Solde restant
+                    </dt>
+                    <dd className="text-foreground mt-0.5 text-lg font-semibold">
+                      {formatMoney(drawerCard.amountRemaining, drawerCard.currency)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Destinataire
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.recipientName ?? "—"}
+                      <br />
+                      <span className="text-muted text-xs">
+                        {drawerCard.recipientEmail}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Émetteur
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.senderName ?? "—"}
+                      {drawerCard.senderEmail && (
+                        <>
+                          <br />
+                          <span className="text-muted text-xs">
+                            {drawerCard.senderEmail}
+                          </span>
+                        </>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Créée le
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.createdAt
+                        ? formatDate(drawerCard.createdAt)
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Date de remise
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.deliveryDate
+                        ? formatDate(drawerCard.deliveryDate)
+                        : "Immédiate"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Payée le
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.paidAt
+                        ? formatDate(drawerCard.paidAt)
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Email envoyé le
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.sentAt
+                        ? formatDate(drawerCard.sentAt)
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Expire le
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerCard.expiresAt
+                        ? formatDate(drawerCard.expiresAt)
+                        : "Jamais"}
+                    </dd>
+                  </div>
+                </dl>
+
+                {drawerCard.message && (
+                  <div>
+                    <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                      Message personnel
+                    </h3>
+                    <p className="bg-muted-soft rounded-lg p-3 text-foreground italic whitespace-pre-wrap">
+                      « {drawerCard.message} »
+                    </p>
+                  </div>
+                )}
+
+                <div className="border-t border-border pt-4 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleResend(drawerCard)}
+                    disabled={
+                      isResending ||
+                      drawerCard.status === "cancelled" ||
+                      drawerCard.status === "redeemed" ||
+                      drawerCard.status === "expired"
+                    }
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-foreground text-white rounded-lg text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                  >
+                    {isResending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    Renvoyer l&apos;email
+                  </button>
+                  <a
+                    href={`mailto:${drawerCard.recipientEmail}?subject=Votre carte cadeau ISHYA`}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Contacter par email
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

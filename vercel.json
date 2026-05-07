@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/birthdays",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/expire-gift-cards",
+      "schedule": "0 3 * * *"
     }
   ]
 }
