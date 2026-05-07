@@ -89,7 +89,7 @@ export function TicketConversation({
       <div>
         <Link
           href="/admin/tickets"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour aux tickets
@@ -98,13 +98,13 @@ export function TicketConversation({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <div className="bg-white border border-border rounded-xl p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-xl font-semibold text-foreground">
                   {ticket.subject}
                 </h1>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted mt-1">
                   Ouvert le{" "}
                   {ticket.createdAt ? formatDate(ticket.createdAt) : "—"}
                 </p>
@@ -116,10 +116,10 @@ export function TicketConversation({
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+          <div className="bg-white border border-border rounded-xl divide-y divide-border">
             {ticket.messages.length === 0 ? (
-              <div className="p-8 text-center text-sm text-gray-500">
-                <MessageCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+              <div className="p-8 text-center text-sm text-muted">
+                <MessageCircle className="w-8 h-8 mx-auto mb-2 text-muted-light" />
                 Aucun message pour l&apos;instant.
               </div>
             ) : (
@@ -128,7 +128,7 @@ export function TicketConversation({
                   key={m.id}
                   className={cn(
                     "p-5",
-                    m.isInternal && "bg-amber-50/40",
+                    m.isInternal && "bg-warning-soft/40",
                   )}
                 >
                   <div className="flex items-start gap-3">
@@ -137,7 +137,7 @@ export function TicketConversation({
                         "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
                         m.authorIsAdmin
                           ? "bg-terracotta/10 text-terracotta"
-                          : "bg-gray-100 text-gray-600",
+                          : "bg-muted-soft text-muted",
                       )}
                     >
                       {m.authorIsAdmin ? (
@@ -148,20 +148,20 @@ export function TicketConversation({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-foreground">
                           {m.authorName ?? (m.authorIsAdmin ? "Équipe ISHYA" : "Client")}
                         </span>
                         {m.isInternal && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning-soft text-warning">
                             <Lock className="w-3 h-3" />
                             Note interne
                           </span>
                         )}
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted">
                           · {formatDate(m.createdAt)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">
+                      <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">
                         {m.body}
                       </p>
                     </div>
@@ -174,7 +174,7 @@ export function TicketConversation({
           {!isClosed && (
             <form
               onSubmit={onSend}
-              className="bg-white border border-gray-200 rounded-xl p-5 space-y-3"
+              className="bg-white border border-border rounded-xl p-5 space-y-3"
             >
               <textarea
                 value={body}
@@ -189,17 +189,17 @@ export function TicketConversation({
                 className={cn(
                   "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 resize-y",
                   isInternal
-                    ? "border-amber-300 bg-amber-50/40 focus:ring-amber-200"
-                    : "border-gray-300 focus:ring-terracotta/20",
+                    ? "border-warning/40 bg-warning-soft/40 focus:ring-warning/30"
+                    : "border-border focus:ring-terracotta/20",
                 )}
               />
               <div className="flex items-center justify-between gap-3">
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isInternal}
                     onChange={(e) => setIsInternal(e.target.checked)}
-                    className="accent-amber-500"
+                    className="accent-warning"
                   />
                   Note interne (invisible côté client)
                 </label>
@@ -216,14 +216,14 @@ export function TicketConversation({
                   Envoyer
                 </button>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted">
                 {body.length}/5000 caractères
               </p>
             </form>
           )}
 
           {isClosed && (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-sm text-gray-500">
+            <div className="bg-muted-soft border border-border rounded-xl p-4 text-center text-sm text-muted">
               Ce ticket est fermé. Rouvrez-le depuis le panneau latéral pour
               répondre.
             </div>
@@ -231,12 +231,12 @@ export function TicketConversation({
         </div>
 
         <aside className="space-y-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <div className="bg-white border border-border rounded-xl p-5 space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
               Client
             </h2>
             <div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-foreground">
                 {ticket.customerName ?? "Client anonyme"}
               </p>
               {ticket.customerEmail && (
@@ -249,8 +249,8 @@ export function TicketConversation({
               )}
             </div>
             {ticket.orderNumber && (
-              <div className="pt-3 border-t border-gray-100">
-                <p className="text-xs text-gray-500">Commande liée</p>
+              <div className="pt-3 border-t border-border">
+                <p className="text-xs text-muted">Commande liée</p>
                 <Link
                   href={`/admin/commandes/${ticket.orderId}`}
                   className="text-sm text-terracotta hover:underline"
@@ -261,17 +261,17 @@ export function TicketConversation({
             )}
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <div className="bg-white border border-border rounded-xl p-5 space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
               État
             </h2>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Statut</label>
+              <label className="block text-xs text-muted mb-1">Statut</label>
               <select
                 value={ticket.status}
                 onChange={(e) => onStatusChange(e.target.value)}
                 disabled={pending}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                className="w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>
@@ -281,14 +281,14 @@ export function TicketConversation({
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">
+              <label className="block text-xs text-muted mb-1">
                 Priorité
               </label>
               <select
                 value={ticket.priority}
                 onChange={(e) => onPriorityChange(e.target.value)}
                 disabled={pending}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                className="w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               >
                 {PRIORITY_OPTIONS.map((p) => (
                   <option key={p} value={p}>
@@ -299,17 +299,17 @@ export function TicketConversation({
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-2 text-xs text-gray-500">
+          <div className="bg-white border border-border rounded-xl p-5 space-y-2 text-xs text-muted">
             <div>
-              <span className="text-gray-400">Canal :</span>{" "}
+              <span className="text-muted-light">Canal :</span>{" "}
               {ticket.channel ?? "—"}
             </div>
             <div>
-              <span className="text-gray-400">Catégorie :</span>{" "}
+              <span className="text-muted-light">Catégorie :</span>{" "}
               {ticket.category ?? "—"}
             </div>
             <div>
-              <span className="text-gray-400">Créé :</span>{" "}
+              <span className="text-muted-light">Créé :</span>{" "}
               {ticket.createdAt ? formatDate(ticket.createdAt) : "—"}
             </div>
           </div>

@@ -19,7 +19,7 @@ export default async function EditFaqPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">
+      <h1 className="text-2xl font-semibold text-foreground">
         Modifier la question
       </h1>
       <FaqForm article={article} />

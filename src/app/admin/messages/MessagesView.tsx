@@ -44,10 +44,10 @@ const STATUS_LABELS: Record<ContactMessageStatus, string> = {
 
 const STATUS_STYLE: Record<ContactMessageStatus, string> = {
   new: "bg-terracotta/10 text-terracotta border-terracotta/20",
-  read: "bg-gray-100 text-gray-700 border-gray-200",
-  answered: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  spam: "bg-red-50 text-red-700 border-red-200",
-  archived: "bg-slate-100 text-slate-600 border-slate-200",
+  read: "bg-muted-soft text-foreground border-border",
+  answered: "bg-success-soft text-success border-success/20",
+  spam: "bg-destructive-soft text-destructive border-destructive/20",
+  archived: "bg-muted-soft text-muted border-border",
 };
 
 const FILTERS: Array<{ value: "all" | ContactMessageStatus; label: string; icon: React.ComponentType<{ className?: string }> }> = [

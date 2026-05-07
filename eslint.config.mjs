@@ -32,6 +32,10 @@ const eslintConfig = defineConfig([
     files: ["src/**/*.{ts,tsx}"],
     ignores: [
       "src/app/admin/layout.tsx",
+      // Sidebar admin volontairement en dark theme : utilise gray-* pour la
+      // surface foncée. Pas de tokens ISHYA équivalents (le design system
+      // est pensé pour le storefront/admin clair).
+      "src/app/admin/AdminShell.tsx",
       "src/app/(storefront)/styleguide/**",
     ],
     rules: {
