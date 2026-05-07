@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { Header, type HeaderAccount } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import type { SocialLinks } from "@/lib/queries/storefront";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -87,12 +88,14 @@ export function CompteShell({
   lastName,
   loyaltyTier,
   account,
+  social,
   children,
 }: {
   firstName: string | null;
   lastName: string | null;
   loyaltyTier: string;
   account: HeaderAccount;
+  social: SocialLinks;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -275,7 +278,7 @@ export function CompteShell({
           </div>
         </div>
       </main>
-      <Footer />
+      <Footer social={social} />
     </>
   );
 }

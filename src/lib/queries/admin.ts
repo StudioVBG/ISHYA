@@ -2104,6 +2104,52 @@ export async function getAdminSeoConfig(): Promise<AdminSeoConfig> {
   };
 }
 
+export interface AdminSocialLinks {
+  instagramUrl: string;
+  facebookUrl: string;
+  pinterestUrl: string;
+  tiktokUrl: string;
+  youtubeUrl: string;
+  contactEmail: string;
+}
+
+const SOCIAL_KEYS = [
+  "social.instagram_url",
+  "social.facebook_url",
+  "social.pinterest_url",
+  "social.tiktok_url",
+  "social.youtube_url",
+  "social.contact_email",
+] as const;
+
+export async function getAdminSocialLinks(): Promise<AdminSocialLinks> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("settings")
+    .select("key, value")
+    .in("key", [...SOCIAL_KEYS]);
+
+  const map = new Map<string, unknown>();
+  for (const row of data ?? []) {
+    map.set(row.key, row.value);
+  }
+  const asString = (key: string): string => {
+    const v = map.get(key);
+    if (typeof v === "string") return v;
+    if (v == null) return "";
+    return String(v);
+  };
+
+  return {
+    instagramUrl: asString("social.instagram_url"),
+    facebookUrl: asString("social.facebook_url"),
+    pinterestUrl: asString("social.pinterest_url"),
+    tiktokUrl: asString("social.tiktok_url"),
+    youtubeUrl: asString("social.youtube_url"),
+    contactEmail: asString("social.contact_email"),
+  };
+}
+
 export async function getAdminCmsPages(): Promise<AdminCmsPageRow[]> {
   const admin = createAdminClient();
   const { data, error } = await admin

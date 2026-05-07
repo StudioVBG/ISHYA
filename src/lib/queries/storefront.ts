@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ProductCardProduct } from "@/components/product/ProductCard";
 import type { Database } from "@/types/supabase";
 
@@ -435,6 +436,59 @@ async function getActiveBanner(
 
 export const getHeroBanner = () => getActiveBanner("hero");
 export const getAnnouncementBanner = () => getActiveBanner("announcement_bar");
+
+export interface SocialLinks {
+  instagramUrl: string;
+  facebookUrl: string;
+  pinterestUrl: string;
+  tiktokUrl: string;
+  youtubeUrl: string;
+  contactEmail: string;
+}
+
+const SOCIAL_KEYS_PUBLIC = [
+  "social.instagram_url",
+  "social.facebook_url",
+  "social.pinterest_url",
+  "social.tiktok_url",
+  "social.youtube_url",
+  "social.contact_email",
+] as const;
+
+/**
+ * Lit les liens réseaux sociaux configurés dans `settings` (clé `social.*`).
+ * La table `settings` est admin-only via RLS — on passe par le service role
+ * (server-only, jamais exposé au client).
+ *
+ * Toutes les valeurs sont des strings ; vide = pas de lien (le footer cache).
+ */
+export async function getSocialLinks(): Promise<SocialLinks> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("settings")
+    .select("key, value")
+    .in("key", [...SOCIAL_KEYS_PUBLIC]);
+
+  const map = new Map<string, unknown>();
+  for (const row of data ?? []) {
+    map.set(row.key, row.value);
+  }
+  const asString = (key: string): string => {
+    const v = map.get(key);
+    if (typeof v === "string") return v;
+    if (v == null) return "";
+    return String(v);
+  };
+
+  return {
+    instagramUrl: asString("social.instagram_url"),
+    facebookUrl: asString("social.facebook_url"),
+    pinterestUrl: asString("social.pinterest_url"),
+    tiktokUrl: asString("social.tiktok_url"),
+    youtubeUrl: asString("social.youtube_url"),
+    contactEmail: asString("social.contact_email"),
+  };
+}
 
 /**
  * Liste des product_id mis en favori par l'utilisateur connecté.

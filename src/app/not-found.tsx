@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Flower2, Home, ShoppingBag } from "lucide-react";
 import { getAccountLink } from "@/lib/auth/account-link";
-import { getAnnouncementBanner } from "@/lib/queries/storefront";
+import { getAnnouncementBanner, getSocialLinks } from "@/lib/queries/storefront";
 
 export const metadata = {
   title: "Page introuvable — ISHYA",
@@ -14,9 +14,10 @@ export const metadata = {
 };
 
 export default async function NotFound() {
-  const [account, announcement] = await Promise.all([
+  const [account, announcement, social] = await Promise.all([
     getAccountLink(),
     getAnnouncementBanner(),
+    getSocialLinks(),
   ]);
   return (
     <>
@@ -76,7 +77,7 @@ export default async function NotFound() {
           </div>
         </div>
       </main>
-      <Footer />
+      <Footer social={social} />
     </>
   );
 }
