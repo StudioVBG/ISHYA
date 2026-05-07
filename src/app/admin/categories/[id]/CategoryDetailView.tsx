@@ -42,7 +42,7 @@ import {
 import {
   SortableProductRow,
   type SortableProductItem,
-} from "./SortableProductRow";
+} from "@/components/admin/SortableProductRow";
 
 interface ProductSearchResult {
   id: string;

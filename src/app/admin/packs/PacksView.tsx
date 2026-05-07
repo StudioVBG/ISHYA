@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -90,6 +91,8 @@ function formatDiscount(p: AdminPackRow): string | null {
 }
 
 export function PacksView({ packs }: { packs: AdminPackRow[] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -116,6 +119,17 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
     });
     setShowModal(true);
   };
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId) return;
+    const target = packs.find((p) => p.id === editId);
+    if (target) {
+      openEdit(target);
+      router.replace("/admin/packs", { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, packs]);
 
   const handleSave = () => {
     if (!form.name.trim()) {
