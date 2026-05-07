@@ -1,11 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Search, FileText, Database } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  FileText,
+  Database,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+} from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
-import type { AdminAuditLog } from "@/lib/queries/admin";
+import type {
+  AdminAuditFilters,
+  AdminAuditLog,
+  AdminAuditPage,
+} from "@/lib/queries/admin";
 
 const ACTION_COLORS: Record<string, string> = {
   insert: "bg-success-soft text-success",
@@ -23,34 +37,64 @@ function actionColor(action: string): string {
   return "bg-muted-soft text-muted";
 }
 
-export function AuditView({ logs }: { logs: AdminAuditLog[] }) {
-  const [search, setSearch] = useState("");
-  const [tableFilter, setTableFilter] = useState("");
+function buildHref(
+  base: string,
+  params: Record<string, string | undefined>,
+): string {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v) sp.set(k, v);
+  }
+  const qs = sp.toString();
+  return qs ? `${base}?${qs}` : base;
+}
 
-  const tables = useMemo(() => {
-    const set = new Set<string>();
-    for (const l of logs) {
-      if (l.tableName) set.add(l.tableName);
-    }
-    return Array.from(set).sort();
-  }, [logs]);
+export function AuditView({
+  data,
+  filters,
+}: {
+  data: AdminAuditPage;
+  filters: AdminAuditFilters;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [drawerLog, setDrawerLog] = useState<AdminAuditLog | null>(null);
 
-  const filtered = useMemo(() => {
-    return logs.filter((l) => {
-      if (tableFilter && l.tableName !== tableFilter) return false;
-      if (search) {
-        const q = search.toLowerCase();
-        if (
-          !l.action.toLowerCase().includes(q) &&
-          !(l.tableName ?? "").toLowerCase().includes(q) &&
-          !(l.userName ?? "").toLowerCase().includes(q) &&
-          !(l.recordId ?? "").toLowerCase().includes(q)
-        )
-          return false;
-      }
-      return true;
+  // Form state local pour ne pas re-fetch à chaque keystroke
+  const [search, setSearch] = useState(filters.search ?? "");
+  const [action, setAction] = useState(filters.action ?? "");
+  const [table, setTable] = useState(filters.tableName ?? "");
+  const [dateFrom, setDateFrom] = useState(filters.dateFrom ?? "");
+  const [dateTo, setDateTo] = useState(filters.dateTo ?? "");
+
+  const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
+
+  const applyFilters = (e: React.FormEvent) => {
+    e.preventDefault();
+    const sp = new URLSearchParams();
+    if (search.trim()) sp.set("search", search.trim());
+    if (action) sp.set("action", action);
+    if (table) sp.set("table", table);
+    if (dateFrom) sp.set("from", dateFrom);
+    if (dateTo) sp.set("to", dateTo);
+    // Reset page lors d'un changement de filtre
+    router.push(`/admin/audit${sp.toString() ? `?${sp.toString()}` : ""}`);
+  };
+
+  const resetFilters = () => {
+    setSearch("");
+    setAction("");
+    setTable("");
+    setDateFrom("");
+    setDateTo("");
+    router.push("/admin/audit");
+  };
+
+  const buildPageHref = (p: number) =>
+    buildHref("/admin/audit", {
+      ...Object.fromEntries(searchParams.entries()),
+      page: String(p),
     });
-  }, [logs, search, tableFilter]);
 
   return (
     <motion.div
@@ -64,52 +108,106 @@ export function AuditView({ logs }: { logs: AdminAuditLog[] }) {
           Journal d&apos;audit
         </h2>
         <p className="text-sm text-muted">
-          {logs.length} évènement{logs.length > 1 ? "s" : ""} (200 dernières
-          entrées)
+          {data.total} évènement{data.total > 1 ? "s" : ""} au total — page{" "}
+          {data.page} / {totalPages}
         </p>
       </motion.div>
 
-      <motion.div
+      <motion.form
         variants={staggerItem}
-        className="bg-white rounded-xl border border-border p-4"
+        onSubmit={applyFilters}
+        className="bg-white rounded-xl border border-border p-4 space-y-3"
       >
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col lg:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
             <input
               type="text"
-              placeholder="Rechercher (action, table, utilisateur, id)..."
+              placeholder="Rechercher (action, table, ID enregistrement)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              aria-label="Rechercher dans les logs d'audit"
             />
           </div>
-          {tables.length > 0 && (
-            <select
-              value={tableFilter}
-              onChange={(e) => setTableFilter(e.target.value)}
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-            >
-              <option value="">Toutes les tables</option>
-              {tables.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          )}
+          <select
+            value={action}
+            onChange={(e) => setAction(e.target.value)}
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 sm:min-w-[140px]"
+            aria-label="Filtrer par action"
+          >
+            <option value="">Toutes les actions</option>
+            {data.knownActions.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
+          </select>
+          <select
+            value={table}
+            onChange={(e) => setTable(e.target.value)}
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 sm:min-w-[180px]"
+            aria-label="Filtrer par table"
+          >
+            <option value="">Toutes les tables</option>
+            {data.knownTables.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
-      </motion.div>
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+          <div>
+            <label className="block text-xs font-medium text-foreground mb-1">
+              Du
+            </label>
+            <input
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-foreground mb-1">
+              Au
+            </label>
+            <input
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            />
+          </div>
+          <div className="flex gap-2 sm:ml-auto">
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors"
+            >
+              Réinitialiser
+            </button>
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors"
+            >
+              <Filter className="w-4 h-4" />
+              Appliquer
+            </button>
+          </div>
+        </div>
+      </motion.form>
 
-      {filtered.length === 0 ? (
+      {data.logs.length === 0 ? (
         <motion.div
           variants={staggerItem}
           className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
         >
           <FileText className="w-8 h-8 mx-auto mb-2 text-muted-light" />
-          {logs.length === 0
+          {data.total === 0
             ? "Aucune entrée d'audit pour l'instant."
-            : "Aucune entrée ne correspond à votre recherche."}
+            : "Aucune entrée ne correspond à vos filtres."}
         </motion.div>
       ) : (
         <motion.div
@@ -141,10 +239,11 @@ export function AuditView({ logs }: { logs: AdminAuditLog[] }) {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((log) => (
+                {data.logs.map((log) => (
                   <tr
                     key={log.id}
-                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
+                    onClick={() => setDrawerLog(log)}
+                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-3 text-muted whitespace-nowrap">
                       {log.createdAt ? formatDate(log.createdAt) : "—"}
@@ -170,10 +269,15 @@ export function AuditView({ logs }: { logs: AdminAuditLog[] }) {
                       )}
                     </td>
                     <td className="px-4 py-3 font-mono text-[10px] text-muted-light">
-                      {log.recordId ? log.recordId.slice(0, 8) : "—"}
+                      <span title={log.recordId ?? ""}>
+                        {log.recordId ? log.recordId.slice(0, 8) : "—"}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-foreground truncate max-w-[180px]">
-                      {log.userName ?? (log.userId ? "Utilisateur supprimé" : "Système")}
+                      <span title={log.userName ?? log.userId ?? ""}>
+                        {log.userName ??
+                          (log.userId ? "Utilisateur supprimé" : "Système")}
+                      </span>
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-muted">
                       {log.ipAddress ?? "—"}
@@ -183,8 +287,163 @@ export function AuditView({ logs }: { logs: AdminAuditLog[] }) {
               </tbody>
             </table>
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted-soft/30">
+              <p className="text-xs text-muted">
+                Affichage {(data.page - 1) * data.pageSize + 1} –{" "}
+                {Math.min(data.page * data.pageSize, data.total)} sur{" "}
+                {data.total}
+              </p>
+              <div className="flex items-center gap-2">
+                {data.page > 1 ? (
+                  <Link
+                    href={buildPageHref(data.page - 1)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-white transition-colors"
+                  >
+                    <ChevronLeft className="w-3 h-3" /> Précédent
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-muted-light opacity-40">
+                    <ChevronLeft className="w-3 h-3" /> Précédent
+                  </span>
+                )}
+                <span className="text-xs text-muted px-2">
+                  Page {data.page} / {totalPages}
+                </span>
+                {data.hasNext ? (
+                  <Link
+                    href={buildPageHref(data.page + 1)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-white transition-colors"
+                  >
+                    Suivant <ChevronRight className="w-3 h-3" />
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-muted-light opacity-40">
+                    Suivant <ChevronRight className="w-3 h-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {drawerLog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 bg-black/50 z-50"
+            onClick={() => setDrawerLog(null)}
+          >
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 top-0 h-full w-full max-w-2xl bg-white shadow-xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="audit-drawer-title"
+            >
+              <div className="sticky top-0 bg-white border-b border-border px-6 py-4 flex items-center justify-between">
+                <h2
+                  id="audit-drawer-title"
+                  className="text-base font-semibold text-foreground inline-flex items-center gap-2"
+                >
+                  <span
+                    className={cn(
+                      "px-2 py-0.5 rounded-full text-xs font-medium",
+                      actionColor(drawerLog.action),
+                    )}
+                  >
+                    {drawerLog.action}
+                  </span>
+                  {drawerLog.tableName && (
+                    <span className="font-mono text-sm text-muted">
+                      {drawerLog.tableName}
+                    </span>
+                  )}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setDrawerLog(null)}
+                  aria-label="Fermer"
+                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5 text-sm">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Date
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerLog.createdAt
+                        ? formatDate(drawerLog.createdAt)
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      ID enregistrement
+                    </dt>
+                    <dd className="text-foreground font-mono text-xs mt-0.5 break-all">
+                      {drawerLog.recordId ?? "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      Utilisateur
+                    </dt>
+                    <dd className="text-foreground mt-0.5">
+                      {drawerLog.userName ??
+                        (drawerLog.userId ? "Utilisateur supprimé" : "Système")}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                      IP
+                    </dt>
+                    <dd className="text-foreground font-mono text-xs mt-0.5">
+                      {drawerLog.ipAddress ?? "—"}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div>
+                  <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                    Avant
+                  </h3>
+                  <pre className="bg-muted-soft rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
+                    {drawerLog.oldData
+                      ? JSON.stringify(drawerLog.oldData, null, 2)
+                      : "— (création ou pas de snapshot avant)"}
+                  </pre>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                    Après
+                  </h3>
+                  <pre className="bg-muted-soft rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
+                    {drawerLog.newData
+                      ? JSON.stringify(drawerLog.newData, null, 2)
+                      : "— (suppression ou pas de snapshot après)"}
+                  </pre>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
