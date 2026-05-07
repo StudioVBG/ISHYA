@@ -94,10 +94,16 @@ export default function InscriptionPage() {
     // (migration 013) crée profiles + notification_preferences +
     // newsletter_subscribers en une seule transaction côté DB. Pas
     // d'updates client-side, pas de course RLS.
+    //
+    // emailRedirectTo : on force l'URL de retour pour ne JAMAIS dépendre
+    // du Site URL configuré côté Supabase (qui peut être resté sur
+    // localhost en dev). En prod le lien du mail de confirmation pointe
+    // donc bien vers /auth/callback de notre domaine.
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           first_name: data.firstName,
           newsletter: data.newsletter ?? false,
