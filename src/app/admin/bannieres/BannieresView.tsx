@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminBannerRow } from "@/lib/queries/admin";
 import {
   createBanner,
@@ -72,9 +73,12 @@ function toDatetimeLocal(iso: string | null): string {
 export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const deletingBanner = banners.find((b) => b.id === deletingId);
 
   const openCreate = () => {
     setEditingId(null);
@@ -127,15 +131,18 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Supprimer cette bannière ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startDeleteTransition(async () => {
       const res = await deleteBanner(id);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
+        setDeletingId(null);
         return;
       }
       toast.success("Bannière supprimée");
+      setDeletingId(null);
     });
   };
 
@@ -234,7 +241,7 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(b.id)}
+                    onClick={() => setDeletingId(b.id)}
                     disabled={isDeletePending}
                     className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                   >
@@ -413,6 +420,23 @@ export function BannieresView({ banners }: { banners: AdminBannerRow[] }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer cette bannière ?"
+        description={
+          deletingBanner
+            ? `« ${deletingBanner.title} » sera supprimée. Cette action est définitive.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

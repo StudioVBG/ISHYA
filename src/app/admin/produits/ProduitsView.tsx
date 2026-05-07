@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminProductRow } from "@/lib/queries/admin";
 import { deleteProduct, deleteProducts } from "./actions";
 
@@ -36,35 +37,42 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
   const [statusFilter, setStatusFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
   const [isDeletePending, startDeleteTransition] = useTransition();
+  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(
+    null,
+  );
+  const [bulkDeleting, setBulkDeleting] = useState<string[] | null>(null);
 
   const handleDeleteOne = (id: string, name: string) => {
-    if (
-      !window.confirm(
-        `Supprimer définitivement « ${name} » ? Les variantes et photos seront aussi effacées.`,
-      )
-    )
-      return;
+    setDeleting({ id, name });
+  };
+
+  const handleConfirmDeleteOne = () => {
+    if (!deleting) return;
+    const id = deleting.id;
     startDeleteTransition(async () => {
       const res = await deleteProduct(id);
       // deleteProduct fait un redirect() : si res est undefined la suppression a réussi.
       if (res && !res.ok) {
         toast.error(res.error ?? "Erreur de suppression");
+        setDeleting(null);
         return;
       }
       toast.success("Produit supprimé");
+      setDeleting(null);
     });
   };
 
   const handleDeleteSelected = (ids: string[]) => {
     if (ids.length === 0) return;
-    if (
-      !window.confirm(
-        `Supprimer définitivement ${ids.length} produit${ids.length > 1 ? "s" : ""} ? Cette action est irréversible.`,
-      )
-    )
-      return;
+    setBulkDeleting(ids);
+  };
+
+  const handleConfirmBulkDelete = () => {
+    if (!bulkDeleting || bulkDeleting.length === 0) return;
+    const ids = bulkDeleting;
     startDeleteTransition(async () => {
       const res = await deleteProducts(ids);
+      setBulkDeleting(null);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur de suppression");
         return;
@@ -419,6 +427,44 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
           </table>
         </div>
       </motion.div>
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleting(null);
+        }}
+        title="Supprimer définitivement ce produit ?"
+        description={
+          deleting
+            ? `« ${deleting.name} » sera supprimé. Les variantes, photos et appartenances aux catégories/collections/packs seront aussi effacées.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDeleteOne}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleting !== null}
+        onOpenChange={(open) => {
+          if (!open) setBulkDeleting(null);
+        }}
+        title={
+          bulkDeleting && bulkDeleting.length > 1
+            ? `Supprimer ${bulkDeleting.length} produits ?`
+            : "Supprimer ce produit ?"
+        }
+        description="Cette action est irréversible. Les variantes, photos et appartenances seront aussi effacées."
+        confirmLabel={
+          bulkDeleting && bulkDeleting.length > 1
+            ? `Supprimer ${bulkDeleting.length} produits`
+            : "Supprimer"
+        }
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmBulkDelete}
+      />
     </motion.div>
   );
 }

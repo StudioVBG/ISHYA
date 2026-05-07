@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminSettingRow } from "@/lib/queries/admin";
 import { deleteSetting, upsertSetting } from "./actions";
 
@@ -62,9 +63,12 @@ export function ParametresView({
   canDelete: boolean;
 }) {
   const [showModal, setShowModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const deletingSetting = settings.find((s) => s.id === deletingId);
 
   const openCreate = () => {
     setForm(emptyForm);
@@ -103,15 +107,18 @@ export function ParametresView({
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Supprimer ce paramètre ? Cela peut casser le site.")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startDeleteTransition(async () => {
       const res = await deleteSetting(id);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
+        setDeletingId(null);
         return;
       }
       toast.success("Paramètre supprimé");
+      setDeletingId(null);
     });
   };
 
@@ -203,7 +210,7 @@ export function ParametresView({
                       </button>
                       {canDelete && (
                         <button
-                          onClick={() => handleDelete(s.id)}
+                          onClick={() => setDeletingId(s.id)}
                           disabled={isDeletePending}
                           className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                         >
@@ -315,6 +322,23 @@ export function ParametresView({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer ce paramètre ?"
+        description={
+          deletingSetting
+            ? `Le paramètre « ${deletingSetting.key} » sera supprimé. Cela peut casser le site.`
+            : "Cela peut casser le site."
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

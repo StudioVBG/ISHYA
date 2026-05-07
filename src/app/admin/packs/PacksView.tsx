@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminPackRow } from "@/lib/queries/admin";
 import {
   createPack,
@@ -95,9 +96,12 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
   const searchParams = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const deletingPack = packs.find((p) => p.id === deletingId);
 
   const openCreate = () => {
     setEditingId(null);
@@ -161,15 +165,18 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Supprimer ce pack ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startDeleteTransition(async () => {
       const res = await deletePack(id);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
+        setDeletingId(null);
         return;
       }
       toast.success("Pack supprimé");
+      setDeletingId(null);
     });
   };
 
@@ -283,7 +290,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => setDeletingId(p.id)}
                       disabled={isDeletePending}
                       className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                     >
@@ -463,6 +470,23 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer ce pack ?"
+        description={
+          deletingPack
+            ? `« ${deletingPack.name} » sera supprimé. Cette action est définitive.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

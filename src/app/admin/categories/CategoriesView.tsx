@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminCategoryRow } from "@/lib/queries/admin";
 import {
   createCategory,
@@ -57,9 +58,12 @@ export function CategoriesView({
   const searchParams = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const deletingCategory = categories.find((c) => c.id === deletingId);
 
   const openCreate = () => {
     setEditingId(null);
@@ -117,15 +121,18 @@ export function CategoriesView({
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Supprimer cette catégorie ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startDeleteTransition(async () => {
       const res = await deleteCategory(id);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
+        setDeletingId(null);
         return;
       }
       toast.success("Catégorie supprimée");
+      setDeletingId(null);
     });
   };
 
@@ -251,7 +258,7 @@ export function CategoriesView({
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(c.id)}
+                          onClick={() => setDeletingId(c.id)}
                           disabled={isDeletePending}
                           className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
                           title="Supprimer"
@@ -396,6 +403,23 @@ export function CategoriesView({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer cette catégorie ?"
+        description={
+          deletingCategory
+            ? `« ${deletingCategory.name} » sera supprimée. Cette action est définitive.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

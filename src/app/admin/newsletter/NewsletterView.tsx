@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatDate } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import {
   deleteNewsletterSubscriber,
   resubscribeNewsletter,
@@ -63,7 +64,10 @@ function exportCsv(rows: NewsletterRow[]) {
 export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
   const [filter, setFilter] = useState<Filter>("active");
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const deletingRow = rows.find((r) => r.id === deletingId);
 
   const counts = useMemo(
     () => ({
@@ -103,10 +107,12 @@ export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Supprimer définitivement cet abonné ?")) return;
+  const handleConfirmDelete = () => {
+    if (!deletingId) return;
+    const id = deletingId;
     startTransition(async () => {
       const res = await deleteNewsletterSubscriber(id);
+      setDeletingId(null);
       if (res.ok) toast.success("Supprimé");
       else toast.error(res.error || "Erreur");
     });
@@ -249,7 +255,7 @@ export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
                       )}
                       <button
                         disabled={isPending}
-                        onClick={() => handleDelete(r.id)}
+                        onClick={() => setDeletingId(r.id)}
                         className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-destructive/30 text-destructive bg-destructive-soft rounded hover:bg-destructive/15 disabled:opacity-50"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -262,6 +268,23 @@ export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+        title="Supprimer définitivement cet abonné ?"
+        description={
+          deletingRow
+            ? `${deletingRow.email} sera supprimé de la base. Préférez le désabonnement (gardé pour le réabonnement et la conformité).`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isPending}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

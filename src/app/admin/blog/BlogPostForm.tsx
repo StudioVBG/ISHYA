@@ -18,6 +18,7 @@ import { cn, slugify, formatDate } from "@/lib/utils";
 // est calculé par le serveur, qui résoud les collisions automatiquement).
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminBlogPostDetail } from "@/lib/queries/admin";
 import {
   createBlogPost,
@@ -45,6 +46,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
     post?.seoDescription ?? "",
   );
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
 
@@ -84,14 +86,15 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
     });
   };
 
-  const handleDelete = () => {
+  const handleConfirmDelete = () => {
     if (!post) return;
-    if (!window.confirm("Supprimer définitivement cet article ?")) return;
     startDeleteTransition(async () => {
       const res = await deleteBlogPost(post.id);
       if (res && !res.ok) {
         toast.error(res.error ?? "Erreur");
+        setConfirmDelete(false);
       }
+      // Sur succès → redirect() côté serveur
     });
   };
 
@@ -131,7 +134,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
           <div className="flex gap-2">
             {isEditing && (
               <button
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={isDeletePending}
                 className="inline-flex items-center gap-2 px-3 py-2 border border-destructive/30 text-destructive bg-destructive-soft rounded-lg text-sm font-medium hover:bg-destructive/15 transition-colors disabled:opacity-50"
               >
@@ -363,6 +366,21 @@ Du HTML brut (commençant par <) sera injecté tel quel.`}
           </motion.div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Supprimer définitivement cet article ?"
+        description={
+          post
+            ? `« ${post.title} » sera supprimé. Cette action est irréversible.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isDeletePending}
+        onConfirm={handleConfirmDelete}
+      />
     </motion.div>
   );
 }

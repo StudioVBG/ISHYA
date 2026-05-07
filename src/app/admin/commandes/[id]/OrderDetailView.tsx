@@ -20,6 +20,7 @@ import { cn, formatPrice, formatDate } from "@/lib/utils";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { StatusBadge, type OrderStatus } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminOrderDetail } from "@/lib/queries/admin";
 import {
   markOrderShipped,
@@ -49,6 +50,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
   const [isShipPending, startShipTransition] = useTransition();
   const [isRefundPending, startRefundTransition] = useTransition();
   const [isNotePending, startNoteTransition] = useTransition();
+  const [confirmRefund, setConfirmRefund] = useState(false);
 
   const handleStatusChange = (next: string) => {
     setStatusValue(next);
@@ -74,15 +76,10 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
     });
   };
 
-  const handleRefund = () => {
-    if (
-      !window.confirm(
-        "Confirmer le remboursement intégral via Stripe ? Cette action est irréversible.",
-      )
-    )
-      return;
+  const handleConfirmRefund = () => {
     startRefundTransition(async () => {
       const res = await refundOrder(order.id);
+      setConfirmRefund(false);
       if (!res.ok) {
         toast.error(res.error ?? "Erreur");
         return;
@@ -357,7 +354,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                 icon={RefreshCw}
                 loading={isRefundPending}
                 disabled={isRefundPending}
-                onClick={handleRefund}
+                onClick={() => setConfirmRefund(true)}
                 className="bg-warning-soft text-warning hover:bg-warning/15 hover:text-warning border border-warning/20"
               >
                 Rembourser via Stripe
@@ -565,6 +562,17 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmRefund}
+        onOpenChange={setConfirmRefund}
+        title="Confirmer le remboursement intégral ?"
+        description={`La commande ${order.orderNumber} sera remboursée via Stripe pour un montant de ${formatPrice(order.grandTotal)}. Cette action est irréversible.`}
+        confirmLabel="Rembourser"
+        tone="destructive"
+        pending={isRefundPending}
+        onConfirm={handleConfirmRefund}
+      />
     </motion.div>
   );
 }

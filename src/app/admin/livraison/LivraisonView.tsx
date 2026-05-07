@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import {
   createShippingMethod,
   createShippingZone,
@@ -107,12 +108,17 @@ export function LivraisonView({
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [zoneForm, setZoneForm] = useState<ZoneFormState>(emptyZoneForm);
   const [isZonePending, startZoneTransition] = useTransition();
+  const [deletingZone, setDeletingZone] = useState<ShippingZoneRow | null>(
+    null,
+  );
 
   // ── Method modal ───────────────────────────────────────────────
   const [methodModal, setMethodModal] = useState(false);
   const [methodId, setMethodId] = useState<string | null>(null);
   const [methodForm, setMethodForm] = useState<MethodFormState>(emptyMethodForm);
   const [isMethodPending, startMethodTransition] = useTransition();
+  const [deletingMethod, setDeletingMethod] =
+    useState<ShippingMethodRow | null>(null);
 
   const methodsByZone = useMemo(() => {
     const m = new Map<string, ShippingMethodRow[]>();
@@ -163,15 +169,12 @@ export function LivraisonView({
     });
   };
 
-  const handleZoneDelete = (z: ShippingZoneRow) => {
-    if (
-      !window.confirm(
-        `Supprimer la zone "${z.name}" ? Les méthodes liées seront aussi supprimées.`,
-      )
-    )
-      return;
+  const handleConfirmDeleteZone = () => {
+    if (!deletingZone) return;
+    const z = deletingZone;
     startZoneTransition(async () => {
       const res = await deleteShippingZone(z.id);
+      setDeletingZone(null);
       if (res.ok) toast.success("Zone supprimée");
       else toast.error(res.error || "Erreur");
     });
@@ -233,10 +236,12 @@ export function LivraisonView({
     });
   };
 
-  const handleMethodDelete = (m: ShippingMethodRow) => {
-    if (!window.confirm(`Supprimer la méthode "${m.name}" ?`)) return;
+  const handleConfirmDeleteMethod = () => {
+    if (!deletingMethod) return;
+    const m = deletingMethod;
     startMethodTransition(async () => {
       const res = await deleteShippingMethod(m.id);
+      setDeletingMethod(null);
       if (res.ok) toast.success("Méthode supprimée");
       else toast.error(res.error || "Erreur");
     });
@@ -318,7 +323,7 @@ export function LivraisonView({
                     </button>
                     <button
                       disabled={isZonePending}
-                      onClick={() => handleZoneDelete(z)}
+                      onClick={() => setDeletingZone(z)}
                       className="inline-flex items-center px-2 py-1 text-xs border border-destructive/30 text-destructive bg-destructive-soft rounded hover:bg-destructive/15 disabled:opacity-50"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -390,7 +395,7 @@ export function LivraisonView({
                               </button>
                               <button
                                 disabled={isMethodPending}
-                                onClick={() => handleMethodDelete(m)}
+                                onClick={() => setDeletingMethod(m)}
                                 className="inline-flex items-center px-2 py-1 text-xs border border-destructive/30 text-destructive bg-destructive-soft rounded hover:bg-destructive/15 disabled:opacity-50"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -712,6 +717,40 @@ export function LivraisonView({
           </motion.div>
         ) : null}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={deletingZone !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingZone(null);
+        }}
+        title="Supprimer cette zone ?"
+        description={
+          deletingZone
+            ? `« ${deletingZone.name} » sera supprimée. Les méthodes liées seront aussi supprimées (CASCADE).`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isZonePending}
+        onConfirm={handleConfirmDeleteZone}
+      />
+
+      <ConfirmDialog
+        open={deletingMethod !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingMethod(null);
+        }}
+        title="Supprimer cette méthode ?"
+        description={
+          deletingMethod
+            ? `La méthode « ${deletingMethod.name} » sera supprimée. Les commandes existantes ne sont pas affectées.`
+            : undefined
+        }
+        confirmLabel="Supprimer"
+        tone="destructive"
+        pending={isMethodPending}
+        onConfirm={handleConfirmDeleteMethod}
+      />
     </div>
   );
 }
