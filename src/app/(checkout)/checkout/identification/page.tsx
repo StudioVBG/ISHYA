@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { fadeInUp, scaleIn } from "@/lib/animations";
+import { mergeWishlistOnLogin } from "@/lib/wishlist/merge-on-login";
 
 type AuthMode = "guest" | "login" | "register";
 
@@ -103,6 +104,7 @@ export default function IdentificationPage() {
       } catch {
         // Pas bloquant
       }
+      await mergeWishlistOnLogin();
       router.push("/checkout/livraison");
       router.refresh();
     } finally {
@@ -153,6 +155,7 @@ export default function IdentificationPage() {
       } catch {
         // Pas bloquant
       }
+      await mergeWishlistOnLogin();
       router.push("/checkout/livraison");
       router.refresh();
     } finally {

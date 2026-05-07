@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   ChevronRight,
   Minus,
@@ -28,6 +29,8 @@ import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { RelatedCarousel } from "@/components/product/RelatedCarousel";
 import { type ProductCardProduct } from "@/components/product/ProductCard";
 import { useCartStore } from "@/stores/cart-store";
+import { useWishlistStore } from "@/stores/wishlist-store";
+import { toggleWishlist } from "@/app/compte/favoris/actions";
 import { trackAddToCart, trackViewItem } from "@/lib/analytics";
 import type { ProductDetail } from "@/lib/queries/storefront";
 
@@ -118,9 +121,25 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
 
   const { product, media, variants, reviews, category } = data;
+  const wishlisted = useWishlistStore((s) => s.productIds.has(product.id));
+  const toggleLocal = useWishlistStore((s) => s.toggle);
+  const [, startWishlistTransition] = useTransition();
+
+  const handleToggleWishlist = () => {
+    const optimisticNext = toggleLocal(product.id);
+    startWishlistTransition(async () => {
+      const res = await toggleWishlist(product.id);
+      if (!res.ok) {
+        if (res.needsAuth) return; // Anonyme : on garde le toggle local.
+        toggleLocal(product.id); // Rollback erreur réelle.
+        toast.error(res.error ?? "Erreur");
+        return;
+      }
+      if (res.isFavorite !== optimisticNext) toggleLocal(product.id);
+    });
+  };
   const sortedMedia = media;
   const currentVariant = variants[selectedVariant] as
     | (typeof variants)[number]
@@ -390,7 +409,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
               <motion.button
                 variants={fadeInUp}
-                onClick={() => setWishlisted(!wishlisted)}
+                onClick={handleToggleWishlist}
                 className={cn(
                   "flex items-center gap-2 text-sm transition-colors mb-8 group",
                   wishlisted

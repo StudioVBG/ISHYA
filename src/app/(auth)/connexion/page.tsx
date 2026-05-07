@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import { translateAuthError } from "@/lib/auth/error-messages";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { mergeWishlistOnLogin } from "@/lib/wishlist/merge-on-login";
 
 const loginSchema = z.object({
   email: z
@@ -71,6 +72,7 @@ function ConnexionContent() {
     } catch {
       // ignore — cart merge is non-blocking
     }
+    await mergeWishlistOnLogin();
 
     let target = explicitRedirect;
     const isDefaultTarget = !target || target === "/compte";

@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   motion,
   useMotionValue,
@@ -90,7 +90,6 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
   const cardRef = useRef<HTMLElement>(null);
   const addItem = useCartStore((s) => s.addItem);
   const router = useRouter();
-  const pathname = usePathname();
   const [, startTransition] = useTransition();
 
   const wishlisted = useWishlistStore((s) => s.productIds.has(product.id));
@@ -104,15 +103,13 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
     startTransition(async () => {
       const res = await toggleWishlist(product.id);
       if (!res.ok) {
-        // Rollback optimiste
-        toggleLocal(product.id);
         if (res.needsAuth) {
-          toast.info("Connectez-vous pour gérer vos favoris");
-          router.push(
-            `/connexion?redirect_to=${encodeURIComponent(pathname ?? "/")}`,
-          );
+          // Anonyme : on garde le toggle local (persisté via localStorage),
+          // les favoris seront mergés en base à la prochaine connexion.
           return;
         }
+        // Erreur serveur réelle : on rollback l'optimistic update.
+        toggleLocal(product.id);
         toast.error(res.error ?? "Erreur");
         return;
       }

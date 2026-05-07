@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import { translateAuthError } from "@/lib/auth/error-messages";
 import { cn } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { mergeWishlistOnLogin } from "@/lib/wishlist/merge-on-login";
 
 const registerSchema = z.object({
   firstName: z
@@ -110,6 +111,12 @@ export default function InscriptionPage() {
         .update({ first_name: data.firstName })
         .eq("id", authData.user.id);
     }
+
+    // Si l'auto-signin est activé côté Supabase (pas de confirmation email
+    // requise), la session est posée et le merge va passer. Sinon le 401
+    // sera silencieusement ignoré et la wishlist restera en localStorage
+    // jusqu'à la prochaine connexion réussie.
+    await mergeWishlistOnLogin();
 
     toast.success("Compte créé ! Vérifiez votre email pour l'activer.");
     router.push("/verification");

@@ -27,7 +27,10 @@ export default async function StorefrontLayout({
       <CustomCursor />
       <Header account={account} announcement={announcement} />
       <CartDrawer />
-      <WishlistHydrator productIds={wishlistIds} />
+      <WishlistHydrator
+        productIds={wishlistIds}
+        isAuthenticated={account.isAuthenticated}
+      />
       <main className="flex-1">
         <PageTransition>{children}</PageTransition>
       </main>
