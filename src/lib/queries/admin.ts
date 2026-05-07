@@ -1725,21 +1725,71 @@ export async function getAdminBanners(): Promise<AdminBannerRow[]> {
   }));
 }
 
-export async function getAdminReviews(): Promise<AdminReviewRow[]> {
+export interface AdminReviewFilters {
+  rating?: number; // 1..5
+  approved?: "all" | "pending" | "approved";
+  search?: string;
+}
+
+export interface AdminReviewPage {
+  reviews: AdminReviewRow[];
+  total: number;
+  pendingCount: number;
+  page: number;
+  pageSize: number;
+  hasNext: boolean;
+}
+
+export const REVIEWS_PAGE_SIZE = 25;
+
+export async function getAdminReviews(
+  filters: AdminReviewFilters = {},
+  page = 1,
+  pageSize = REVIEWS_PAGE_SIZE,
+): Promise<AdminReviewPage> {
   const admin = createAdminClient();
-  const { data, error } = await admin
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  // Compteur "à modérer" indépendant des filtres pour afficher en header
+  const { count: pendingCount = 0 } = await admin
+    .from("reviews")
+    .select("id", { count: "exact", head: true })
+    .eq("is_approved", false);
+
+  let query = admin
     .from("reviews")
     .select(
       `id, product_id, user_id, rating, title, body, is_verified_purchase,
        is_approved, created_at,
        product:products ( name, slug )`,
+      { count: "exact" },
     )
-    .order("created_at", { ascending: false })
-    .limit(500);
+    .order("created_at", { ascending: false });
+
+  if (filters.rating && filters.rating >= 1 && filters.rating <= 5) {
+    query = query.eq("rating", filters.rating);
+  }
+  if (filters.approved === "pending") query = query.eq("is_approved", false);
+  if (filters.approved === "approved") query = query.eq("is_approved", true);
+  if (filters.search) {
+    const s = filters.search.replace(/[%_]/g, "");
+    query = query.or(`title.ilike.%${s}%,body.ilike.%${s}%`);
+  }
+
+  const { data, count, error } = await query.range(from, to);
 
   if (error) {
     console.error("[getAdminReviews]", error);
-    return [];
+    return {
+      reviews: [],
+      total: 0,
+      pendingCount: pendingCount ?? 0,
+      page: safePage,
+      pageSize,
+      hasNext: false,
+    };
   }
 
   const reviewIds = (data ?? []).map((r) => r.id);
@@ -1787,7 +1837,7 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
     }
   }
 
-  return (data ?? []).map((row) => {
+  const reviews: AdminReviewRow[] = (data ?? []).map((row) => {
     const product = Array.isArray(row.product)
       ? row.product[0]
       : (row.product as { name: string; slug: string } | null);
@@ -1820,6 +1870,16 @@ export async function getAdminReviews(): Promise<AdminReviewRow[]> {
         : null,
     };
   });
+
+  const total = count ?? 0;
+  return {
+    reviews,
+    total,
+    pendingCount: pendingCount ?? 0,
+    page: safePage,
+    pageSize,
+    hasNext: from + reviews.length < total,
+  };
 }
 
 export async function getAdminPacks(): Promise<AdminPackRow[]> {
