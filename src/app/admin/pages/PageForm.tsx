@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { cn, slugify, formatDate } from "@/lib/utils";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import type { AdminCmsPageDetail } from "@/lib/queries/admin";
 import {
   createCmsPage,
@@ -164,13 +165,20 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
             className="bg-white rounded-xl border border-border p-6"
           >
             <label className={labelClass}>Contenu</label>
-            <textarea
+            <RichTextEditor
               value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={20}
-              className={cn(inputClass, "resize-none font-mono text-xs")}
-              placeholder={`Markdown léger : ## Titre, ### Sous-titre, paragraphes séparés par des lignes vides, listes - ou *. HTML brut accepté si commence par <.`}
+              onChange={setBody}
+              placeholder="Commencez à écrire la page…"
+              imageFolder="pages-cms"
+              disabled={isSavePending || isDeletePending}
             />
+            <p className="text-xs text-muted-light mt-2">
+              Sortie : HTML, sanitizé côté storefront via DOMPurify (les tags
+              dangereux comme <code>&lt;script&gt;</code> sont strippés).
+              L&apos;ancien contenu markdown léger reste compatible : il
+              s&apos;affichera tel quel si jamais l&apos;éditeur ne le
+              parse pas.
+            </p>
           </motion.div>
 
           <motion.div
