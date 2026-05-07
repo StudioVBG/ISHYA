@@ -25,7 +25,7 @@ export default async function AdminNewsletterPage() {
   const { data, error } = await admin
     .from("newsletter_subscribers")
     .select(
-      "id, email, source, subscribed_at, unsubscribed_at, unsubscribe_reason, confirmed_at, marketing_consent",
+      "id, email, source, subscribed_at, unsubscribed_at, unsubscribe_reason, confirmed_at, marketing_consent, bounce_count, last_bounced_at, last_bounce_type, last_bounce_reason",
     )
     .order("subscribed_at", { ascending: false })
     .limit(PAGE_LIMIT);
@@ -43,6 +43,10 @@ export default async function AdminNewsletterPage() {
     unsubscribeReason: r.unsubscribe_reason,
     confirmedAt: r.confirmed_at ?? null,
     marketingConsent: r.marketing_consent ?? false,
+    bounceCount: r.bounce_count ?? 0,
+    lastBouncedAt: r.last_bounced_at ?? null,
+    lastBounceType: r.last_bounce_type ?? null,
+    lastBounceReason: r.last_bounce_reason ?? null,
   }));
 
   return <NewsletterView rows={rows} totalLimit={PAGE_LIMIT} />;
