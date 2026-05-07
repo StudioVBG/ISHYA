@@ -20,6 +20,13 @@ import { staggerContainer, staggerItem } from "@/lib/animations";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { DraftRestoreBanner } from "@/components/admin/DraftRestoreBanner";
+import {
+  buildDraftKey,
+  clearDraft,
+  useAutosave,
+  useStoredDraft,
+} from "@/lib/admin/draft-autosave";
 import type { AdminBlogPostDetail } from "@/lib/queries/admin";
 import {
   createBlogPost,
@@ -48,8 +55,62 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
   );
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [draftDismissed, setDraftDismissed] = useState(false);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  // Autosave brouillon : key par-id (ou "new" en création), restauration
+  // proposée si un brouillon plus récent que la dernière sauvegarde
+  // serveur est trouvé.
+  const draftKey = buildDraftKey("blog", post?.id ?? null);
+  const storedDraft = useStoredDraft(draftKey);
+  const serverSavedAt = post?.updatedAt
+    ? new Date(post.updatedAt).getTime()
+    : 0;
+  const showDraftBanner =
+    !draftDismissed &&
+    !!storedDraft &&
+    storedDraft.savedAt > serverSavedAt;
+
+  useAutosave(draftKey, {
+    title,
+    excerpt,
+    body,
+    coverImageUrl,
+    tags,
+    isPublished,
+    seoTitle,
+    seoDescription,
+  });
+
+  const handleRestoreDraft = () => {
+    if (!storedDraft) return;
+    const d = storedDraft.data as Partial<{
+      title: string;
+      excerpt: string;
+      body: string;
+      coverImageUrl: string;
+      tags: string[];
+      isPublished: boolean;
+      seoTitle: string;
+      seoDescription: string;
+    }>;
+    if (typeof d.title === "string") setTitle(d.title);
+    if (typeof d.excerpt === "string") setExcerpt(d.excerpt);
+    if (typeof d.body === "string") setBody(d.body);
+    if (typeof d.coverImageUrl === "string") setCoverImageUrl(d.coverImageUrl);
+    if (Array.isArray(d.tags)) setTags(d.tags.filter((t) => typeof t === "string"));
+    if (typeof d.isPublished === "boolean") setIsPublished(d.isPublished);
+    if (typeof d.seoTitle === "string") setSeoTitle(d.seoTitle);
+    if (typeof d.seoDescription === "string") setSeoDescription(d.seoDescription);
+    setDraftDismissed(true);
+    toast.success("Brouillon restauré");
+  };
+
+  const handleDismissDraft = () => {
+    clearDraft(draftKey);
+    setDraftDismissed(true);
+  };
 
   const buildPayload = (): BlogPostInput => ({
     title: title.trim(),
@@ -76,13 +137,18 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
           toast.error(res.error ?? "Erreur");
           return;
         }
+        clearDraft(draftKey);
         toast.success("Article mis à jour");
       } else {
         const res = await createBlogPost(payload);
         if (res && !res.ok) {
           toast.error(res.error ?? "Erreur");
+        } else {
+          // Succès → redirect() côté serveur. On nettoie le brouillon
+          // "new" maintenant pour qu'il ne réapparaisse pas la prochaine
+          // fois que l'admin clique « Nouvel article ».
+          clearDraft(draftKey);
         }
-        // Sur succès → redirect()
       }
     });
   };
@@ -162,6 +228,13 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
           </div>
         </div>
       </motion.div>
+
+      <DraftRestoreBanner
+        savedAt={storedDraft?.savedAt ?? 0}
+        show={showDraftBanner}
+        onRestore={handleRestoreDraft}
+        onDismiss={handleDismissDraft}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
         <div className="space-y-6">
