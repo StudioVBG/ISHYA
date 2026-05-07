@@ -4,10 +4,29 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdminRole } from "@/lib/auth/require-admin";
 import { logAuditEvent } from "@/lib/auth/audit-log";
+import { validateCountryCodes } from "@/lib/shipping/iso-3166";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 function revalidateAll() {
   revalidatePath("/admin/livraison");
   revalidatePath("/checkout");
+}
+
+/**
+ * Renvoie le nombre de zones actives, à l'exclusion d'une zone donnée
+ * (utile pour valider qu'une mutation ne va pas laisser zéro zone active).
+ */
+async function countActiveZonesExcluding(
+  admin: SupabaseClient,
+  excludeId: string | null,
+): Promise<number> {
+  let query = admin
+    .from("shipping_zones")
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", true);
+  if (excludeId) query = query.neq("id", excludeId);
+  const { count } = await query;
+  return count ?? 0;
 }
 
 // ─── Zones ───────────────────────────────────────────────────────────────────
@@ -23,6 +42,14 @@ export async function createShippingZone(
 ): Promise<{ ok: boolean; error?: string }> {
   if (!input.name.trim()) return { ok: false, error: "Nom requis" };
 
+  const validated = validateCountryCodes(input.countries);
+  if (!validated.ok) {
+    return {
+      ok: false,
+      error: `Code pays invalide : « ${validated.invalidCode} » (utilisez ISO 3166-1 alpha-2)`,
+    };
+  }
+
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
@@ -31,7 +58,7 @@ export async function createShippingZone(
     .from("shipping_zones")
     .insert({
       name: input.name.trim(),
-      countries: input.countries,
+      countries: validated.codes,
       is_active: input.isActive,
     })
     .select("id")
@@ -46,7 +73,7 @@ export async function createShippingZone(
     action: "insert",
     tableName: "shipping_zones",
     recordId: data?.id ?? null,
-    newData: input,
+    newData: { ...input, countries: validated.codes },
   });
   revalidateAll();
   return { ok: true };
@@ -58,15 +85,36 @@ export async function updateShippingZone(
 ): Promise<{ ok: boolean; error?: string }> {
   if (!input.name.trim()) return { ok: false, error: "Nom requis" };
 
+  const validated = validateCountryCodes(input.countries);
+  if (!validated.ok) {
+    return {
+      ok: false,
+      error: `Code pays invalide : « ${validated.invalidCode} » (utilisez ISO 3166-1 alpha-2)`,
+    };
+  }
+
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  // Si on désactive cette zone, vérifier qu'au moins une autre reste active.
+  if (!input.isActive) {
+    const otherActive = await countActiveZonesExcluding(admin, id);
+    if (otherActive === 0) {
+      return {
+        ok: false,
+        error:
+          "Impossible de désactiver : il s'agit de la dernière zone active. Activez-en une autre d'abord.",
+      };
+    }
+  }
+
   const { error } = await admin
     .from("shipping_zones")
     .update({
       name: input.name.trim(),
-      countries: input.countries,
+      countries: validated.codes,
       is_active: input.isActive,
     })
     .eq("id", id);
@@ -80,7 +128,7 @@ export async function updateShippingZone(
     action: "update",
     tableName: "shipping_zones",
     recordId: id,
-    newData: input,
+    newData: { ...input, countries: validated.codes },
   });
   revalidateAll();
   return { ok: true };
@@ -93,6 +141,26 @@ export async function deleteShippingZone(
   if (!auth.ok) return auth;
 
   const admin = createAdminClient();
+
+  // Garde-fou : refuser de supprimer la dernière zone active afin de ne pas
+  // casser le checkout.
+  const { data: existing } = await admin
+    .from("shipping_zones")
+    .select("is_active")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (existing?.is_active) {
+    const otherActive = await countActiveZonesExcluding(admin, id);
+    if (otherActive === 0) {
+      return {
+        ok: false,
+        error:
+          "Impossible de supprimer la dernière zone active (le checkout serait cassé). Créez ou activez une autre zone d'abord.",
+      };
+    }
+  }
+
   const { error } = await admin.from("shipping_zones").delete().eq("id", id);
   if (error) {
     console.error("[deleteShippingZone]", error);
@@ -128,6 +196,19 @@ function validateMethod(input: ShippingMethodInput): string | null {
   if (!input.name.trim()) return "Nom requis";
   if (!Number.isFinite(input.price) || input.price < 0)
     return "Prix invalide";
+  if (input.freeAbove != null) {
+    if (!Number.isFinite(input.freeAbove) || input.freeAbove < 0)
+      return "Le seuil de gratuité doit être positif";
+    if (input.freeAbove <= input.price)
+      return "Le seuil de gratuité doit être supérieur au prix de la livraison";
+  }
+  if (
+    input.estimatedDaysMin != null &&
+    input.estimatedDaysMax != null &&
+    input.estimatedDaysMax < input.estimatedDaysMin
+  ) {
+    return "Le délai max doit être ≥ délai min";
+  }
   return null;
 }
 
