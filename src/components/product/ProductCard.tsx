@@ -18,6 +18,7 @@ import { heartBounce, easeOutQuart, softSpring } from "@/lib/animations";
 import { useCartStore } from "@/stores/cart-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { toggleWishlist } from "@/app/compte/favoris/actions";
+import { StarRating } from "@/components/ui/StarRating";
 import type { ProductMedia, ProductVariant } from "@/types/database";
 
 export interface ProductCardProduct {
@@ -35,6 +36,8 @@ export interface ProductCardProduct {
   material?: string | null;
   createdAt?: string | null;
   description?: string | null;
+  reviewAverage?: number | null;
+  reviewCount?: number | null;
 }
 
 interface ProductCardProps {
@@ -336,6 +339,18 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
         <h3 className="font-display text-sm sm:text-base font-medium leading-snug group-hover:text-terracotta transition-colors duration-300">
           {product.name}
         </h3>
+        {product.reviewCount !== undefined &&
+          product.reviewCount !== null &&
+          product.reviewCount > 0 &&
+          product.reviewAverage !== undefined &&
+          product.reviewAverage !== null && (
+            <StarRating
+              value={product.reviewAverage}
+              count={product.reviewCount}
+              size="xs"
+              className="mt-1"
+            />
+          )}
         <div className="flex items-center gap-2 mt-1">
           {isPack ? (
             <span className="text-sm text-muted">Voir le pack →</span>
