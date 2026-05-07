@@ -25,6 +25,8 @@ export interface NewsletterRow {
   subscribedAt: string | null;
   unsubscribedAt: string | null;
   unsubscribeReason: string | null;
+  confirmedAt: string | null;
+  marketingConsent: boolean;
 }
 
 type Filter = "all" | "active" | "unsubscribed";
@@ -60,7 +62,13 @@ function exportCsv(rows: NewsletterRow[]) {
   URL.revokeObjectURL(url);
 }
 
-export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
+export function NewsletterView({
+  rows,
+  totalLimit,
+}: {
+  rows: NewsletterRow[];
+  totalLimit?: number;
+}) {
   const [filter, setFilter] = useState<Filter>("active");
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -96,10 +104,22 @@ export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
   };
 
   const handleResub = (id: string) => {
+    // RGPD : on ne peut pas réabonner un client sans son consentement explicite.
+    // L'admin doit confirmer qu'elle/il a reçu une demande explicite du client
+    // (ex. par téléphone ou email). Le serveur enverra alors un email de
+    // confirmation, et le client devra cliquer pour vraiment réactiver.
+    const ok = window.confirm(
+      "RGPD — Confirmez-vous que ce client a explicitement demandé son réabonnement ?\n\n" +
+        "Un email de confirmation lui sera envoyé. Il ne recevra aucun email marketing tant qu'il n'aura pas cliqué sur le lien.",
+    );
+    if (!ok) return;
     startTransition(async () => {
-      const res = await resubscribeNewsletter(id);
-      if (res.ok) toast.success("Réabonné");
-      else toast.error(res.error || "Erreur");
+      const res = await resubscribeNewsletter(id, { acknowledgedConsent: true });
+      if (res.ok) {
+        toast.success("Email de confirmation envoyé au client");
+      } else {
+        toast.error(res.error || "Erreur");
+      }
     });
   };
 
@@ -112,8 +132,18 @@ export function NewsletterView({ rows }: { rows: NewsletterRow[] }) {
     });
   };
 
+  const isTruncated = totalLimit != null && rows.length >= totalLimit;
+
   return (
     <div className="space-y-6">
+      {isTruncated ? (
+        <div className="rounded-lg border border-warning bg-warning-soft px-4 py-3 text-sm text-foreground">
+          La liste est tronquée à {totalLimit} abonnés (les plus récents).
+          Pour exporter l&apos;intégralité, utilisez le bouton « Export CSV »
+          (limité à la même fenêtre) ou demandez un export complet via une
+          requête SQL côté Supabase.
+        </div>
+      ) : null}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-semibold text-foreground">Newsletter</h2>

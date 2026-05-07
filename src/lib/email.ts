@@ -3,6 +3,10 @@ import { Resend } from "resend";
 import { getEmailBaseUrl } from "@/emails/shared";
 import { WelcomeEmail, welcomeEmailSubject } from "@/emails/WelcomeEmail";
 import {
+  NewsletterConfirmEmail,
+  newsletterConfirmEmailSubject,
+} from "@/emails/NewsletterConfirmEmail";
+import {
   OrderConfirmationEmail,
   orderConfirmationEmailSubject,
   type OrderConfirmationEmailProps,
@@ -112,6 +116,28 @@ export async function sendEmail(options: SendEmailOptions) {
     subject: options.subject,
     react: options.react,
     replyTo: options.replyTo,
+  });
+}
+
+export async function sendNewsletterConfirmation(
+  to: string,
+  args: {
+    confirmUrl: string;
+    baseUrl?: string;
+    unsubscribeUrl?: string;
+    logoSrc?: string;
+  },
+) {
+  const { baseUrl, unsubscribeUrl } = resolveEmailRouting(args);
+  return sendEmail({
+    to,
+    subject: newsletterConfirmEmailSubject,
+    react: createElement(NewsletterConfirmEmail, {
+      confirmUrl: args.confirmUrl,
+      baseUrl,
+      unsubscribeUrl,
+      logoSrc: args.logoSrc,
+    }),
   });
 }
 

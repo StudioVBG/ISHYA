@@ -1,8 +1,9 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendWelcomeEmail } from "@/lib/email";
+import { sendNewsletterConfirmation } from "@/lib/email";
 
 const subscribeSchema = z.object({
   email: z.string().min(1, "Email requis").email("Email invalide"),
@@ -16,6 +17,12 @@ export type SubscribeNewsletterInput = z.infer<typeof subscribeSchema>;
 export type ActionResult =
   | { ok: true; message: string }
   | { ok: false; error: string };
+
+function buildConfirmUrl(token: string): string {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://ishya.fr";
+  return `${base}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+}
 
 export async function subscribeNewsletter(
   input: SubscribeNewsletterInput,
@@ -38,50 +45,88 @@ export async function subscribeNewsletter(
     };
   }
 
-  // Upsert : si l'email existait et était désabonné, on le réactive.
   // newsletter_subscribers a un index unique sur lower(email).
   const table = admin.from("newsletter_subscribers" as never);
 
   const { data: existing } = await table
-    .select("id, unsubscribed_at")
+    .select("id, unsubscribed_at, confirmed_at, marketing_consent")
     .filter("email", "ilike", email)
-    .maybeSingle<{ id: string; unsubscribed_at: string | null }>();
+    .maybeSingle<{
+      id: string;
+      unsubscribed_at: string | null;
+      confirmed_at: string | null;
+      marketing_consent: boolean | null;
+    }>();
+
+  // Génération du token de double opt-in
+  const token = randomUUID();
+  const now = new Date().toISOString();
 
   if (existing) {
-    if (!existing.unsubscribed_at) {
-      return { ok: true, message: "Vous êtes déjà inscrit(e) à notre newsletter." };
+    // Déjà confirmé et toujours actif → rien à faire
+    if (
+      existing.confirmed_at &&
+      !existing.unsubscribed_at &&
+      existing.marketing_consent
+    ) {
+      return {
+        ok: true,
+        message: "Vous êtes déjà inscrit(e) à notre newsletter.",
+      };
     }
+
+    // Sinon (désabonné, non confirmé, ou consentement révoqué) : on relance le
+    // double opt-in. Le consentement n'est effectif qu'après clic sur le lien
+    // de confirmation (RGPD double opt-in).
     const { error } = await table
       .update({
         unsubscribed_at: null,
         unsubscribe_reason: null,
         source,
-        subscribed_at: new Date().toISOString(),
+        subscribed_at: now,
+        marketing_consent: true,
+        confirmed_at: null,
+        confirmation_token: token,
       } as never)
       .eq("id", existing.id);
     if (error) {
-      return { ok: false, error: "Impossible de mettre à jour votre inscription." };
+      return {
+        ok: false,
+        error: "Impossible de mettre à jour votre inscription.",
+      };
     }
   } else {
-    const { error } = await table.insert({ email, source } as never);
+    const { error } = await table.insert({
+      email,
+      source,
+      marketing_consent: true,
+      confirmed_at: null,
+      confirmation_token: token,
+    } as never);
     if (error) {
-      return { ok: false, error: "Impossible d'enregistrer votre inscription." };
+      return {
+        ok: false,
+        error: "Impossible d'enregistrer votre inscription.",
+      };
     }
   }
 
-  // Bienvenue + code -10%. L'email est best-effort : si Resend tombe, l'inscription
-  // est enregistrée — on log et on retourne un succès softé.
+  // Email de confirmation (RGPD double opt-in). Sans confirmation, l'adresse
+  // n'est pas considérée comme consentante et ne recevra aucun email marketing.
   try {
     if (process.env.RESEND_API_KEY) {
-      await sendWelcomeEmail(email, { firstName: "" });
+      await sendNewsletterConfirmation(email, {
+        confirmUrl: buildConfirmUrl(token),
+      });
     }
   } catch (err) {
-    console.error("[newsletter] welcome email failed", err);
+    console.error("[newsletter] confirmation email failed", err);
   }
 
   return {
     ok: true,
-    message: "Merci ! Vérifiez votre boîte mail pour votre code -10%.",
+    message:
+      "Vérifiez votre boîte mail : un email de confirmation vient de vous être envoyé.",
   };
 }
 
