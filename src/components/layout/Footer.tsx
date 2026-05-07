@@ -2,9 +2,17 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Instagram, Facebook, Mail, ArrowRight, Loader2 } from "lucide-react";
+import {
+  Instagram,
+  Facebook,
+  Mail,
+  ArrowRight,
+  Loader2,
+  Youtube,
+} from "lucide-react";
 import { toast } from "sonner";
 import { subscribeNewsletter } from "@/lib/actions/newsletter";
+import type { SocialLinks } from "@/lib/queries/storefront";
 
 const FOOTER_LINKS = {
   boutique: {
@@ -63,6 +71,19 @@ const LEGAL_LINKS = [
   { label: "Accessibilité", href: "/accessibilite" },
 ];
 
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.45a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.08Z" />
+    </svg>
+  );
+}
+
 function PinterestIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -76,9 +97,45 @@ function PinterestIcon({ className }: { className?: string }) {
   );
 }
 
-export function Footer() {
+export function Footer({ social }: { social: SocialLinks }) {
   const [email, setEmail] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const socialItems: Array<{
+    href: string;
+    label: string;
+    Icon: React.ComponentType<{ className?: string }>;
+  }> = [];
+  if (social.instagramUrl)
+    socialItems.push({
+      href: social.instagramUrl,
+      label: "Instagram",
+      Icon: Instagram,
+    });
+  if (social.pinterestUrl)
+    socialItems.push({
+      href: social.pinterestUrl,
+      label: "Pinterest",
+      Icon: PinterestIcon,
+    });
+  if (social.facebookUrl)
+    socialItems.push({
+      href: social.facebookUrl,
+      label: "Facebook",
+      Icon: Facebook,
+    });
+  if (social.tiktokUrl)
+    socialItems.push({
+      href: social.tiktokUrl,
+      label: "TikTok",
+      Icon: TikTokIcon,
+    });
+  if (social.youtubeUrl)
+    socialItems.push({
+      href: social.youtubeUrl,
+      label: "YouTube",
+      Icon: Youtube,
+    });
 
   function handleNewsletter(e: React.FormEvent) {
     e.preventDefault();
@@ -205,42 +262,31 @@ export function Footer() {
             </div>
 
             {/* Social */}
-            <div className="flex items-center gap-3">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://pinterest.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Pinterest"
-              >
-                <PinterestIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="mailto:contact@ishya.fr"
-                className="text-white/60 hover:text-terracotta transition-colors"
-                aria-label="Email"
-              >
-                <Mail className="w-4 h-4" />
-              </a>
-            </div>
+            {(socialItems.length > 0 || social.contactEmail) && (
+              <div className="flex items-center gap-3">
+                {socialItems.map(({ href, label, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/60 hover:text-terracotta transition-colors"
+                    aria-label={label}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                ))}
+                {social.contactEmail && (
+                  <a
+                    href={`mailto:${social.contactEmail}`}
+                    className="text-white/60 hover:text-terracotta transition-colors"
+                    aria-label="Email"
+                  >
+                    <Mail className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

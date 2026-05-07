@@ -35,6 +35,7 @@ import {
   Ticket,
   Truck,
   ShoppingBag,
+  Share2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminSignOut } from "./actions";
@@ -97,6 +98,7 @@ const navGroups: NavGroup[] = [
       { label: "Pages", href: "/admin/pages", icon: LayoutTemplate },
       { label: "Bannières", href: "/admin/bannieres", icon: ImageIcon },
       { label: "Newsletter", href: "/admin/newsletter", icon: Send },
+      { label: "Réseaux sociaux", href: "/admin/reseaux-sociaux", icon: Share2 },
       { label: "SEO", href: "/admin/seo", icon: Search },
     ],
   },
@@ -139,6 +141,7 @@ const pageTitles: Record<string, string> = {
   "/admin/pages": "Pages",
   "/admin/bannieres": "Bannières",
   "/admin/newsletter": "Newsletter",
+  "/admin/reseaux-sociaux": "Réseaux sociaux",
   "/admin/seo": "SEO",
   "/admin/rapports": "Rapports",
   "/admin/parametres": "Paramètres",
