@@ -9,6 +9,7 @@ import {
   getPublishedBlogPosts,
 } from "@/lib/queries/storefront";
 import { JsonLd, siteUrl } from "@/components/seo/JsonLd";
+import { renderCmsBody } from "@/lib/cms/render-body";
 import { formatDate } from "@/lib/utils";
 
 export const revalidate = 300;
@@ -35,53 +36,6 @@ export async function generateMetadata({
       images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
     },
   };
-}
-
-function renderBody(body: string | null): React.ReactNode {
-  if (!body) return null;
-  const trimmed = body.trim();
-  // Si le contenu ressemble à du HTML (commence par <), on l'injecte tel quel.
-  if (trimmed.startsWith("<")) {
-    return <div dangerouslySetInnerHTML={{ __html: trimmed }} />;
-  }
-  // Sinon, traitement minimal markdown : paragraphes + titres ## et ###.
-  const blocks = trimmed.split(/\n{2,}/);
-  return blocks.map((block, i) => {
-    if (block.startsWith("### ")) {
-      return (
-        <h3 key={i} className="font-display text-xl mt-8 mb-3">
-          {block.slice(4)}
-        </h3>
-      );
-    }
-    if (block.startsWith("## ")) {
-      return (
-        <h2 key={i} className="font-display text-2xl mt-10 mb-4">
-          {block.slice(3)}
-        </h2>
-      );
-    }
-    if (block.startsWith("- ") || block.startsWith("* ")) {
-      const items = block.split(/\n/).map((l) => l.replace(/^[-*]\s*/, ""));
-      return (
-        <ul key={i} className="list-disc pl-6 space-y-1 my-4">
-          {items.map((it, j) => (
-            <li key={j}>{it}</li>
-          ))}
-        </ul>
-      );
-    }
-    return (
-      <p key={i} className="leading-relaxed mb-4">
-        {block.split(/\n/).map((line, j, arr) => (
-          <span key={j}>
-            {line}
-            {j < arr.length - 1 && <br />}
-          </span>
-        ))}
-      </p>
-    );
-  });
 }
 
 export default async function BlogPostPage({
@@ -179,7 +133,7 @@ export default async function BlogPostPage({
         )}
 
         <div className="text-foreground/85 text-base">
-          {renderBody(post.body)}
+          {renderCmsBody(post.body)}
         </div>
 
         {post.tags.length > 0 && (
