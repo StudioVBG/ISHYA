@@ -106,7 +106,7 @@ export function DashboardView({
         <h1 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
           Bonjour{firstName ? `, ${firstName}` : ""} 👋
         </h1>
-        <p className="text-muted mt-1">
+        <p className="text-steel mt-1">
           Bienvenue dans votre espace personnel ISHYA
         </p>
       </motion.div>
@@ -144,14 +144,14 @@ export function DashboardView({
             </h2>
             <Link
               href="/compte/commandes"
-              className="text-sm text-terracotta hover:text-terracotta-dark font-medium flex items-center gap-1"
+              className="text-sm text-ember hover:text-ember-deep font-medium flex items-center gap-1"
             >
               Tout voir
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="bg-white rounded-xl border border-border overflow-hidden">
-            <div className="hidden sm:grid grid-cols-[1fr_1fr_auto_1fr_auto] gap-4 px-5 py-3 bg-ivory/50 text-xs font-medium text-muted uppercase tracking-wider border-b border-border">
+          <div className="bg-bone-soft rounded-xl border border-border overflow-hidden">
+            <div className="hidden sm:grid grid-cols-[1fr_1fr_auto_1fr_auto] gap-4 px-5 py-3 bg-ivory/50 text-xs font-medium text-steel uppercase tracking-wider border-b border-border">
               <span>N° Commande</span>
               <span>Date</span>
               <span>Statut</span>
@@ -163,21 +163,21 @@ export function DashboardView({
                 key={order.id}
                 href={`/compte/commandes/${order.orderNumber}`}
                 className={cn(
-                  "grid sm:grid-cols-[1fr_1fr_auto_1fr_auto] gap-2 sm:gap-4 px-5 py-4 hover:bg-beige-nude-light/30 transition-colors items-center",
+                  "grid sm:grid-cols-[1fr_1fr_auto_1fr_auto] gap-2 sm:gap-4 px-5 py-4 hover:bg-bone-soft/30 transition-colors items-center",
                   i < recentOrders.length - 1 && "border-b border-border",
                 )}
               >
                 <span className="font-mono text-sm font-medium">
                   {order.orderNumber}
                 </span>
-                <span className="text-sm text-muted">
+                <span className="text-sm text-steel">
                   {formatDate(order.createdAt)}
                 </span>
                 <StatusBadge status={order.status as OrderStatus} />
                 <span className="text-sm font-medium tabular-nums">
                   {formatPrice(order.total)}
                 </span>
-                <ChevronRight className="w-4 h-4 text-muted hidden sm:block" />
+                <ChevronRight className="w-4 h-4 text-steel hidden sm:block" />
               </Link>
             ))}
           </div>
@@ -194,11 +194,11 @@ export function DashboardView({
         <h2 className="font-display text-lg font-semibold mb-4">
           Programme de fidélité
         </h2>
-        <div className="bg-white rounded-xl border border-border p-6">
+        <div className="bg-bone-soft rounded-xl border border-border p-6">
           <div className="flex items-center gap-3 mb-4">
             <div
               className={cn(
-                "w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white",
+                "w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-bone",
                 currentTier.gradient,
               )}
             >
@@ -207,9 +207,9 @@ export function DashboardView({
             <div>
               <p className="text-sm font-medium">
                 Niveau{" "}
-                <span className="text-gold-dark">{currentTier.name}</span>
+                <span className="text-ember-deep">{currentTier.name}</span>
               </p>
-              <p className="text-xs text-muted">
+              <p className="text-xs text-steel">
                 {stats.loyaltyPoints} points •{" "}
                 {nextTier
                   ? `${nextTier.min - stats.loyaltyPoints} points avant le niveau ${nextTier.name}`
@@ -218,20 +218,20 @@ export function DashboardView({
             </div>
           </div>
           <div className="relative">
-            <div className="flex justify-between text-[10px] text-muted mb-2">
+            <div className="flex justify-between text-[10px] text-steel mb-2">
               {loyaltyTiers.map((tier) => (
                 <span
                   key={tier.name}
                   className={cn(
                     "font-medium uppercase tracking-wider",
-                    stats.loyaltyPoints >= tier.min && "text-gold-dark",
+                    stats.loyaltyPoints >= tier.min && "text-ember-deep",
                   )}
                 >
                   {tier.name}
                 </span>
               ))}
             </div>
-            <div className="h-2 bg-muted-soft rounded-full overflow-hidden">
+            <div className="h-2 bg-bone-soft rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{
@@ -259,15 +259,15 @@ export function DashboardView({
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-border hover:border-terracotta/30 hover:shadow-sm transition-all group"
+                className="flex items-center gap-3 p-4 bg-bone-soft rounded-xl border border-border hover:border-ember/30 hover:shadow-sm transition-all group"
               >
-                <div className="w-9 h-9 rounded-lg bg-beige-nude-light flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-terracotta" />
+                <div className="w-9 h-9 rounded-lg bg-bone-soft flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-ember" />
                 </div>
-                <span className="text-sm font-medium group-hover:text-terracotta transition-colors">
+                <span className="text-sm font-medium group-hover:text-ember transition-colors">
                   {link.label}
                 </span>
-                <ChevronRight className="w-4 h-4 text-muted ml-auto" />
+                <ChevronRight className="w-4 h-4 text-steel ml-auto" />
               </Link>
             );
           })}

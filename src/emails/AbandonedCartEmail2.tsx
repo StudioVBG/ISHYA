@@ -57,14 +57,14 @@ export function AbandonedCartEmail2({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Section
               style={{
-                backgroundColor: colors.black,
-                color: colors.ivory,
+                backgroundColor: colors.ink,
+                color: colors.bone,
                 padding: "12px 16px",
                 borderRadius: "6px",
                 textAlign: "center",
@@ -82,17 +82,17 @@ export function AbandonedCartEmail2({
                 fontSize: "26px",
                 lineHeight: "34px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 12px",
               }}
             >
               Vos bijoux vous attendent !
             </Heading>
-            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.textMuted, margin: "0 0 16px" }}>
+            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.steel, margin: "0 0 16px" }}>
               Nos créations en fleurs séchées et résine sont produites en petites séries. Si un modèle vous a fait
               battre le cœur, ne tardez pas : les stocks fondent vite.
             </Text>
-            <Text style={{ fontSize: "14px", lineHeight: "22px", color: colors.textMuted, margin: "0 0 24px" }}>
+            <Text style={{ fontSize: "14px", lineHeight: "22px", color: colors.steel, margin: "0 0 24px" }}>
               Voici un rappel des pièces que vous aviez sélectionnées — elles sont encore dans votre panier.
             </Text>
 
@@ -112,7 +112,7 @@ export function AbandonedCartEmail2({
                           height: "auto",
                           borderRadius: "8px",
                           display: "block",
-                          border: `1px solid ${colors.beigeNude}`,
+                          border: `1px solid ${colors.boneSoft}`,
                         }}
                       />
                       <Text
@@ -120,13 +120,13 @@ export function AbandonedCartEmail2({
                           margin: "10px 0 4px",
                           fontSize: "14px",
                           fontWeight: 600,
-                          color: colors.black,
+                          color: colors.ink,
                         }}
                       >
                         {p.name}
                       </Text>
                       {p.price != null && (
-                        <Text style={{ margin: 0, fontSize: "13px", color: colors.gold, fontWeight: 600 }}>
+                        <Text style={{ margin: 0, fontSize: "13px", color: colors.ember, fontWeight: 600 }}>
                           {formatEur(p.price)}
                         </Text>
                       )}
@@ -143,8 +143,8 @@ export function AbandonedCartEmail2({
               </Button>
             </Section>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "32px 0 20px" }} />
-            <Text style={{ fontSize: "12px", lineHeight: "18px", color: colors.textMuted, margin: 0 }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "32px 0 20px" }} />
+            <Text style={{ fontSize: "12px", lineHeight: "18px", color: colors.steel, margin: 0 }}>
               Rappel envoyé 24 h après l&apos;abandon de panier.
             </Text>
           </Section>

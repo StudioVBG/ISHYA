@@ -79,17 +79,17 @@ function getProductBadges(product: ProductCardProduct): string[] {
 function getBadgeColor(badge: string): string {
   switch (badge) {
     case "Pack":
-      return "bg-foreground text-white";
+      return "bg-ink text-bone";
     case "Nouveau":
-      return "bg-gold text-white";
+      return "bg-bone text-ink border border-ink/15";
     case "Best-seller":
-      return "bg-terracotta text-white";
+      return "bg-ember text-bone";
     case "Promo":
-      return "bg-destructive text-white";
+      return "bg-destructive text-bone";
     case "Dernières pièces":
-      return "bg-foreground text-white";
+      return "bg-ink text-bone";
     default:
-      return "bg-muted text-white";
+      return "bg-steel text-bone";
   }
 }
 
@@ -218,10 +218,10 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
       className={cn("group relative", className)}
       style={{ viewTransitionName: `product-${product.id}` } as React.CSSProperties}
     >
-      {/* Image container */}
+      {/* Image container — full-bleed dans la card, pas de radius (Atelier Noir) */}
       <Link
         href={productHref(product)}
-        className="block relative aspect-[3/4] rounded-lg overflow-hidden bg-beige-nude-light mb-3 isolate"
+        className="block relative aspect-[3/4] overflow-hidden bg-bone-soft mb-4 isolate"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
@@ -283,7 +283,7 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
                   ease: easeOutQuart,
                 }}
                 className={cn(
-                  "px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider rounded-sm",
+                  "px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.16em]",
                   getBadgeColor(badge)
                 )}
               >
@@ -303,7 +303,7 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 60, opacity: 0 }}
               transition={{ duration: 0.35, ease: easeOutQuart }}
-              className="hidden md:flex absolute bottom-3 left-3 right-3 z-10 items-center justify-center gap-2 h-11 bg-foreground/95 hover:bg-terracotta text-white text-xs font-medium uppercase tracking-wider rounded-md backdrop-blur-sm transition-colors"
+              className="hidden md:flex absolute bottom-3 left-3 right-3 z-10 items-center justify-center gap-2 h-11 bg-ink/95 hover:bg-ember text-bone font-mono text-[11px] font-medium uppercase tracking-[0.16em] backdrop-blur-sm transition-colors"
               aria-label={
                 hasMultipleVariants
                   ? `Choisir une option pour ${product.name}`
@@ -324,10 +324,8 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
           animate={wishlisted ? "active" : "idle"}
           onClick={handleToggleWishlist}
           className={cn(
-            "absolute top-3 right-3 z-20 p-2.5 rounded-full bg-white/85 backdrop-blur-sm transition-colors shadow-sm",
-            wishlisted
-              ? "text-terracotta"
-              : "text-muted hover:text-terracotta"
+            "absolute top-3 right-3 z-20 p-2.5 rounded-full bg-bone/85 backdrop-blur-sm transition-colors",
+            wishlisted ? "text-ember" : "text-ink/70 hover:text-ember",
           )}
           aria-label={
             wishlisted ? "Retirer des favoris" : "Ajouter aux favoris"
@@ -343,11 +341,11 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
       {/* Product info */}
       <Link href={productHref(product)} className="block">
         {product.category && (
-          <p className="text-xs text-muted uppercase tracking-wider mb-0.5">
+          <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-steel mb-1.5">
             {product.category.name}
           </p>
         )}
-        <h3 className="font-display text-sm sm:text-base font-medium leading-snug group-hover:text-terracotta transition-colors duration-300">
+        <h3 className="text-sm sm:text-base font-medium text-ink leading-snug group-hover:text-ember transition-colors duration-300">
           {product.name}
         </h3>
         {product.reviewCount !== undefined &&
@@ -359,17 +357,19 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
               value={product.reviewAverage}
               count={product.reviewCount}
               size="xs"
-              className="mt-1"
+              className="mt-1.5"
             />
           )}
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-2 mt-2">
           {isPack ? (
-            <span className="text-sm text-muted">Voir le pack →</span>
+            <span className="font-mono text-xs tracking-wide text-steel uppercase">
+              Voir le pack →
+            </span>
           ) : (
             <span
               className={cn(
-                "text-sm font-medium tabular-nums",
-                hasDiscount && "text-terracotta"
+                "font-mono text-sm tabular-nums",
+                hasDiscount ? "text-ember font-medium" : "text-ink",
               )}
             >
               {formatPrice(product.base_price)}
@@ -377,11 +377,11 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
           )}
           {hasDiscount && (
             <>
-              <span className="text-sm text-muted line-through tabular-nums">
+              <span className="font-mono text-sm text-steel line-through tabular-nums">
                 {formatPrice(product.compare_at_price!)}
               </span>
-              <span className="text-xs font-medium text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">
-                -{discountPercent}%
+              <span className="font-mono text-[10px] tracking-wider font-medium text-destructive bg-destructive/10 px-1.5 py-0.5">
+                −{discountPercent}%
               </span>
             </>
           )}

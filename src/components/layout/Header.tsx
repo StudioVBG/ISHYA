@@ -144,19 +144,24 @@ export function Header({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="bg-gold text-white overflow-hidden"
+            className="bg-ink text-bone overflow-hidden"
           >
-            <div className="container flex items-center justify-center gap-2 py-2 text-xs sm:text-sm relative">
+            <div className="container flex items-center justify-center gap-2 py-2.5 relative">
               {banner.linkUrl ? (
-                <Link href={banner.linkUrl} className="hover:underline">
+                <Link
+                  href={banner.linkUrl}
+                  className="font-mono text-[11px] tracking-[0.18em] uppercase hover:text-ember transition-colors"
+                >
                   {banner.title}
                 </Link>
               ) : (
-                <span>{banner.title}</span>
+                <span className="font-mono text-[11px] tracking-[0.18em] uppercase">
+                  {banner.title}
+                </span>
               )}
               <button
                 onClick={dismissAnnouncement}
-                className="absolute right-4 p-1 hover:opacity-70 transition-opacity"
+                className="absolute right-4 p-1 hover:text-ember transition-colors"
                 aria-label="Fermer l'annonce"
               >
                 <X className="w-4 h-4" />
@@ -168,40 +173,54 @@ export function Header({
 
       <header
         className={cn(
-          "sticky top-0 z-50 bg-white transition-shadow duration-300",
-          scrolled && "shadow-sm"
+          "sticky top-0 z-50 transition-[background-color,backdrop-filter,border-color] duration-300 border-b",
+          scrolled
+            ? "bg-bone/85 backdrop-blur-xl border-border"
+            : "bg-bone border-transparent",
         )}
       >
         <div className="container flex items-center justify-between h-16 lg:h-20">
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden p-2.5 -ml-2 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
+            className="lg:hidden p-2.5 -ml-2 min-w-11 min-h-11 flex items-center justify-center text-ink hover:text-ember transition-colors"
             aria-label="Ouvrir le menu"
           >
             <Menu className="w-5 h-5" />
           </button>
 
-          {/* Logo */}
-          <Link href="/" className="flex flex-col items-center leading-none">
-            <span className="font-display text-2xl lg:text-3xl tracking-wider font-semibold">
+          {/* Wordmark — Fraunces WONK signature */}
+          <Link href="/" className="flex flex-col items-center leading-[0.95] group">
+            <span
+              className="font-display text-ink text-2xl lg:text-[1.875rem]"
+              style={{
+                fontVariationSettings: "'opsz' 144, 'SOFT' 80, 'WONK' 1",
+                fontWeight: 420,
+                letterSpacing: "-0.02em",
+              }}
+            >
               ISHYA
             </span>
-            <span className="text-[10px] lg:text-xs tracking-[0.25em] text-muted uppercase">
-              Création Florales
+            <span className="font-mono text-[9px] lg:text-[10px] tracking-[0.32em] text-steel uppercase mt-0.5">
+              Maison · Paris
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-8" aria-label="Navigation principale">
+          {/* Desktop nav — mono uppercase */}
+          <nav
+            className="hidden lg:flex items-center gap-7"
+            aria-label="Navigation principale"
+          >
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm tracking-wide hover:text-terracotta transition-colors relative py-1",
-                  isActive(link.href) &&
-                    "text-terracotta after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-terracotta"
+                  "font-mono text-[11px] tracking-[0.16em] uppercase text-ink/80 hover:text-ink transition-colors relative py-1",
+                  "after:absolute after:bottom-0 after:left-0 after:h-px after:bg-ink after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.16,1,0.30,1)] after:origin-left",
+                  isActive(link.href)
+                    ? "text-ink after:w-full after:scale-x-100"
+                    : "after:w-full after:scale-x-0 hover:after:scale-x-100",
                 )}
               >
                 {link.label}
@@ -213,7 +232,7 @@ export function Header({
           <div className="flex items-center gap-0.5 sm:gap-2">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2.5 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
+              className="p-2.5 min-w-11 min-h-11 flex items-center justify-center text-ink hover:text-ember transition-colors"
               aria-label="Rechercher"
             >
               <Search className="w-5 h-5" />
@@ -221,7 +240,7 @@ export function Header({
 
             <Link
               href={account.href}
-              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors relative"
+              className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center text-ink hover:text-ember transition-colors relative"
               aria-label={account.label}
               title={account.label}
             >
@@ -234,8 +253,12 @@ export function Header({
 
             {!account.isAdmin && (
               <Link
-                href={account.isAuthenticated ? "/compte/favoris" : "/connexion?redirect_to=/compte/favoris"}
-                className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center hover:text-terracotta transition-colors"
+                href={
+                  account.isAuthenticated
+                    ? "/compte/favoris"
+                    : "/connexion?redirect_to=/compte/favoris"
+                }
+                className="hidden sm:flex p-2.5 min-w-11 min-h-11 items-center justify-center text-ink hover:text-ember transition-colors"
                 aria-label="Mes favoris"
               >
                 <Heart className="w-5 h-5" />
@@ -245,12 +268,12 @@ export function Header({
             <button
               onClick={openCart}
               data-cart-icon
-              className="p-2.5 min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors relative"
+              className="p-2.5 min-w-11 min-h-11 flex items-center justify-center text-ink hover:text-ember transition-colors relative"
               aria-label="Mon panier"
             >
               <ShoppingBag className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute top-1 right-1 bg-terracotta text-white text-[10px] font-medium min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full tabular-nums">
+                <span className="absolute top-1 right-1 bg-ember text-bone text-[10px] font-mono font-medium min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full tabular-nums">
                   {itemCount > 99 ? "99+" : itemCount}
                 </span>
               )}

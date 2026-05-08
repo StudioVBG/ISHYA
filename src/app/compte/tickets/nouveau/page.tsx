@@ -42,7 +42,7 @@ export default async function NewTicketPage() {
       <div>
         <Link
           href="/compte/tickets"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour à mes messages
@@ -53,7 +53,7 @@ export default async function NewTicketPage() {
         <h1 className="font-display text-2xl text-foreground">
           Nouvelle demande
         </h1>
-        <p className="text-sm text-muted mt-1">
+        <p className="text-sm text-steel mt-1">
           Décrivez votre demande en quelques mots, notre équipe vous répondra
           sous 48&nbsp;h ouvrées.
         </p>

@@ -37,11 +37,11 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 
 const labelClass = "block text-sm font-medium text-foreground mb-1";
 
-const helpClass = "text-xs text-muted-light mt-1";
+const helpClass = "text-xs text-steel-soft mt-1";
 
 interface VariantState {
   uiKey: string;
@@ -150,13 +150,13 @@ function CollapsibleSection({ title, subtitle, defaultOpen, children, forceOpen 
         <div>
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
           {subtitle && (
-            <p className="text-xs text-muted-light mt-0.5">{subtitle}</p>
+            <p className="text-xs text-steel-soft mt-0.5">{subtitle}</p>
           )}
         </div>
         {!forceOpen && (
           <ChevronDown
             className={cn(
-              "w-5 h-5 text-muted transition-transform",
+              "w-5 h-5 text-steel transition-transform",
               isOpen && "rotate-180",
             )}
           />
@@ -365,7 +365,7 @@ export function ProductForm({
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/produits"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-3"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink transition-colors mb-3"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux produits
@@ -376,7 +376,7 @@ export function ProductForm({
               {isEditing ? product?.name : "Nouveau produit"}
             </h1>
             {isEditing && (
-              <p className="text-xs text-muted-light mt-0.5">
+              <p className="text-xs text-steel-soft mt-0.5">
                 {isActive ? "✓ En ligne" : "Brouillon (non visible)"}
               </p>
             )}
@@ -387,7 +387,7 @@ export function ProductForm({
                 href={`/produit/${product.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 border border-border bg-white text-foreground rounded-lg text-sm hover:bg-muted-soft transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 border border-border bg-white text-foreground rounded-lg text-sm hover:bg-bone-soft transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 Voir la page
@@ -484,9 +484,9 @@ export function ProductForm({
             <div>
               <label className={labelClass}>Catégorie principale *</label>
               {categories.length === 0 ? (
-                <p className="text-xs text-muted-light p-2 border border-dashed border-border rounded-lg">
+                <p className="text-xs text-steel-soft p-2 border border-dashed border-border rounded-lg">
                   Aucune catégorie. Crée-en une depuis{" "}
-                  <Link href="/admin/categories" className="text-terracotta underline">
+                  <Link href="/admin/categories" className="text-ember underline">
                     /admin/categories
                   </Link>
                   .
@@ -534,7 +534,7 @@ export function ProductForm({
           >
             <div>
               <h2 className="text-base font-semibold text-foreground">Photos</h2>
-              <p className="text-xs text-muted-light mt-0.5">
+              <p className="text-xs text-steel-soft mt-0.5">
                 Ajoute plusieurs angles. La première photo sera mise en avant
                 sur les vignettes.
               </p>
@@ -559,15 +559,15 @@ export function ProductForm({
           >
             {!showVariants ? (
               <div className="text-center py-4">
-                <Tag className="w-8 h-8 mx-auto text-muted mb-2" />
-                <p className="text-sm text-muted mb-3">
+                <Tag className="w-8 h-8 mx-auto text-steel mb-2" />
+                <p className="text-sm text-steel mb-3">
                   Ce produit a une seule version. Active les déclinaisons pour
                   proposer plusieurs tailles ou pierres au choix.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowVariants(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-terracotta text-terracotta rounded-lg text-sm font-medium hover:bg-terracotta/5 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-ember text-ember rounded-lg text-sm font-medium hover:bg-ember/5 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Activer les déclinaisons
@@ -578,10 +578,10 @@ export function ProductForm({
                 {variants.map((variant, idx) => (
                   <div
                     key={variant.uiKey}
-                    className="border border-border rounded-lg p-3 space-y-3 bg-muted-soft/30"
+                    className="border border-border rounded-lg p-3 space-y-3 bg-bone-soft/30"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted">
+                      <span className="text-xs font-medium text-steel">
                         Déclinaison {idx + 1}
                       </span>
                       <button
@@ -601,7 +601,7 @@ export function ProductForm({
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <div>
-                        <label className="block text-xs text-muted mb-1">
+                        <label className="block text-xs text-steel mb-1">
                           Taille
                         </label>
                         <input
@@ -615,7 +615,7 @@ export function ProductForm({
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted mb-1">
+                        <label className="block text-xs text-steel mb-1">
                           Pierre
                         </label>
                         <input
@@ -629,7 +629,7 @@ export function ProductForm({
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted mb-1">
+                        <label className="block text-xs text-steel mb-1">
                           Matière
                         </label>
                         <input
@@ -645,7 +645,7 @@ export function ProductForm({
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <div>
-                        <label className="block text-xs text-muted mb-1">
+                        <label className="block text-xs text-steel mb-1">
                           Quantité disponible
                         </label>
                         <input
@@ -659,7 +659,7 @@ export function ProductForm({
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted mb-1">
+                        <label className="block text-xs text-steel mb-1">
                           Alerte stock bas
                         </label>
                         <input
@@ -678,7 +678,7 @@ export function ProductForm({
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-muted mb-1">
+                        <label className="block text-xs text-steel mb-1">
                           Prix spécifique (€)
                         </label>
                         <input
@@ -700,7 +700,7 @@ export function ProductForm({
                         onChange={(e) =>
                           updateVariant(idx, "isActive", e.target.checked)
                         }
-                        className="rounded accent-terracotta"
+                        className="rounded accent-ember"
                       />
                       Disponible à la vente
                     </label>
@@ -713,7 +713,7 @@ export function ProductForm({
                     onClick={() =>
                       setVariants((prev) => [...prev, emptyVariant()])
                     }
-                    className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
+                    className="inline-flex items-center gap-1.5 text-sm text-ember hover:underline"
                   >
                     <Plus className="w-4 h-4" />
                     Ajouter une déclinaison
@@ -722,7 +722,7 @@ export function ProductForm({
                     <button
                       type="button"
                       onClick={() => setShowVariants(false)}
-                      className="ml-auto text-xs text-muted hover:underline"
+                      className="ml-auto text-xs text-steel hover:underline"
                     >
                       Désactiver les déclinaisons
                     </button>
@@ -795,7 +795,7 @@ export function ProductForm({
                 type="checkbox"
                 checked={isNickelFree}
                 onChange={(e) => setIsNickelFree(e.target.checked)}
-                className="rounded accent-terracotta"
+                className="rounded accent-ember"
               />
               Sans nickel (hypoallergénique)
             </label>
@@ -850,7 +850,7 @@ export function ProductForm({
                       return (
                         <label
                           key={c.id}
-                          className="flex items-center gap-2 p-1.5 rounded hover:bg-muted-soft cursor-pointer text-sm"
+                          className="flex items-center gap-2 p-1.5 rounded hover:bg-bone-soft cursor-pointer text-sm"
                         >
                           <input
                             type="checkbox"
@@ -864,7 +864,7 @@ export function ProductForm({
                                 );
                               }
                             }}
-                            className="rounded accent-terracotta"
+                            className="rounded accent-ember"
                           />
                           <span className="flex-1 truncate">{c.name}</span>
                         </label>
@@ -882,7 +882,7 @@ export function ProductForm({
                     return (
                       <label
                         key={c.id}
-                        className="flex items-center gap-2 p-1.5 rounded hover:bg-muted-soft cursor-pointer text-sm"
+                        className="flex items-center gap-2 p-1.5 rounded hover:bg-bone-soft cursor-pointer text-sm"
                       >
                         <input
                           type="checkbox"
@@ -896,7 +896,7 @@ export function ProductForm({
                               );
                             }
                           }}
-                          className="rounded accent-terracotta"
+                          className="rounded accent-ember"
                         />
                         <span className="flex-1 truncate">{c.name}</span>
                       </label>
@@ -919,29 +919,29 @@ export function ProductForm({
           >
             <div>
               <h3 className="font-semibold text-foreground mb-1">Mise en ligne</h3>
-              <p className="text-xs text-muted-light">
+              <p className="text-xs text-steel-soft">
                 Les brouillons ne sont pas visibles par les clients.
               </p>
             </div>
 
             <div className="space-y-2.5">
-              <label className="flex items-center justify-between cursor-pointer p-2 rounded-lg hover:bg-muted-soft">
+              <label className="flex items-center justify-between cursor-pointer p-2 rounded-lg hover:bg-bone-soft">
                 <span className="text-sm font-medium text-foreground inline-flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-terracotta" />
+                  <Sparkles className="w-4 h-4 text-ember" />
                   Mettre en avant
                 </span>
                 <input
                   type="checkbox"
                   checked={isFeatured}
                   onChange={(e) => setIsFeatured(e.target.checked)}
-                  className="rounded accent-terracotta"
+                  className="rounded accent-ember"
                 />
               </label>
-              <p className="text-[11px] text-muted-light px-2 -mt-2">
+              <p className="text-[11px] text-steel-soft px-2 -mt-2">
                 Apparaît dans la sélection « Best-sellers » de la page d&apos;accueil.
               </p>
 
-              <label className="flex items-center justify-between cursor-pointer p-2 rounded-lg hover:bg-muted-soft">
+              <label className="flex items-center justify-between cursor-pointer p-2 rounded-lg hover:bg-bone-soft">
                 <span className="text-sm font-medium text-foreground">
                   Badge « Nouveauté »
                 </span>
@@ -949,7 +949,7 @@ export function ProductForm({
                   type="checkbox"
                   checked={isNew}
                   onChange={(e) => setIsNew(e.target.checked)}
-                  className="rounded accent-terracotta"
+                  className="rounded accent-ember"
                 />
               </label>
             </div>
@@ -958,7 +958,7 @@ export function ProductForm({
               <button
                 onClick={() => handleSave(true)}
                 disabled={isSavePending || isDeletePending}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg text-sm font-semibold hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg text-sm font-semibold hover:bg-ember-deep transition-colors disabled:opacity-50"
               >
                 {isSavePending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -974,7 +974,7 @@ export function ProductForm({
               <button
                 onClick={() => handleSave(false)}
                 disabled={isSavePending || isDeletePending}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-border bg-white text-foreground rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-border bg-white text-foreground rounded-lg text-sm font-medium hover:bg-bone-soft transition-colors disabled:opacity-50"
               >
                 Garder en brouillon
               </button>

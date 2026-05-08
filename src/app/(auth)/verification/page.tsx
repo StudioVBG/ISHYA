@@ -48,8 +48,8 @@ export default function VerificationPage() {
       className="text-center"
     >
       <motion.div variants={staggerItem}>
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-terracotta/10">
-          <Mail className="h-10 w-10 text-terracotta" />
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-ember/10">
+          <Mail className="h-10 w-10 text-ember" />
         </div>
       </motion.div>
 
@@ -57,14 +57,14 @@ export default function VerificationPage() {
         <h2 className="mt-8 font-display text-3xl sm:text-4xl text-foreground">
           Vérifiez votre email
         </h2>
-        <p className="mt-4 text-muted text-sm leading-relaxed max-w-sm mx-auto">
+        <p className="mt-4 text-steel text-sm leading-relaxed max-w-sm mx-auto">
           Un email de vérification a été envoyé à votre adresse.
           Cliquez sur le lien dans l&apos;email pour activer votre compte.
         </p>
       </motion.div>
 
       <motion.div variants={staggerItem} className="mt-3">
-        <p className="text-xs text-muted-light">
+        <p className="text-xs text-steel-soft">
           Vous ne trouvez pas l&apos;email ? Vérifiez votre dossier spam.
         </p>
       </motion.div>
@@ -92,7 +92,7 @@ export default function VerificationPage() {
         <div>
           <Link
             href="/connexion"
-            className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mt-4"
+            className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink transition-colors mt-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Retour à la connexion

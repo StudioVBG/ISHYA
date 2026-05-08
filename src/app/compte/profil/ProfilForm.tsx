@@ -137,7 +137,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
   };
 
   const inputClass =
-    "w-full px-4 py-3 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all";
+    "w-full px-4 py-3 rounded-lg border border-border bg-bone-soft text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember transition-all";
 
   return (
     <div>
@@ -158,11 +158,11 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
       >
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <div className="flex items-start gap-6">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-beige-nude flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 rounded-full bg-bone-soft flex items-center justify-center overflow-hidden">
                 {avatarUrl ? (
                   <Image
                     src={avatarUrl}
@@ -173,14 +173,14 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
                     unoptimized
                   />
                 ) : (
-                  <span className="text-2xl font-display font-semibold text-terracotta">
+                  <span className="text-2xl font-display font-semibold text-ember">
                     {initials}
                   </span>
                 )}
               </div>
               {isAvatarPending && (
                 <div className="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  <Loader2 className="w-5 h-5 text-bone animate-spin" />
                 </div>
               )}
             </div>
@@ -190,7 +190,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
                   .filter(Boolean)
                   .join(" ") || "Mon compte"}
               </p>
-              <p className="text-sm text-muted mt-0.5 mb-3">{profile.email}</p>
+              <p className="text-sm text-steel mt-0.5 mb-3">{profile.email}</p>
               <div className="max-w-xs">
                 <SingleImageUploader
                   value={avatarUrl}
@@ -209,7 +209,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
         <motion.form
           variants={staggerItem}
           onSubmit={handleSubmit(onSave)}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <h2 className="font-display text-lg font-semibold mb-6">
             Informations personnelles
@@ -256,10 +256,10 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
               disabled
               className={cn(
                 inputClass,
-                "bg-muted-soft text-muted cursor-not-allowed",
+                "bg-bone-soft text-steel cursor-not-allowed",
               )}
             />
-            <p className="text-xs text-muted mt-1">
+            <p className="text-xs text-steel mt-1">
               L&apos;adresse e-mail ne peut pas être modifiée depuis cette page
             </p>
           </div>
@@ -295,10 +295,10 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-beige-nude-light/50 rounded-lg mb-6">
+          <div className="flex items-center justify-between p-4 bg-bone-soft/50 rounded-lg mb-6">
             <div>
               <p className="text-sm font-medium">Newsletter ISHYA</p>
-              <p className="text-xs text-muted mt-0.5">
+              <p className="text-xs text-steel mt-0.5">
                 Recevez nos nouveautés et offres exclusives
               </p>
             </div>
@@ -308,7 +308,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
                 {...register("newsletter")}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-terracotta peer-focus:ring-2 peer-focus:ring-terracotta/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
+              <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-ember peer-focus:ring-2 peer-focus:ring-ember/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-bone-soft after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
             </label>
           </div>
 
@@ -336,7 +336,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
         <motion.form
           variants={staggerItem}
           onSubmit={handleSubmitPwd(onChangePassword)}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <h2 className="font-display text-lg font-semibold mb-6">
             Modifier le mot de passe
@@ -358,7 +358,7 @@ export function ProfilForm({ profile }: { profile: AccountProfile }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-steel hover:text-ink"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />

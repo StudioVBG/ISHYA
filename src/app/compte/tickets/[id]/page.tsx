@@ -24,7 +24,7 @@ export default async function MyTicketDetailPage({
       <div>
         <Link
           href="/compte/tickets"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour à mes messages

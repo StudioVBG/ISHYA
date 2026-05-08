@@ -49,8 +49,8 @@ export function WelcomeEmail({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Heading
@@ -60,7 +60,7 @@ export function WelcomeEmail({
                 fontSize: "28px",
                 lineHeight: "36px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 20px",
               }}
             >
@@ -70,7 +70,7 @@ export function WelcomeEmail({
               style={{
                 fontSize: "15px",
                 lineHeight: "24px",
-                color: colors.textMuted,
+                color: colors.steel,
                 margin: "0 0 16px",
               }}
             >
@@ -82,21 +82,21 @@ export function WelcomeEmail({
               style={{
                 fontSize: "15px",
                 lineHeight: "24px",
-                color: colors.textMuted,
+                color: colors.steel,
                 margin: "0 0 28px",
               }}
             >
               Pour célébrer votre inscription, voici un geste tout en douceur :{" "}
-              <strong style={{ color: colors.black }}>-10 % sur votre première commande</strong>.
+              <strong style={{ color: colors.ink }}>-10 % sur votre première commande</strong>.
             </Text>
 
             <Section
               style={{
-                backgroundColor: colors.beigeNude,
+                backgroundColor: colors.boneSoft,
                 borderRadius: "8px",
                 padding: "24px",
                 textAlign: "center",
-                border: `1px solid ${colors.gold}`,
+                border: `1px solid ${colors.ember}`,
               }}
             >
               <Text
@@ -105,7 +105,7 @@ export function WelcomeEmail({
                   fontSize: "12px",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
-                  color: colors.textMuted,
+                  color: colors.steel,
                 }}
               >
                 Votre code exclusif
@@ -116,13 +116,13 @@ export function WelcomeEmail({
                   fontFamily: fontDisplay,
                   fontSize: "26px",
                   fontWeight: 700,
-                  color: colors.black,
+                  color: colors.ink,
                   letterSpacing: "0.08em",
                 }}
               >
                 BIENVENUE10
               </Text>
-              <Text style={{ margin: 0, fontSize: "13px", color: colors.textMuted }}>
+              <Text style={{ margin: 0, fontSize: "13px", color: colors.steel }}>
                 -10 % valable sur votre première commande
               </Text>
             </Section>
@@ -135,21 +135,21 @@ export function WelcomeEmail({
 
             <Row style={{ marginTop: "28px" }}>
               <Column style={{ width: "50%", paddingRight: "8px", verticalAlign: "top" }}>
-                <Text style={{ fontSize: "13px", lineHeight: "20px", color: colors.textMuted, margin: 0 }}>
-                  <strong style={{ color: colors.black }}>Fait main</strong> en France, pièces uniques ou petites séries.
+                <Text style={{ fontSize: "13px", lineHeight: "20px", color: colors.steel, margin: 0 }}>
+                  <strong style={{ color: colors.ink }}>Fait main</strong> en France, pièces uniques ou petites séries.
                 </Text>
               </Column>
               <Column style={{ width: "50%", paddingLeft: "8px", verticalAlign: "top" }}>
-                <Text style={{ fontSize: "13px", lineHeight: "20px", color: colors.textMuted, margin: 0 }}>
-                  <strong style={{ color: colors.black }}>Emballage soigné</strong> pour offrir ou se faire plaisir.
+                <Text style={{ fontSize: "13px", lineHeight: "20px", color: colors.steel, margin: 0 }}>
+                  <strong style={{ color: colors.ink }}>Emballage soigné</strong> pour offrir ou se faire plaisir.
                 </Text>
               </Column>
             </Row>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "36px 0 24px" }} />
-            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.textMuted, margin: 0 }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "36px 0 24px" }} />
+            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.steel, margin: 0 }}>
               Une question ? Écrivez-nous à{" "}
-              <Link href="mailto:contact@ishya.fr" style={{ color: colors.terracotta }}>
+              <Link href="mailto:contact@ishya.fr" style={{ color: colors.ember }}>
                 contact@ishya.fr
               </Link>
               .

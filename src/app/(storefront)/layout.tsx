@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { WishlistHydrator } from "@/components/wishlist/WishlistHydrator";
 import { NewsletterPopup } from "@/components/marketing/NewsletterPopup";
 import { getAccountLink } from "@/lib/auth/account-link";
@@ -24,7 +25,7 @@ export default async function StorefrontLayout({
     getSocialLinks(),
   ]);
   return (
-    <>
+    <SmoothScroll>
       <CustomCursor />
       <Header account={account} announcement={announcement} social={social} />
       <CartDrawer />
@@ -34,6 +35,6 @@ export default async function StorefrontLayout({
       </main>
       <Footer social={social} />
       <NewsletterPopup />
-    </>
+    </SmoothScroll>
   );
 }

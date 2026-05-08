@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Fraunces, Bricolage_Grotesque, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -7,14 +7,22 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { ConsentBanner } from "@/components/ConsentBanner";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin", "latin-ext"],
   display: "swap",
+  axes: ["SOFT", "WONK", "opsz"],
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  axes: ["opsz", "wdth"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -89,7 +97,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${bricolage.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <JsonLd
@@ -125,7 +133,7 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              fontFamily: "var(--font-dm-sans, 'DM Sans', sans-serif)",
+              fontFamily: "var(--font-bricolage, 'Bricolage Grotesque', sans-serif)",
             },
           }}
         />

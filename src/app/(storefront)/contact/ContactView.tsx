@@ -104,7 +104,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
   return (
     <>
       {/* Hero */}
-      <section className="bg-beige-nude-light/50 py-16 md:py-24 px-4">
+      <section className="bg-bone-soft/50 py-16 md:py-24 px-4">
         <div className="container">
           <motion.div
             initial="hidden"
@@ -114,7 +114,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
           >
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 bg-terracotta/10 text-terracotta-dark px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-4"
+              className="inline-flex items-center gap-2 bg-ember/10 text-ember-dark px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-4"
             >
               <MessageCircle className="w-3.5 h-3.5" />
               Contact
@@ -125,7 +125,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
             >
               Contactez-nous
             </motion.h1>
-            <motion.p variants={fadeInUp} className="text-muted">
+            <motion.p variants={fadeInUp} className="text-steel">
               Une question, une suggestion ou simplement envie de dire bonjour ?
               Nous sommes là pour vous.
             </motion.p>
@@ -156,7 +156,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
                   <h2 className="font-display text-2xl mb-2">
                     Message envoyé !
                   </h2>
-                  <p className="text-muted text-sm">
+                  <p className="text-steel text-sm">
                     Merci pour votre message. Nous vous répondrons dans les plus
                     brefs délais, généralement sous 24 heures.
                   </p>
@@ -179,7 +179,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
                         setForm({ ...form, name: e.target.value })
                       }
                       placeholder="Votre nom"
-                      className="w-full px-4 py-3 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all"
+                      className="w-full px-4 py-3 bg-bone border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember transition-all"
                     />
                   </motion.div>
 
@@ -199,7 +199,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
                         setForm({ ...form, email: e.target.value })
                       }
                       placeholder="vous@exemple.com"
-                      className="w-full px-4 py-3 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all"
+                      className="w-full px-4 py-3 bg-bone border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember transition-all"
                     />
                   </motion.div>
 
@@ -217,7 +217,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
                       onChange={(e) =>
                         setForm({ ...form, subject: e.target.value })
                       }
-                      className="w-full px-4 py-3 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all appearance-none"
+                      className="w-full px-4 py-3 bg-bone border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember transition-all appearance-none"
                     >
                       <option value="">Sélectionner un sujet</option>
                       {subjects.map((s) => (
@@ -244,7 +244,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
                         setForm({ ...form, message: e.target.value })
                       }
                       placeholder="Décrivez votre demande en détail..."
-                      className="w-full px-4 py-3 bg-white border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all resize-none"
+                      className="w-full px-4 py-3 bg-bone border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember transition-all resize-none"
                     />
                   </motion.div>
 
@@ -287,17 +287,17 @@ export function ContactView({ social }: { social: SocialLinks }) {
                     variants={staggerItem}
                     className="flex items-start gap-4"
                   >
-                    <div className="w-10 h-10 bg-terracotta/10 rounded-xl flex items-center justify-center shrink-0">
-                      <info.icon className="w-4 h-4 text-terracotta" />
+                    <div className="w-10 h-10 bg-ember/10 rounded-xl flex items-center justify-center shrink-0">
+                      <info.icon className="w-4 h-4 text-ember" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted uppercase tracking-wider mb-0.5">
+                      <p className="text-xs text-steel uppercase tracking-wider mb-0.5">
                         {info.label}
                       </p>
                       {info.href ? (
                         <a
                           href={info.href}
-                          className="text-sm font-medium hover:text-terracotta transition-colors"
+                          className="text-sm font-medium hover:text-ember transition-colors"
                         >
                           {info.value}
                         </a>
@@ -312,15 +312,15 @@ export function ContactView({ social }: { social: SocialLinks }) {
               {/* Response time */}
               <motion.div
                 variants={fadeInUp}
-                className="bg-terracotta/5 border border-terracotta/15 rounded-xl p-5"
+                className="bg-ember/5 border border-terracotta/15 rounded-xl p-5"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock className="w-4 h-4 text-terracotta" />
+                  <Clock className="w-4 h-4 text-ember" />
                   <p className="text-sm font-medium">
                     Temps de réponse moyen : 24h
                   </p>
                 </div>
-                <p className="text-xs text-muted">
+                <p className="text-xs text-steel">
                   Nous nous efforçons de répondre à toutes les demandes sous 24
                   heures ouvrées.
                 </p>
@@ -337,7 +337,7 @@ export function ContactView({ social }: { social: SocialLinks }) {
                         href={s.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 bg-white border border-border rounded-xl flex items-center justify-center hover:border-terracotta hover:text-terracotta transition-all"
+                        className="w-10 h-10 bg-bone border border-border rounded-xl flex items-center justify-center hover:border-ember hover:text-ember transition-all"
                         aria-label={s.label}
                       >
                         <s.icon className="w-4 h-4" />
@@ -350,10 +350,10 @@ export function ContactView({ social }: { social: SocialLinks }) {
               {/* Map placeholder */}
               <motion.div
                 variants={fadeInUp}
-                className="bg-beige-nude-light/50 border border-border rounded-2xl h-52 flex flex-col items-center justify-center gap-2"
+                className="bg-bone-soft/50 border border-border rounded-2xl h-52 flex flex-col items-center justify-center gap-2"
               >
-                <MapPin className="w-8 h-8 text-terracotta/50" />
-                <p className="text-sm text-muted">
+                <MapPin className="w-8 h-8 text-ember/50" />
+                <p className="text-sm text-steel">
                   12 Rue de la Paix, Paris 2e
                 </p>
               </motion.div>

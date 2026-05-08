@@ -27,7 +27,7 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 interface FormState {
@@ -200,13 +200,13 @@ export function PromotionsView({
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Codes promo</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {promotions.length} code{promotions.length > 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg font-medium text-sm hover:bg-terracotta-dark transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg font-medium text-sm hover:bg-ember-deep transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouveau code
@@ -220,20 +220,20 @@ export function PromotionsView({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted-soft/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+              <tr className="border-b border-border bg-bone-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Code
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Réduction
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Période
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Utilisations
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-4 py-3 w-20"></th>
@@ -244,9 +244,9 @@ export function PromotionsView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
-                    <Tag className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+                    <Tag className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
                     Aucun code promo. Créez-en un pour commencer.
                   </td>
                 </tr>
@@ -254,30 +254,30 @@ export function PromotionsView({
                 promotions.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
+                    className="border-b border-border/40 last:border-0 hover:bg-bone-soft/50 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <p className="font-mono font-semibold text-foreground">
                         {p.code}
                       </p>
                       {p.description && (
-                        <p className="text-xs text-muted-light mt-0.5">
+                        <p className="text-xs text-steel-soft mt-0.5">
                           {p.description}
                         </p>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-medium text-terracotta">
+                    <td className="px-4 py-3 font-medium text-ember">
                       {formatDiscount(p)}
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted">
+                    <td className="px-4 py-3 text-xs text-steel">
                       {p.startsAt && <span>du {formatDate(p.startsAt)}</span>}
                       {p.endsAt && <span> au {formatDate(p.endsAt)}</span>}
                       {!p.startsAt && !p.endsAt && "—"}
                     </td>
-                    <td className="px-4 py-3 text-center text-muted">
+                    <td className="px-4 py-3 text-center text-steel">
                       {p.usageCount}
                       {p.usageLimit != null && (
-                        <span className="text-muted-light">
+                        <span className="text-steel-soft">
                           {" "}
                           / {p.usageLimit}
                         </span>
@@ -289,7 +289,7 @@ export function PromotionsView({
                           "px-2 py-0.5 rounded-full text-xs font-medium",
                           p.isActive
                             ? "bg-success-soft text-success"
-                            : "bg-muted-soft text-muted",
+                            : "bg-bone-soft text-steel",
                         )}
                       >
                         {p.isActive ? "Actif" : "Inactif"}
@@ -299,14 +299,14 @@ export function PromotionsView({
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEdit(p)}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setDeletingId(p.id)}
                           disabled={isDeletePending}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-destructive transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -343,7 +343,7 @@ export function PromotionsView({
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -491,7 +491,7 @@ export function PromotionsView({
                   </div>
                 </div>
                 <div className="border-t border-border pt-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-steel mb-3">
                     Ciblage (laisser vide pour tout le catalogue)
                   </p>
                   <div className="space-y-3">
@@ -501,7 +501,7 @@ export function PromotionsView({
                       </label>
                       <div className="border border-border rounded-lg max-h-32 overflow-y-auto p-2 space-y-1">
                         {categories.length === 0 ? (
-                          <p className="text-xs text-muted px-2 py-1">
+                          <p className="text-xs text-steel px-2 py-1">
                             Aucune catégorie
                           </p>
                         ) : (
@@ -512,7 +512,7 @@ export function PromotionsView({
                             return (
                               <label
                                 key={c.id}
-                                className="flex items-center gap-2 text-sm text-foreground hover:bg-muted-soft px-2 py-1 rounded cursor-pointer"
+                                className="flex items-center gap-2 text-sm text-foreground hover:bg-bone-soft px-2 py-1 rounded cursor-pointer"
                               >
                                 <input
                                   type="checkbox"
@@ -527,7 +527,7 @@ export function PromotionsView({
                                           ),
                                     });
                                   }}
-                                  className="rounded accent-terracotta"
+                                  className="rounded accent-ember"
                                 />
                                 {c.name}
                               </label>
@@ -536,7 +536,7 @@ export function PromotionsView({
                         )}
                       </div>
                       {form.applicableCategoryIds.length > 0 ? (
-                        <p className="text-xs text-muted mt-1">
+                        <p className="text-xs text-steel mt-1">
                           {form.applicableCategoryIds.length} sélectionnée(s)
                         </p>
                       ) : null}
@@ -548,7 +548,7 @@ export function PromotionsView({
                       </label>
                       <div className="border border-border rounded-lg max-h-32 overflow-y-auto p-2 space-y-1">
                         {products.length === 0 ? (
-                          <p className="text-xs text-muted px-2 py-1">
+                          <p className="text-xs text-steel px-2 py-1">
                             Aucun produit
                           </p>
                         ) : (
@@ -559,7 +559,7 @@ export function PromotionsView({
                             return (
                               <label
                                 key={p.id}
-                                className="flex items-center gap-2 text-sm text-foreground hover:bg-muted-soft px-2 py-1 rounded cursor-pointer"
+                                className="flex items-center gap-2 text-sm text-foreground hover:bg-bone-soft px-2 py-1 rounded cursor-pointer"
                               >
                                 <input
                                   type="checkbox"
@@ -574,7 +574,7 @@ export function PromotionsView({
                                           ),
                                     });
                                   }}
-                                  className="rounded accent-terracotta"
+                                  className="rounded accent-ember"
                                 />
                                 {p.name}
                               </label>
@@ -583,7 +583,7 @@ export function PromotionsView({
                         )}
                       </div>
                       {form.applicableProductIds.length > 0 ? (
-                        <p className="text-xs text-muted mt-1">
+                        <p className="text-xs text-steel mt-1">
                           {form.applicableProductIds.length} sélectionné(s)
                         </p>
                       ) : null}
@@ -598,7 +598,7 @@ export function PromotionsView({
                     onChange={(e) =>
                       setForm({ ...form, isActive: e.target.checked })
                     }
-                    className="rounded accent-terracotta"
+                    className="rounded accent-ember"
                   />
                   Code actif
                 </label>
@@ -607,14 +607,14 @@ export function PromotionsView({
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-bone-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSavePending}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
                 >
                   {isSavePending && (
                     <Loader2 className="w-4 h-4 animate-spin" />

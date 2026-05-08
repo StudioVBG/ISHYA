@@ -33,7 +33,7 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
@@ -164,7 +164,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/pages"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux pages
@@ -191,7 +191,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
             <button
               onClick={handlePreview}
               disabled={isSavePending || isDeletePending}
-              className="inline-flex items-center gap-2 px-3 py-2 border border-border text-foreground bg-white rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3 py-2 border border-border text-foreground bg-white rounded-lg text-sm font-medium hover:bg-bone-soft transition-colors disabled:opacity-50"
               title="Ouvrir l'aperçu dans un nouvel onglet"
             >
               <Eye className="w-4 h-4" />
@@ -200,7 +200,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
             <button
               onClick={handleSave}
               disabled={isSavePending}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
             >
               {isSavePending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -236,7 +236,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 placeholder="À propos, FAQ, Newsletter..."
               />
               {(title.trim() || page?.slug) && (
-                <p className="text-xs text-muted mt-1">
+                <p className="text-xs text-steel mt-1">
                   Adresse de la page : /p/
                   <span className="font-mono">
                     {page?.slug ?? slugify(title)}
@@ -258,7 +258,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
               imageFolder="pages-cms"
               disabled={isSavePending || isDeletePending}
             />
-            <p className="text-xs text-muted-light mt-2">
+            <p className="text-xs text-steel-soft mt-2">
               Sortie : HTML, sanitizé côté storefront via DOMPurify (les tags
               dangereux comme <code>&lt;script&gt;</code> sont strippés).
               L&apos;ancien contenu markdown léger reste compatible : il
@@ -282,7 +282,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 className={inputClass}
                 placeholder="Si vide → titre de la page"
               />
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 {metaTitle.length}/60 caractères
               </p>
             </div>
@@ -295,7 +295,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 maxLength={160}
                 className={cn(inputClass, "resize-none")}
               />
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 {metaDescription.length}/160 caractères
               </p>
             </div>
@@ -316,11 +316,11 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 type="checkbox"
                 checked={isPublished}
                 onChange={(e) => setIsPublished(e.target.checked)}
-                className="rounded accent-terracotta"
+                className="rounded accent-ember"
               />
             </label>
             {page?.publishedAt && (
-              <p className="text-xs text-muted-light">
+              <p className="text-xs text-steel-soft">
                 Publiée le {formatDate(page.publishedAt)}
               </p>
             )}
@@ -329,7 +329,7 @@ export function PageForm({ page }: { page: AdminCmsPageDetail | null }) {
                 href={`/p/${page.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline mt-3"
+                className="inline-flex items-center gap-1 text-xs text-ember hover:underline mt-3"
               >
                 Voir la page publique
                 <ExternalLink className="w-3 h-3" />

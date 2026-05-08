@@ -20,7 +20,7 @@ const ROLE_LABELS: Record<string, { label: string; className: string }> = {
   },
   customer: {
     label: "Client",
-    className: "bg-muted-soft text-muted",
+    className: "bg-bone-soft text-steel",
   },
 };
 
@@ -87,10 +87,10 @@ export function EquipeView({
     >
       <motion.div variants={staggerItem}>
         <h2 className="text-xl font-bold text-foreground">Équipe</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           {members.length} admin{members.length > 1 ? "s" : ""}
         </p>
-        <p className="text-xs text-muted-light mt-1">
+        <p className="text-xs text-steel-soft mt-1">
           Promeut un client existant en admin pour lui donner accès au tableau
           de bord.
         </p>
@@ -101,10 +101,10 @@ export function EquipeView({
         className="bg-white rounded-xl border border-border p-5"
       >
         <h3 className="text-sm font-semibold text-foreground mb-1 inline-flex items-center gap-2">
-          <UserPlus className="w-4 h-4 text-terracotta" />
+          <UserPlus className="w-4 h-4 text-ember" />
           Promouvoir un client en admin
         </h3>
-        <p className="text-xs text-muted-light mb-3">
+        <p className="text-xs text-steel-soft mb-3">
           Saisissez l&apos;email d&apos;un compte client existant. L&apos;action
           est tracée dans le journal d&apos;audit.
         </p>
@@ -115,7 +115,7 @@ export function EquipeView({
             onChange={(e) => setPromoteEmail(e.target.value)}
             placeholder="email@exemple.com"
             disabled={isPromotePending}
-            className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
+            className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 disabled:opacity-50"
             aria-label="Email du client à promouvoir"
           />
           <button
@@ -140,20 +140,20 @@ export function EquipeView({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted-soft/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+              <tr className="border-b border-border bg-bone-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Membre
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Rôle
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Inscription
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Dernière connexion
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-4 py-3 w-32"></th>
@@ -164,7 +164,7 @@ export function EquipeView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
                     Aucun admin pour l&apos;instant.
                   </td>
@@ -173,14 +173,14 @@ export function EquipeView({
                 members.map((m) => {
                   const role = ROLE_LABELS[m.role] ?? {
                     label: m.role,
-                    className: "bg-muted-soft text-muted",
+                    className: "bg-bone-soft text-steel",
                   };
                   const isLoading = isPending && pendingId === m.id;
                   const isMe = m.id === currentUserId;
                   return (
                     <tr
                       key={m.id}
-                      className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
+                      className="border-b border-border/40 last:border-0 hover:bg-bone-soft/50 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <p className="font-medium text-foreground">
@@ -188,12 +188,12 @@ export function EquipeView({
                             .filter(Boolean)
                             .join(" ") || "Sans nom"}
                           {isMe && (
-                            <span className="ml-2 text-[10px] text-terracotta uppercase font-semibold tracking-wide">
+                            <span className="ml-2 text-[10px] text-ember uppercase font-semibold tracking-wide">
                               Vous
                             </span>
                           )}
                         </p>
-                        <p className="text-xs text-muted-light">{m.email}</p>
+                        <p className="text-xs text-steel-soft">{m.email}</p>
                       </td>
                       <td className="px-4 py-3">
                         <select
@@ -202,7 +202,7 @@ export function EquipeView({
                             handleRoleChange(m.id, e.target.value)
                           }
                           disabled={isLoading || (isMe && m.role === "admin")}
-                          className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20 disabled:opacity-50"
+                          className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-ember/20 disabled:opacity-50"
                           title={
                             isMe && m.role === "admin"
                               ? "Vous ne pouvez pas retirer votre propre rôle d'admin"
@@ -216,10 +216,10 @@ export function EquipeView({
                           ))}
                         </select>
                       </td>
-                      <td className="px-4 py-3 text-muted">
+                      <td className="px-4 py-3 text-steel">
                         {m.createdAt ? formatDate(m.createdAt) : "—"}
                       </td>
-                      <td className="px-4 py-3 text-muted">
+                      <td className="px-4 py-3 text-steel">
                         {m.lastSignInAt
                           ? formatDate(m.lastSignInAt)
                           : "Jamais"}
@@ -230,7 +230,7 @@ export function EquipeView({
                             "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
                             m.isActive
                               ? "bg-success-soft text-success"
-                              : "bg-muted-soft text-muted",
+                              : "bg-bone-soft text-steel",
                           )}
                         >
                           <ShieldCheck className="w-3 h-3" />
@@ -245,7 +245,7 @@ export function EquipeView({
                               handleToggleActive(m.id, m.isActive)
                             }
                             disabled={isLoading}
-                            className="text-xs text-muted hover:text-terracotta transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                            className="text-xs text-steel hover:text-ember transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                           >
                             {isLoading && (
                               <Loader2 className="w-3 h-3 animate-spin" />

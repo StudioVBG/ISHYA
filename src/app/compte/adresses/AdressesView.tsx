@@ -42,7 +42,7 @@ const addressSchema = z.object({
 type AddressFormData = z.infer<typeof addressSchema>;
 
 const inputClass =
-  "w-full px-4 py-2.5 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all";
+  "w-full px-4 py-2.5 rounded-lg border border-border bg-bone-soft text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember transition-all";
 
 export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
   const [showModal, setShowModal] = useState(false);
@@ -168,14 +168,14 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
       </motion.div>
 
       {addresses.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-beige-nude-light flex items-center justify-center mx-auto mb-4">
-            <MapPin className="w-8 h-8 text-terracotta" />
+        <div className="bg-bone-soft rounded-xl border border-border p-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-bone-soft flex items-center justify-center mx-auto mb-4">
+            <MapPin className="w-8 h-8 text-ember" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Aucune adresse enregistrée
           </h2>
-          <p className="text-sm text-muted mb-6">
+          <p className="text-sm text-steel mb-6">
             Ajoutez une adresse pour accélérer vos prochaines commandes.
           </p>
           <button onClick={openCreate} className="btn-primary inline-flex">
@@ -195,9 +195,9 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
               key={addr.id}
               variants={staggerItem}
               className={cn(
-                "bg-white rounded-xl border p-5 relative",
+                "bg-bone-soft rounded-xl border p-5 relative",
                 addr.isDefault
-                  ? "border-terracotta ring-1 ring-terracotta/30"
+                  ? "border-ember ring-1 ring-ember/30"
                   : "border-border",
               )}
             >
@@ -217,7 +217,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                     </span>
                   </div>
                   {addr.isDefault && (
-                    <span className="inline-flex items-center gap-1 text-xs text-terracotta font-medium mt-1">
+                    <span className="inline-flex items-center gap-1 text-xs text-ember font-medium mt-1">
                       <Star className="w-3 h-3 fill-current" />
                       Par défaut
                     </span>
@@ -226,7 +226,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                 <div className="flex gap-1">
                   <button
                     onClick={() => openEdit(addr)}
-                    className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
                     aria-label="Modifier"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -234,14 +234,14 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                   <button
                     onClick={() => handleDelete(addr.id)}
                     disabled={isDeletePending}
-                    className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
+                    className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-destructive transition-colors disabled:opacity-50"
                     aria-label="Supprimer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-              <div className="text-sm text-muted space-y-0.5">
+              <div className="text-sm text-steel space-y-0.5">
                 <p className="text-foreground font-medium">
                   {addr.firstName} {addr.lastName}
                 </p>
@@ -257,7 +257,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                 <button
                   onClick={() => handleSetDefault(addr)}
                   disabled={isSavePending}
-                  className="text-xs text-terracotta hover:underline mt-3 disabled:opacity-50"
+                  className="text-xs text-ember hover:underline mt-3 disabled:opacity-50"
                 >
                   Définir par défaut
                 </button>
@@ -280,7 +280,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              className="bg-bone-soft rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-border">
@@ -290,7 +290,7 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -445,11 +445,11 @@ export function AdressesView({ addresses }: { addresses: AccountAddress[] }) {
                   </div>
                 </div>
 
-                <label className="flex items-center gap-3 p-3 bg-beige-nude-light/50 rounded-lg cursor-pointer">
+                <label className="flex items-center gap-3 p-3 bg-bone-soft/50 rounded-lg cursor-pointer">
                   <input
                     type="checkbox"
                     {...register("isDefault")}
-                    className="w-4 h-4 rounded accent-terracotta"
+                    className="w-4 h-4 rounded accent-ember"
                   />
                   <span className="text-sm">
                     Définir comme adresse par défaut

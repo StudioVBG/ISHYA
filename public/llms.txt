@@ -1,0 +1,52 @@
+# ISHYA
+
+> Maison française de bijoux floraux artisanaux. Colliers, bagues, bracelets et boucles d'oreilles uniques en fleurs séchées et résine, façonnés à la main dans notre atelier parisien.
+
+ISHYA est une marque française qui crée des bijoux contemporains en préservant la matière vivante. Chaque pièce capture une fleur séchée dans une résine cristalline, signée et numérotée par l'artisan.
+
+## Catalogue
+
+- [Boutique](https://www.ishya.fr/boutique): catalogue complet (colliers, bagues, bracelets, boucles d'oreilles, accessoires, packs)
+- [Colliers](https://www.ishya.fr/boutique?categorie=colliers)
+- [Bagues](https://www.ishya.fr/boutique?categorie=bagues)
+- [Bracelets](https://www.ishya.fr/boutique?categorie=bracelets)
+- [Boucles d'oreilles](https://www.ishya.fr/boutique?categorie=boucles-d-oreilles)
+- [Packs & parures](https://www.ishya.fr/boutique?type=pack)
+- [Best-sellers](https://www.ishya.fr/boutique?badge=best-seller)
+- [Nouveautés](https://www.ishya.fr/boutique?badge=nouveau)
+
+## Maison
+
+- [À propos](https://www.ishya.fr/a-propos): histoire, mission, savoir-faire
+- [Atelier](https://www.ishya.fr/atelier): notre atelier parisien, le geste, les outils
+- [Équipe](https://www.ishya.fr/equipe): les artisans
+- [Matériaux](https://www.ishya.fr/materiaux): fleurs séchées, résine, métaux, provenance
+- [Sur-mesure](https://www.ishya.fr/sur-mesure): bijoux personnalisés sur commande
+
+## Aide & service client
+
+- [FAQ](https://www.ishya.fr/aide): questions fréquentes
+- [Livraison](https://www.ishya.fr/livraison): offerte dès 60€, expédition sous 24-48h, 2-5 jours ouvrés
+- [Retours & échanges](https://www.ishya.fr/retours): retours gratuits sous 14 jours
+- [Garantie](https://www.ishya.fr/garantie): garantie atelier
+- [Entretien](https://www.ishya.fr/entretien): comment prendre soin d'un bijou floral
+- [Guide des tailles](https://www.ishya.fr/guide-des-tailles): bagues et bracelets
+- [Contact](https://www.ishya.fr/contact)
+
+## Engagements
+
+- Fait main en France, atelier parisien
+- Fleurs séchées sourcées en France (production interne)
+- Garantie atelier
+- Retours gratuits 14 jours
+- Livraison offerte dès 60€
+- Paiement sécurisé Stripe (CB, Visa, Mastercard, Apple Pay, PayPal)
+
+## Optional
+
+- [Journal](https://www.ishya.fr/blog): articles éditoriaux, savoir-faire, inspirations
+- [Programme fidélité](https://www.ishya.fr/programme-fidelite)
+- [Parrainage](https://www.ishya.fr/parrainage)
+- [Carte cadeau](https://www.ishya.fr/carte-cadeau)
+- [Presse](https://www.ishya.fr/presse)
+- [Recrutement](https://www.ishya.fr/recrutement)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -125,12 +125,15 @@ export default function BoutiqueContent({
   const [searchInput, setSearchInput] = useState(filters.q ?? "");
 
   const PAGE_SIZE = 24;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const searchParamsKey = searchParams.toString();
-  // Réinitialise la pagination dès que les filtres / le tri changent.
-  useEffect(() => {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [lastFiltersKey, setLastFiltersKey] = useState(searchParamsKey);
+  // Reset pagination quand les filtres changent (pattern canonique React 19,
+  // évite le useEffect-then-setState anti-pattern).
+  if (lastFiltersKey !== searchParamsKey) {
+    setLastFiltersKey(searchParamsKey);
     setVisibleCount(PAGE_SIZE);
-  }, [searchParamsKey]);
+  }
   const visibleProducts = useMemo(
     () => products.slice(0, visibleCount),
     [products, visibleCount],
@@ -260,7 +263,7 @@ export default function BoutiqueContent({
     <div className="space-y-7">
       {/* Type */}
       <div>
-        <h3 className="font-medium text-sm uppercase tracking-wider mb-3">
+        <h3 className="font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
           Type
         </h3>
         <div className="space-y-2">
@@ -277,7 +280,7 @@ export default function BoutiqueContent({
 
       {/* Badges */}
       <div>
-        <h3 className="font-medium text-sm uppercase tracking-wider mb-3">
+        <h3 className="font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
           Mises en avant
         </h3>
         <div className="space-y-2">
@@ -294,7 +297,7 @@ export default function BoutiqueContent({
 
       {/* Catégories */}
       <div>
-        <h3 className="font-medium text-sm uppercase tracking-wider mb-3">
+        <h3 className="font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
           Catégories
         </h3>
         <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
@@ -312,7 +315,7 @@ export default function BoutiqueContent({
       {/* Collections */}
       {collections.length > 0 && (
         <div>
-          <h3 className="font-medium text-sm uppercase tracking-wider mb-3">
+          <h3 className="font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
             Collections
           </h3>
           <div className="space-y-2">
@@ -330,7 +333,7 @@ export default function BoutiqueContent({
 
       {/* Prix */}
       <div>
-        <h3 className="font-medium text-sm uppercase tracking-wider mb-3">
+        <h3 className="font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
           Prix
         </h3>
         <div className="space-y-2">
@@ -345,17 +348,17 @@ export default function BoutiqueContent({
               >
                 <div
                   className={cn(
-                    "w-4 h-4 rounded-full border-2 transition-colors flex items-center justify-center",
+                    "w-4 h-4 rounded-full border transition-colors flex items-center justify-center",
                     active
-                      ? "border-terracotta"
-                      : "border-border group-hover:border-terracotta-light",
+                      ? "border-ink"
+                      : "border-border-strong group-hover:border-ink",
                   )}
                 >
                   {active && (
-                    <div className="w-2 h-2 rounded-full bg-terracotta" />
+                    <div className="w-2 h-2 rounded-full bg-ember" />
                   )}
                 </div>
-                <span className="text-sm text-muted group-hover:text-foreground transition-colors">
+                <span className="text-sm text-steel group-hover:text-ink transition-colors">
                   {range.label}
                 </span>
               </button>
@@ -366,7 +369,7 @@ export default function BoutiqueContent({
 
       {/* Matière */}
       <div>
-        <h3 className="font-medium text-sm uppercase tracking-wider mb-3">
+        <h3 className="font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
           Matière
         </h3>
         <div className="space-y-2">
@@ -384,7 +387,7 @@ export default function BoutiqueContent({
       {activeChips.length > 0 && (
         <button
           onClick={clearAll}
-          className="text-sm text-terracotta hover:underline"
+          className="font-mono text-[11px] tracking-[0.16em] uppercase text-ember hover:text-ember-bright underline-offset-4 hover:underline"
         >
           Effacer tous les filtres
         </button>
@@ -394,48 +397,56 @@ export default function BoutiqueContent({
 
   return (
     <>
-      {/* Hero Banner */}
-      <section className="bg-beige-nude-light/50 py-12 md:py-16 px-4">
+      {/* Hero Banner — éditorial Atelier Noir */}
+      <section className="bg-bone border-b border-border px-4 py-16 md:py-24">
         <div className="container">
           <motion.div
             key={searchParams.toString()}
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
-            className="text-center"
+            className="max-w-3xl"
           >
-            <motion.p
+            <motion.div
               variants={fadeInUp}
-              className="text-terracotta uppercase tracking-widest text-xs mb-3"
+              className="flex items-center gap-3 mb-6"
             >
-              {heading.eyebrow}
-            </motion.p>
+              <span className="h-px w-10 bg-ember" aria-hidden />
+              <span className="eyebrow">{heading.eyebrow}</span>
+            </motion.div>
             <motion.h1
               variants={fadeInUp}
-              className="font-display text-4xl md:text-5xl mb-4"
+              className="font-display text-ink mb-6"
+              style={{
+                fontSize: "var(--text-h1)",
+                fontVariationSettings: "'opsz' 144, 'SOFT' 50, 'WONK' 0",
+                fontWeight: 400,
+                letterSpacing: "-0.03em",
+                lineHeight: 1.05,
+              }}
             >
               {heading.title}
             </motion.h1>
             <motion.p
               variants={fadeInUp}
-              className="text-muted max-w-lg mx-auto"
+              className="text-steel max-w-xl leading-relaxed text-base md:text-lg"
             >
               {heading.description}
             </motion.p>
 
-            {/* Search bar */}
+            {/* Search bar — underline minimaliste */}
             <motion.form
               variants={fadeInUp}
               onSubmit={handleSearchSubmit}
-              className="relative mt-8 max-w-md mx-auto"
+              className="relative mt-10 max-w-md"
             >
-              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+              <SearchIcon className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-steel" />
               <input
                 type="search"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Rechercher un bijou..."
-                className="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-full text-sm placeholder:text-muted-light focus:outline-none focus:border-terracotta transition-colors"
+                placeholder="Rechercher un bijou…"
+                className="w-full pl-7 pr-4 py-3 bg-transparent border-0 border-b border-ink/30 text-ink text-sm placeholder:text-steel focus:outline-none focus:border-ember transition-colors"
               />
             </motion.form>
           </motion.div>
@@ -454,12 +465,12 @@ export default function BoutiqueContent({
             <div className="flex-1 min-w-0">
               {/* Active chips */}
               {activeChips.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mb-6">
+                <div className="flex flex-wrap items-center gap-2 mb-8">
                   {activeChips.map((chip, idx) => (
                     <button
                       key={`${chip.label}-${idx}`}
                       onClick={chip.onRemove}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-terracotta/10 text-terracotta hover:bg-terracotta/20 transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 font-mono text-[11px] tracking-[0.12em] uppercase text-ink border border-ink/15 hover:border-ember hover:text-ember transition-colors"
                     >
                       {chip.label}
                       <X className="w-3 h-3" />
@@ -467,7 +478,7 @@ export default function BoutiqueContent({
                   ))}
                   <button
                     onClick={clearAll}
-                    className="text-xs text-muted hover:text-terracotta underline ml-2"
+                    className="font-mono text-[11px] tracking-[0.16em] uppercase text-steel hover:text-ember underline underline-offset-4 ml-2"
                   >
                     Tout effacer
                   </button>
@@ -475,12 +486,12 @@ export default function BoutiqueContent({
               )}
 
               {/* Toolbar */}
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-sm text-muted flex items-center gap-2">
+              <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+                <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-steel flex items-center gap-2">
                   {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>
-                    <span className="font-medium text-foreground">
-                      {products.length}
+                    <span className="text-ink tabular-nums">
+                      {String(products.length).padStart(2, "0")}
                     </span>{" "}
                     résultat{products.length > 1 ? "s" : ""}
                   </span>
@@ -490,12 +501,12 @@ export default function BoutiqueContent({
                   {/* Mobile filter button */}
                   <button
                     onClick={() => setMobileFiltersOpen(true)}
-                    className="lg:hidden flex items-center gap-2 text-sm border border-border rounded-lg px-3 sm:px-4 py-2 hover:border-terracotta transition-colors"
+                    className="lg:hidden flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] uppercase border border-ink/20 px-3 sm:px-4 py-2 hover:border-ember hover:text-ember transition-colors"
                   >
                     <SlidersHorizontal className="w-4 h-4" />
                     <span className="hidden xs:inline">Filtres</span>
                     {activeChips.length > 0 && (
-                      <span className="text-xs text-terracotta font-medium">
+                      <span className="text-ember tabular-nums">
                         ({activeChips.length})
                       </span>
                     )}
@@ -506,7 +517,7 @@ export default function BoutiqueContent({
                     <select
                       value={filters.tri ?? "popularite"}
                       onChange={(e) => setSort(e.target.value as ProductSort)}
-                      className="appearance-none text-sm border border-border rounded-lg px-3 sm:px-4 py-2 pr-8 bg-transparent hover:border-terracotta transition-colors cursor-pointer focus:outline-none focus:border-terracotta"
+                      className="appearance-none font-mono text-[11px] tracking-[0.14em] uppercase border border-ink/20 px-3 sm:px-4 py-2 pr-8 bg-transparent hover:border-ember transition-colors cursor-pointer focus:outline-none focus:border-ember"
                     >
                       {SORT_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -514,18 +525,18 @@ export default function BoutiqueContent({
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-steel pointer-events-none" />
                   </div>
                 </div>
               </div>
 
-              {/* Product Grid */}
+              {/* Product Grid — bento dense Mytheresa style (gap-x serré, gap-y aéré) */}
               <motion.div
                 key={searchParams.toString()}
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
-                className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                className="grid grid-cols-2 lg:grid-cols-3 gap-x-2 sm:gap-x-3 gap-y-12 md:gap-y-16"
               >
                 {visibleProducts.map((product, index) => (
                   <motion.div key={product.id} variants={staggerItem}>
@@ -536,20 +547,19 @@ export default function BoutiqueContent({
 
               {products.length === 0 && (
                 <div className="text-center py-20">
-                  <p className="text-muted mb-4">
+                  <p className="text-steel mb-6">
                     Aucun bijou ne correspond à vos critères.
                   </p>
-                  <button onClick={clearAll} className="btn-secondary text-sm">
+                  <button onClick={clearAll} className="btn-secondary">
                     Effacer les filtres
                   </button>
                 </div>
               )}
 
               {products.length > 0 && (
-                <div className="mt-12 flex flex-col items-center gap-3">
-                  <p className="text-xs text-muted">
-                    {visibleProducts.length} sur {products.length} bijou
-                    {products.length > 1 ? "x" : ""}
+                <div className="mt-16 flex flex-col items-center gap-4">
+                  <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-steel tabular-nums">
+                    {visibleProducts.length} / {products.length}
                   </p>
                   {hasMore && (
                     <button
@@ -559,7 +569,7 @@ export default function BoutiqueContent({
                           Math.min(c + PAGE_SIZE, products.length),
                         )
                       }
-                      className="btn-secondary text-sm"
+                      className="btn-secondary"
                     >
                       Charger plus
                     </button>
@@ -583,13 +593,22 @@ export default function BoutiqueContent({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="absolute bottom-0 left-0 right-0 bg-background rounded-t-2xl max-h-[85vh] overflow-y-auto p-6"
+            className="absolute bottom-0 left-0 right-0 bg-bone max-h-[85vh] overflow-y-auto p-6"
           >
-            <div className="flex items-center justify-between mb-6 sticky top-0 bg-background pb-3 -mt-2 pt-2">
-              <h2 className="font-display text-xl">Filtres</h2>
+            <div className="flex items-center justify-between mb-8 sticky top-0 bg-bone pb-3 -mt-2 pt-2">
+              <h2
+                className="font-display text-3xl text-ink"
+                style={{
+                  fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
+                  fontWeight: 400,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Filtres
+              </h2>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="p-1"
+                className="p-2 hover:text-ember transition-colors"
                 aria-label="Fermer"
               >
                 <X className="w-5 h-5" />
@@ -598,7 +617,7 @@ export default function BoutiqueContent({
             {filterContent}
             <button
               onClick={() => setMobileFiltersOpen(false)}
-              className="btn-primary w-full mt-8"
+              className="btn-primary w-full mt-10"
             >
               Voir les résultats ({products.length})
             </button>
@@ -627,14 +646,14 @@ function Checkbox({
     >
       <div
         className={cn(
-          "w-4 h-4 rounded border-2 transition-colors flex items-center justify-center shrink-0",
+          "w-[18px] h-[18px] border transition-colors flex items-center justify-center shrink-0",
           checked
-            ? "bg-terracotta border-terracotta"
-            : "border-border group-hover:border-terracotta-light",
+            ? "bg-ink border-ink"
+            : "border-border-strong group-hover:border-ink",
         )}
       >
         {checked && (
-          <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12">
+          <svg className="w-2.5 h-2.5 text-bone" viewBox="0 0 12 12">
             <path
               d="M10 3L4.5 8.5 2 6"
               fill="none"
@@ -646,7 +665,7 @@ function Checkbox({
           </svg>
         )}
       </div>
-      <span className="text-sm text-muted group-hover:text-foreground transition-colors">
+      <span className="text-sm text-steel group-hover:text-ink transition-colors">
         {label}
       </span>
     </button>

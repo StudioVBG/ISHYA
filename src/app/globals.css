@@ -1,69 +1,202 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   ISHYA — Direction artistique « Atelier Noir » (mai 2026)
+   Palette OKLCH wide-gamut P3, spacing fluide, typo variable.
+   Les anciens noms (--terracotta, --gold, etc.) sont conservés
+   en alias pour la rétrocompatibilité, mais leurs valeurs ont
+   été remappées sur la nouvelle palette.
+   ═══════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #F8F6F2;
-  --foreground: #1a1a1a;
-  --terracotta: #DF887B;
-  --terracotta-light: #E9A99F;
-  --terracotta-dark: #C76E61;
-  --beige-nude: #F2D7C2;
-  --beige-nude-light: #F7E8DA;
-  --off-white: #FAF9F6;
-  --ivory: #F8F6F2;
-  --black: #000000;
-  --gold: #C5A572;
-  --gold-light: #D4BC93;
-  --gold-dark: #A88B5A;
-  --muted: #9C8E82;
-  --muted-light: #C4B8AD;
-  --muted-soft: #F3F0EC;
-  --border: #E8E0D8;
-  --destructive: #DC3545;
-  --destructive-soft: #FBE9EC;
-  --success: #28A745;
-  --success-soft: #E6F4EA;
-  --info: #2563EB;
-  --info-soft: #E5EDFB;
-  --warning: #B7791F;
-  --warning-soft: #FBF1DC;
-  --accent-purple: #6B4F9B;
-  --accent-purple-soft: #ECE6F5;
-  /* Brand tiers (logos partenaires) */
-  --stripe-brand: #635BFF;
-  --radius: 0.5rem;
+  /* ─── Palette « Atelier Noir » (signature 2026) ─────────────── */
+  --ink:           oklch(0.15 0.005 270);   /* onyx anti-warm, fond sombre */
+  --ink-soft:      oklch(0.22 0.008 270);   /* ink éclairci pour overlays */
+  --bone:          oklch(0.96 0.008 85);    /* blanc os (anti-cream) */
+  --bone-soft:     oklch(0.93 0.012 85);    /* bone discret pour cards */
+  --leather:       oklch(0.42 0.085 45);    /* cuir tabac propriétaire */
+  --leather-deep:  oklch(0.32 0.075 40);    /* cuir hover/dark */
+  --ember:         oklch(0.62 0.14 50);     /* cuivre patiné — accent unique CTA */
+  --ember-bright:  oklch(0.70 0.16 55);     /* ember hover/focus */
+  --ember-deep:    oklch(0.50 0.13 48);     /* ember pressed */
+  --steel:         oklch(0.55 0.012 250);   /* gris froid métadonnées/SKU */
+  --steel-soft:    oklch(0.78 0.008 250);   /* steel clair */
+  --mist:          oklch(0.32 0.005 250);   /* fog cards désactivées */
+
+  /* ─── Tokens sémantiques ────────────────────────────────────── */
+  --background:    var(--bone);
+  --foreground:    var(--ink);
+  --surface:       var(--bone-soft);
+  --surface-deep:  oklch(0.88 0.012 80);
+  --border:        oklch(0.86 0.010 80);
+  --border-strong: oklch(0.72 0.012 80);
+  --black:         oklch(0 0 0);
+
+  /* ─── Alias rétrocompatibilité (anciens tokens → nouvelle DA) ─ */
+  /* Les classes Tailwind existantes (bg-terracotta, text-gold…)
+     pointent désormais sur la palette Atelier Noir. */
+  --terracotta:        var(--ember);
+  --terracotta-light:  var(--ember-bright);
+  --terracotta-dark:   var(--ember-deep);
+  --beige-nude:        var(--surface);
+  --beige-nude-light:  var(--bone);
+  --off-white:         var(--bone);
+  --ivory:             var(--bone);
+  --gold:              var(--ember);
+  --gold-light:        var(--ember-bright);
+  --gold-dark:         var(--ember-deep);
+  --muted:             var(--steel);
+  --muted-light:       var(--steel-soft);
+  --muted-soft:        var(--surface);
+
+  /* ─── Statuts (calibrés OKLCH P3) ───────────────────────────── */
+  --destructive:       oklch(0.55 0.20 25);
+  --destructive-soft:  oklch(0.94 0.04 25);
+  --success:           oklch(0.58 0.15 145);
+  --success-soft:      oklch(0.94 0.04 145);
+  --info:              oklch(0.55 0.18 260);
+  --info-soft:         oklch(0.94 0.04 260);
+  --warning:           oklch(0.65 0.13 75);
+  --warning-soft:      oklch(0.95 0.04 75);
+  --accent-purple:     oklch(0.45 0.15 295);
+  --accent-purple-soft:oklch(0.94 0.03 295);
+  --stripe-brand:      oklch(0.55 0.22 270);
+
+  /* ─── Spacing fluide (clamp viewport 360 → 1440px) ──────────── */
+  --space-3xs: clamp(0.25rem,  0.22rem + 0.13vw, 0.375rem);
+  --space-2xs: clamp(0.5rem,   0.45rem + 0.25vw, 0.75rem);
+  --space-xs:  clamp(0.75rem,  0.66rem + 0.39vw, 1rem);
+  --space-s:   clamp(1rem,     0.86rem + 0.63vw, 1.5rem);
+  --space-m:   clamp(1.5rem,   1.32rem + 0.78vw, 2rem);
+  --space-l:   clamp(2rem,     1.68rem + 1.41vw, 3rem);
+  --space-xl:  clamp(3rem,     2.45rem + 2.34vw, 4.5rem);
+  --space-2xl: clamp(4.5rem,   3.55rem + 4.06vw, 7rem);
+  --space-3xl: clamp(6rem,     4.55rem + 6.25vw, 10rem);
+  --space-4xl: clamp(8rem,     5.92rem + 8.91vw, 14rem);  /* sections premium */
+  --space-5xl: clamp(10rem,    7.39rem + 11.16vw, 17rem); /* hero gap */
+
+  /* Tokens spacing sémantiques (pour padding sections, gutters) */
+  --gutter:        clamp(1.25rem, 0.5rem + 3vw, 4rem);    /* 20→64px */
+  --section-y:     var(--space-4xl);                       /* 128→224px */
+  --section-y-sm:  var(--space-3xl);                       /* 96→160px */
+  --hero-pad:      var(--space-5xl);                       /* 160→272px */
+  --block:         var(--space-l);                         /* 32→48px */
+  --stack-tight:   var(--space-2xs);
+  --stack-loose:   var(--space-m);
+
+  /* ─── Containers (max-widths luxe éditorial) ────────────────── */
+  --container-prose:   65ch;        /* lecture optimale */
+  --container-narrow:  48rem;       /* 768px — texte éditorial */
+  --container-content: 90rem;       /* 1440px — sweet spot premium */
+  --container-wide:    105rem;      /* 1680px — éditorial large */
+
+  /* ─── Typography tokens ─────────────────────────────────────── */
+  --tracking-display:  -0.03em;
+  --tracking-tight:    -0.015em;
+  --tracking-normal:   0;
+  --tracking-eyebrow:  0.08em;
+  --leading-display:   1.02;
+  --leading-tight:     1.15;
+  --leading-snug:      1.35;
+  --leading-body:      1.6;
+
+  /* Échelle typo fluide (Major Third desktop, Minor Third mobile) */
+  --text-2xs:    clamp(0.78rem, 0.77rem + 0.03vw, 0.80rem);
+  --text-xs:     clamp(0.84rem, 0.82rem + 0.10vw, 0.92rem);
+  --text-sm:     clamp(0.94rem, 0.91rem + 0.11vw, 1.00rem);
+  --text-base:   clamp(1.06rem, 1.02rem + 0.20vw, 1.18rem);
+  --text-lg:     clamp(1.25rem, 1.18rem + 0.34vw, 1.44rem);
+  --text-xl:     clamp(1.50rem, 1.39rem + 0.55vw, 1.80rem);
+  --text-h4:     clamp(1.75rem, 1.59rem + 0.78vw, 2.20rem);
+  --text-h3:     clamp(2.10rem, 1.86rem + 1.17vw, 2.75rem);
+  --text-h2:     clamp(2.60rem, 2.21rem + 1.95vw, 3.66rem);
+  --text-h1:     clamp(3.20rem, 2.55rem + 3.13vw, 4.94rem);
+  --text-display:clamp(4.00rem, 2.94rem + 5.31vw, 6.81rem);
+
+  /* ─── Easings & durations (animations cinématiques) ─────────── */
+  --ease-out-expo:    cubic-bezier(0.16, 1, 0.30, 1);
+  --ease-in-out:      cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out:         cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-quick:   200ms;
+  --duration-base:    350ms;
+  --duration-cinema:  650ms;
+
+  /* ─── Radius (subtilement plus tendus, moins « soft Material ») */
+  --radius:        0.25rem;   /* 4px — défaut (vs 8px précédemment) */
+  --radius-sm:     0.125rem;  /* 2px */
+  --radius-md:     0.375rem;  /* 6px */
+  --radius-lg:     0.5rem;    /* 8px */
+  --radius-pill:   9999px;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   Tailwind v4 @theme — exposition des tokens en classes utilitaires
+   ═══════════════════════════════════════════════════════════════ */
+
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-terracotta: var(--terracotta);
-  --color-terracotta-light: var(--terracotta-light);
-  --color-terracotta-dark: var(--terracotta-dark);
-  --color-beige-nude: var(--beige-nude);
-  --color-beige-nude-light: var(--beige-nude-light);
-  --color-off-white: var(--off-white);
-  --color-ivory: var(--ivory);
-  --color-gold: var(--gold);
-  --color-gold-light: var(--gold-light);
-  --color-gold-dark: var(--gold-dark);
-  --color-muted: var(--muted);
-  --color-muted-light: var(--muted-light);
-  --color-muted-soft: var(--muted-soft);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-destructive-soft: var(--destructive-soft);
-  --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-info: var(--info);
-  --color-info-soft: var(--info-soft);
-  --color-warning: var(--warning);
-  --color-warning-soft: var(--warning-soft);
-  --color-accent-purple: var(--accent-purple);
+  /* Couleurs nouvelle DA (classes : bg-ink, text-bone, ring-ember…) */
+  --color-ink:           var(--ink);
+  --color-ink-soft:      var(--ink-soft);
+  --color-bone:          var(--bone);
+  --color-bone-soft:     var(--bone-soft);
+  --color-leather:       var(--leather);
+  --color-leather-deep:  var(--leather-deep);
+  --color-ember:         var(--ember);
+  --color-ember-bright:  var(--ember-bright);
+  --color-ember-deep:    var(--ember-deep);
+  --color-steel:         var(--steel);
+  --color-steel-soft:    var(--steel-soft);
+  --color-mist:          var(--mist);
+
+  /* Tokens sémantiques */
+  --color-background:    var(--background);
+  --color-foreground:    var(--foreground);
+  --color-surface:       var(--surface);
+  --color-surface-deep:  var(--surface-deep);
+  --color-border:        var(--border);
+  --color-border-strong: var(--border-strong);
+
+  /* Alias rétrocompatibilité — pointent vers la nouvelle palette */
+  --color-terracotta:         var(--terracotta);
+  --color-terracotta-light:   var(--terracotta-light);
+  --color-terracotta-dark:    var(--terracotta-dark);
+  --color-beige-nude:         var(--beige-nude);
+  --color-beige-nude-light:   var(--beige-nude-light);
+  --color-off-white:          var(--off-white);
+  --color-ivory:              var(--ivory);
+  --color-gold:               var(--gold);
+  --color-gold-light:         var(--gold-light);
+  --color-gold-dark:          var(--gold-dark);
+  --color-muted:              var(--muted);
+  --color-muted-light:        var(--muted-light);
+  --color-muted-soft:         var(--muted-soft);
+  --color-destructive:        var(--destructive);
+  --color-destructive-soft:   var(--destructive-soft);
+  --color-success:            var(--success);
+  --color-success-soft:       var(--success-soft);
+  --color-info:               var(--info);
+  --color-info-soft:          var(--info-soft);
+  --color-warning:            var(--warning);
+  --color-warning-soft:       var(--warning-soft);
+  --color-accent-purple:      var(--accent-purple);
   --color-accent-purple-soft: var(--accent-purple-soft);
-  --color-stripe-brand: var(--stripe-brand);
-  --font-display: var(--font-playfair);
-  --font-sans: var(--font-dm-sans);
+  --color-stripe-brand:       var(--stripe-brand);
+
+  /* Polices — la signature Atelier Noir */
+  --font-display: var(--font-fraunces);
+  --font-sans:    var(--font-bricolage);
+  --font-mono:    var(--font-geist-mono);
+
+  /* Containers Tailwind v4 (classe max-w-content, max-w-prose…) */
+  --container-prose:   var(--container-prose);
+  --container-narrow:  var(--container-narrow);
+  --container-content: var(--container-content);
+  --container-wide:    var(--container-wide);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Base styles
+   ═══════════════════════════════════════════════════════════════ */
 
 * {
   border-color: var(--border);
@@ -72,45 +205,129 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-family: var(--font-bricolage, 'Bricolage Grotesque', system-ui, sans-serif);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-variation-settings: 'opsz' 14, 'wdth' 100;
+  text-wrap: pretty;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display, 'Playfair Display', serif);
+  font-family: var(--font-fraunces, 'Fraunces', 'Times New Roman', serif);
+  font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 0;
+  font-weight: 450;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-display);
+  text-wrap: balance;
 }
 
+h1 { font-size: var(--text-h1); }
+h2 { font-size: var(--text-h2); }
+h3 { font-size: var(--text-h3); }
+h4 { font-size: var(--text-h4); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+h5 { font-size: var(--text-xl);  letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+h6 { font-size: var(--text-lg);  letter-spacing: var(--tracking-tight); line-height: var(--leading-snug); }
+
 ::selection {
-  background-color: var(--terracotta);
-  color: white;
+  background-color: var(--ember);
+  color: var(--bone);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Utilities (Tailwind v4 @utility)
+   ═══════════════════════════════════════════════════════════════ */
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 1rem;
-  max-width: 80rem;
+  padding-inline: var(--gutter);
+  max-width: var(--container-content);
 }
+
+@utility container-narrow {
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  max-width: var(--container-narrow);
+}
+
+@utility container-wide {
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  max-width: var(--container-wide);
+}
+
+@utility prose-measure {
+  max-inline-size: var(--container-prose);
+}
+
+@utility section-y {
+  padding-block: var(--section-y);
+}
+
+@utility section-y-sm {
+  padding-block: var(--section-y-sm);
+}
+
+@utility hero-y {
+  padding-block: var(--hero-pad) var(--space-3xl);
+  min-block-size: 88svh;
+}
+
+/* Editorial grid avec full-bleed — pattern luxe magazine */
+@utility editorial-grid {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--gutter), 1fr)
+    [content-start] minmax(0, var(--container-content))
+    [content-end] minmax(var(--gutter), 1fr) [full-end];
+  & > * { grid-column: content; }
+  & > .bleed { grid-column: full; }
+}
+
+/* Eyebrow / kicker (uppercase tracking large, mono) */
+@utility eyebrow {
+  font-family: var(--font-geist-mono, ui-monospace, monospace);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--steel);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Boutons — refonte « Atelier Noir »
+   btn-primary garde son nom mais utilise désormais ember + ink
+   ═══════════════════════════════════════════════════════════════ */
 
 @utility btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 2.75rem;
-  padding: 0.625rem 2rem;
-  background: var(--terracotta);
-  color: white;
+  padding: 0.75rem 2rem;
+  background: var(--ink);
+  color: var(--bone);
   border-radius: var(--radius);
+  font-family: var(--font-bricolage, sans-serif);
+  font-size: var(--text-sm);
   font-weight: 500;
-  transition: background 200ms ease, transform 200ms ease;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--duration-quick) var(--ease-out),
+    color var(--duration-quick) var(--ease-out),
+    transform var(--duration-quick) var(--ease-out);
   &:hover {
-    background: var(--terracotta-dark);
-    transform: scale(1.02);
+    background: var(--ember);
+    color: var(--bone);
+  }
+  &:active {
+    transform: translateY(1px);
   }
   &:focus-visible {
-    outline: 2px solid var(--terracotta);
-    outline-offset: 2px;
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
   }
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     pointer-events: none;
   }
 }
@@ -120,55 +337,132 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   min-height: 2.75rem;
-  padding: 0.625rem 2rem;
+  padding: 0.75rem 2rem;
   background: transparent;
-  color: var(--foreground);
-  border: 1px solid var(--border);
+  color: var(--ink);
+  border: 1px solid var(--ink);
   border-radius: var(--radius);
+  font-family: var(--font-bricolage, sans-serif);
+  font-size: var(--text-sm);
   font-weight: 500;
-  transition: border-color 200ms ease, color 200ms ease;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--duration-quick) var(--ease-out),
+    color var(--duration-quick) var(--ease-out),
+    border-color var(--duration-quick) var(--ease-out);
   &:hover {
-    border-color: var(--terracotta);
-    color: var(--terracotta);
+    background: var(--ink);
+    color: var(--bone);
   }
   &:focus-visible {
-    outline: 2px solid var(--terracotta);
-    outline-offset: 2px;
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
   }
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     pointer-events: none;
   }
 }
 
+/* btn-gold conservé pour rétrocompat — désormais ember */
 @utility btn-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 2.75rem;
-  padding: 0.625rem 2rem;
-  background: var(--gold);
-  color: white;
+  padding: 0.75rem 2rem;
+  background: var(--ember);
+  color: var(--bone);
   border-radius: var(--radius);
+  font-family: var(--font-bricolage, sans-serif);
+  font-size: var(--text-sm);
   font-weight: 500;
-  transition: background 200ms ease, transform 200ms ease;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--duration-quick) var(--ease-out),
+    transform var(--duration-quick) var(--ease-out);
   &:hover {
-    background: var(--gold-dark);
-    transform: scale(1.02);
+    background: var(--ember-bright);
+  }
+  &:active {
+    transform: translateY(1px);
   }
   &:focus-visible {
-    outline: 2px solid var(--gold);
-    outline-offset: 2px;
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
   }
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     pointer-events: none;
   }
 }
 
-/* ───────────────────────────────────────────
+/* Nouvelles variantes signature Atelier Noir */
+@utility btn-ember {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 2rem;
+  background: var(--ember);
+  color: var(--bone);
+  border-radius: var(--radius);
+  font-family: var(--font-bricolage, sans-serif);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--duration-quick) var(--ease-out),
+    transform var(--duration-quick) var(--ease-out);
+  &:hover {
+    background: var(--ember-bright);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+}
+
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  color: var(--ink);
+  border-radius: var(--radius);
+  font-family: var(--font-bricolage, sans-serif);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  position: relative;
+  transition: color var(--duration-quick) var(--ease-out);
+  &::after {
+    content: "";
+    position: absolute;
+    left: 1.25rem; right: 1.25rem;
+    bottom: 0.5rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-base) var(--ease-out-expo);
+  }
+  &:hover::after {
+    transform: scaleX(1);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    Curseur custom (desktop, pointer fin)
-   ─────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════════ */
 @media (hover: hover) and (pointer: fine) {
   html.cursor-custom-on,
   html.cursor-custom-on body,
@@ -183,27 +477,27 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* ───────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
    View Transitions API (liste → fiche produit)
-   ─────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════════ */
 @view-transition {
   navigation: auto;
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 350ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: var(--duration-base);
+  animation-timing-function: var(--ease-out-expo);
 }
 
 ::view-transition-group(*) {
-  animation-duration: 500ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: var(--duration-cinema);
+  animation-timing-function: var(--ease-out-expo);
 }
 
-/* ───────────────────────────────────────────
-   Préférence utilisateur : réduire les mouvements
-   ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   prefers-reduced-motion (accessibilité WCAG 2.2 AA / EAA juin 2025)
+   ═══════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -215,14 +509,42 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Scroll plus doux global */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
 }
 
-/* Tabular nums pour prix */
+/* Tabular nums pour prix, SKU, dimensions */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Accessibilité WCAG 2.2 AA / European Accessibility Act (juin 2025)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* SC 2.4.13 Focus Appearance — indicateur ≥ 2 px, contraste ≥ 3:1.
+   Le ring ember sur fond bone et le ring bone sur fond ink garantissent
+   un contraste largement supérieur à 3:1 dans les deux modes. */
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Sur fond ink, on inverse pour garder le contraste. */
+.bg-ink :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible,
+[data-theme="dark"] :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--bone);
+}
+
+/* SC 2.5.8 Target Size (Minimum) — tous les éléments interactifs ≥ 24×24 px CSS.
+   Les utilities Tailwind (h-11/h-12) dépassent largement cette cible ; on
+   garde une garde-fou ici pour les boutons/links inline qui n'auraient pas
+   de hauteur explicite. */
+@media (pointer: coarse) {
+  a, button, [role="button"], summary {
+    min-height: 24px;
+  }
 }

@@ -16,20 +16,28 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { KPICard } from "@/components/ui/KPICard";
 
+// ─── Palette « Atelier Noir » (mai 2026, OKLCH wide-gamut P3) ───
 const colorTokens: { name: string; varName: string; usage: string }[] = [
-  { name: "Background", varName: "--background", usage: "Fond global ivoire" },
-  { name: "Foreground", varName: "--foreground", usage: "Texte principal" },
-  { name: "Terracotta", varName: "--terracotta", usage: "Brand primaire / CTA" },
-  { name: "Terracotta dark", varName: "--terracotta-dark", usage: "Hover CTA" },
-  { name: "Gold", varName: "--gold", usage: "Accent fidélité" },
-  { name: "Beige nude", varName: "--beige-nude", usage: "Fonds chaleureux" },
-  { name: "Muted", varName: "--muted", usage: "Texte secondaire" },
-  { name: "Border", varName: "--border", usage: "Séparateurs" },
+  // Signature Atelier Noir
+  { name: "Ink", varName: "--ink", usage: "Onyx anti-warm, fond sombre + texte" },
+  { name: "Bone", varName: "--bone", usage: "Blanc os anti-cream, fond clair" },
+  { name: "Bone soft", varName: "--bone-soft", usage: "Bone discret, cards/PLP" },
+  { name: "Leather", varName: "--leather", usage: "Cuir tabac propriétaire" },
+  { name: "Ember", varName: "--ember", usage: "Cuivre patiné — accent CTA unique" },
+  { name: "Ember bright", varName: "--ember-bright", usage: "Ember hover/focus" },
+  { name: "Steel", varName: "--steel", usage: "Gris froid pour métadonnées/SKU" },
+  { name: "Steel soft", varName: "--steel-soft", usage: "Steel clair, dividers" },
+  { name: "Mist", varName: "--mist", usage: "Fog cards désactivées" },
+  // Statuts (admin / orders)
   { name: "Success", varName: "--success", usage: "Statut livré, validé" },
   { name: "Info", varName: "--info", usage: "Statut payée, info" },
   { name: "Warning", varName: "--warning", usage: "Préparation, alerte" },
   { name: "Destructive", varName: "--destructive", usage: "Annulation, erreur" },
   { name: "Accent purple", varName: "--accent-purple", usage: "Statut expédiée" },
+  // Alias rétrocompat (anciens noms remappés sur la nouvelle palette)
+  { name: "Terracotta (alias → ember)", varName: "--terracotta", usage: "Legacy — pointe sur ember" },
+  { name: "Gold (alias → ember)", varName: "--gold", usage: "Legacy — pointe sur ember" },
+  { name: "Beige nude (alias → surface)", varName: "--beige-nude", usage: "Legacy — pointe sur bone-soft" },
 ];
 
 function Section({
@@ -64,13 +72,27 @@ export function StyleguideContent() {
   return (
     <div className="container py-12 md:py-16 px-4">
       <header className="mb-12">
-        <p className="uppercase tracking-[0.2em] text-xs text-muted mb-3">
-          Design system
-        </p>
-        <h1 className="font-display text-4xl md:text-5xl mb-3">Styleguide ISHYA</h1>
-        <p className="text-muted max-w-2xl">
-          Référence interne des tokens, composants et patterns. Utiliser ces
-          fondations garantit la cohérence visuelle sur tout le site.
+        <div className="flex items-center gap-3 mb-4">
+          <span className="h-px w-10 bg-ember" aria-hidden />
+          <span className="eyebrow">Design system · Atelier Noir 2026</span>
+        </div>
+        <h1
+          className="font-display text-ink mb-4"
+          style={{
+            fontSize: "var(--text-h1)",
+            fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
+            fontWeight: 400,
+            letterSpacing: "-0.03em",
+            lineHeight: 1.05,
+          }}
+        >
+          Styleguide ISHYA
+        </h1>
+        <p className="text-steel max-w-2xl text-base md:text-lg">
+          Référence interne des tokens, composants et patterns. Direction
+          artistique « Atelier Noir » — palette OKLCH P3 wide-gamut, typographie
+          variable Fraunces + Bricolage Grotesque + Geist Mono, spacing fluide
+          clamp().
         </p>
       </header>
 
@@ -102,7 +124,7 @@ export function StyleguideContent() {
       {/* ─── Typographie ──────────────────────────────────────── */}
       <Section
         title="Typographie"
-        description="Playfair Display pour les titres, DM Sans pour le corps. Tailles via l'échelle Tailwind."
+        description="Fraunces (variable, axes opsz/SOFT/WONK) pour les titres, Bricolage Grotesque pour le corps, Geist Mono pour les données techniques. Échelle fluide via clamp()."
       >
         <div className="space-y-6">
           <div>

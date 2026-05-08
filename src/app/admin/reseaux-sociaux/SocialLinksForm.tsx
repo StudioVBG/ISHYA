@@ -20,7 +20,7 @@ import type { AdminSocialLinks } from "@/lib/queries/admin";
 import { updateSocialLinks } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 
 interface FieldDef {
   key: keyof AdminSocialLinks;
@@ -115,7 +115,7 @@ export function SocialLinksForm({ config }: { config: AdminSocialLinks }) {
           <h2 className="text-xl font-bold text-foreground">
             Réseaux sociaux
           </h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             Liens affichés dans le footer du storefront. Laissez vide pour
             masquer un réseau.
           </p>
@@ -123,7 +123,7 @@ export function SocialLinksForm({ config }: { config: AdminSocialLinks }) {
         <button
           onClick={handleSave}
           disabled={isPending}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg font-medium text-sm hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg font-medium text-sm hover:bg-ember-deep transition-colors disabled:opacity-50"
         >
           {isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -162,7 +162,7 @@ export function SocialLinksForm({ config }: { config: AdminSocialLinks }) {
                 <Icon
                   className={cn(
                     "w-4 h-4",
-                    hasValue ? "text-terracotta" : "text-muted-light",
+                    hasValue ? "text-ember" : "text-steel-soft",
                   )}
                 />
                 {field.label}
@@ -176,7 +176,7 @@ export function SocialLinksForm({ config }: { config: AdminSocialLinks }) {
                 disabled={isPending}
               />
               {field.help && (
-                <p className="text-[11px] text-muted-light mt-1">
+                <p className="text-[11px] text-steel-soft mt-1">
                   {field.help}
                 </p>
               )}

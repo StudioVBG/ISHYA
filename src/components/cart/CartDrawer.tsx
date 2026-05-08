@@ -70,16 +70,21 @@ export function CartDrawer() {
             animate="visible"
             exit="exit"
             transition={drawerTransition}
-            className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-2xl flex flex-col"
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-bone shadow-[0_0_60px_rgba(0,0,0,0.15)] flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="font-display text-lg">
-                Mon Panier ({itemCount})
-              </h2>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-steel">
+                  Panier
+                </span>
+                <span className="font-mono text-sm tabular-nums text-ink">
+                  {String(itemCount).padStart(2, "0")}
+                </span>
+              </div>
               <button
                 onClick={closeCart}
-                className="min-w-11 min-h-11 -mr-2 flex items-center justify-center hover:text-terracotta transition-colors"
+                className="min-w-11 min-h-11 -mr-2 flex items-center justify-center hover:text-ember transition-colors"
                 aria-label="Fermer le panier"
               >
                 <X className="w-5 h-5" />
@@ -89,10 +94,19 @@ export function CartDrawer() {
             {items.length === 0 ? (
               /* Empty state */
               <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-                <ShoppingBag className="w-16 h-16 text-muted-light mb-4" />
-                <p className="font-display text-lg mb-2">Votre panier est vide</p>
-                <p className="text-sm text-muted mb-6">
-                  Découvrez nos bijoux floraux uniques
+                <ShoppingBag className="w-12 h-12 text-steel-soft mb-6" strokeWidth={1.25} />
+                <p
+                  className="font-display text-2xl text-ink mb-3"
+                  style={{
+                    fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
+                    fontWeight: 400,
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Votre panier est vide
+                </p>
+                <p className="text-sm text-steel mb-8">
+                  Découvrez nos bijoux floraux uniques.
                 </p>
                 <Link
                   href="/boutique"
@@ -105,26 +119,26 @@ export function CartDrawer() {
             ) : (
               <>
                 {/* Shipping progress */}
-                <div className="px-6 py-3 bg-ivory">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Truck className="w-4 h-4 text-gold" />
+                <div className="px-6 py-4 bg-bone-soft border-b border-border">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <Truck className="w-3.5 h-3.5 text-ember" strokeWidth={1.5} />
                     {freeShipping ? (
-                      <span className="text-xs text-success font-medium">
-                        Félicitations, la livraison est offerte !
+                      <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-success">
+                        Livraison offerte
                       </span>
                     ) : (
-                      <span className="text-xs text-muted">
+                      <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-steel">
                         Plus que{" "}
-                        <strong className="text-foreground">
+                        <span className="text-ink tabular-nums">
                           {formatPrice(shippingRemaining)}
-                        </strong>{" "}
-                        pour la livraison offerte !
+                        </span>{" "}
+                        pour la livraison offerte
                       </span>
                     )}
                   </div>
-                  <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                  <div className="h-px bg-border overflow-hidden">
                     <motion.div
-                      className="h-full bg-gold rounded-full"
+                      className="h-full bg-ember"
                       initial={{ width: 0 }}
                       animate={{ width: `${shippingProgress}%` }}
                       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -139,7 +153,7 @@ export function CartDrawer() {
                       key={item.id}
                       className="flex gap-4 pb-4 border-b border-border last:border-0"
                     >
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                      <div className="relative w-20 h-24 overflow-hidden bg-bone-soft shrink-0">
                         <Image
                           src={item.image}
                           alt={item.name}
@@ -150,39 +164,39 @@ export function CartDrawer() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-display text-sm font-medium truncate">
+                        <h3 className="text-sm font-medium text-ink truncate leading-snug">
                           {item.name}
                         </h3>
                         {(item.size || item.material) && (
-                          <p className="text-xs text-muted mt-0.5">
+                          <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-steel mt-1">
                             {[item.size, item.material]
                               .filter(Boolean)
                               .join(" · ")}
                           </p>
                         )}
-                        <p className="text-sm font-medium mt-1">
+                        <p className="font-mono text-sm tabular-nums text-ink mt-1.5">
                           {formatPrice(item.price)}
                         </p>
 
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center border border-border rounded-lg">
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center border border-ink/15">
                             <button
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity - 1)
                               }
-                              className="min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
+                              className="min-w-9 h-9 flex items-center justify-center text-ink hover:bg-ink hover:text-bone transition-colors"
                               aria-label="Réduire la quantité"
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="px-2 text-sm tabular-nums min-w-[2rem] text-center">
+                            <span className="px-2 font-mono text-sm tabular-nums min-w-[2rem] text-center text-ink">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity + 1)
                               }
-                              className="min-w-11 min-h-11 flex items-center justify-center hover:text-terracotta transition-colors"
+                              className="min-w-9 h-9 flex items-center justify-center text-ink hover:bg-ink hover:text-bone transition-colors"
                               aria-label="Augmenter la quantité"
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -191,7 +205,7 @@ export function CartDrawer() {
 
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="min-w-11 min-h-11 flex items-center justify-center text-muted hover:text-destructive transition-colors"
+                            className="min-w-11 min-h-11 flex items-center justify-center text-steel hover:text-destructive transition-colors"
                             aria-label="Supprimer l'article"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -203,54 +217,56 @@ export function CartDrawer() {
                 </div>
 
                 {/* Gift wrap */}
-                <div className="px-6 py-3 border-t border-border">
-                  <label className="flex items-center gap-3 cursor-pointer">
+                <div className="px-6 py-4 border-t border-border">
+                  <label className="flex items-center gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={giftWrap}
                       onChange={(e) => setGiftWrap(e.target.checked)}
-                      className="w-4 h-4 rounded border-border text-terracotta focus:ring-terracotta accent-terracotta"
+                      className="w-4 h-4 border-ink/30 accent-ink"
                     />
-                    <Gift className="w-4 h-4 text-gold" />
-                    <span className="text-sm">Emballage cadeau (+3€)</span>
+                    <Gift className="w-3.5 h-3.5 text-ember" strokeWidth={1.5} />
+                    <span className="text-sm text-ink group-hover:text-ember transition-colors">
+                      Emballage cadeau{" "}
+                      <span className="font-mono text-xs text-steel ml-1">+3€</span>
+                    </span>
                   </label>
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-border space-y-3">
+                <div className="px-6 py-5 border-t border-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted">Sous-total</span>
-                    <span className="font-display font-semibold">
+                    <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-steel">
+                      Sous-total
+                    </span>
+                    <span className="font-mono text-lg tabular-nums text-ink">
                       {formatPrice(total)}
                     </span>
                   </div>
 
                   {Math.floor(total) > 0 && (
-                    <p className="flex items-center gap-1.5 text-xs text-gold-dark bg-gold/10 rounded-lg px-3 py-2">
-                      <Sparkles className="w-3.5 h-3.5" aria-hidden />
+                    <p className="flex items-center gap-2 font-mono text-[10px] tracking-[0.14em] uppercase text-ember bg-ember/8 px-3 py-2.5">
+                      <Sparkles className="w-3 h-3 shrink-0" aria-hidden strokeWidth={1.5} />
                       <span>
-                        Vous gagnerez{" "}
-                        <strong className="font-semibold">
-                          {Math.floor(total)} point
-                          {Math.floor(total) > 1 ? "s" : ""}
-                        </strong>{" "}
-                        de fidélité avec cette commande
+                        +{" "}
+                        <span className="tabular-nums">{Math.floor(total)}</span> point
+                        {Math.floor(total) > 1 ? "s" : ""} de fidélité
                       </span>
                     </p>
                   )}
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 pt-1">
                     <Link
                       href="/panier"
                       onClick={closeCart}
-                      className="btn-secondary text-sm text-center"
+                      className="btn-secondary text-center"
                     >
-                      Voir mon panier
+                      Mon panier
                     </Link>
                     <Link
                       href="/checkout/identification"
                       onClick={closeCart}
-                      className="btn-primary text-sm text-center"
+                      className="btn-primary text-center"
                     >
                       Commander
                     </Link>

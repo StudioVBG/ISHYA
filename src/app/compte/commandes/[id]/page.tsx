@@ -91,7 +91,7 @@ export default async function OrderDetailPage({
     <div>
       <Link
         href="/compte/commandes"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-terracotta transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ember transition-colors mb-6"
       >
         <ChevronLeft className="w-4 h-4" />
         Retour aux commandes
@@ -102,7 +102,7 @@ export default async function OrderDetailPage({
           <h1 className="font-display text-2xl font-semibold">
             Commande {order.orderNumber}
           </h1>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-steel mt-1">
             Passée le {formatDate(order.createdAt)}
           </p>
         </div>
@@ -111,7 +111,7 @@ export default async function OrderDetailPage({
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl border border-border p-6">
+          <div className="bg-bone-soft rounded-xl border border-border p-6">
             <h2 className="font-display text-lg font-semibold mb-6">
               Suivi de commande
             </h2>
@@ -126,8 +126,8 @@ export default async function OrderDetailPage({
                         className={cn(
                           "w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10",
                           step.completed
-                            ? "bg-terracotta text-white"
-                            : "bg-muted-soft text-muted",
+                            ? "bg-ember text-bone"
+                            : "bg-bone-soft text-steel",
                         )}
                       >
                         {step.completed ? (
@@ -140,7 +140,7 @@ export default async function OrderDetailPage({
                         <div
                           className={cn(
                             "w-0.5 flex-1 mt-1",
-                            step.completed ? "bg-terracotta" : "bg-border",
+                            step.completed ? "bg-ember" : "bg-border",
                           )}
                         />
                       )}
@@ -149,12 +149,12 @@ export default async function OrderDetailPage({
                       <p
                         className={cn(
                           "text-sm font-medium",
-                          !step.completed && "text-muted",
+                          !step.completed && "text-steel",
                         )}
                       >
                         {step.label}
                       </p>
-                      <p className="text-xs text-muted mt-0.5">{step.date}</p>
+                      <p className="text-xs text-steel mt-0.5">{step.date}</p>
                     </div>
                   </div>
                 );
@@ -163,7 +163,7 @@ export default async function OrderDetailPage({
             {order.shipment?.trackingNumber && (
               <Link
                 href={`/compte/commandes/${order.orderNumber}/suivi`}
-                className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-dark font-medium mt-4"
+                className="inline-flex items-center gap-1.5 text-sm text-ember hover:text-ember-deep font-medium mt-4"
               >
                 Voir le suivi détaillé
                 <Truck className="w-4 h-4" />
@@ -171,7 +171,7 @@ export default async function OrderDetailPage({
             )}
           </div>
 
-          <div className="bg-white rounded-xl border border-border p-6">
+          <div className="bg-bone-soft rounded-xl border border-border p-6">
             <h2 className="font-display text-lg font-semibold mb-4">
               Articles
             </h2>
@@ -181,19 +181,19 @@ export default async function OrderDetailPage({
                   key={item.id}
                   className="flex gap-4 pb-4 last:pb-0 last:border-0 border-b border-border"
                 >
-                  <div className="w-16 h-16 rounded-lg bg-beige-nude-light flex items-center justify-center shrink-0">
-                    <Package className="w-6 h-6 text-terracotta/50" />
+                  <div className="w-16 h-16 rounded-lg bg-bone-soft flex items-center justify-center shrink-0">
+                    <Package className="w-6 h-6 text-ember/50" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
                       {item.productName}
                     </p>
                     {item.variantName && (
-                      <p className="text-xs text-muted mt-0.5">
+                      <p className="text-xs text-steel mt-0.5">
                         {item.variantName}
                       </p>
                     )}
-                    <p className="text-xs text-muted">Qté : {item.quantity}</p>
+                    <p className="text-xs text-steel">Qté : {item.quantity}</p>
                   </div>
                   <p className="text-sm font-semibold shrink-0">
                     {formatPrice(item.total)}
@@ -230,15 +230,15 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-border p-5">
+          <div className="bg-bone-soft rounded-xl border border-border p-5">
             <h3 className="font-display font-semibold mb-4">Récapitulatif</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted">Sous-total</span>
+                <span className="text-steel">Sous-total</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted">Livraison</span>
+                <span className="text-steel">Livraison</span>
                 <span
                   className={cn(
                     order.shippingTotal === 0 && "text-success font-medium",
@@ -250,7 +250,7 @@ export default async function OrderDetailPage({
                 </span>
               </div>
               {order.discountTotal > 0 && (
-                <div className="flex justify-between text-terracotta">
+                <div className="flex justify-between text-ember">
                   <span>Réduction</span>
                   <span>-{formatPrice(order.discountTotal)}</span>
                 </div>
@@ -263,11 +263,11 @@ export default async function OrderDetailPage({
           </div>
 
           {addr && (
-            <div className="bg-white rounded-xl border border-border p-5">
+            <div className="bg-bone-soft rounded-xl border border-border p-5">
               <h3 className="font-display font-semibold mb-3">
                 Adresse de livraison
               </h3>
-              <div className="text-sm text-muted space-y-0.5">
+              <div className="text-sm text-steel space-y-0.5">
                 <p className="text-foreground font-medium">
                   {[addr.firstName, addr.lastName].filter(Boolean).join(" ")}
                 </p>
@@ -284,8 +284,8 @@ export default async function OrderDetailPage({
           )}
 
           {order.giftWrap && (
-            <div className="bg-gold/5 border border-gold/20 rounded-xl p-5">
-              <h3 className="font-display font-semibold mb-2 text-gold-dark">
+            <div className="bg-ember/5 border border-ember/20 rounded-xl p-5">
+              <h3 className="font-display font-semibold mb-2 text-ember-deep">
                 Emballage cadeau
               </h3>
               {order.giftMessage && (

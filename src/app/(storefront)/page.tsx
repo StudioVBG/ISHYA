@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BestSellersCarousel } from "@/components/home/BestSellersCarousel";
+import { HeroReveal } from "@/components/home/HeroReveal";
 import {
   getTopCategories,
   getBestSellers,
@@ -68,31 +69,72 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative h-[85vh] min-h-[480px] sm:min-h-[600px] flex items-center justify-center overflow-hidden">
-        <Image
-          src={heroImage}
-          alt={heroBanner?.title ?? "Collection ISHYA"}
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
-        <div className="relative z-10 text-center text-white px-4 max-w-3xl">
-          <p className="uppercase tracking-[0.3em] text-xs sm:text-sm mb-3 sm:mb-4 text-white/80">
-            {heroEyebrow}
-          </p>
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 sm:mb-6">
-            {heroTitle}
-          </h1>
-          {heroSubtitle && (
-            <p className="text-base sm:text-lg md:text-xl font-light mb-8 sm:mb-10 text-white/90 max-w-xl mx-auto">
-              {heroSubtitle}
-            </p>
-          )}
-          <Link href={heroCtaHref} className="btn-primary text-base px-8 sm:px-10 py-3 sm:py-4">
-            Découvrir la collection
-          </Link>
+      {/* ── Hero — Atelier Noir, asymétrique 33/67 ─────────────── */}
+      <section className="relative bg-ink text-bone overflow-hidden">
+        <div className="grid grid-cols-12 min-h-[88svh] gap-y-12 md:gap-y-0">
+          {/* Colonne gauche : eyebrow + titre + CTA, ancrée en bas */}
+          <div className="col-span-12 md:col-span-5 lg:col-span-4 lg:col-start-2 flex flex-col justify-end pt-32 md:pt-24 pb-16 md:pb-24 px-(--gutter)">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="h-px w-10 bg-ember" aria-hidden />
+              <span className="eyebrow text-bone/70">
+                {heroEyebrow} · Édition 2026
+              </span>
+            </div>
+
+            <HeroReveal>
+              <h1
+                className="font-display text-bone leading-[1.02] tracking-[-0.04em] mb-8"
+                style={{
+                  fontSize: "var(--text-display)",
+                  fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
+                  fontWeight: 380,
+                }}
+              >
+                {heroTitle}
+              </h1>
+            </HeroReveal>
+
+            {heroSubtitle && (
+              <p className="text-lg md:text-xl text-bone/70 max-w-md leading-snug mb-10">
+                {heroSubtitle}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href={heroCtaHref}
+                className="btn-ember inline-flex items-center gap-2 text-base px-7"
+              >
+                Découvrir la collection
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/atelier"
+                className="text-sm text-bone/70 hover:text-bone transition-colors underline-offset-4 hover:underline"
+              >
+                L&apos;atelier
+              </Link>
+            </div>
+          </div>
+
+          {/* Colonne droite : image full-bleed cinéma */}
+          <div className="col-span-12 md:col-span-7 lg:col-span-6 relative aspect-[4/5] md:aspect-auto md:h-full">
+            <Image
+              src={heroImage}
+              alt={heroBanner?.title ?? "Collection ISHYA"}
+              fill
+              className="object-cover object-center"
+              priority
+              sizes="(max-width: 768px) 100vw, 60vw"
+            />
+            {/* Liseré ember vertical signature, côté gauche de l'image */}
+            <div className="absolute inset-y-0 left-0 w-px bg-ember/40 hidden md:block" aria-hidden />
+            {/* Numérotation édition mono, coin bas droit */}
+            <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-3 text-bone/80">
+              <span className="font-mono text-xs tracking-widest">N° 01 / 26</span>
+              <span className="h-px w-8 bg-bone/40" aria-hidden />
+            </div>
+          </div>
         </div>
       </section>
 

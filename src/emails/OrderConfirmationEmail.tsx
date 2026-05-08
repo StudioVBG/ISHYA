@@ -73,8 +73,8 @@ export function OrderConfirmationEmail({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Heading
@@ -84,16 +84,16 @@ export function OrderConfirmationEmail({
                 fontSize: "26px",
                 lineHeight: "34px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 8px",
               }}
             >
               Commande confirmée
             </Heading>
-            <Text style={{ fontSize: "15px", color: colors.textMuted, margin: "0 0 4px" }}>
-              <strong style={{ color: colors.black }}>N° {orderNumber}</strong>
+            <Text style={{ fontSize: "15px", color: colors.steel, margin: "0 0 4px" }}>
+              <strong style={{ color: colors.ink }}>N° {orderNumber}</strong>
             </Text>
-            <Text style={{ fontSize: "14px", color: colors.textMuted, margin: "0 0 24px" }}>
+            <Text style={{ fontSize: "14px", color: colors.steel, margin: "0 0 24px" }}>
               Passée le {orderDate}
             </Text>
 
@@ -103,7 +103,7 @@ export function OrderConfirmationEmail({
                 fontFamily: fontDisplay,
                 fontSize: "18px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 12px",
               }}
             >
@@ -113,21 +113,21 @@ export function OrderConfirmationEmail({
               <Row
                 key={i}
                 style={{
-                  borderBottom: `1px solid ${colors.beigeNude}`,
+                  borderBottom: `1px solid ${colors.boneSoft}`,
                   paddingBottom: "12px",
                   marginBottom: "12px",
                 }}
               >
                 <Column style={{ width: "70%" }}>
-                  <Text style={{ margin: 0, fontSize: "14px", color: colors.black, fontWeight: 600 }}>
+                  <Text style={{ margin: 0, fontSize: "14px", color: colors.ink, fontWeight: 600 }}>
                     {item.name}
                   </Text>
-                  <Text style={{ margin: "4px 0 0", fontSize: "13px", color: colors.textMuted }}>
+                  <Text style={{ margin: "4px 0 0", fontSize: "13px", color: colors.steel }}>
                     Quantité × {item.quantity}
                   </Text>
                 </Column>
                 <Column align="right" style={{ width: "30%" }}>
-                  <Text style={{ margin: 0, fontSize: "14px", color: colors.black }}>
+                  <Text style={{ margin: 0, fontSize: "14px", color: colors.ink }}>
                     {formatEur(item.unitPrice * item.quantity)}
                   </Text>
                 </Column>
@@ -137,37 +137,37 @@ export function OrderConfirmationEmail({
             <Section style={{ marginTop: "8px", marginBottom: "24px" }}>
               <Row>
                 <Column>
-                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.textMuted }}>Sous-total</Text>
+                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.steel }}>Sous-total</Text>
                 </Column>
                 <Column align="right">
-                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.black }}>{formatEur(subtotal)}</Text>
+                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.ink }}>{formatEur(subtotal)}</Text>
                 </Column>
               </Row>
               <Row>
                 <Column>
-                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.textMuted }}>Livraison</Text>
+                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.steel }}>Livraison</Text>
                 </Column>
                 <Column align="right">
-                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.black }}>{formatEur(shipping)}</Text>
+                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.ink }}>{formatEur(shipping)}</Text>
                 </Column>
               </Row>
               <Row>
                 <Column>
-                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.textMuted }}>Remise</Text>
+                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.steel }}>Remise</Text>
                 </Column>
                 <Column align="right">
-                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.black }}>
+                  <Text style={{ margin: "0 0 6px", fontSize: "14px", color: colors.ink }}>
                     {discount <= 0 ? "—" : `-${formatEur(Math.abs(discount))}`}
                   </Text>
                 </Column>
               </Row>
-              <Hr style={{ borderColor: colors.gold, margin: "12px 0" }} />
+              <Hr style={{ borderColor: colors.ember, margin: "12px 0" }} />
               <Row>
                 <Column>
-                  <Text style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: colors.black }}>Total</Text>
+                  <Text style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: colors.ink }}>Total</Text>
                 </Column>
                 <Column align="right">
-                  <Text style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: colors.black }}>
+                  <Text style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: colors.ink }}>
                     {formatEur(total)}
                   </Text>
                 </Column>
@@ -176,7 +176,7 @@ export function OrderConfirmationEmail({
 
             <Section
               style={{
-                backgroundColor: colors.beigeNude,
+                backgroundColor: colors.boneSoft,
                 borderRadius: "8px",
                 padding: "20px",
                 marginBottom: "24px",
@@ -188,20 +188,20 @@ export function OrderConfirmationEmail({
                   fontFamily: fontDisplay,
                   fontSize: "16px",
                   fontWeight: 600,
-                  color: colors.black,
+                  color: colors.ink,
                 }}
               >
                 Adresse de livraison
               </Text>
               {shippingAddressLines.map((line, idx) => (
-                <Text key={idx} style={{ margin: "0 0 4px", fontSize: "14px", color: colors.textMuted }}>
+                <Text key={idx} style={{ margin: "0 0 4px", fontSize: "14px", color: colors.steel }}>
                   {line}
                 </Text>
               ))}
             </Section>
 
-            <Text style={{ fontSize: "14px", color: colors.textMuted, margin: "0 0 8px" }}>
-              <strong style={{ color: colors.black }}>Livraison estimée :</strong> {estimatedDelivery}
+            <Text style={{ fontSize: "14px", color: colors.steel, margin: "0 0 8px" }}>
+              <strong style={{ color: colors.ink }}>Livraison estimée :</strong> {estimatedDelivery}
             </Text>
 
             <Section style={{ textAlign: "center", marginTop: "28px" }}>
@@ -210,10 +210,10 @@ export function OrderConfirmationEmail({
               </Button>
             </Section>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "28px 0 20px" }} />
-            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.textMuted, margin: 0 }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "28px 0 20px" }} />
+            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.steel, margin: 0 }}>
               Besoin d&apos;aide ?{" "}
-              <Link href={`${baseUrl}/contact`} style={{ color: colors.terracotta }}>
+              <Link href={`${baseUrl}/contact`} style={{ color: colors.ember }}>
                 Contactez notre équipe
               </Link>
               .

@@ -37,7 +37,7 @@ const TYPE_LABELS: Record<string, { label: string; className: string; icon: Reac
   },
   redeem: {
     label: "Utilisés",
-    className: "text-terracotta bg-terracotta/10",
+    className: "text-ember bg-ember/10",
     icon: Gift,
   },
   expire: {
@@ -88,7 +88,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold mb-1">
           Programme fidélité
         </h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           Cumulez des points à chaque achat et débloquez des avantages exclusifs.
         </p>
       </motion.div>
@@ -103,13 +103,13 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
         <motion.section
           variants={staggerItem}
           className={cn(
-            "rounded-2xl p-6 sm:p-8 text-white bg-gradient-to-br",
+            "rounded-2xl p-6 sm:p-8 text-bone bg-gradient-to-br",
             TIER_COLORS[currentTier.name] ?? "from-terracotta to-terracotta-dark",
           )}
         >
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur rounded-full px-3 py-1 text-xs uppercase tracking-wider mb-3">
+              <div className="inline-flex items-center gap-2 bg-bone-soft/20 backdrop-blur rounded-full px-3 py-1 text-xs uppercase tracking-wider mb-3">
                 <Award className="w-3.5 h-3.5" />
                 Niveau {TIER_LABELS[currentTier.name] ?? currentTier.name}
               </div>
@@ -117,16 +117,16 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                 {data.points} pts
               </p>
               {nextTier ? (
-                <p className="text-sm text-white/80 mt-3">
+                <p className="text-sm text-bone/80 mt-3">
                   Plus que{" "}
-                  <strong className="text-white">
+                  <strong className="text-bone">
                     {nextTier.minPoints - data.points} pts
                   </strong>{" "}
                   pour atteindre le niveau{" "}
                   {TIER_LABELS[nextTier.name] ?? nextTier.name}
                 </p>
               ) : (
-                <p className="text-sm text-white/80 mt-3">
+                <p className="text-sm text-bone/80 mt-3">
                   Niveau maximum atteint. Merci de votre fidélité !
                 </p>
               )}
@@ -135,15 +135,15 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
 
           {nextTier && (
             <div className="mt-6">
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-2 bg-bone-soft/20 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progressToNext}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="h-full bg-white rounded-full"
+                  className="h-full bg-bone-soft rounded-full"
                 />
               </div>
-              <div className="flex justify-between text-xs text-white/70 mt-1.5">
+              <div className="flex justify-between text-xs text-bone/70 mt-1.5">
                 <span>{currentTier.minPoints} pts</span>
                 <span>{nextTier.minPoints} pts</span>
               </div>
@@ -166,10 +166,10 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                   className={cn(
                     "rounded-xl p-4 border transition-colors",
                     isCurrent
-                      ? "border-terracotta bg-terracotta/5"
+                      ? "border-ember bg-ember/5"
                       : isReached
-                        ? "border-border bg-white"
-                        : "border-dashed border-border/50 bg-white/50",
+                        ? "border-border bg-bone-soft"
+                        : "border-dashed border-border/50 bg-bone-soft/50",
                   )}
                 >
                   <div
@@ -178,12 +178,12 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                       TIER_COLORS[tier.name] ?? "from-muted-light to-muted",
                     )}
                   >
-                    <Sparkles className="w-4 h-4 text-white" />
+                    <Sparkles className="w-4 h-4 text-bone" />
                   </div>
                   <p className="font-display text-base font-semibold">
                     {TIER_LABELS[tier.name] ?? tier.name}
                   </p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-steel">
                     Dès {tier.minPoints} pts
                   </p>
                   {tier.pointsMultiplier > 1 && (
@@ -194,7 +194,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                   {tier.perks.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {tier.perks.slice(0, 3).map((p, i) => (
-                        <li key={i} className="text-xs text-muted">
+                        <li key={i} className="text-xs text-steel">
                           • {p}
                         </li>
                       ))}
@@ -209,13 +209,13 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
         {/* Historique transactions */}
         <motion.section
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <div className="flex items-center justify-between gap-4 mb-4">
             <h2 className="font-display text-lg font-semibold">
               Historique des points
             </h2>
-            <span className="text-xs text-muted">
+            <span className="text-xs text-steel">
               {data.transactions.length} mouvement
               {data.transactions.length > 1 ? "s" : ""}
             </span>
@@ -223,11 +223,11 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
 
           {data.transactions.length === 0 ? (
             <div className="text-center py-10">
-              <TrendingUp className="w-10 h-10 mx-auto text-muted-light mb-3" />
-              <p className="text-sm text-muted">
+              <TrendingUp className="w-10 h-10 mx-auto text-steel-soft mb-3" />
+              <p className="text-sm text-steel">
                 Aucun mouvement pour le moment.
               </p>
-              <p className="text-xs text-muted mt-1">
+              <p className="text-xs text-steel mt-1">
                 Passez votre première commande pour commencer à cumuler des
                 points.
               </p>
@@ -237,7 +237,7 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
               {data.transactions.map((tx) => {
                 const config = TYPE_LABELS[tx.type] ?? {
                   label: tx.type,
-                  className: "text-muted bg-muted-soft",
+                  className: "text-steel bg-bone-soft",
                   icon: TrendingUp,
                 };
                 const Icon = config.icon;
@@ -259,12 +259,12 @@ export function FideliteView({ data }: { data: AccountLoyaltySummary }) {
                       <p className="text-sm font-medium truncate">
                         {tx.description ?? config.label}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-muted">
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-steel">
                         {tx.createdAt && <span>{formatDate(tx.createdAt)}</span>}
                         {tx.orderNumber && (
                           <Link
                             href={`/compte/commandes/${tx.orderNumber}`}
-                            className="text-terracotta hover:underline"
+                            className="text-ember hover:underline"
                           >
                             · {tx.orderNumber}
                           </Link>

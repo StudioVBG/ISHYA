@@ -67,7 +67,7 @@ export default function SuiviPage() {
     <div>
       <Link
         href={`/compte/commandes/${orderId}`}
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-terracotta transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ember transition-colors mb-6"
       >
         <ChevronLeft className="w-4 h-4" />
         Retour à la commande
@@ -82,7 +82,7 @@ export default function SuiviPage() {
         <h1 className="font-display text-2xl font-semibold">
           Suivi de commande
         </h1>
-        <p className="text-sm text-muted mt-1">Commande {orderId}</p>
+        <p className="text-sm text-steel mt-1">Commande {orderId}</p>
       </motion.div>
 
       <motion.div
@@ -95,7 +95,7 @@ export default function SuiviPage() {
         <div className="lg:col-span-2">
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
+            className="bg-bone-soft rounded-xl border border-border p-6"
           >
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-display text-lg font-semibold">
@@ -125,10 +125,10 @@ export default function SuiviPage() {
                       <div
                         className={cn(
                           "w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 transition-all",
-                          isCompleted && "bg-terracotta text-white",
+                          isCompleted && "bg-ember text-bone",
                           isCurrent &&
-                            "bg-terracotta text-white ring-4 ring-terracotta/20",
-                          isPending && "bg-muted-soft text-muted"
+                            "bg-ember text-bone ring-4 ring-ember/20",
+                          isPending && "bg-bone-soft text-steel"
                         )}
                       >
                         {isCompleted && <Check className="w-4 h-4" />}
@@ -142,7 +142,7 @@ export default function SuiviPage() {
                           className={cn(
                             "w-0.5 flex-1 mt-1",
                             isCompleted || isCurrent
-                              ? "bg-terracotta"
+                              ? "bg-ember"
                               : "bg-border border-l-2 border-dashed border-border"
                           )}
                         />
@@ -154,21 +154,21 @@ export default function SuiviPage() {
                           <p
                             className={cn(
                               "text-sm font-medium",
-                              isPending && "text-muted"
+                              isPending && "text-steel"
                             )}
                           >
                             {event.description}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            <MapPin className="w-3 h-3 text-muted" />
-                            <span className="text-xs text-muted">
+                            <MapPin className="w-3 h-3 text-steel" />
+                            <span className="text-xs text-steel">
                               {event.location}
                             </span>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-xs font-medium">{event.date}</p>
-                          <p className="text-xs text-muted">{event.time}</p>
+                          <p className="text-xs text-steel">{event.time}</p>
                         </div>
                       </div>
                     </div>
@@ -184,7 +184,7 @@ export default function SuiviPage() {
           {/* Carrier info */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-5"
+            className="bg-bone-soft rounded-xl border border-border p-5"
           >
             <h3 className="font-display font-semibold mb-4">Transporteur</h3>
             <div className="space-y-3">
@@ -194,13 +194,13 @@ export default function SuiviPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">Colissimo</p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-steel">
                     Livraison standard
                   </p>
                 </div>
               </div>
               <div className="pt-3 border-t border-border">
-                <p className="text-xs text-muted mb-1">
+                <p className="text-xs text-steel mb-1">
                   Numéro de suivi
                 </p>
                 <div className="flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function SuiviPage() {
                   </code>
                   <button
                     onClick={copyTracking}
-                    className="p-1.5 text-muted hover:text-terracotta transition-colors"
+                    className="p-1.5 text-steel hover:text-ember transition-colors"
                     title="Copier"
                   >
                     <Copy className="w-4 h-4" />
@@ -220,7 +220,7 @@ export default function SuiviPage() {
                 href={`https://www.laposte.fr/outils/suivre-vos-envois?code=${trackingNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-dark font-medium"
+                className="flex items-center gap-1.5 text-sm text-ember hover:text-ember-deep font-medium"
               >
                 Suivre sur Colissimo
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -236,10 +236,10 @@ export default function SuiviPage() {
             <h3 className="font-display font-semibold mb-2">
               Livraison estimée
             </h3>
-            <p className="text-2xl font-display font-bold text-terracotta">
+            <p className="text-2xl font-display font-bold text-ember">
               19 mars 2026
             </p>
-            <p className="text-xs text-muted mt-1">
+            <p className="text-xs text-steel mt-1">
               Entre 9h et 18h
             </p>
           </motion.div>
@@ -247,13 +247,13 @@ export default function SuiviPage() {
           {/* Map placeholder */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border overflow-hidden"
+            className="bg-bone-soft rounded-xl border border-border overflow-hidden"
           >
-            <div className="aspect-[4/3] bg-beige-nude-light flex items-center justify-center">
+            <div className="aspect-[4/3] bg-bone-soft flex items-center justify-center">
               <div className="text-center">
-                <MapPinned className="w-8 h-8 text-muted-light mx-auto mb-2" />
-                <p className="text-sm text-muted">Carte de suivi</p>
-                <p className="text-xs text-muted-light mt-0.5">
+                <MapPinned className="w-8 h-8 text-steel-soft mx-auto mb-2" />
+                <p className="text-sm text-steel">Carte de suivi</p>
+                <p className="text-xs text-steel-soft mt-0.5">
                   Disponible prochainement
                 </p>
               </div>
@@ -263,12 +263,12 @@ export default function SuiviPage() {
           {/* Delivery address */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-5"
+            className="bg-bone-soft rounded-xl border border-border p-5"
           >
             <h3 className="font-display font-semibold mb-3">
               Adresse de livraison
             </h3>
-            <div className="text-sm text-muted space-y-0.5">
+            <div className="text-sm text-steel space-y-0.5">
               <p className="text-foreground font-medium">Marie Dupont</p>
               <p>15 Rue des Fleurs, Apt 3B</p>
               <p>75004 Paris, France</p>

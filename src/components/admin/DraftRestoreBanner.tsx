@@ -43,7 +43,7 @@ export function DraftRestoreBanner({
           <History className="w-4 h-4 text-info flex-shrink-0" />
           <p className="text-sm text-foreground flex-1 min-w-0">
             <strong>Brouillon non sauvegardé</strong>{" "}
-            <span className="text-muted">
+            <span className="text-steel">
               · enregistré à {TIME_FORMATTER.format(new Date(savedAt))}
             </span>
           </p>
@@ -59,7 +59,7 @@ export function DraftRestoreBanner({
               type="button"
               onClick={onDismiss}
               aria-label="Ignorer le brouillon"
-              className="p-1.5 text-muted hover:text-foreground transition-colors"
+              className="p-1.5 text-steel hover:text-ink transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

@@ -118,7 +118,7 @@ export default function LivraisonPage() {
   }
 
   const inputClasses =
-    "w-full px-4 py-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta bg-white transition-colors";
+    "w-full px-4 py-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember bg-bone-soft transition-colors";
 
   return (
     <div className="container py-8 lg:py-12">
@@ -132,7 +132,7 @@ export default function LivraisonPage() {
             <h1 className="font-display text-2xl lg:text-3xl mb-1">
               Adresse de livraison
             </h1>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-steel">
               Où souhaitez-vous recevoir votre commande ?
             </p>
           </motion.div>
@@ -145,9 +145,9 @@ export default function LivraisonPage() {
             className="space-y-8"
           >
             {/* Address Fields */}
-            <div className="bg-white rounded-xl border border-border p-6 space-y-4">
+            <div className="bg-bone-soft rounded-xl border border-border p-6 space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <MapPin className="w-4 h-4 text-terracotta" />
+                <MapPin className="w-4 h-4 text-ember" />
                 <h2 className="font-display text-base">Adresse</h2>
               </div>
 
@@ -319,9 +319,9 @@ export default function LivraisonPage() {
             </div>
 
             {/* Shipping Methods */}
-            <div className="bg-white rounded-xl border border-border p-6">
+            <div className="bg-bone-soft rounded-xl border border-border p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Truck className="w-4 h-4 text-terracotta" />
+                <Truck className="w-4 h-4 text-ember" />
                 <h2 className="font-display text-base">Mode de livraison</h2>
               </div>
 
@@ -336,7 +336,7 @@ export default function LivraisonPage() {
                       className={cn(
                         "flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-all",
                         selectedShipping === method.id
-                          ? "border-terracotta bg-terracotta/5"
+                          ? "border-ember bg-ember/5"
                           : "border-border hover:border-muted-light"
                       )}
                     >
@@ -352,8 +352,8 @@ export default function LivraisonPage() {
                         className={cn(
                           "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
                           selectedShipping === method.id
-                            ? "bg-terracotta text-white"
-                            : "bg-beige-nude-light text-muted"
+                            ? "bg-ember text-bone"
+                            : "bg-bone-soft text-steel"
                         )}
                       >
                         <Icon className="w-5 h-5" />
@@ -369,7 +369,7 @@ export default function LivraisonPage() {
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-muted">
+                        <span className="text-xs text-steel">
                           {method.description} — {method.delay}
                         </span>
                       </div>
@@ -384,12 +384,12 @@ export default function LivraisonPage() {
                         className={cn(
                           "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
                           selectedShipping === method.id
-                            ? "border-terracotta"
+                            ? "border-ember"
                             : "border-muted-light"
                         )}
                       >
                         {selectedShipping === method.id && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-terracotta" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-ember" />
                         )}
                       </div>
                     </label>
@@ -399,15 +399,15 @@ export default function LivraisonPage() {
             </div>
 
             {/* Gift Wrap */}
-            <div className="bg-white rounded-xl border border-border p-6">
+            <div className="bg-bone-soft rounded-xl border border-border p-6">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={giftWrap}
                   onChange={(e) => setGiftWrap(e.target.checked)}
-                  className="w-4 h-4 rounded border-border text-terracotta focus:ring-terracotta accent-terracotta"
+                  className="w-4 h-4 rounded border-border text-ember focus:ring-ember accent-ember"
                 />
-                <Gift className="w-4 h-4 text-gold" />
+                <Gift className="w-4 h-4 text-ember" />
                 <span className="text-sm font-medium">
                   Emballage cadeau (+3,00 €)
                 </span>
@@ -452,7 +452,7 @@ export default function LivraisonPage() {
             initial="hidden"
             animate="visible"
             transition={{ delay: 0.15 }}
-            className="bg-white rounded-xl border border-border overflow-hidden"
+            className="bg-bone-soft rounded-xl border border-border overflow-hidden"
           >
             <div className="p-6 border-b border-border">
               <h2 className="font-display text-lg">Votre commande</h2>
@@ -462,7 +462,7 @@ export default function LivraisonPage() {
             <div className="p-6 space-y-3 border-b border-border max-h-64 overflow-y-auto">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-bone-soft shrink-0">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -470,7 +470,7 @@ export default function LivraisonPage() {
                       className="object-cover"
                       sizes="48px"
                     />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-terracotta text-white text-[10px] font-medium rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-ember text-bone text-[10px] font-medium rounded-full flex items-center justify-center">
                       {item.quantity}
                     </span>
                   </div>
@@ -487,7 +487,7 @@ export default function LivraisonPage() {
             {/* Totals */}
             <div className="p-6 space-y-2.5">
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Sous-total</span>
+                <span className="text-steel">Sous-total</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
               {discountAmount > 0 && (
@@ -498,12 +498,12 @@ export default function LivraisonPage() {
               )}
               {giftWrap && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted">Emballage cadeau</span>
+                  <span className="text-steel">Emballage cadeau</span>
                   <span>{formatPrice(giftWrapCost)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Livraison</span>
+                <span className="text-steel">Livraison</span>
                 <span className={cn(shippingCost === 0 && "text-success font-medium")}>
                   {shippingCost === 0
                     ? "Offerte"
@@ -521,7 +521,7 @@ export default function LivraisonPage() {
             </div>
           </motion.div>
 
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted">
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-steel">
             <Shield className="w-3.5 h-3.5" />
             <span>Données protégées & paiement sécurisé</span>
           </div>

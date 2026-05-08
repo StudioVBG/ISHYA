@@ -52,8 +52,8 @@ export function BirthdayEmail({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Text style={{ fontSize: "42px", lineHeight: "48px", textAlign: "center", margin: "0 0 8px" }}>🎁</Text>
@@ -64,25 +64,25 @@ export function BirthdayEmail({
                 fontSize: "28px",
                 lineHeight: "36px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 16px",
                 textAlign: "center",
               }}
             >
               Joyeux anniversaire {firstName} !
             </Heading>
-            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.textMuted, margin: "0 0 20px", textAlign: "center" }}>
+            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.steel, margin: "0 0 20px", textAlign: "center" }}>
               Toute l&apos;équipe ISHYA vous souhaite une journée lumineuse. Pour fêter ça avec vous, nous avons préparé
               une surprise tout en délicatesse — comme nos bijoux floraux.
             </Text>
 
             <Section
               style={{
-                backgroundColor: colors.beigeNude,
+                backgroundColor: colors.boneSoft,
                 borderRadius: "8px",
                 padding: "24px",
                 textAlign: "center",
-                border: `1px solid ${colors.gold}`,
+                border: `1px solid ${colors.ember}`,
                 marginBottom: "28px",
               }}
             >
@@ -92,7 +92,7 @@ export function BirthdayEmail({
                   fontSize: "12px",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
-                  color: colors.textMuted,
+                  color: colors.steel,
                 }}
               >
                 Votre code anniversaire unique
@@ -103,7 +103,7 @@ export function BirthdayEmail({
                   fontFamily: fontDisplay,
                   fontSize: "26px",
                   fontWeight: 700,
-                  color: colors.black,
+                  color: colors.ink,
                   letterSpacing: "0.06em",
                 }}
               >
@@ -117,14 +117,14 @@ export function BirthdayEmail({
                 fontFamily: fontDisplay,
                 fontSize: "18px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 12px",
                 textAlign: "center",
               }}
             >
               Idées cadeaux
             </Heading>
-            <Text style={{ fontSize: "14px", lineHeight: "22px", color: colors.textMuted, margin: "0 0 24px", textAlign: "center" }}>
+            <Text style={{ fontSize: "14px", lineHeight: "22px", color: colors.steel, margin: "0 0 24px", textAlign: "center" }}>
               Colliers de fleurs séchées, bagues résine, bracelets poétiques… Laissez-vous guider par notre sélection
               pour un présent inoubliable.
             </Text>
@@ -137,10 +137,10 @@ export function BirthdayEmail({
               </Column>
             </Row>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "32px 0 20px" }} />
-            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.textMuted, margin: 0, textAlign: "center" }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "32px 0 20px" }} />
+            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.steel, margin: 0, textAlign: "center" }}>
               Des questions sur les tailles ou les matériaux ?{" "}
-              <Link href={`${baseUrl}/contact`} style={{ color: colors.terracotta }}>
+              <Link href={`${baseUrl}/contact`} style={{ color: colors.ember }}>
                 Nous sommes là
               </Link>
             </Text>

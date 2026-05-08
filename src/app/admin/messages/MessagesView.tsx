@@ -43,11 +43,11 @@ const STATUS_LABELS: Record<ContactMessageStatus, string> = {
 };
 
 const STATUS_STYLE: Record<ContactMessageStatus, string> = {
-  new: "bg-terracotta/10 text-terracotta border-terracotta/20",
-  read: "bg-muted-soft text-foreground border-border",
+  new: "bg-ember/10 text-ember border-ember/20",
+  read: "bg-bone-soft text-foreground border-border",
   answered: "bg-success-soft text-success border-success/20",
   spam: "bg-destructive-soft text-destructive border-destructive/20",
-  archived: "bg-muted-soft text-muted border-border",
+  archived: "bg-bone-soft text-steel border-border",
 };
 
 const FILTERS: Array<{ value: "all" | ContactMessageStatus; label: string; icon: React.ComponentType<{ className?: string }> }> = [
@@ -123,18 +123,18 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-semibold text-foreground">Messages de contact</h2>
-          <p className="text-sm text-muted">
-            Reçus via le formulaire <code className="text-xs bg-muted-soft px-1 py-0.5 rounded">/contact</code>
+          <p className="text-sm text-steel">
+            Reçus via le formulaire <code className="text-xs bg-bone-soft px-1 py-0.5 rounded">/contact</code>
           </p>
         </div>
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-steel" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher…"
-            className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           />
         </div>
       </div>
@@ -151,8 +151,8 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
               className={cn(
                 "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors",
                 active
-                  ? "bg-terracotta text-white border-terracotta"
-                  : "bg-white text-foreground border-border hover:border-terracotta/40",
+                  ? "bg-ember text-white border-ember"
+                  : "bg-white text-foreground border-border hover:border-ember/40",
               )}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -160,7 +160,7 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
               <span
                 className={cn(
                   "ml-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold",
-                  active ? "bg-white/20" : "bg-muted-soft text-muted",
+                  active ? "bg-white/20" : "bg-bone-soft text-steel",
                 )}
               >
                 {count}
@@ -178,7 +178,7 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
           className="lg:col-span-2 space-y-2"
         >
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-muted">
+            <div className="text-center py-12 text-steel">
               <Inbox className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p className="text-sm">Aucun message</p>
             </div>
@@ -196,8 +196,8 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
                   className={cn(
                     "w-full text-left p-4 rounded-lg border transition-colors",
                     isSelected
-                      ? "border-terracotta bg-terracotta/5"
-                      : "border-border bg-white hover:border-terracotta/40",
+                      ? "border-ember bg-ember/5"
+                      : "border-border bg-white hover:border-ember/40",
                     m.status === "new" && "border-l-4 border-l-terracotta",
                   )}
                 >
@@ -216,18 +216,18 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
                           {STATUS_LABELS[m.status]}
                         </span>
                       </div>
-                      <p className="text-xs text-muted truncate">{m.email}</p>
+                      <p className="text-xs text-steel truncate">{m.email}</p>
                       {m.subject ? (
                         <p className="text-sm font-medium text-foreground mt-1 truncate">
                           {m.subject}
                         </p>
                       ) : null}
-                      <p className="text-sm text-muted mt-1 line-clamp-2">
+                      <p className="text-sm text-steel mt-1 line-clamp-2">
                         {m.message}
                       </p>
                     </div>
                     {m.createdAt ? (
-                      <span className="shrink-0 text-xs text-muted">
+                      <span className="shrink-0 text-xs text-steel">
                         {formatDate(m.createdAt)}
                       </span>
                     ) : null}
@@ -246,7 +246,7 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
                   <h3 className="font-semibold text-foreground">{selected.name}</h3>
                   <a
                     href={`mailto:${selected.email}?subject=Re: ${selected.subject ?? "Votre message"}`}
-                    className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-ember hover:underline"
                   >
                     {selected.email}
                     <ExternalLink className="w-3 h-3" />
@@ -264,27 +264,27 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
 
               {selected.subject ? (
                 <div>
-                  <p className="text-xs font-medium text-muted mb-1">Sujet</p>
+                  <p className="text-xs font-medium text-steel mb-1">Sujet</p>
                   <p className="text-sm text-foreground">{selected.subject}</p>
                 </div>
               ) : null}
 
               <div>
-                <p className="text-xs font-medium text-muted mb-1">Message</p>
+                <p className="text-xs font-medium text-steel mb-1">Message</p>
                 <p className="text-sm text-foreground whitespace-pre-wrap">
                   {selected.message}
                 </p>
               </div>
 
               {selected.createdAt ? (
-                <p className="text-xs text-muted">
+                <p className="text-xs text-steel">
                   Reçu le {formatDate(selected.createdAt)}
                   {selected.ipAddress ? ` · ${selected.ipAddress}` : ""}
                 </p>
               ) : null}
 
               <div className="border-t border-border pt-4">
-                <p className="text-xs font-medium text-muted mb-2">Changer le statut</p>
+                <p className="text-xs font-medium text-steel mb-2">Changer le statut</p>
                 <div className="flex flex-wrap gap-1.5">
                   {(["read", "answered", "spam", "archived"] as ContactMessageStatus[]).map(
                     (s) => (
@@ -296,7 +296,7 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
                           "px-2.5 py-1 rounded text-xs font-medium border transition-colors",
                           selected.status === s
                             ? "bg-foreground text-white border-foreground"
-                            : "bg-white text-foreground border-border hover:border-terracotta/40 disabled:opacity-50",
+                            : "bg-white text-foreground border-border hover:border-ember/40 disabled:opacity-50",
                         )}
                       >
                         {STATUS_LABELS[s]}
@@ -320,7 +320,7 @@ export function MessagesView({ messages }: { messages: ContactMessageRow[] }) {
               </button>
             </div>
           ) : (
-            <div className="bg-white border border-dashed border-border rounded-lg p-8 text-center text-muted text-sm">
+            <div className="bg-white border border-dashed border-border rounded-lg p-8 text-center text-steel text-sm">
               Sélectionne un message pour voir le contenu.
             </div>
           )}

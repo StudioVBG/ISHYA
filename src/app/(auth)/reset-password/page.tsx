@@ -97,14 +97,14 @@ export default function ResetPasswordPage() {
       animate="visible"
     >
       <motion.div variants={staggerItem} className="text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-terracotta/10">
-          <ShieldCheck className="h-7 w-7 text-terracotta" />
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-ember/10">
+          <ShieldCheck className="h-7 w-7 text-ember" />
         </div>
 
         <h2 className="mt-6 font-display text-3xl sm:text-4xl text-foreground">
           Nouveau mot de passe
         </h2>
-        <p className="mt-2 text-muted text-sm">
+        <p className="mt-2 text-steel text-sm">
           Choisissez un mot de passe sécurisé pour votre compte
         </p>
       </motion.div>
@@ -118,7 +118,7 @@ export default function ResetPasswordPage() {
         {/* New password */}
         <div>
           <div className="relative">
-            <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+            <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
               <Lock className="h-4 w-4" />
             </div>
             <input
@@ -128,7 +128,7 @@ export default function ResetPasswordPage() {
               placeholder=" "
               className={cn(
                 "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-                "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+                "focus:border-ember focus:ring-1 focus:ring-ember/30",
                 errors.password ? "border-destructive" : "border-border"
               )}
               {...register("password")}
@@ -136,8 +136,8 @@ export default function ResetPasswordPage() {
             <label
               htmlFor="password"
               className={cn(
-                "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-                "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+                "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+                "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
                 "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
                 errors.password && "text-destructive peer-focus:text-destructive"
               )}
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-steel hover:text-ink transition-colors"
               tabIndex={-1}
             >
               {showPassword ? (
@@ -179,7 +179,7 @@ export default function ResetPasswordPage() {
                   />
                 ))}
               </div>
-              <p className="mt-1 text-xs text-muted">
+              <p className="mt-1 text-xs text-steel">
                 Force :{" "}
                 <span
                   className={cn(
@@ -199,7 +199,7 @@ export default function ResetPasswordPage() {
 
         {/* Confirm password */}
         <div className="relative">
-          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
             <Lock className="h-4 w-4" />
           </div>
           <input
@@ -209,7 +209,7 @@ export default function ResetPasswordPage() {
             placeholder=" "
             className={cn(
               "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-              "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+              "focus:border-ember focus:ring-1 focus:ring-ember/30",
               errors.confirmPassword ? "border-destructive" : "border-border"
             )}
             {...register("confirmPassword")}
@@ -217,8 +217,8 @@ export default function ResetPasswordPage() {
           <label
             htmlFor="confirmPassword"
             className={cn(
-              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
               "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
               errors.confirmPassword && "text-destructive peer-focus:text-destructive"
             )}
@@ -228,7 +228,7 @@ export default function ResetPasswordPage() {
           <button
             type="button"
             onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-steel hover:text-ink transition-colors"
             tabIndex={-1}
           >
             {showConfirm ? (
@@ -248,9 +248,9 @@ export default function ResetPasswordPage() {
           type="submit"
           disabled={isSubmitting}
           className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-lg bg-terracotta px-4 py-3.5",
-            "text-sm font-medium text-white transition-all duration-200",
-            "hover:bg-terracotta-dark hover:scale-[1.01]",
+            "flex w-full items-center justify-center gap-2 rounded-lg bg-ember px-4 py-3.5",
+            "text-sm font-medium text-bone transition-all duration-200",
+            "hover:bg-ember-deep hover:scale-[1.01]",
             "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
           )}
         >

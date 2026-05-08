@@ -28,7 +28,7 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 interface FormState {
@@ -225,13 +225,13 @@ export function CollectionsView({
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Collections</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {collections.length} collection{collections.length > 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg font-medium text-sm hover:bg-terracotta-dark transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg font-medium text-sm hover:bg-ember-deep transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouvelle collection
@@ -245,19 +245,19 @@ export function CollectionsView({
         >
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
               <input
                 type="text"
                 placeholder="Rechercher une collection..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               />
             </div>
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Trier les collections"
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
@@ -271,7 +271,7 @@ export function CollectionsView({
               onChange={(e) =>
                 setStatusFilter(e.target.value as "" | "active" | "inactive")
               }
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Filtrer par statut"
             >
               <option value="">Tous statuts</option>
@@ -280,7 +280,7 @@ export function CollectionsView({
             </select>
           </div>
           {visibleCollections.length !== collections.length && (
-            <p className="mt-3 pt-3 border-t border-border/50 text-xs text-muted">
+            <p className="mt-3 pt-3 border-t border-border/50 text-xs text-steel">
               {visibleCollections.length} collection
               {visibleCollections.length > 1 ? "s" : ""} affichée
               {visibleCollections.length > 1 ? "s" : ""} sur {collections.length}
@@ -296,20 +296,20 @@ export function CollectionsView({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted-soft/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+              <tr className="border-b border-border bg-bone-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Nom
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Slug
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Période
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Produits
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-4 py-3 w-20"></th>
@@ -320,9 +320,9 @@ export function CollectionsView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
-                    <Layers className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+                    <Layers className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
                     Aucune collection. Créez-en une pour commencer.
                   </td>
                 </tr>
@@ -330,9 +330,9 @@ export function CollectionsView({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
-                    <Layers className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+                    <Layers className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
                     Aucune collection ne correspond à votre recherche.
                   </td>
                 </tr>
@@ -340,15 +340,15 @@ export function CollectionsView({
                 visibleCollections.map((c) => (
                   <tr
                     key={c.id}
-                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
+                    className="border-b border-border/40 last:border-0 hover:bg-bone-soft/50 transition-colors"
                   >
                     <td className="px-4 py-3 font-medium text-foreground">
                       {c.name}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted">
+                    <td className="px-4 py-3 font-mono text-xs text-steel">
                       {c.slug}
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted">
+                    <td className="px-4 py-3 text-xs text-steel">
                       {c.startsAt && (
                         <span>du {formatDate(c.startsAt)}</span>
                       )}
@@ -357,10 +357,10 @@ export function CollectionsView({
                       )}
                       {!c.startsAt && !c.endsAt && "—"}
                     </td>
-                    <td className="px-4 py-3 text-center text-muted">
+                    <td className="px-4 py-3 text-center text-steel">
                       <Link
                         href={`/admin/collections/${c.id}`}
-                        className="inline-flex items-center gap-1 hover:text-terracotta hover:underline"
+                        className="inline-flex items-center gap-1 hover:text-ember hover:underline"
                       >
                         <Package className="w-3.5 h-3.5" />
                         {c.productCount}
@@ -372,7 +372,7 @@ export function CollectionsView({
                           "px-2 py-0.5 rounded-full text-xs font-medium",
                           c.isActive
                             ? "bg-success-soft text-success"
-                            : "bg-muted-soft text-muted",
+                            : "bg-bone-soft text-steel",
                         )}
                       >
                         {c.isActive ? "Active" : "Inactive"}
@@ -382,14 +382,14 @@ export function CollectionsView({
                       <div className="flex items-center gap-1">
                         <Link
                           href={`/admin/collections/${c.id}`}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
                           title="Gérer les produits"
                         >
                           <Package className="w-4 h-4" />
                         </Link>
                         <button
                           onClick={() => openEdit(c)}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
                           title="Éditer"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -397,7 +397,7 @@ export function CollectionsView({
                         <button
                           onClick={() => setDeletingId(c.id)}
                           disabled={isDeletePending}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-destructive transition-colors disabled:opacity-50"
                           title="Supprimer"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -435,7 +435,7 @@ export function CollectionsView({
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -517,7 +517,7 @@ export function CollectionsView({
                     onChange={(e) =>
                       setForm({ ...form, isActive: e.target.checked })
                     }
-                    className="rounded accent-terracotta"
+                    className="rounded accent-ember"
                   />
                   Collection active
                 </label>
@@ -526,14 +526,14 @@ export function CollectionsView({
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-bone-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSavePending}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
                 >
                   {isSavePending && (
                     <Loader2 className="w-4 h-4 animate-spin" />

@@ -58,8 +58,8 @@ export function AbandonedCartEmail3({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Heading
@@ -69,13 +69,13 @@ export function AbandonedCartEmail3({
                 fontSize: "24px",
                 lineHeight: "32px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 16px",
               }}
             >
               Un petit cadeau pour vous : -10 % exclusif
             </Heading>
-            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.textMuted, margin: "0 0 20px" }}>
+            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.steel, margin: "0 0 20px" }}>
               Nous avons gardé une place pour vous. Pendant <strong>48 heures</strong>, profitez de{" "}
               <strong>-10 %</strong> sur votre commande avec le code ci-dessous — une attention de notre atelier pour
               vous dire à quel point vos bijoux floraux méritent de vous accompagner.
@@ -83,11 +83,11 @@ export function AbandonedCartEmail3({
 
             <Section
               style={{
-                backgroundColor: colors.beigeNude,
+                backgroundColor: colors.boneSoft,
                 borderRadius: "8px",
                 padding: "22px",
                 textAlign: "center",
-                border: `2px dashed ${colors.terracotta}`,
+                border: `2px dashed ${colors.ember}`,
                 marginBottom: "28px",
               }}
             >
@@ -97,7 +97,7 @@ export function AbandonedCartEmail3({
                   fontSize: "12px",
                   letterSpacing: "0.15em",
                   textTransform: "uppercase",
-                  color: colors.textMuted,
+                  color: colors.steel,
                 }}
               >
                 Code valable 48 h
@@ -108,13 +108,13 @@ export function AbandonedCartEmail3({
                   fontFamily: fontDisplay,
                   fontSize: "28px",
                   fontWeight: 700,
-                  color: colors.black,
+                  color: colors.ink,
                   letterSpacing: "0.1em",
                 }}
               >
                 {ABANDONED_CART_CODE}
               </Text>
-              <Text style={{ margin: 0, fontSize: "13px", color: colors.textMuted }}>
+              <Text style={{ margin: 0, fontSize: "13px", color: colors.steel }}>
                 -10 % sur votre panier — offre personnelle, non cumulable
               </Text>
             </Section>
@@ -135,7 +135,7 @@ export function AbandonedCartEmail3({
                           height: "auto",
                           borderRadius: "8px",
                           display: "block",
-                          border: `1px solid ${colors.beigeNude}`,
+                          border: `1px solid ${colors.boneSoft}`,
                         }}
                       />
                       <Text
@@ -143,13 +143,13 @@ export function AbandonedCartEmail3({
                           margin: "10px 0 4px",
                           fontSize: "14px",
                           fontWeight: 600,
-                          color: colors.black,
+                          color: colors.ink,
                         }}
                       >
                         {p.name}
                       </Text>
                       {p.price != null && (
-                        <Text style={{ margin: 0, fontSize: "13px", color: colors.gold, fontWeight: 600 }}>
+                        <Text style={{ margin: 0, fontSize: "13px", color: colors.ember, fontWeight: 600 }}>
                           {formatEur(p.price)}
                         </Text>
                       )}
@@ -166,8 +166,8 @@ export function AbandonedCartEmail3({
               </Button>
             </Section>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "32px 0 20px" }} />
-            <Text style={{ fontSize: "12px", lineHeight: "18px", color: colors.textMuted, margin: 0 }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "32px 0 20px" }} />
+            <Text style={{ fontSize: "12px", lineHeight: "18px", color: colors.steel, margin: 0 }}>
               Ce message est envoyé 72 h après l&apos;abandon de panier. Le code expire après 48 h.
             </Text>
           </Section>

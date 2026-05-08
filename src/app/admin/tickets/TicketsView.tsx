@@ -144,7 +144,7 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
     >
       <motion.div variants={staggerItem}>
         <h2 className="text-xl font-bold text-foreground">Tickets support</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           {tickets.length} ticket{tickets.length > 1 ? "s" : ""} ·
           <span className="text-info ml-1">
             {openCount} ouvert{openCount > 1 ? "s" : ""}
@@ -163,19 +163,19 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher (sujet, client, commande)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Tous statuts</option>
             {(Object.entries(STATUS_CONFIG) as [StatusKey, { label: string; variant: StatusVariant }][]).map(
@@ -189,7 +189,7 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Toutes priorités</option>
             {(Object.entries(PRIORITY_CONFIG) as [PriorityKey, { label: string; variant: StatusVariant }][]).map(
@@ -206,9 +206,9 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
       {filtered.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <Headphones className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <Headphones className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           {tickets.length === 0
             ? "Aucun ticket pour l'instant."
             : "Aucun ticket ne correspond à votre recherche."}
@@ -250,38 +250,38 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
                       <StatusBadge variant={status.variant} size="sm">
                         {status.label}
                       </StatusBadge>
-                      <span className="text-xs text-muted">
+                      <span className="text-xs text-steel">
                         {categoryLabel}
                       </span>
                       {t.channel && (
-                        <span className="text-xs text-muted-light">
+                        <span className="text-xs text-steel-soft">
                           · {t.channel}
                         </span>
                       )}
                     </div>
                     <Link
                       href={`/admin/tickets/${t.id}`}
-                      className="font-medium text-foreground hover:text-terracotta transition-colors block"
+                      className="font-medium text-foreground hover:text-ember transition-colors block"
                     >
                       {t.subject}
                     </Link>
-                    <p className="text-sm text-muted mt-1">
+                    <p className="text-sm text-steel mt-1">
                       {t.customerName ?? t.customerEmail ?? "Client inconnu"}
                       {t.customerEmail && t.customerName && (
-                        <span className="text-muted-light">
+                        <span className="text-steel-soft">
                           {" "}
                           · {t.customerEmail}
                         </span>
                       )}
                     </p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-light mt-2">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel-soft mt-2">
                       {t.createdAt && (
                         <span>Ouvert le {formatDate(t.createdAt)}</span>
                       )}
                       {t.orderNumber && (
                         <Link
                           href={`/admin/commandes/${t.orderId}`}
-                          className="text-terracotta hover:underline"
+                          className="text-ember hover:underline"
                         >
                           · Commande {t.orderNumber}
                         </Link>
@@ -300,7 +300,7 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
                     value={t.status}
                     onChange={(e) => transitionStatus(t.id, e.target.value)}
                     disabled={isLoading}
-                    className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                    className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-ember/20"
                   >
                     {(Object.entries(STATUS_CONFIG) as [StatusKey, { label: string; variant: StatusVariant }][]).map(
                       ([key, val]) => (
@@ -316,7 +316,7 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
                       transitionPriority(t.id, e.target.value)
                     }
                     disabled={isLoading}
-                    className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                    className="px-2 py-1 border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-ember/20"
                   >
                     {(Object.entries(PRIORITY_CONFIG) as [PriorityKey, { label: string; variant: StatusVariant }][]).map(
                       ([key, val]) => (
@@ -334,7 +334,7 @@ export function TicketsView({ tickets }: { tickets: AdminTicketRow[] }) {
                       loading={isLoading}
                       disabled={isLoading}
                       onClick={() => handleAssign(t.id)}
-                      className="bg-terracotta/10 text-terracotta hover:bg-terracotta/20"
+                      className="bg-ember/10 text-ember hover:bg-ember/20"
                     >
                       M&apos;assigner
                     </Button>

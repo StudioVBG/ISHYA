@@ -44,7 +44,7 @@ function StarRow() {
         fontSize: "28px",
         lineHeight: "32px",
         letterSpacing: "4px",
-        color: colors.gold,
+        color: colors.ember,
         textAlign: "center",
       }}
     >
@@ -73,8 +73,8 @@ export function ReviewRequestEmail({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Heading
@@ -84,16 +84,16 @@ export function ReviewRequestEmail({
                 fontSize: "24px",
                 lineHeight: "32px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 16px",
                 textAlign: "center",
               }}
             >
               Comment avez-vous trouvé vos bijoux ISHYA ?
             </Heading>
-            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.textMuted, margin: "0 0 20px", textAlign: "center" }}>
+            <Text style={{ fontSize: "15px", lineHeight: "24px", color: colors.steel, margin: "0 0 20px", textAlign: "center" }}>
               Votre ressenti nous aide à perfectionner chaque collection. Une minute suffit pour partager votre expérience
-              sur <strong style={{ color: colors.black }}>{productName}</strong>.
+              sur <strong style={{ color: colors.ink }}>{productName}</strong>.
             </Text>
 
             <Section style={{ textAlign: "center", marginBottom: "12px" }}>
@@ -104,7 +104,7 @@ export function ReviewRequestEmail({
                 height={200}
                 style={{
                   borderRadius: "8px",
-                  border: `1px solid ${colors.beigeNude}`,
+                  border: `1px solid ${colors.boneSoft}`,
                   display: "inline-block",
                 }}
               />
@@ -114,13 +114,13 @@ export function ReviewRequestEmail({
 
             <Section
               style={{
-                backgroundColor: colors.beigeNude,
+                backgroundColor: colors.boneSoft,
                 borderRadius: "8px",
                 padding: "16px 20px",
                 marginBottom: "24px",
               }}
             >
-              <Text style={{ margin: 0, fontSize: "14px", lineHeight: "22px", color: colors.black, textAlign: "center" }}>
+              <Text style={{ margin: 0, fontSize: "14px", lineHeight: "22px", color: colors.ink, textAlign: "center" }}>
                 <strong>+20 points fidélité</strong> offerts lorsque votre avis est publié. Merci de soutenir notre
                 atelier artisanal.
               </Text>
@@ -134,9 +134,9 @@ export function ReviewRequestEmail({
               </Column>
             </Row>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "32px 0 20px" }} />
-            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.textMuted, margin: 0, textAlign: "center" }}>
-              <Link href={`${baseUrl}/compte/avis`} style={{ color: colors.terracotta }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "32px 0 20px" }} />
+            <Text style={{ fontSize: "13px", lineHeight: "22px", color: colors.steel, margin: 0, textAlign: "center" }}>
+              <Link href={`${baseUrl}/compte/avis`} style={{ color: colors.ember }}>
                 Voir mes commandes
               </Link>
             </Text>

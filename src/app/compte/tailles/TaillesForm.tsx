@@ -10,7 +10,7 @@ import type { AccountSavedSizes } from "@/lib/queries/account";
 import { updateSavedSizes } from "./actions";
 
 const inputClass =
-  "w-full px-4 py-2.5 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta";
+  "w-full px-4 py-2.5 rounded-lg border border-border bg-bone-soft text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember";
 const labelClass = "block text-sm font-medium mb-1.5";
 
 export function TaillesForm({ sizes }: { sizes: AccountSavedSizes }) {
@@ -53,7 +53,7 @@ export function TaillesForm({ sizes }: { sizes: AccountSavedSizes }) {
         initial="hidden"
         animate="visible"
         transition={{ delay: 0.1 }}
-        className="text-sm text-muted mb-8"
+        className="text-sm text-steel mb-8"
       >
         Conservez vos préférences pour des achats plus rapides.
       </motion.p>
@@ -66,10 +66,10 @@ export function TaillesForm({ sizes }: { sizes: AccountSavedSizes }) {
       >
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-6 space-y-5"
+          className="bg-bone-soft rounded-xl border border-border p-6 space-y-5"
         >
           <div className="flex items-center gap-2 mb-2">
-            <Ruler className="w-4 h-4 text-terracotta" />
+            <Ruler className="w-4 h-4 text-ember" />
             <h2 className="font-display text-lg font-semibold">
               Bijoux
             </h2>
@@ -87,7 +87,7 @@ export function TaillesForm({ sizes }: { sizes: AccountSavedSizes }) {
                 placeholder="52, 54, 56…"
                 className={inputClass}
               />
-              <p className="text-xs text-muted mt-1">
+              <p className="text-xs text-steel mt-1">
                 En mm de tour de doigt ou taille FR
               </p>
             </div>

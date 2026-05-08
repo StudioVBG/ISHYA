@@ -71,11 +71,11 @@ export default function AProposPage() {
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="relative z-10 text-center text-white px-4 max-w-3xl"
+          className="relative z-10 text-center text-bone px-4 max-w-3xl"
         >
           <motion.div
             variants={fadeInUp}
-            className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-6"
+            className="inline-flex items-center gap-2 bg-bone-soft/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-6"
           >
             <Heart className="w-3.5 h-3.5" />
             Notre histoire
@@ -90,7 +90,7 @@ export default function AProposPage() {
           </motion.h1>
           <motion.p
             variants={fadeInUp}
-            className="text-white/80 text-lg max-w-xl mx-auto"
+            className="text-bone/80 text-lg max-w-xl mx-auto"
           >
             Depuis 2022, ISHYA capture la poésie des fleurs séchées dans des
             créations uniques qui traversent le temps.
@@ -110,7 +110,7 @@ export default function AProposPage() {
             >
               <motion.p
                 variants={fadeInUp}
-                className="text-xs text-terracotta font-medium uppercase tracking-wider mb-3"
+                className="text-xs text-ember font-medium uppercase tracking-wider mb-3"
               >
                 L&apos;origine
               </motion.p>
@@ -122,7 +122,7 @@ export default function AProposPage() {
               </motion.h2>
               <motion.div
                 variants={staggerContainer}
-                className="space-y-4 text-muted leading-relaxed"
+                className="space-y-4 text-steel leading-relaxed"
               >
                 <motion.p variants={staggerItem}>
                   Tout a commencé par une passion pour les fleurs et un désir
@@ -168,7 +168,7 @@ export default function AProposPage() {
       </section>
 
       {/* Nos valeurs */}
-      <section className="py-20 bg-beige-nude-light/50 px-4">
+      <section className="py-20 bg-bone-soft/50 px-4">
         <div className="container max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -179,7 +179,7 @@ export default function AProposPage() {
           >
             <motion.p
               variants={fadeInUp}
-              className="text-xs text-terracotta font-medium uppercase tracking-wider mb-3"
+              className="text-xs text-ember font-medium uppercase tracking-wider mb-3"
             >
               Ce qui nous anime
             </motion.p>
@@ -202,13 +202,13 @@ export default function AProposPage() {
               <motion.div
                 key={v.title}
                 variants={staggerItem}
-                className="bg-white rounded-2xl p-8 border border-border text-center"
+                className="bg-bone-soft rounded-2xl p-8 border border-border text-center"
               >
-                <div className="w-14 h-14 bg-terracotta/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                  <v.icon className="w-6 h-6 text-terracotta" />
+                <div className="w-14 h-14 bg-ember/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                  <v.icon className="w-6 h-6 text-ember" />
                 </div>
                 <h3 className="font-display text-xl mb-3">{v.title}</h3>
-                <p className="text-sm text-muted leading-relaxed">{v.desc}</p>
+                <p className="text-sm text-steel leading-relaxed">{v.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -227,7 +227,7 @@ export default function AProposPage() {
           >
             <motion.p
               variants={fadeInUp}
-              className="text-xs text-terracotta font-medium uppercase tracking-wider mb-3"
+              className="text-xs text-ember font-medium uppercase tracking-wider mb-3"
             >
               De la fleur au bijou
             </motion.p>
@@ -239,7 +239,7 @@ export default function AProposPage() {
             </motion.h2>
             <motion.p
               variants={fadeInUp}
-              className="text-muted max-w-lg mx-auto"
+              className="text-steel max-w-lg mx-auto"
             >
               Un processus artisanal minutieux, entièrement réalisé à la main,
               pour créer des bijoux d&apos;exception.
@@ -257,13 +257,13 @@ export default function AProposPage() {
               <motion.div
                 key={p.step}
                 variants={staggerItem}
-                className="group bg-white border border-border rounded-2xl p-8 hover:border-terracotta/30 transition-all"
+                className="group bg-bone-soft border border-border rounded-2xl p-8 hover:border-ember/40 transition-all"
               >
-                <span className="text-5xl font-display text-terracotta/20 group-hover:text-terracotta/40 transition-colors">
+                <span className="text-5xl font-display text-ember/20 group-hover:text-ember/40 transition-colors">
                   {p.step}
                 </span>
                 <h3 className="font-display text-xl mt-2 mb-3">{p.title}</h3>
-                <p className="text-sm text-muted leading-relaxed">{p.desc}</p>
+                <p className="text-sm text-steel leading-relaxed">{p.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -271,7 +271,7 @@ export default function AProposPage() {
       </section>
 
       {/* L'équipe */}
-      <section className="py-20 bg-beige-nude-light/50 px-4">
+      <section className="py-20 bg-bone-soft/50 px-4">
         <div className="container max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -282,7 +282,7 @@ export default function AProposPage() {
           >
             <motion.p
               variants={fadeInUp}
-              className="text-xs text-terracotta font-medium uppercase tracking-wider mb-3"
+              className="text-xs text-ember font-medium uppercase tracking-wider mb-3"
             >
               Les mains derrière ISHYA
             </motion.p>
@@ -299,7 +299,7 @@ export default function AProposPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="max-w-md mx-auto bg-white rounded-2xl border border-border overflow-hidden"
+            className="max-w-md mx-auto bg-bone-soft rounded-2xl border border-border overflow-hidden"
           >
             <div className="aspect-[4/3] relative bg-beige-nude">
               <Image
@@ -311,10 +311,10 @@ export default function AProposPage() {
             </div>
             <div className="p-8 text-center">
               <h3 className="font-display text-xl mb-1">Camille Laurent</h3>
-              <p className="text-sm text-terracotta mb-3">
+              <p className="text-sm text-ember mb-3">
                 Fondatrice & Créatrice
               </p>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-sm text-steel leading-relaxed">
                 Ancienne ingénieure reconvertie par passion pour l&apos;art
                 floral, Camille a fondé ISHYA avec la conviction que chaque
                 fleur mérite de vivre éternellement. Formée en bijouterie
@@ -337,7 +337,7 @@ export default function AProposPage() {
             className="max-w-3xl mx-auto text-center"
           >
             <motion.div variants={fadeInUp}>
-              <Sparkles className="w-8 h-8 text-gold mx-auto mb-4" />
+              <Sparkles className="w-8 h-8 text-ember mx-auto mb-4" />
             </motion.div>
             <motion.h2
               variants={fadeInUp}
@@ -347,7 +347,7 @@ export default function AProposPage() {
             </motion.h2>
             <motion.p
               variants={fadeInUp}
-              className="text-muted mb-8 max-w-md mx-auto"
+              className="text-steel mb-8 max-w-md mx-auto"
             >
               Explorez notre collection de bijoux floraux artisanaux, chacun
               unique et porteur d&apos;une histoire.

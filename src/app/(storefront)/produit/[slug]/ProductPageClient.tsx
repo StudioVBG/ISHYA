@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Minus,
@@ -11,6 +12,7 @@ import {
   Shield,
   RotateCcw,
   ChevronDown,
+  ShoppingBag,
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import {
@@ -42,7 +44,14 @@ function AnimatedTitle({ text }: { text: string }) {
       variants={letterContainer}
       initial="hidden"
       animate="visible"
-      className="font-display text-3xl md:text-4xl lg:text-5xl mb-3 leading-tight"
+      className="font-display text-ink mb-4"
+      style={{
+        fontSize: "var(--text-h1)",
+        fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
+        fontWeight: 400,
+        letterSpacing: "-0.03em",
+        lineHeight: 1.05,
+      }}
       aria-label={text}
     >
       {words.map((word, wi) => (
@@ -76,17 +85,17 @@ function AccordionItem({
     <div className="border-b border-border">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-4 text-left group"
+        className="w-full flex items-center justify-between py-5 text-left group"
         aria-expanded={open}
       >
-        <span className="font-medium text-sm group-hover:text-terracotta transition-colors">
+        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-ink group-hover:text-ember transition-colors">
           {title}
         </span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.35, ease: easeOutQuart }}
         >
-          <ChevronDown className="w-4 h-4 text-muted" />
+          <ChevronDown className="w-4 h-4 text-steel group-hover:text-ember transition-colors" />
         </motion.span>
       </button>
       <AnimatePresence initial={false}>
@@ -101,7 +110,7 @@ function AccordionItem({
             }}
             className="overflow-hidden"
           >
-            <div className="pb-4 text-sm text-muted leading-relaxed">
+            <div className="pb-5 text-sm text-steel leading-relaxed">
               {children}
             </div>
           </motion.div>
@@ -118,6 +127,20 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+
+  // Sticky add-to-cart mobile : apparaît quand le CTA principal est sorti du viewport
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [showStickyCart, setShowStickyCart] = useState(false);
+  useEffect(() => {
+    const node = ctaRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCart(!entry.isIntersecting),
+      { rootMargin: "0px 0px -40% 0px", threshold: 0 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   const { product, media, variants, reviews, category } = data;
   const sortedMedia = media;
@@ -190,30 +213,35 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
         </div>
       </div>
 
-      <section className="py-8 md:py-12 px-4">
+      <section className="py-10 md:py-16 px-4">
         <div className="container">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-            {/* Galerie */}
-            <ProductGallery
-              media={sortedMedia}
-              productName={product.name}
-              productId={product.id}
-              saleBadge={saleBadge}
-            />
+          {/* Split éditorial 1.4fr / 1fr — galerie sticky côté gauche, scroll côté droit */}
+          <div className="grid md:grid-cols-[1.4fr_1fr] gap-10 md:gap-16 lg:gap-20 items-start">
+            {/* Galerie — sticky desktop */}
+            <div className="md:sticky md:top-24">
+              <ProductGallery
+                media={sortedMedia}
+                productName={product.name}
+                productId={product.id}
+                saleBadge={saleBadge}
+              />
+            </div>
 
-            {/* Product Info */}
+            {/* Product Info — scrollable */}
             <motion.div
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
+              className="md:py-4"
             >
               {category && (
-                <motion.p
+                <motion.div
                   variants={fadeInUp}
-                  className="text-xs text-muted uppercase tracking-[0.15em] mb-3"
+                  className="flex items-center gap-3 mb-6"
                 >
-                  {category.name}
-                </motion.p>
+                  <span className="h-px w-8 bg-ember" aria-hidden />
+                  <span className="eyebrow">{category.name}</span>
+                </motion.div>
               )}
 
               <AnimatedTitle text={product.name} />
@@ -222,7 +250,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
               {reviews.length > 0 && (
                 <motion.div
                   variants={fadeInUp}
-                  className="flex items-center gap-2 mb-5"
+                  className="flex items-center gap-2 mb-6"
                 >
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -231,22 +259,22 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                         className={cn(
                           "w-4 h-4",
                           i < Math.round(avgRating)
-                            ? "fill-gold text-gold"
-                            : "fill-border text-border"
+                            ? "fill-ember text-ember"
+                            : "fill-border text-border",
                         )}
                       />
                     ))}
                   </div>
-                  <span className="text-sm text-muted">
+                  <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-steel">
                     ({reviews.length} avis)
                   </span>
                 </motion.div>
               )}
 
-              {/* Price */}
+              {/* Price — typo mono pour le côté technique numéroté */}
               <motion.div
                 variants={fadeInUp}
-                className="flex items-baseline gap-3 mb-6"
+                className="flex items-baseline gap-3 mb-8"
               >
                 <motion.span
                   key={displayedPrice}
@@ -254,14 +282,14 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: easeOutQuart }}
                   className={cn(
-                    "text-3xl font-medium tabular-nums",
-                    isOnSale && "text-terracotta"
+                    "font-mono text-3xl tabular-nums",
+                    isOnSale ? "text-ember" : "text-ink",
                   )}
                 >
                   {formatPrice(displayedPrice)}
                 </motion.span>
                 {isOnSale && displayedCompareAt && (
-                  <span className="text-lg text-muted line-through tabular-nums">
+                  <span className="font-mono text-lg text-steel line-through tabular-nums">
                     {formatPrice(displayedCompareAt)}
                   </span>
                 )}
@@ -269,15 +297,15 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
               <motion.p
                 variants={fadeInUp}
-                className="text-muted leading-relaxed mb-6"
+                className="text-steel leading-relaxed mb-8 text-base"
               >
                 {product.short_description}
               </motion.p>
 
               {/* Variant selector avec ripple */}
               {variants.length > 1 && (
-                <motion.div variants={fadeInUp} className="mb-6">
-                  <label className="block text-sm font-medium mb-3 uppercase tracking-wider text-xs">
+                <motion.div variants={fadeInUp} className="mb-8">
+                  <label className="block font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
                     Taille / Variante
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -289,11 +317,11 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                           key={v.id}
                           onClick={() => setSelectedVariant(idx)}
                           className={cn(
-                            "relative px-4 h-11 min-w-[3rem] rounded-lg border text-sm transition-all overflow-hidden",
+                            "relative px-4 h-11 min-w-[3rem] border font-mono text-[12px] tracking-wide transition-all overflow-hidden",
                             selected
-                              ? "border-terracotta text-terracotta bg-terracotta/5"
-                              : "border-border hover:border-terracotta-light",
-                            out && "opacity-50 line-through"
+                              ? "border-ink text-ink"
+                              : "border-border-strong text-steel hover:border-ink hover:text-ink",
+                            out && "opacity-40 line-through",
                           )}
                           aria-pressed={selected}
                           aria-label={
@@ -305,7 +333,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                           {selected && (
                             <motion.span
                               layoutId="variant-ripple"
-                              className="absolute inset-0 bg-terracotta/10"
+                              className="absolute inset-0 bg-ink/8"
                               transition={{
                                 type: "spring",
                                 stiffness: 350,
@@ -324,14 +352,14 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
               )}
 
               {/* Stock indicator */}
-              <motion.div variants={fadeInUp} className="mb-6">
+              <motion.div variants={fadeInUp} className="mb-8">
                 {currentStock > 5 ? (
-                  <p className="text-sm text-success flex items-center gap-1.5">
+                  <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-success flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-success" />
-                    En stock
+                    En stock — expédition sous 24h
                   </p>
                 ) : currentStock > 0 ? (
-                  <p className="text-sm text-warning flex items-center gap-1.5">
+                  <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-warning flex items-center gap-2">
                     <motion.span
                       className="w-2 h-2 rounded-full bg-warning"
                       animate={{ opacity: [1, 0.3, 1] }}
@@ -340,7 +368,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     Plus que {currentStock} en stock
                   </p>
                 ) : (
-                  <p className="text-sm text-destructive">
+                  <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-destructive">
                     {variants.length > 1
                       ? "Cette variante est en rupture"
                       : "Rupture de stock"}
@@ -349,21 +377,21 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
               </motion.div>
 
               {/* Quantity + Add to cart */}
-              <motion.div variants={fadeInUp} className="flex gap-3 mb-4">
-                <div className="flex items-center border border-border rounded-md h-12">
+              <motion.div ref={ctaRef} variants={fadeInUp} className="flex gap-3 mb-5">
+                <div className="flex items-center border border-ink/20 h-12">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="h-full px-3 hover:bg-beige-nude-light transition-colors rounded-l-md"
+                    className="h-full px-3.5 hover:bg-ink hover:text-bone transition-colors"
                     aria-label="Réduire la quantité"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center text-sm font-medium tabular-nums">
+                  <span className="w-10 text-center font-mono text-sm font-medium tabular-nums text-ink">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="h-full px-3 hover:bg-beige-nude-light transition-colors rounded-r-md"
+                    className="h-full px-3.5 hover:bg-ink hover:text-bone transition-colors"
                     aria-label="Augmenter la quantité"
                   >
                     <Plus className="w-4 h-4" />
@@ -379,10 +407,8 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 variants={fadeInUp}
                 onClick={() => setWishlisted(!wishlisted)}
                 className={cn(
-                  "flex items-center gap-2 text-sm transition-colors mb-8 group",
-                  wishlisted
-                    ? "text-terracotta"
-                    : "text-muted hover:text-terracotta"
+                  "flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] uppercase transition-colors mb-10 group",
+                  wishlisted ? "text-ember" : "text-steel hover:text-ember",
                 )}
               >
                 <motion.span
@@ -454,10 +480,10 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 </AccordionItem>
               </motion.div>
 
-              {/* Trust badges */}
+              {/* Trust badges — engagement Atelier Noir */}
               <motion.div
                 variants={fadeInUp}
-                className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-border"
+                className="grid grid-cols-3 gap-4 mt-10 pt-10 border-t border-border"
               >
                 {[
                   { icon: Shield, text: "Paiement sécurisé" },
@@ -476,8 +502,10 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     }}
                     className="flex flex-col items-center text-center"
                   >
-                    <Icon className="w-5 h-5 text-terracotta mb-1.5" />
-                    <span className="text-[11px] text-muted">{text}</span>
+                    <Icon className="w-5 h-5 text-ember mb-2" />
+                    <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-steel leading-snug">
+                      {text}
+                    </span>
                   </motion.div>
                 ))}
               </motion.div>
@@ -488,16 +516,29 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
       {/* Reviews Section */}
       {reviews.length > 0 && (
-        <section className="py-16 bg-beige-nude-light/30 px-4">
+        <section className="py-20 md:py-28 bg-bone-soft border-t border-border px-4">
           <div className="container">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
-              className="mb-10"
+              className="mb-12"
             >
-              <h2 className="font-display text-2xl md:text-3xl mb-2">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="h-px w-10 bg-ember" aria-hidden />
+                <span className="eyebrow">Témoignages</span>
+              </div>
+              <h2
+                className="font-display text-ink mb-4"
+                style={{
+                  fontSize: "var(--text-h2)",
+                  fontVariationSettings: "'opsz' 144, 'SOFT' 50, 'WONK' 0",
+                  fontWeight: 400,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.1,
+                }}
+              >
                 Avis clients
               </h2>
               <div className="flex items-center gap-3">
@@ -508,13 +549,13 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                       className={cn(
                         "w-5 h-5",
                         i < Math.round(avgRating)
-                          ? "fill-gold text-gold"
-                          : "fill-border text-border"
+                          ? "fill-ember text-ember"
+                          : "fill-border text-border",
                       )}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-muted">
+                <span className="font-mono text-[12px] tracking-[0.14em] uppercase text-steel tabular-nums">
                   {avgRating.toFixed(1)}/5 — {reviews.length} avis
                 </span>
               </div>
@@ -531,15 +572,17 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 <motion.div
                   key={review.id}
                   variants={staggerItem}
-                  className="bg-white rounded-xl p-6 border border-border/50"
+                  className="bg-bone p-7 md:p-8 border border-border"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="font-medium text-sm">
+                      <p className="text-sm font-medium text-ink">
                         Cliente ISHYA
                       </p>
                       {review.is_verified_purchase && (
-                        <p className="text-xs text-success">Achat vérifié</p>
+                        <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-success mt-1">
+                          Achat vérifié
+                        </p>
                       )}
                     </div>
                     <div className="flex gap-0.5">
@@ -549,21 +592,17 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                           className={cn(
                             "w-3.5 h-3.5",
                             i < review.rating
-                              ? "fill-gold text-gold"
-                              : "fill-border text-border"
+                              ? "fill-ember text-ember"
+                              : "fill-border text-border",
                           )}
                         />
                       ))}
                     </div>
                   </div>
                   {review.title && (
-                    <h4 className="font-medium text-sm mb-1">
-                      {review.title}
-                    </h4>
+                    <h4 className="font-medium text-ink mb-2">{review.title}</h4>
                   )}
-                  <p className="text-sm text-muted leading-relaxed">
-                    {review.body}
-                  </p>
+                  <p className="text-steel leading-relaxed">{review.body}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -573,30 +612,101 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
       {/* Cross-sell — carrousel drag */}
       {related.length > 0 && (
-        <section className="py-16 px-4 overflow-hidden">
+        <section className="py-20 md:py-28 px-4 overflow-hidden">
           <div className="container">
-            <motion.h2
+            <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
-              className="font-display text-2xl md:text-3xl mb-2"
+              className="mb-10"
             >
-              Complétez votre parure
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1, duration: 0.5, ease: easeOutQuart }}
-              className="text-sm text-muted mb-8"
-            >
-              Faites glisser pour découvrir
-            </motion.p>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="h-px w-10 bg-ember" aria-hidden />
+                <span className="eyebrow">Curation</span>
+              </div>
+              <h2
+                className="font-display text-ink mb-3"
+                style={{
+                  fontSize: "var(--text-h2)",
+                  fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
+                  fontWeight: 400,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.1,
+                }}
+              >
+                Complétez votre parure
+              </h2>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1, duration: 0.5, ease: easeOutQuart }}
+                className="font-mono text-[11px] tracking-[0.14em] uppercase text-steel"
+              >
+                Faites glisser pour découvrir
+              </motion.p>
+            </motion.div>
             <RelatedCarousel products={related} />
           </div>
         </section>
       )}
+
+      {/* ─── Sticky add-to-cart mobile (UX research: +8-15% conversion) ── */}
+      <AnimatePresence>
+        {showStickyCart && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 32, stiffness: 380 }}
+            className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-bone/95 backdrop-blur-xl border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
+            role="region"
+            aria-label="Ajout rapide au panier"
+          >
+            <div className="px-4 py-3 flex items-center gap-3">
+              {sortedMedia[0]?.url && (
+                <div className="relative w-12 h-14 shrink-0 overflow-hidden bg-bone-soft">
+                  <Image
+                    src={sortedMedia[0].url}
+                    alt={product.name}
+                    fill
+                    sizes="48px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-ink truncate leading-tight">
+                  {product.name}
+                </p>
+                <p className="font-mono text-sm tabular-nums text-ink mt-0.5">
+                  {formatPrice(displayedPrice)}
+                  {currentVariant?.size && (
+                    <span className="text-steel ml-2 text-xs">
+                      · {currentVariant.size}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={currentStock === 0}
+                className="shrink-0 inline-flex items-center justify-center gap-2 h-12 px-5 bg-ink text-bone font-mono text-[11px] tracking-[0.16em] uppercase hover:bg-ember transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                aria-label={
+                  currentStock === 0
+                    ? "Rupture de stock"
+                    : `Ajouter ${product.name} au panier`
+                }
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {currentStock === 0 ? "Indisponible" : "Ajouter"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -22,7 +22,7 @@ import { SerpPreview } from "./SerpPreview";
 import { OgPreview } from "./OgPreview";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 export function SeoForm({ config }: { config: AdminSeoConfig }) {
@@ -59,7 +59,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
     >
       <motion.div variants={staggerItem}>
         <h2 className="text-xl font-bold text-foreground">SEO</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           Configuration globale du référencement et des partages sociaux.
         </p>
       </motion.div>
@@ -82,7 +82,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
         className="bg-white rounded-xl border border-border p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-2">
-          <Globe className="w-4 h-4 text-terracotta" />
+          <Globe className="w-4 h-4 text-ember" />
           <h3 className="text-base font-semibold text-foreground">
             Page d&apos;accueil
           </h3>
@@ -97,7 +97,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="ISHYA | Bijoux Floraux Artisanaux"
             className={inputClass}
           />
-          <p className="text-xs text-muted-light mt-1">
+          <p className="text-xs text-steel-soft mt-1">
             {state.homeMetaTitle.length}/70 caractères
           </p>
         </div>
@@ -111,7 +111,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="Découvrez ISHYA, bijoux artisanaux..."
             className={cn(inputClass, "resize-none")}
           />
-          <p className="text-xs text-muted-light mt-1">
+          <p className="text-xs text-steel-soft mt-1">
             {state.homeMetaDescription.length}/160 caractères
           </p>
         </div>
@@ -136,7 +136,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
             placeholder="bijoux floraux, fleurs séchées, résine, fait main"
             className={inputClass}
           />
-          <p className="text-xs text-muted-light mt-1">Séparés par des virgules.</p>
+          <p className="text-xs text-steel-soft mt-1">Séparés par des virgules.</p>
         </div>
       </motion.section>
 
@@ -157,7 +157,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
         className="bg-white rounded-xl border border-border p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-2">
-          <Twitter className="w-4 h-4 text-terracotta" />
+          <Twitter className="w-4 h-4 text-ember" />
           <h3 className="text-base font-semibold text-foreground">
             Réseaux sociaux
           </h3>
@@ -179,7 +179,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
         className="bg-white rounded-xl border border-border p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-2">
-          <ShieldCheck className="w-4 h-4 text-terracotta" />
+          <ShieldCheck className="w-4 h-4 text-ember" />
           <h3 className="text-base font-semibold text-foreground">
             Vérifications
           </h3>
@@ -203,7 +203,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
               aria-label={
                 showGoogleToken ? "Masquer le token" : "Révéler le token"
               }
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-steel hover:text-ink"
             >
               {showGoogleToken ? (
                 <EyeOff className="w-4 h-4" />
@@ -232,7 +232,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
               aria-label={
                 showBingToken ? "Masquer le token" : "Révéler le token"
               }
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-steel hover:text-ink"
             >
               {showBingToken ? (
                 <EyeOff className="w-4 h-4" />
@@ -251,7 +251,7 @@ export function SeoForm({ config }: { config: AdminSeoConfig }) {
         <button
           onClick={handleSave}
           disabled={isPending}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
         >
           {isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
