@@ -2,7 +2,8 @@ import DOMPurify from "isomorphic-dompurify";
 import type { ReactNode } from "react";
 
 const SANITIZE_OPTIONS: Parameters<typeof DOMPurify.sanitize>[1] = {
-  // Liste explicite — pas de iframe, object, embed, form, input, script, style.
+  // Liste explicite. `iframe` est admis mais filtré hard par le hook
+  // `enforceIframeAllowlist` ci-dessous (uniquement YouTube).
   ALLOWED_TAGS: [
     "p",
     "br",
@@ -27,6 +28,7 @@ const SANITIZE_OPTIONS: Parameters<typeof DOMPurify.sanitize>[1] = {
     "h5",
     "h6",
     "img",
+    "iframe",
     "figure",
     "figcaption",
     "table",
@@ -53,6 +55,12 @@ const SANITIZE_OPTIONS: Parameters<typeof DOMPurify.sanitize>[1] = {
     "name",
     "colspan",
     "rowspan",
+    // iframe (YouTube)
+    "allow",
+    "allowfullscreen",
+    "frameborder",
+    "width",
+    "height",
   ],
   // Force schemes sûrs : pas de javascript: ni data: (sauf images en data: si jamais utilisé pour SVG inlinés — exclu volontairement).
   ALLOWED_URI_REGEXP:
@@ -70,23 +78,62 @@ const SANITIZE_OPTIONS: Parameters<typeof DOMPurify.sanitize>[1] = {
 };
 
 /**
- * Hook DOMPurify : durcit les liens externes (`target="_blank"` →
- * `rel="noopener noreferrer"`) après l'assainissement.
+ * Allowlist stricte des iframes : YouTube uniquement (incluant la version
+ * privacy-friendly youtube-nocookie). Tout autre `<iframe src=...>` est
+ * supprimé du DOM lors du sanitize.
  */
-function ensureLinkRel() {
-  // Le hook est ajouté une seule fois côté serveur et côté client.
-  if ((globalThis as { __ishya_dompurify_hooked?: boolean }).__ishya_dompurify_hooked) {
+const IFRAME_ALLOWLIST = [
+  /^https:\/\/(?:www\.)?youtube\.com\/embed\/[\w-]+(?:\?.*)?$/,
+  /^https:\/\/(?:www\.)?youtube-nocookie\.com\/embed\/[\w-]+(?:\?.*)?$/,
+];
+
+/**
+ * Hooks DOMPurify (idempotents) :
+ * - `afterSanitizeAttributes` sur `<a target="_blank">` → ajoute
+ *   `rel="noopener noreferrer"` (anti tabnabbing).
+ * - `uponSanitizeElement` sur `<iframe>` → drop si `src` n'est pas dans
+ *   l'allowlist YouTube ; sinon force `loading="lazy"` +
+ *   `referrerpolicy="strict-origin-when-cross-origin"`.
+ */
+function setupDomPurifyHooks() {
+  if (
+    (globalThis as { __ishya_dompurify_hooked?: boolean })
+      .__ishya_dompurify_hooked
+  ) {
     return;
   }
   DOMPurify.addHook("afterSanitizeAttributes", (node) => {
     if (node.tagName === "A" && node.getAttribute("target") === "_blank") {
       node.setAttribute("rel", "noopener noreferrer");
     }
+    if (node.tagName === "IFRAME") {
+      const src = node.getAttribute("src") ?? "";
+      const safe = IFRAME_ALLOWLIST.some((re) => re.test(src));
+      if (!safe) {
+        node.parentNode?.removeChild(node);
+        return;
+      }
+      // Hardening sur les iframes admises (YouTube).
+      node.setAttribute("loading", "lazy");
+      node.setAttribute(
+        "referrerpolicy",
+        "strict-origin-when-cross-origin",
+      );
+      node.setAttribute(
+        "allow",
+        "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+      );
+      node.setAttribute("allowfullscreen", "");
+      // Empêche tout sandbox surprise injecté par l'admin.
+      node.removeAttribute("sandbox");
+    }
   });
-  (globalThis as { __ishya_dompurify_hooked?: boolean }).__ishya_dompurify_hooked = true;
+  (
+    globalThis as { __ishya_dompurify_hooked?: boolean }
+  ).__ishya_dompurify_hooked = true;
 }
 
-ensureLinkRel();
+setupDomPurifyHooks();
 
 /**
  * Sanitize une chaîne HTML pour rendu via `dangerouslySetInnerHTML`.

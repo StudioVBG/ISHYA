@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import Youtube from "@tiptap/extension-youtube";
 import {
   Bold,
   Italic,
@@ -18,6 +19,7 @@ import {
   Link as LinkIcon,
   Unlink,
   Image as ImageIcon,
+  Youtube as YoutubeIcon,
   Undo,
   Redo,
   Loader2,
@@ -114,6 +116,18 @@ export function RichTextEditor({
           class: "rounded-lg max-w-full h-auto my-4",
         },
       }),
+      Youtube.configure({
+        // Privacy-friendly : pas de cookies tant que la vidéo n'est pas
+        // lue. La sortie HTML restera sanitizée par DOMPurify côté
+        // storefront avec l'allowlist iframe (YouTube uniquement).
+        nocookie: true,
+        controls: true,
+        // Wrapper responsive (16/9) — l'admin n'a pas à se soucier
+        // du ratio à l'insertion.
+        HTMLAttributes: {
+          class: "rounded-lg my-4 aspect-video w-full",
+        },
+      }),
       Placeholder.configure({ placeholder }),
     ],
     content: value || "",
@@ -176,6 +190,28 @@ export function RichTextEditor({
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
+  const insertYoutube = () => {
+    const url = window.prompt(
+      "URL YouTube (lien complet ou youtu.be) :",
+      "https://www.youtube.com/watch?v=",
+    );
+    if (!url || url.trim() === "") return;
+    // L'extension TipTap accepte les formats `youtube.com/watch?v=`,
+    // `youtu.be/<id>` et `youtube.com/embed/<id>`. On valide juste le host.
+    if (!/^https:\/\/(?:www\.)?(?:youtube\.com|youtu\.be|youtube-nocookie\.com)\//i.test(url)) {
+      toast.error("URL YouTube invalide. Collez un lien youtube.com ou youtu.be");
+      return;
+    }
+    const ok = editor
+      .chain()
+      .focus()
+      .setYoutubeVideo({ src: url, width: 640, height: 360 })
+      .run();
+    if (!ok) {
+      toast.error("Impossible d'insérer cette vidéo");
+    }
+  };
+
   const handleImageUpload = async (file: File) => {
     setUploadingImage(true);
     try {
@@ -199,6 +235,7 @@ export function RichTextEditor({
         uploadingImage={uploadingImage}
         onSetLink={setLink}
         onPickImage={() => fileInputRef.current?.click()}
+        onInsertYoutube={insertYoutube}
       />
       <input
         ref={fileInputRef}
@@ -254,12 +291,14 @@ function Toolbar({
   uploadingImage,
   onSetLink,
   onPickImage,
+  onInsertYoutube,
 }: {
   editor: Editor;
   disabled: boolean;
   uploadingImage: boolean;
   onSetLink: () => void;
   onPickImage: () => void;
+  onInsertYoutube: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted-soft/30">
@@ -367,6 +406,13 @@ function Toolbar({
           <ImageIcon className="w-4 h-4" />
         )}
       </button>
+
+      <ToolbarButton
+        icon={YoutubeIcon}
+        label="Insérer une vidéo YouTube"
+        disabled={disabled}
+        onClick={onInsertYoutube}
+      />
 
       <div className="w-px h-5 bg-border mx-1" aria-hidden />
 
