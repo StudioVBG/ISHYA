@@ -107,8 +107,8 @@ export function CommandesView({ orders }: { orders: AccountOrderListItem[] }) {
               className={cn(
                 "px-4 py-1.5 rounded-full text-xs font-medium shrink-0 border transition-colors",
                 isActive
-                  ? "bg-foreground text-bone border-foreground"
-                  : "bg-bone-soft border-border text-foreground hover:border-ember/30",
+                  ? "bg-ink text-bone border-ink"
+                  : "bg-bone-soft border-border text-ink hover:border-ember/30",
               )}
             >
               {FILTER_LABELS[status]} ({count})
