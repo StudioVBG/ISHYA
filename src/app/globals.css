@@ -519,3 +519,32 @@ h6 { font-size: var(--text-lg);  letter-spacing: var(--tracking-tight); line-hei
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Accessibilité WCAG 2.2 AA / European Accessibility Act (juin 2025)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* SC 2.4.13 Focus Appearance — indicateur ≥ 2 px, contraste ≥ 3:1.
+   Le ring ember sur fond bone et le ring bone sur fond ink garantissent
+   un contraste largement supérieur à 3:1 dans les deux modes. */
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Sur fond ink, on inverse pour garder le contraste. */
+.bg-ink :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible,
+[data-theme="dark"] :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--bone);
+}
+
+/* SC 2.5.8 Target Size (Minimum) — tous les éléments interactifs ≥ 24×24 px CSS.
+   Les utilities Tailwind (h-11/h-12) dépassent largement cette cible ; on
+   garde une garde-fou ici pour les boutons/links inline qui n'auraient pas
+   de hauteur explicite. */
+@media (pointer: coarse) {
+  a, button, [role="button"], summary {
+    min-height: 24px;
+  }
+}

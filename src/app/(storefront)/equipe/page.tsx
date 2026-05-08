@@ -52,16 +52,16 @@ const team = [
 export default function EquipePage() {
   return (
     <>
-      <section className="bg-beige-nude-light/50 py-16 px-4">
+      <section className="bg-bone-soft/50 py-16 px-4">
         <div className="container text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-gold/10 text-gold-dark px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 bg-ember/10 text-ember-deep px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-4">
             <Users className="w-3.5 h-3.5" />
             Notre équipe
           </div>
           <h1 className="font-display text-4xl md:text-5xl mb-4">
             Les visages d&apos;ISHYA
           </h1>
-          <p className="text-muted leading-relaxed">
+          <p className="text-steel leading-relaxed">
             Six artisans et passionnés réunis dans un même atelier parisien.
             Voici les mains qui façonnent chaque bijou.
           </p>
@@ -74,9 +74,9 @@ export default function EquipePage() {
             {team.map((member) => (
               <article
                 key={member.name}
-                className="group bg-white border border-border/50 rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
+                className="group bg-bone-soft border border-border/50 rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
               >
-                <div className="relative aspect-[4/5] overflow-hidden bg-beige-nude-light">
+                <div className="relative aspect-[4/5] overflow-hidden bg-bone-soft">
                   <Image
                     src={member.image}
                     alt={member.name}
@@ -87,10 +87,10 @@ export default function EquipePage() {
                 </div>
                 <div className="p-5">
                   <h3 className="font-display text-xl mb-1">{member.name}</h3>
-                  <p className="text-xs text-terracotta uppercase tracking-wider font-medium mb-3">
+                  <p className="text-xs text-ember uppercase tracking-wider font-medium mb-3">
                     {member.role}
                   </p>
-                  <p className="text-sm text-muted leading-relaxed">
+                  <p className="text-sm text-steel leading-relaxed">
                     {member.bio}
                   </p>
                 </div>
@@ -100,13 +100,13 @@ export default function EquipePage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-foreground text-white text-center">
+      <section className="py-16 px-4 bg-ink text-bone text-center">
         <div className="container max-w-2xl">
-          <Sparkles className="w-8 h-8 text-gold mx-auto mb-6" />
+          <Sparkles className="w-8 h-8 text-ember mx-auto mb-6" />
           <h2 className="font-display text-3xl md:text-4xl mb-4">
             Envie de nous rejoindre ?
           </h2>
-          <p className="text-white/70 mb-8">
+          <p className="text-bone/70 mb-8">
             Nous cherchons régulièrement des artisans, photographes et
             stagiaires qui partagent notre passion du fait main.
           </p>

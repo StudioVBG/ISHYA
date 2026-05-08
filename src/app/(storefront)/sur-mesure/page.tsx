@@ -56,15 +56,15 @@ export default function SurMesurePage() {
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
-        <div className="relative z-10 text-center text-white px-4 max-w-3xl">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-5">
+        <div className="relative z-10 text-center text-bone px-4 max-w-3xl">
+          <div className="inline-flex items-center gap-2 bg-bone/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider mb-5">
             <Sparkles className="w-3.5 h-3.5" />
             Création sur-mesure
           </div>
           <h1 className="font-display text-5xl md:text-6xl mb-6">
             Une pièce unique, comme vous
           </h1>
-          <p className="text-lg text-white/90 max-w-xl mx-auto">
+          <p className="text-lg text-bone/90 max-w-xl mx-auto">
             Vos fleurs, votre histoire, notre savoir-faire. Une création à
             quatre mains, pour les moments qui comptent.
           </p>
@@ -74,7 +74,7 @@ export default function SurMesurePage() {
       <section className="py-16 lg:py-20 px-4">
         <div className="container max-w-4xl">
           <div className="text-center mb-12">
-            <p className="text-terracotta uppercase tracking-widest text-xs mb-3">
+            <p className="text-ember uppercase tracking-widest text-xs mb-3">
               Pour quelles occasions
             </p>
             <h2 className="font-display text-3xl md:text-4xl">
@@ -85,20 +85,20 @@ export default function SurMesurePage() {
             {occasions.map((o) => (
               <div
                 key={o.title}
-                className="bg-white border border-border/50 rounded-2xl p-6"
+                className="bg-bone-soft border border-border/50 rounded-2xl p-6"
               >
                 <h3 className="font-display text-xl mb-2">{o.title}</h3>
-                <p className="text-sm text-muted leading-relaxed">{o.desc}</p>
+                <p className="text-sm text-steel leading-relaxed">{o.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 px-4 bg-beige-nude-light/30">
+      <section className="py-16 lg:py-20 px-4 bg-bone-soft/30">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
-            <p className="text-terracotta uppercase tracking-widest text-xs mb-3">
+            <p className="text-ember uppercase tracking-widest text-xs mb-3">
               Le déroulé
             </p>
             <h2 className="font-display text-3xl md:text-4xl">
@@ -111,18 +111,18 @@ export default function SurMesurePage() {
               return (
                 <div
                   key={p.n}
-                  className="bg-white rounded-2xl p-6 border border-border/50"
+                  className="bg-bone-soft rounded-2xl p-6 border border-border/50"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="font-display text-3xl text-terracotta/30">
+                    <span className="font-display text-3xl text-ember/30">
                       {p.n}
                     </span>
-                    <div className="w-9 h-9 rounded-full bg-terracotta/10 flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-terracotta" />
+                    <div className="w-9 h-9 rounded-full bg-ember/10 flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-ember" />
                     </div>
                   </div>
                   <h3 className="font-display text-lg mb-2">{p.title}</h3>
-                  <p className="text-sm text-muted leading-relaxed">{p.desc}</p>
+                  <p className="text-sm text-steel leading-relaxed">{p.desc}</p>
                 </div>
               );
             })}
@@ -132,11 +132,11 @@ export default function SurMesurePage() {
 
       <section className="py-16 px-4">
         <div className="container max-w-3xl">
-          <div className="bg-beige-nude-light/50 rounded-2xl p-8 sm:p-10 text-center">
+          <div className="bg-bone-soft/50 rounded-2xl p-8 sm:p-10 text-center">
             <h2 className="font-display text-2xl md:text-3xl mb-3">
               Budgets indicatifs
             </h2>
-            <p className="text-muted mb-8 text-sm">
+            <p className="text-steel mb-8 text-sm">
               Chaque création est unique : ces fourchettes vous donnent un
               repère.
             </p>
@@ -148,12 +148,12 @@ export default function SurMesurePage() {
               ].map((b) => (
                 <div
                   key={b.type}
-                  className="bg-white rounded-xl p-5 border border-border/50"
+                  className="bg-bone-soft rounded-xl p-5 border border-border/50"
                 >
-                  <p className="text-xs text-muted uppercase tracking-wider mb-1">
+                  <p className="text-xs text-steel uppercase tracking-wider mb-1">
                     {b.type}
                   </p>
-                  <p className="font-display text-lg text-terracotta">
+                  <p className="font-display text-lg text-ember">
                     {b.price}
                   </p>
                 </div>
@@ -163,12 +163,12 @@ export default function SurMesurePage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-foreground text-white text-center">
+      <section className="py-16 px-4 bg-ink text-bone text-center">
         <div className="container max-w-2xl">
           <h2 className="font-display text-3xl md:text-4xl mb-4">
             Démarrer votre projet
           </h2>
-          <p className="text-white/70 mb-8 leading-relaxed">
+          <p className="text-bone/70 mb-8 leading-relaxed">
             Le premier échange est gratuit et sans engagement. Racontez-nous
             votre projet, nous vous répondons sous 48 h.
           </p>
