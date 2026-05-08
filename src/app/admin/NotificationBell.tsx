@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell, ShoppingCart, RotateCcw, Headphones, Star } from "lucide-react";
+import {
+  Bell,
+  ShoppingCart,
+  RotateCcw,
+  Headphones,
+  Star,
+  MailWarning,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +18,7 @@ interface NotificationCounts {
   pendingReturns: number;
   openTickets: number;
   unmoderatedReviews: number;
+  recentBounces: number;
   total: number;
 }
 
@@ -121,6 +129,12 @@ export function NotificationBell({ counts: initialCounts }: NotificationBellProp
       count: counts.unmoderatedReviews,
       href: "/admin/avis",
       icon: Star,
+    },
+    {
+      label: "Bounces newsletter (7j)",
+      count: counts.recentBounces,
+      href: "/admin/newsletter",
+      icon: MailWarning,
     },
   ];
 

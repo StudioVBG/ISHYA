@@ -161,6 +161,7 @@ interface AdminShellProps {
     pendingReturns: number;
     openTickets: number;
     unmoderatedReviews: number;
+    recentBounces: number;
     total: number;
   };
   children: React.ReactNode;
