@@ -204,10 +204,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
     <div className="flex flex-col h-full">
       <div className="px-6 py-5 border-b border-gray-700">
         <Link href="/admin" className="flex items-center gap-2">
-          <span
-            className="text-xl font-bold tracking-wide text-white"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
+          <span className="font-display text-xl font-semibold tracking-tight text-white">
             ISHYA
           </span>
           <span className="text-xs font-medium text-gray-400 uppercase tracking-widest">

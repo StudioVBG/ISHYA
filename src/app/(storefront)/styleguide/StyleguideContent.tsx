@@ -102,7 +102,7 @@ export function StyleguideContent() {
       {/* ─── Typographie ──────────────────────────────────────── */}
       <Section
         title="Typographie"
-        description="Playfair Display pour les titres, DM Sans pour le corps. Tailles via l'échelle Tailwind."
+        description="Fraunces (variable, axes opsz/SOFT/WONK) pour les titres, Bricolage Grotesque pour le corps, Geist Mono pour les données techniques. Échelle fluide via clamp()."
       >
         <div className="space-y-6">
           <div>
