@@ -76,26 +76,82 @@ export default async function ProductPage({
   );
   const productUrl = `${siteUrl()}/produit/${slug}`;
 
+  // priceValidUntil = fin de l'année courante (recommandation Google 2026)
+  const priceValidUntil = `${new Date().getFullYear()}-12-31`;
+
+  const allImages = data.media
+    .map((m) => m.url)
+    .filter((u): u is string => Boolean(u));
+
   const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: data.product.name,
     description: data.product.short_description ?? undefined,
     sku: data.product.sku ?? undefined,
-    image: primaryImage,
+    image: allImages.length > 0 ? allImages : primaryImage,
     brand: { "@type": "Brand", name: "ISHYA" },
     category: data.category?.name ?? undefined,
+    material: data.product.material ?? undefined,
+    weight: data.product.weight_g
+      ? {
+          "@type": "QuantitativeValue",
+          value: data.product.weight_g,
+          unitCode: "GRM",
+        }
+      : undefined,
     url: productUrl,
     offers: {
       "@type": "Offer",
       url: productUrl,
       priceCurrency: "EUR",
       price: data.product.base_price.toFixed(2),
+      priceValidUntil,
       availability:
         totalStock > 0
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
+      seller: {
+        "@type": "Organization",
+        name: "ISHYA",
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "FR",
+        returnPolicyCategory:
+          "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0",
+          currency: "EUR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "FR",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 2,
+            maxValue: 5,
+            unitCode: "DAY",
+          },
+        },
+      },
     },
   };
   if (reviewSummary.count > 0) {
@@ -103,6 +159,8 @@ export default async function ProductPage({
       "@type": "AggregateRating",
       ratingValue: reviewSummary.average,
       reviewCount: reviewSummary.count,
+      bestRating: 5,
+      worstRating: 1,
     };
   }
 

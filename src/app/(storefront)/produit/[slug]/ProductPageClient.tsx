@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Minus,
@@ -11,6 +12,7 @@ import {
   Shield,
   RotateCcw,
   ChevronDown,
+  ShoppingBag,
 } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import {
@@ -125,6 +127,20 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+
+  // Sticky add-to-cart mobile : apparaît quand le CTA principal est sorti du viewport
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [showStickyCart, setShowStickyCart] = useState(false);
+  useEffect(() => {
+    const node = ctaRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyCart(!entry.isIntersecting),
+      { rootMargin: "0px 0px -40% 0px", threshold: 0 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   const { product, media, variants, reviews, category } = data;
   const sortedMedia = media;
@@ -361,7 +377,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
               </motion.div>
 
               {/* Quantity + Add to cart */}
-              <motion.div variants={fadeInUp} className="flex gap-3 mb-5">
+              <motion.div ref={ctaRef} variants={fadeInUp} className="flex gap-3 mb-5">
                 <div className="flex items-center border border-ink/20 h-12">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -635,6 +651,62 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
           </div>
         </section>
       )}
+
+      {/* ─── Sticky add-to-cart mobile (UX research: +8-15% conversion) ── */}
+      <AnimatePresence>
+        {showStickyCart && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 32, stiffness: 380 }}
+            className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-bone/95 backdrop-blur-xl border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
+            role="region"
+            aria-label="Ajout rapide au panier"
+          >
+            <div className="px-4 py-3 flex items-center gap-3">
+              {sortedMedia[0]?.url && (
+                <div className="relative w-12 h-14 shrink-0 overflow-hidden bg-bone-soft">
+                  <Image
+                    src={sortedMedia[0].url}
+                    alt={product.name}
+                    fill
+                    sizes="48px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-ink truncate leading-tight">
+                  {product.name}
+                </p>
+                <p className="font-mono text-sm tabular-nums text-ink mt-0.5">
+                  {formatPrice(displayedPrice)}
+                  {currentVariant?.size && (
+                    <span className="text-steel ml-2 text-xs">
+                      · {currentVariant.size}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={currentStock === 0}
+                className="shrink-0 inline-flex items-center justify-center gap-2 h-12 px-5 bg-ink text-bone font-mono text-[11px] tracking-[0.16em] uppercase hover:bg-ember transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                aria-label={
+                  currentStock === 0
+                    ? "Rupture de stock"
+                    : `Ajouter ${product.name} au panier`
+                }
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {currentStock === 0 ? "Indisponible" : "Ajouter"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
