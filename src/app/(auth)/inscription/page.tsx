@@ -147,7 +147,7 @@ export default function InscriptionPage() {
         <h2 className="font-display text-3xl sm:text-4xl text-foreground">
           Créez votre compte
         </h2>
-        <p className="mt-2 text-muted text-sm">
+        <p className="mt-2 text-steel text-sm">
           Rejoignez l&apos;univers ISHYA et profitez d&apos;avantages exclusifs
         </p>
       </motion.div>
@@ -161,7 +161,7 @@ export default function InscriptionPage() {
           className={cn(
             "flex w-full items-center justify-center gap-3 rounded-lg border border-border px-4 py-3",
             "text-sm font-medium text-foreground transition-all duration-200",
-            "hover:border-foreground/30 hover:bg-foreground/[0.02]",
+            "hover:border-ink/30 hover:bg-ink/[0.03]",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
@@ -184,7 +184,7 @@ export default function InscriptionPage() {
           onClick={() => handleOAuth("apple")}
           className={cn(
             "flex w-full items-center justify-center gap-3 rounded-lg bg-black px-4 py-3",
-            "text-sm font-medium text-white transition-all duration-200",
+            "text-sm font-medium text-bone transition-all duration-200",
             "hover:bg-black/90",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
@@ -206,7 +206,7 @@ export default function InscriptionPage() {
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-4 text-xs uppercase tracking-widest text-muted">
+          <span className="bg-background px-4 text-xs uppercase tracking-widest text-steel">
             ou
           </span>
         </div>
@@ -221,7 +221,7 @@ export default function InscriptionPage() {
       >
         {/* First name */}
         <div className="relative">
-          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
             <User className="h-4 w-4" />
           </div>
           <input
@@ -231,7 +231,7 @@ export default function InscriptionPage() {
             placeholder=" "
             className={cn(
               "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-              "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+              "focus:border-ember focus:ring-1 focus:ring-ember/30",
               errors.firstName ? "border-destructive" : "border-border"
             )}
             {...register("firstName")}
@@ -239,8 +239,8 @@ export default function InscriptionPage() {
           <label
             htmlFor="firstName"
             className={cn(
-              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
               "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
               errors.firstName && "text-destructive peer-focus:text-destructive"
             )}
@@ -254,7 +254,7 @@ export default function InscriptionPage() {
 
         {/* Email */}
         <div className="relative">
-          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
             <Mail className="h-4 w-4" />
           </div>
           <input
@@ -264,7 +264,7 @@ export default function InscriptionPage() {
             placeholder=" "
             className={cn(
               "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-              "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+              "focus:border-ember focus:ring-1 focus:ring-ember/30",
               errors.email ? "border-destructive" : "border-border"
             )}
             {...register("email")}
@@ -272,8 +272,8 @@ export default function InscriptionPage() {
           <label
             htmlFor="email"
             className={cn(
-              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
               "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
               errors.email && "text-destructive peer-focus:text-destructive"
             )}
@@ -288,7 +288,7 @@ export default function InscriptionPage() {
         {/* Password with strength meter */}
         <div>
           <div className="relative">
-            <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+            <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
               <Lock className="h-4 w-4" />
             </div>
             <input
@@ -298,7 +298,7 @@ export default function InscriptionPage() {
               placeholder=" "
               className={cn(
                 "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-                "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+                "focus:border-ember focus:ring-1 focus:ring-ember/30",
                 errors.password ? "border-destructive" : "border-border"
               )}
               {...register("password")}
@@ -306,8 +306,8 @@ export default function InscriptionPage() {
             <label
               htmlFor="password"
               className={cn(
-                "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-                "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+                "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+                "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
                 "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
                 errors.password && "text-destructive peer-focus:text-destructive"
               )}
@@ -317,7 +317,7 @@ export default function InscriptionPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-steel hover:text-ink transition-colors"
               tabIndex={-1}
             >
               {showPassword ? (
@@ -347,7 +347,7 @@ export default function InscriptionPage() {
                   />
                 ))}
               </div>
-              <p className="mt-1 text-xs text-muted">
+              <p className="mt-1 text-xs text-steel">
                 Force du mot de passe :{" "}
                 <span
                   className={cn(
@@ -370,16 +370,16 @@ export default function InscriptionPage() {
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-border text-terracotta accent-terracotta focus:ring-terracotta/30"
+              className="mt-0.5 h-4 w-4 rounded border-border text-ember accent-ember focus:ring-ember/30"
               {...register("acceptTerms")}
             />
-            <span className="text-sm text-muted leading-snug">
+            <span className="text-sm text-steel leading-snug">
               J&apos;accepte les{" "}
-              <Link href="/cgv" className="text-foreground underline underline-offset-2 hover:text-terracotta transition-colors">
+              <Link href="/cgv" className="text-foreground underline underline-offset-2 hover:text-ember transition-colors">
                 CGV
               </Link>{" "}
               et la{" "}
-              <Link href="/confidentialite" className="text-foreground underline underline-offset-2 hover:text-terracotta transition-colors">
+              <Link href="/confidentialite" className="text-foreground underline underline-offset-2 hover:text-ember transition-colors">
                 politique de confidentialité
               </Link>
             </span>
@@ -393,10 +393,10 @@ export default function InscriptionPage() {
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-border text-terracotta accent-terracotta focus:ring-terracotta/30"
+            className="mt-0.5 h-4 w-4 rounded border-border text-ember accent-ember focus:ring-ember/30"
             {...register("newsletter")}
           />
-          <span className="text-sm text-muted leading-snug">
+          <span className="text-sm text-steel leading-snug">
             Recevoir les offres et nouveautés par email
           </span>
         </label>
@@ -421,12 +421,12 @@ export default function InscriptionPage() {
       {/* Login link */}
       <motion.p
         variants={staggerItem}
-        className="mt-8 text-center text-sm text-muted"
+        className="mt-8 text-center text-sm text-steel"
       >
         Déjà un compte ?{" "}
         <Link
           href="/connexion"
-          className="font-medium text-foreground hover:text-terracotta transition-colors"
+          className="font-medium text-foreground hover:text-ember transition-colors"
         >
           Se connecter
         </Link>

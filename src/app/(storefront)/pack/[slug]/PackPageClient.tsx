@@ -117,14 +117,14 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
     <>
       {/* Breadcrumb */}
       <nav className="border-b border-border px-4">
-        <div className="container py-3 flex items-center gap-2 text-sm text-muted">
-          <Link href="/" className="hover:text-terracotta transition-colors">
+        <div className="container py-3 flex items-center gap-2 text-sm text-steel">
+          <Link href="/" className="hover:text-ember transition-colors">
             Accueil
           </Link>
           <ChevronRight className="w-3 h-3" />
           <Link
             href="/boutique"
-            className="hover:text-terracotta transition-colors"
+            className="hover:text-ember transition-colors"
           >
             Boutique
           </Link>
@@ -144,7 +144,7 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
               animate="visible"
               variants={fadeInUp}
             >
-              <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-beige-nude-light">
+              <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-bone-soft">
                 {pack.image_url ? (
                   <Image
                     src={pack.image_url}
@@ -155,11 +155,11 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-16 h-16 text-muted/40" />
+                    <Package className="w-16 h-16 text-steel/40" />
                   </div>
                 )}
                 {badge && (
-                  <span className="absolute top-4 left-4 bg-destructive text-white text-xs font-medium px-3 py-1 rounded">
+                  <span className="absolute top-4 left-4 bg-destructive text-bone text-xs font-medium px-3 py-1 rounded">
                     {badge}
                   </span>
                 )}
@@ -174,7 +174,7 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
             >
               <motion.p
                 variants={fadeInUp}
-                className="text-xs text-muted uppercase tracking-wider mb-2 inline-flex items-center gap-1.5"
+                className="text-xs text-steel uppercase tracking-wider mb-2 inline-flex items-center gap-1.5"
               >
                 <Sparkles className="w-3 h-3" />
                 Pack
@@ -189,7 +189,7 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
               {pack.description && (
                 <motion.p
                   variants={fadeInUp}
-                  className="text-muted leading-relaxed mb-6"
+                  className="text-steel leading-relaxed mb-6"
                 >
                   {pack.description}
                 </motion.p>
@@ -203,13 +203,13 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
                 <span
                   className={cn(
                     "text-2xl font-medium",
-                    priced.savings > 0 && "text-terracotta",
+                    priced.savings > 0 && "text-ember",
                   )}
                 >
                   {formatPrice(priced.total)}
                 </span>
                 {priced.savings > 0 && (
-                  <span className="text-lg text-muted line-through">
+                  <span className="text-lg text-steel line-through">
                     {formatPrice(priced.subtotal)}
                   </span>
                 )}
@@ -252,7 +252,7 @@ export function PackPageClient({ pack }: { pack: PackDetail }) {
               {pack.starts_at || pack.ends_at ? (
                 <motion.p
                   variants={fadeInUp}
-                  className="text-xs text-muted mt-4"
+                  className="text-xs text-steel mt-4"
                 >
                   {pack.starts_at && (
                     <span>
@@ -301,7 +301,7 @@ function PackItemRow({
       variants={staggerItem}
       className="flex items-start gap-3 p-3 border border-border rounded-lg"
     >
-      <div className="w-14 h-14 rounded-lg bg-beige-nude-light overflow-hidden shrink-0 relative">
+      <div className="w-14 h-14 rounded-lg bg-bone-soft overflow-hidden shrink-0 relative">
         {item.image_url ? (
           <Image
             src={item.image_url}
@@ -312,7 +312,7 @@ function PackItemRow({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-5 h-5 text-muted/40" />
+            <Package className="w-5 h-5 text-steel/40" />
           </div>
         )}
       </div>
@@ -320,16 +320,16 @@ function PackItemRow({
         <div className="flex items-baseline justify-between gap-2">
           <Link
             href={`/produit/${item.product_slug}`}
-            className="font-medium text-sm text-foreground hover:text-terracotta transition-colors truncate"
+            className="font-medium text-sm text-foreground hover:text-ember transition-colors truncate"
           >
             {item.product_name}
           </Link>
-          <span className="text-sm tabular-nums text-muted shrink-0">
+          <span className="text-sm tabular-nums text-steel shrink-0">
             {formatPrice(linePrice)}
           </span>
         </div>
         {lineSubtitle && (
-          <p className="text-xs text-muted">{lineSubtitle}</p>
+          <p className="text-xs text-steel">{lineSubtitle}</p>
         )}
         {item.variants.length > 1 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
@@ -345,8 +345,8 @@ function PackItemRow({
                   className={cn(
                     "px-2.5 py-1 rounded text-xs border transition-colors",
                     active
-                      ? "border-terracotta bg-terracotta/5 text-terracotta"
-                      : "border-border hover:border-terracotta-light",
+                      ? "border-ember bg-ember/5 text-ember"
+                      : "border-border hover:border-ember-bright",
                     out && "opacity-50 line-through cursor-not-allowed",
                   )}
                 >
@@ -360,7 +360,7 @@ function PackItemRow({
           <button
             type="button"
             onClick={() => onSelect(selectedVariantId ? null : item.variants[0]?.id ?? null)}
-            className="text-[11px] text-muted hover:text-terracotta mt-1 underline"
+            className="text-[11px] text-steel hover:text-ember mt-1 underline"
           >
             {selectedVariantId ? "Retirer du pack" : "Inclure dans le pack"}
           </button>

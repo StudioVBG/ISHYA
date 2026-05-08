@@ -30,7 +30,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function ConnexionPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><Loader2 className="h-8 w-8 animate-spin text-terracotta" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><Loader2 className="h-8 w-8 animate-spin text-ember" /></div>}>
       <ConnexionContent />
     </Suspense>
   );
@@ -126,7 +126,7 @@ function ConnexionContent() {
         <h2 className="font-display text-3xl sm:text-4xl text-foreground">
           Bon retour parmi nous
         </h2>
-        <p className="mt-2 text-muted text-sm">
+        <p className="mt-2 text-steel text-sm">
           Connectez-vous pour retrouver vos favoris et commandes
         </p>
       </motion.div>
@@ -140,7 +140,7 @@ function ConnexionContent() {
           className={cn(
             "flex w-full items-center justify-center gap-3 rounded-lg border border-border px-4 py-3",
             "text-sm font-medium text-foreground transition-all duration-200",
-            "hover:border-foreground/30 hover:bg-foreground/[0.02]",
+            "hover:border-ink/30 hover:bg-ink/[0.03]",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
@@ -175,7 +175,7 @@ function ConnexionContent() {
           onClick={() => handleOAuth("apple")}
           className={cn(
             "flex w-full items-center justify-center gap-3 rounded-lg bg-black px-4 py-3",
-            "text-sm font-medium text-white transition-all duration-200",
+            "text-sm font-medium text-bone transition-all duration-200",
             "hover:bg-black/90",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
@@ -197,7 +197,7 @@ function ConnexionContent() {
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-4 text-xs uppercase tracking-widest text-muted">
+          <span className="bg-background px-4 text-xs uppercase tracking-widest text-steel">
             ou
           </span>
         </div>
@@ -212,7 +212,7 @@ function ConnexionContent() {
       >
         {/* Email field */}
         <div className="relative">
-          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
             <Mail className="h-4 w-4" />
           </div>
           <input
@@ -222,7 +222,7 @@ function ConnexionContent() {
             placeholder=" "
             className={cn(
               "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-              "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+              "focus:border-ember focus:ring-1 focus:ring-ember/30",
               errors.email
                 ? "border-destructive"
                 : "border-border"
@@ -232,8 +232,8 @@ function ConnexionContent() {
           <label
             htmlFor="email"
             className={cn(
-              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
               "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
               errors.email && "text-destructive peer-focus:text-destructive"
             )}
@@ -247,7 +247,7 @@ function ConnexionContent() {
 
         {/* Password field */}
         <div className="relative">
-          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+          <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-steel">
             <Lock className="h-4 w-4" />
           </div>
           <input
@@ -257,7 +257,7 @@ function ConnexionContent() {
             placeholder=" "
             className={cn(
               "peer w-full rounded-lg border bg-transparent px-10 pb-2.5 pt-5 text-sm outline-none transition-colors",
-              "focus:border-terracotta focus:ring-1 focus:ring-terracotta/30",
+              "focus:border-ember focus:ring-1 focus:ring-ember/30",
               errors.password
                 ? "border-destructive"
                 : "border-border"
@@ -267,8 +267,8 @@ function ConnexionContent() {
           <label
             htmlFor="password"
             className={cn(
-              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-muted transition-all duration-200",
-              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-terracotta",
+              "pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 text-sm text-steel transition-all duration-200",
+              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-ember",
               "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs",
               errors.password && "text-destructive peer-focus:text-destructive"
             )}
@@ -278,7 +278,7 @@ function ConnexionContent() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-steel hover:text-foreground transition-colors"
             tabIndex={-1}
           >
             {showPassword ? (
@@ -297,14 +297,14 @@ function ConnexionContent() {
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-border text-terracotta accent-terracotta focus:ring-terracotta/30"
+              className="h-4 w-4 rounded border-border text-ember accent-ember focus:ring-ember/30"
               {...register("rememberMe")}
             />
-            <span className="text-sm text-muted">Se souvenir de moi</span>
+            <span className="text-sm text-steel">Se souvenir de moi</span>
           </label>
           <Link
             href="/mot-de-passe-oublie"
-            className="text-sm text-terracotta hover:text-terracotta-dark transition-colors"
+            className="text-sm text-ember hover:text-ember-dark transition-colors"
           >
             Mot de passe oublié ?
           </Link>
@@ -330,12 +330,12 @@ function ConnexionContent() {
       {/* Register link */}
       <motion.p
         variants={staggerItem}
-        className="mt-8 text-center text-sm text-muted"
+        className="mt-8 text-center text-sm text-steel"
       >
         Pas encore de compte ?{" "}
         <Link
           href="/inscription"
-          className="font-medium text-foreground hover:text-terracotta transition-colors"
+          className="font-medium text-foreground hover:text-ember transition-colors"
         >
           Créer un compte
         </Link>
