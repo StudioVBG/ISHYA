@@ -41,18 +41,18 @@ export function SerpPreview({
 
   return (
     <div className="bg-white rounded-xl border border-border p-5 space-y-3">
-      <p className="text-xs font-semibold text-muted uppercase tracking-wider">
+      <p className="text-xs font-semibold text-steel uppercase tracking-wider">
         Aperçu Google
       </p>
 
       <div className="font-sans">
-        <div className="flex items-center gap-2 text-xs text-muted">
-          <div className="w-5 h-5 rounded-full bg-terracotta/10 flex items-center justify-center text-[10px] font-bold text-terracotta">
+        <div className="flex items-center gap-2 text-xs text-steel">
+          <div className="w-5 h-5 rounded-full bg-ember/10 flex items-center justify-center text-[10px] font-bold text-ember">
             I
           </div>
           <div>
             <p className="text-foreground">ishya.fr</p>
-            <p className="text-[11px] text-muted-light truncate max-w-md">
+            <p className="text-[11px] text-steel-soft truncate max-w-md">
               {url}
             </p>
           </div>

@@ -11,7 +11,7 @@ import type { AdminClientRow } from "@/lib/queries/admin";
 const tierConfig: Record<string, { label: string; className: string }> = {
   bronze: { label: "Bronze", className: "bg-warning-soft text-warning" },
   silver: { label: "Argent", className: "bg-border text-foreground" },
-  gold: { label: "Or", className: "bg-gold/20 text-gold-dark" },
+  gold: { label: "Or", className: "bg-ember/20 text-ember-deep" },
   platinum: { label: "Platine", className: "bg-accent-purple-soft text-accent-purple" },
 };
 
@@ -89,7 +89,7 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Clients</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {clients.length} client{clients.length > 1 ? "s" : ""} inscrit
             {clients.length > 1 ? "s" : ""}
           </p>
@@ -98,7 +98,7 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
           type="button"
           onClick={() => exportClientsCsv(filtered)}
           disabled={filtered.length === 0}
-          className="inline-flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg font-medium text-sm text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg font-medium text-sm text-foreground hover:bg-bone-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="w-4 h-4" /> Export CSV
         </button>
@@ -110,19 +110,19 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher par nom ou email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Tous niveaux</option>
             {Object.entries(tierConfig).map(([key, val]) => (
@@ -141,20 +141,20 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted-soft/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+              <tr className="border-b border-border bg-bone-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Client
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Commandes
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-steel uppercase tracking-wider">
                   CA total
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Fidélité
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Inscription
                 </th>
                 <th className="px-4 py-3 w-16"></th>
@@ -165,7 +165,7 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
                     {clients.length === 0
                       ? "Aucun client inscrit."
@@ -176,7 +176,7 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
                 filtered.map((client) => {
                   const t = tierConfig[client.loyaltyTier] ?? {
                     label: client.loyaltyTier,
-                    className: "bg-muted-soft text-foreground",
+                    className: "bg-bone-soft text-foreground",
                   };
                   const fullName =
                     [client.firstName, client.lastName]
@@ -185,22 +185,22 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
                   return (
                     <tr
                       key={client.id}
-                      className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
+                      className="border-b border-border/40 last:border-0 hover:bg-bone-soft/50 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div>
                           <Link
                             href={`/admin/clients/${client.id}`}
-                            className="font-medium text-foreground hover:text-terracotta transition-colors"
+                            className="font-medium text-foreground hover:text-ember transition-colors"
                           >
                             {fullName}
                           </Link>
-                          <p className="text-xs text-muted-light">
+                          <p className="text-xs text-steel-soft">
                             {client.email ?? "—"}
                           </p>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-center text-muted">
+                      <td className="px-4 py-3 text-center text-steel">
                         {client.ordersCount}
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-foreground">
@@ -216,7 +216,7 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
                           {t.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-muted">
+                      <td className="px-4 py-3 text-steel">
                         {client.createdAt
                           ? formatDate(client.createdAt)
                           : "—"}
@@ -224,7 +224,7 @@ export function ClientsView({ clients }: { clients: AdminClientRow[] }) {
                       <td className="px-4 py-3">
                         <Link
                           href={`/admin/clients/${client.id}`}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors inline-block"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors inline-block"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>

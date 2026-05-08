@@ -123,7 +123,7 @@ export function SingleImageUploader({
       <div className="space-y-2">
         <div
           className={cn(
-            "relative rounded-lg overflow-hidden bg-muted-soft border border-border",
+            "relative rounded-lg overflow-hidden bg-bone-soft border border-border",
             aspectClass,
           )}
         >
@@ -154,7 +154,7 @@ export function SingleImageUploader({
           <label
             htmlFor={fileInputId}
             className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1.5 border border-border bg-white text-foreground rounded-lg text-xs font-medium hover:bg-muted-soft transition-colors cursor-pointer",
+              "inline-flex items-center gap-1.5 px-3 py-1.5 border border-border bg-white text-foreground rounded-lg text-xs font-medium hover:bg-bone-soft transition-colors cursor-pointer",
               (disabled || busy) && "opacity-50 pointer-events-none",
             )}
           >
@@ -171,7 +171,7 @@ export function SingleImageUploader({
             Retirer
           </button>
           {lastSizeKb !== null && (
-            <span className="text-xs text-muted-light ml-auto">
+            <span className="text-xs text-steel-soft ml-auto">
               {lastSizeKb} ko
             </span>
           )}
@@ -193,16 +193,16 @@ export function SingleImageUploader({
         aspectClass,
         "flex flex-col items-center justify-center",
         isDragOver
-          ? "border-terracotta bg-terracotta/5"
-          : "border-border bg-muted-soft/30",
+          ? "border-ember bg-ember/5"
+          : "border-border bg-bone-soft/30",
         (disabled || busy) && "opacity-60 pointer-events-none",
       )}
     >
-      <ImagePlus className="w-7 h-7 text-muted mb-2" />
+      <ImagePlus className="w-7 h-7 text-steel mb-2" />
       <p className="text-sm font-medium text-foreground mb-1">
         Glisse une image ici
       </p>
-      <p className="text-xs text-muted-light mb-3">
+      <p className="text-xs text-steel-soft mb-3">
         {hint ?? "JPG, PNG, WebP ou HEIC iPhone — compression auto."}
       </p>
 
@@ -228,14 +228,14 @@ export function SingleImageUploader({
       <div className="flex flex-wrap gap-2 justify-center">
         <label
           htmlFor={fileInputId}
-          className="inline-flex items-center gap-2 px-3 py-1.5 bg-terracotta text-white rounded-lg text-xs font-medium hover:bg-terracotta-dark transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-3 py-1.5 bg-ember text-white rounded-lg text-xs font-medium hover:bg-ember-deep transition-colors cursor-pointer"
         >
           <ImagePlus className="w-3.5 h-3.5" />
           Choisir une image
         </label>
         <label
           htmlFor={cameraInputId}
-          className="sm:hidden inline-flex items-center gap-2 px-3 py-1.5 border border-border bg-white text-foreground rounded-lg text-xs font-medium hover:bg-muted-soft transition-colors cursor-pointer"
+          className="sm:hidden inline-flex items-center gap-2 px-3 py-1.5 border border-border bg-white text-foreground rounded-lg text-xs font-medium hover:bg-bone-soft transition-colors cursor-pointer"
         >
           <Camera className="w-3.5 h-3.5" />
           Caméra
@@ -243,7 +243,7 @@ export function SingleImageUploader({
       </div>
 
       {busy && (
-        <div className="mt-3 inline-flex items-center gap-2 text-xs text-muted">
+        <div className="mt-3 inline-flex items-center gap-2 text-xs text-steel">
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
           Envoi en cours…
         </div>

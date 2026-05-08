@@ -93,7 +93,7 @@ export function ConfirmDialog({
                   {description && (
                     <p
                       id="confirm-dialog-desc"
-                      className="text-sm text-muted mt-1.5"
+                      className="text-sm text-steel mt-1.5"
                     >
                       {description}
                     </p>
@@ -101,7 +101,7 @@ export function ConfirmDialog({
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-muted-soft/40 rounded-b-xl">
+            <div className="flex gap-3 px-6 py-4 bg-bone-soft/40 rounded-b-xl">
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
@@ -119,7 +119,7 @@ export function ConfirmDialog({
                   "flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50",
                   tone === "destructive"
                     ? "bg-destructive hover:bg-destructive/90"
-                    : "bg-terracotta hover:bg-terracotta-dark",
+                    : "bg-ember hover:bg-ember-deep",
                 )}
               >
                 {pending && <Loader2 className="w-4 h-4 animate-spin" />}

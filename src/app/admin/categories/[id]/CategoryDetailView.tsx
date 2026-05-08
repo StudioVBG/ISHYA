@@ -219,7 +219,7 @@ export function CategoryDetailView({
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/categories"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux catégories
@@ -227,7 +227,7 @@ export function CategoryDetailView({
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-start gap-4 min-w-0">
-            <div className="relative w-24 h-24 rounded-xl bg-muted-soft overflow-hidden shrink-0 border border-border">
+            <div className="relative w-24 h-24 rounded-xl bg-bone-soft overflow-hidden shrink-0 border border-border">
               {category.imageUrl ? (
                 <Image
                   src={category.imageUrl}
@@ -238,7 +238,7 @@ export function CategoryDetailView({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <FolderTree className="w-8 h-8 text-muted-light" />
+                  <FolderTree className="w-8 h-8 text-steel-soft" />
                 </div>
               )}
             </div>
@@ -247,10 +247,10 @@ export function CategoryDetailView({
               <h1 className="text-2xl font-bold text-foreground truncate">
                 {category.name}
               </h1>
-              <div className="text-sm text-muted mt-1 flex items-center gap-2 flex-wrap">
+              <div className="text-sm text-steel mt-1 flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-xs">/{category.slug}</span>
                 {category.parentName && (
-                  <span className="text-xs text-muted-light">
+                  <span className="text-xs text-steel-soft">
                     ↳ enfant de {category.parentName}
                   </span>
                 )}
@@ -259,14 +259,14 @@ export function CategoryDetailView({
                     "px-2 py-0.5 rounded-full text-xs font-medium",
                     category.isActive
                       ? "bg-success-soft text-success"
-                      : "bg-muted-soft text-muted",
+                      : "bg-bone-soft text-steel",
                   )}
                 >
                   {category.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
               {category.description && (
-                <p className="text-sm text-muted mt-2 line-clamp-3">
+                <p className="text-sm text-steel mt-2 line-clamp-3">
                   {category.description}
                 </p>
               )}
@@ -278,7 +278,7 @@ export function CategoryDetailView({
               href={`/boutique/${category.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-bone-soft transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               Voir la page
@@ -302,18 +302,18 @@ export function CategoryDetailView({
             <h2 className="text-base font-semibold text-foreground">
               Produits ({items.length})
             </h2>
-            <p className="text-xs text-muted-light hidden sm:block">
+            <p className="text-xs text-steel-soft hidden sm:block">
               Glisser-déposer pour réordonner
             </p>
           </div>
 
           {items.length === 0 ? (
             <div className="text-center py-12">
-              <Package className="w-10 h-10 mx-auto text-muted-light mb-3" />
-              <p className="text-sm text-muted">
+              <Package className="w-10 h-10 mx-auto text-steel-soft mb-3" />
+              <p className="text-sm text-steel">
                 Aucun produit dans cette catégorie.
               </p>
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 Recherchez un produit dans le panneau de droite pour
                 commencer.
               </p>
@@ -351,26 +351,26 @@ export function CategoryDetailView({
             Ajouter un produit
           </h3>
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Nom de produit..."
-              className="w-full pl-10 pr-9 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="w-full pl-10 pr-9 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
               aria-label="Rechercher un produit"
             />
             {isSearching && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-light" />
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-steel-soft" />
             )}
           </div>
 
           {search.trim().length < MIN_SEARCH_LENGTH ? (
-            <p className="text-xs text-muted-light text-center py-6">
+            <p className="text-xs text-steel-soft text-center py-6">
               Tapez au moins {MIN_SEARCH_LENGTH} caractères pour rechercher.
             </p>
           ) : !isSearching && hasSearched && results.length === 0 ? (
-            <p className="text-xs text-muted-light text-center py-6">
+            <p className="text-xs text-steel-soft text-center py-6">
               Aucun résultat pour <span className="font-mono">{search}</span>.
             </p>
           ) : results.length > 0 ? (
@@ -380,9 +380,9 @@ export function CategoryDetailView({
                 return (
                   <div
                     key={p.id}
-                    className="flex items-center gap-3 p-2 rounded-lg border border-border/50 hover:bg-muted-soft transition-colors"
+                    className="flex items-center gap-3 p-2 rounded-lg border border-border/50 hover:bg-bone-soft transition-colors"
                   >
-                    <div className="relative w-14 h-14 rounded-lg bg-muted-soft overflow-hidden shrink-0">
+                    <div className="relative w-14 h-14 rounded-lg bg-bone-soft overflow-hidden shrink-0">
                       {p.imageUrl ? (
                         <Image
                           src={p.imageUrl}
@@ -393,7 +393,7 @@ export function CategoryDetailView({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-5 h-5 text-muted-light" />
+                          <Package className="w-5 h-5 text-steel-soft" />
                         </div>
                       )}
                     </div>
@@ -403,12 +403,12 @@ export function CategoryDetailView({
                       </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         {!p.isActive && (
-                          <span className="px-1.5 py-0.5 rounded bg-muted-soft text-[9px] uppercase tracking-wide font-medium text-muted">
+                          <span className="px-1.5 py-0.5 rounded bg-bone-soft text-[9px] uppercase tracking-wide font-medium text-steel">
                             Inactif
                           </span>
                         )}
                         {p.sku && (
-                          <span className="text-[10px] text-muted-light font-mono truncate">
+                          <span className="text-[10px] text-steel-soft font-mono truncate">
                             {p.sku}
                           </span>
                         )}
@@ -417,7 +417,7 @@ export function CategoryDetailView({
                     <button
                       onClick={() => handleAdd(p)}
                       disabled={isLoading}
-                      className="shrink-0 p-2 rounded-lg bg-terracotta/10 text-terracotta hover:bg-terracotta/20 transition-colors disabled:opacity-50"
+                      className="shrink-0 p-2 rounded-lg bg-ember/10 text-ember hover:bg-ember/20 transition-colors disabled:opacity-50"
                       aria-label={`Ajouter ${p.name} à la catégorie`}
                     >
                       {isLoading ? (

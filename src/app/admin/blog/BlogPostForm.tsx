@@ -38,7 +38,7 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
@@ -209,7 +209,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/blog"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux articles
@@ -236,7 +236,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
             <button
               onClick={handlePreview}
               disabled={isSavePending || isDeletePending}
-              className="inline-flex items-center gap-2 px-3 py-2 border border-border text-foreground bg-white rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3 py-2 border border-border text-foreground bg-white rounded-lg text-sm font-medium hover:bg-bone-soft transition-colors disabled:opacity-50"
               title="Ouvrir l'aperçu dans un nouvel onglet"
             >
               <Eye className="w-4 h-4" />
@@ -245,7 +245,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
             <button
               onClick={handleSave}
               disabled={isSavePending}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
             >
               {isSavePending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -281,7 +281,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 placeholder="Comment entretenir vos bijoux en fleurs séchées"
               />
               {(title.trim() || post?.slug) && (
-                <p className="text-xs text-muted mt-1">
+                <p className="text-xs text-steel mt-1">
                   Adresse de l&apos;article : /blog/
                   <span className="font-mono">
                     {post?.slug ?? slugify(title)}
@@ -299,7 +299,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 className={cn(inputClass, "resize-none")}
                 placeholder="Affiché sur la liste blog et en metadata"
               />
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 {excerpt.length}/300 caractères
               </p>
             </div>
@@ -317,7 +317,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
               imageFolder="blog"
               disabled={isSavePending || isDeletePending}
             />
-            <p className="text-xs text-muted-light mt-2">
+            <p className="text-xs text-steel-soft mt-2">
               Sortie : HTML, sanitizé côté storefront via DOMPurify (les tags
               dangereux comme <code>&lt;script&gt;</code> sont strippés).
               L&apos;ancien contenu markdown léger reste compatible : il
@@ -341,7 +341,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 className={inputClass}
                 placeholder="Si vide → titre de l'article"
               />
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 {seoTitle.length}/60 caractères
               </p>
             </div>
@@ -355,7 +355,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 className={cn(inputClass, "resize-none")}
                 placeholder="Si vide → extrait"
               />
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 {seoDescription.length}/160 caractères
               </p>
             </div>
@@ -376,16 +376,16 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 type="checkbox"
                 checked={isPublished}
                 onChange={(e) => setIsPublished(e.target.checked)}
-                className="rounded accent-terracotta"
+                className="rounded accent-ember"
               />
             </label>
             {post?.publishedAt && (
-              <p className="text-xs text-muted-light">
+              <p className="text-xs text-steel-soft">
                 Publié le {formatDate(post.publishedAt)}
               </p>
             )}
             {post?.authorName && (
-              <p className="text-xs text-muted-light mt-1">
+              <p className="text-xs text-steel-soft mt-1">
                 Par {post.authorName}
               </p>
             )}
@@ -394,7 +394,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
                 href={`/blog/${post.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline mt-3"
+                className="inline-flex items-center gap-1 text-xs text-ember hover:underline mt-3"
               >
                 Voir la page publique
                 <ExternalLink className="w-3 h-3" />
@@ -423,12 +423,12 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
             <h3 className="font-semibold text-foreground mb-3">Tags</h3>
             <div className="flex flex-wrap gap-1.5 mb-3">
               {tags.length === 0 ? (
-                <p className="text-xs text-muted-light">Aucun tag</p>
+                <p className="text-xs text-steel-soft">Aucun tag</p>
               ) : (
                 tags.map((t) => (
                   <span
                     key={t}
-                    className="inline-flex items-center gap-1 bg-beige-nude-light text-foreground text-xs px-2 py-1 rounded-full"
+                    className="inline-flex items-center gap-1 bg-bone-soft text-foreground text-xs px-2 py-1 rounded-full"
                   >
                     {t}
                     <button
@@ -457,7 +457,7 @@ export function BlogPostForm({ post }: { post: AdminBlogPostDetail | null }) {
               />
               <button
                 onClick={addTag}
-                className="px-3 py-2 bg-muted-soft hover:bg-border rounded-lg text-sm transition-colors"
+                className="px-3 py-2 bg-bone-soft hover:bg-border rounded-lg text-sm transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>

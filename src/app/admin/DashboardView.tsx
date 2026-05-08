@@ -147,7 +147,7 @@ export function DashboardView({
         </h2>
         <div className="h-64 sm:h-72 lg:h-80">
           {stats.revenueByDay.length === 0 ? (
-            <div className="h-full w-full flex items-center justify-center text-sm text-muted-light">
+            <div className="h-full w-full flex items-center justify-center text-sm text-steel-soft">
               Pas encore de ventes sur les 30 derniers jours.
             </div>
           ) : (
@@ -199,7 +199,7 @@ export function DashboardView({
             Top 5 produits
           </h2>
           {stats.topProducts.length === 0 ? (
-            <p className="text-sm text-muted-light">
+            <p className="text-sm text-steel-soft">
               Pas encore de ventes sur 30 jours.
             </p>
           ) : (
@@ -207,13 +207,13 @@ export function DashboardView({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-2 font-medium text-muted">
+                    <th className="text-left py-2 font-medium text-steel">
                       Produit
                     </th>
-                    <th className="text-right py-2 font-medium text-muted">
+                    <th className="text-right py-2 font-medium text-steel">
                       Vendus
                     </th>
-                    <th className="text-right py-2 font-medium text-muted">
+                    <th className="text-right py-2 font-medium text-steel">
                       CA
                     </th>
                   </tr>
@@ -235,8 +235,8 @@ export function DashboardView({
                               className="w-8 h-8 rounded-lg object-cover"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-lg bg-muted-soft flex items-center justify-center">
-                              <Package className="w-4 h-4 text-muted" />
+                            <div className="w-8 h-8 rounded-lg bg-bone-soft flex items-center justify-center">
+                              <Package className="w-4 h-4 text-steel" />
                             </div>
                           )}
                           <span className="font-medium text-foreground">
@@ -244,7 +244,7 @@ export function DashboardView({
                           </span>
                         </div>
                       </td>
-                      <td className="text-right text-muted py-2.5 tabular-nums">
+                      <td className="text-right text-steel py-2.5 tabular-nums">
                         {p.quantity}
                       </td>
                       <td className="text-right font-medium text-foreground py-2.5 tabular-nums">
@@ -266,7 +266,7 @@ export function DashboardView({
             Alertes
           </h2>
           {alerts.length === 0 ? (
-            <p className="text-sm text-muted-light">Aucune alerte. ✓</p>
+            <p className="text-sm text-steel-soft">Aucune alerte. ✓</p>
           ) : (
             <div className="space-y-2">
               {alerts.map((alert, i) => {
@@ -299,13 +299,13 @@ export function DashboardView({
           </h2>
           <Link
             href="/admin/commandes"
-            className="text-sm text-terracotta hover:underline"
+            className="text-sm text-ember hover:underline"
           >
             Tout voir
           </Link>
         </div>
         {recentOrders.length === 0 ? (
-          <p className="text-sm text-muted-light">
+          <p className="text-sm text-steel-soft">
             Aucune commande pour l&apos;instant.
           </p>
         ) : (
@@ -313,19 +313,19 @@ export function DashboardView({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 font-medium text-muted">
+                  <th className="text-left py-2 font-medium text-steel">
                     N° Commande
                   </th>
-                  <th className="text-left py-2 font-medium text-muted">
+                  <th className="text-left py-2 font-medium text-steel">
                     Client
                   </th>
-                  <th className="text-left py-2 font-medium text-muted">
+                  <th className="text-left py-2 font-medium text-steel">
                     Date
                   </th>
-                  <th className="text-left py-2 font-medium text-muted">
+                  <th className="text-left py-2 font-medium text-steel">
                     Statut
                   </th>
-                  <th className="text-right py-2 font-medium text-muted">
+                  <th className="text-right py-2 font-medium text-steel">
                     Montant
                   </th>
                 </tr>
@@ -339,7 +339,7 @@ export function DashboardView({
                     <td className="py-2.5">
                       <Link
                         href={`/admin/commandes/${order.id}`}
-                        className="font-mono text-xs text-terracotta hover:underline"
+                        className="font-mono text-xs text-ember hover:underline"
                       >
                         {order.orderNumber}
                       </Link>
@@ -347,7 +347,7 @@ export function DashboardView({
                     <td className="py-2.5 text-foreground">
                       {order.customerName ?? order.customerEmail ?? "—"}
                     </td>
-                    <td className="py-2.5 text-muted">
+                    <td className="py-2.5 text-steel">
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="py-2.5">

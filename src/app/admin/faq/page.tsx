@@ -17,14 +17,14 @@ export default async function AdminFaqPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">FAQ</h1>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-steel mt-1">
             {articles.length} question{articles.length > 1 ? "s" : ""} —
             visibles sur /aide
           </p>
         </div>
         <Link
           href="/admin/faq/nouveau"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ember text-white text-sm font-medium hover:bg-ember-deep transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouvelle question

@@ -33,12 +33,12 @@ export function OgPreview({
 
   return (
     <div className="bg-white rounded-xl border border-border p-5 space-y-3">
-      <p className="text-xs font-semibold text-muted uppercase tracking-wider">
+      <p className="text-xs font-semibold text-steel uppercase tracking-wider">
         Aperçu carte OpenGraph (Facebook / LinkedIn / Twitter)
       </p>
 
       <div className="max-w-md border border-border rounded-lg overflow-hidden">
-        <div className="relative aspect-[1.91/1] bg-muted-soft">
+        <div className="relative aspect-[1.91/1] bg-bone-soft">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -49,13 +49,13 @@ export function OgPreview({
               unoptimized
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-light">
+            <div className="absolute inset-0 flex items-center justify-center text-steel-soft">
               <ImageIcon className="w-10 h-10" />
             </div>
           )}
         </div>
-        <div className="px-4 py-3 bg-muted-soft/30">
-          <p className="text-[11px] text-muted-light uppercase tracking-wide">
+        <div className="px-4 py-3 bg-bone-soft/30">
+          <p className="text-[11px] text-steel-soft uppercase tracking-wide">
             {domain}
           </p>
           <p
@@ -66,7 +66,7 @@ export function OgPreview({
           </p>
           {displayDesc && (
             <p
-              className="text-muted mt-1"
+              className="text-steel mt-1"
               style={{ fontSize: "13px", lineHeight: "18px" }}
             >
               {displayDesc}

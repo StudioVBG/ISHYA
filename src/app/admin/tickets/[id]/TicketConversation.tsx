@@ -89,7 +89,7 @@ export function TicketConversation({
       <div>
         <Link
           href="/admin/tickets"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour aux tickets
@@ -104,7 +104,7 @@ export function TicketConversation({
                 <h1 className="text-xl font-semibold text-foreground">
                   {ticket.subject}
                 </h1>
-                <p className="text-xs text-muted mt-1">
+                <p className="text-xs text-steel mt-1">
                   Ouvert le{" "}
                   {ticket.createdAt ? formatDate(ticket.createdAt) : "—"}
                 </p>
@@ -118,8 +118,8 @@ export function TicketConversation({
 
           <div className="bg-white border border-border rounded-xl divide-y divide-border">
             {ticket.messages.length === 0 ? (
-              <div className="p-8 text-center text-sm text-muted">
-                <MessageCircle className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+              <div className="p-8 text-center text-sm text-steel">
+                <MessageCircle className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
                 Aucun message pour l&apos;instant.
               </div>
             ) : (
@@ -136,8 +136,8 @@ export function TicketConversation({
                       className={cn(
                         "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
                         m.authorIsAdmin
-                          ? "bg-terracotta/10 text-terracotta"
-                          : "bg-muted-soft text-muted",
+                          ? "bg-ember/10 text-ember"
+                          : "bg-bone-soft text-steel",
                       )}
                     >
                       {m.authorIsAdmin ? (
@@ -157,7 +157,7 @@ export function TicketConversation({
                             Note interne
                           </span>
                         )}
-                        <span className="text-xs text-muted">
+                        <span className="text-xs text-steel">
                           · {formatDate(m.createdAt)}
                         </span>
                       </div>
@@ -190,7 +190,7 @@ export function TicketConversation({
                   "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 resize-y",
                   isInternal
                     ? "border-warning/40 bg-warning-soft/40 focus:ring-warning/30"
-                    : "border-border focus:ring-terracotta/20",
+                    : "border-border focus:ring-ember/20",
                 )}
               />
               <div className="flex items-center justify-between gap-3">
@@ -206,7 +206,7 @@ export function TicketConversation({
                 <button
                   type="submit"
                   disabled={pending || !body.trim()}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ember text-white text-sm font-medium hover:bg-ember-deep disabled:opacity-50"
                 >
                   {pending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -216,14 +216,14 @@ export function TicketConversation({
                   Envoyer
                 </button>
               </div>
-              <p className="text-xs text-muted">
+              <p className="text-xs text-steel">
                 {body.length}/5000 caractères
               </p>
             </form>
           )}
 
           {isClosed && (
-            <div className="bg-muted-soft border border-border rounded-xl p-4 text-center text-sm text-muted">
+            <div className="bg-bone-soft border border-border rounded-xl p-4 text-center text-sm text-steel">
               Ce ticket est fermé. Rouvrez-le depuis le panneau latéral pour
               répondre.
             </div>
@@ -232,7 +232,7 @@ export function TicketConversation({
 
         <aside className="space-y-4">
           <div className="bg-white border border-border rounded-xl p-5 space-y-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-steel">
               Client
             </h2>
             <div>
@@ -242,7 +242,7 @@ export function TicketConversation({
               {ticket.customerEmail && (
                 <a
                   href={`mailto:${ticket.customerEmail}`}
-                  className="text-xs text-terracotta hover:underline"
+                  className="text-xs text-ember hover:underline"
                 >
                   {ticket.customerEmail}
                 </a>
@@ -250,10 +250,10 @@ export function TicketConversation({
             </div>
             {ticket.orderNumber && (
               <div className="pt-3 border-t border-border">
-                <p className="text-xs text-muted">Commande liée</p>
+                <p className="text-xs text-steel">Commande liée</p>
                 <Link
                   href={`/admin/commandes/${ticket.orderId}`}
-                  className="text-sm text-terracotta hover:underline"
+                  className="text-sm text-ember hover:underline"
                 >
                   #{ticket.orderNumber}
                 </Link>
@@ -262,16 +262,16 @@ export function TicketConversation({
           </div>
 
           <div className="bg-white border border-border rounded-xl p-5 space-y-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-steel">
               État
             </h2>
             <div>
-              <label className="block text-xs text-muted mb-1">Statut</label>
+              <label className="block text-xs text-steel mb-1">Statut</label>
               <select
                 value={ticket.status}
                 onChange={(e) => onStatusChange(e.target.value)}
                 disabled={pending}
-                className="w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                className="w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>
@@ -281,14 +281,14 @@ export function TicketConversation({
               </select>
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1">
+              <label className="block text-xs text-steel mb-1">
                 Priorité
               </label>
               <select
                 value={ticket.priority}
                 onChange={(e) => onPriorityChange(e.target.value)}
                 disabled={pending}
-                className="w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                className="w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
               >
                 {PRIORITY_OPTIONS.map((p) => (
                   <option key={p} value={p}>
@@ -299,17 +299,17 @@ export function TicketConversation({
             </div>
           </div>
 
-          <div className="bg-white border border-border rounded-xl p-5 space-y-2 text-xs text-muted">
+          <div className="bg-white border border-border rounded-xl p-5 space-y-2 text-xs text-steel">
             <div>
-              <span className="text-muted-light">Canal :</span>{" "}
+              <span className="text-steel-soft">Canal :</span>{" "}
               {ticket.channel ?? "—"}
             </div>
             <div>
-              <span className="text-muted-light">Catégorie :</span>{" "}
+              <span className="text-steel-soft">Catégorie :</span>{" "}
               {ticket.category ?? "—"}
             </div>
             <div>
-              <span className="text-muted-light">Créé :</span>{" "}
+              <span className="text-steel-soft">Créé :</span>{" "}
               {ticket.createdAt ? formatDate(ticket.createdAt) : "—"}
             </div>
           </div>

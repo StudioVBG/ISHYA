@@ -225,13 +225,13 @@ export function AvisView({
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Avis clients</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {data.total} avis ·
             <span className="text-warning ml-1">
               {data.pendingCount} en attente de modération
             </span>
             {totalPages > 1 ? (
-              <span className="ml-1 text-muted-light">
+              <span className="ml-1 text-steel-soft">
                 · page {data.page} / {totalPages}
               </span>
             ) : null}
@@ -246,20 +246,20 @@ export function AvisView({
       >
         <div className="flex flex-col lg:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher dans le titre ou le contenu..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Rechercher dans les avis"
             />
           </div>
           <select
             value={rating}
             onChange={(e) => setRating(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
             aria-label="Filtrer par note"
           >
             <option value="">Toutes les notes</option>
@@ -271,7 +271,7 @@ export function AvisView({
           </select>
           <button
             type="submit"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors"
           >
             Appliquer
           </button>
@@ -292,7 +292,7 @@ export function AvisView({
                 "px-3 py-1.5 rounded-full border text-sm font-medium transition-colors",
                 approved === key
                   ? "bg-foreground text-white border-foreground"
-                  : "bg-white border-border text-muted hover:bg-muted-soft",
+                  : "bg-white border-border text-steel hover:bg-bone-soft",
               )}
             >
               {label}
@@ -304,9 +304,9 @@ export function AvisView({
       {data.reviews.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <MessageSquare className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <MessageSquare className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           {data.total === 0
             ? "Aucun avis n'a encore été déposé."
             : "Aucun avis ne correspond à vos filtres."}
@@ -338,8 +338,8 @@ export function AvisView({
                             className={cn(
                               "w-4 h-4",
                               n <= r.rating
-                                ? "fill-gold text-gold"
-                                : "text-muted-light",
+                                ? "fill-gold text-ember"
+                                : "text-steel-soft",
                             )}
                           />
                         ))}
@@ -367,16 +367,16 @@ export function AvisView({
                       </p>
                     )}
                     {r.body && (
-                      <p className="text-sm text-muted mt-1">{r.body}</p>
+                      <p className="text-sm text-steel mt-1">{r.body}</p>
                     )}
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-light mt-2">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel-soft mt-2">
                       <span>
                         Sur{" "}
                         <Link
                           href={`/produit/${r.productSlug}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-terracotta hover:underline"
+                          className="text-ember hover:underline"
                         >
                           {r.productName}
                         </Link>
@@ -386,7 +386,7 @@ export function AvisView({
                         <button
                           type="button"
                           onClick={() => toggleEmailReveal(r.id)}
-                          className="text-muted hover:text-foreground inline-flex items-center gap-1"
+                          className="text-steel hover:text-ink inline-flex items-center gap-1"
                           aria-label={
                             emailRevealed
                               ? "Masquer l'email"
@@ -444,16 +444,16 @@ export function AvisView({
                 </div>
 
                 {r.response && replyOpenId !== r.id ? (
-                  <div className="mt-3 ml-2 pl-3 border-l-2 border-terracotta/40 bg-muted-soft/50 rounded-r-lg p-3">
+                  <div className="mt-3 ml-2 pl-3 border-l-2 border-ember/40 bg-bone-soft/50 rounded-r-lg p-3">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-xs font-semibold text-terracotta uppercase tracking-wide">
+                      <p className="text-xs font-semibold text-ember uppercase tracking-wide">
                         Réponse ISHYA
                       </p>
                       <div className="flex gap-1">
                         <button
                           onClick={() => openReply(r)}
                           aria-label="Modifier la réponse"
-                          className="inline-flex items-center gap-1 text-xs text-muted hover:text-foreground"
+                          className="inline-flex items-center gap-1 text-xs text-steel hover:text-ink"
                         >
                           <Pencil className="w-3 h-3" />
                           Modifier
@@ -472,7 +472,7 @@ export function AvisView({
                       {r.response.body}
                     </p>
                     {r.response.updatedAt ? (
-                      <p className="text-xs text-muted-light mt-1">
+                      <p className="text-xs text-steel-soft mt-1">
                         {formatDate(r.response.updatedAt)}
                       </p>
                     ) : null}
@@ -480,19 +480,19 @@ export function AvisView({
                 ) : null}
 
                 {replyOpenId === r.id ? (
-                  <div className="mt-3 ml-2 pl-3 border-l-2 border-terracotta/40">
+                  <div className="mt-3 ml-2 pl-3 border-l-2 border-ember/40">
                     <textarea
                       value={replyBody}
                       onChange={(e) => setReplyBody(e.target.value)}
                       rows={3}
                       placeholder="Votre réponse publique…"
-                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta resize-none"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember resize-none"
                     />
                     <div className="flex justify-end gap-2 mt-2">
                       <button
                         onClick={closeReply}
                         disabled={isPending && pendingId === r.id}
-                        className="px-3 py-1.5 text-sm text-muted hover:text-foreground disabled:opacity-50"
+                        className="px-3 py-1.5 text-sm text-steel hover:text-ink disabled:opacity-50"
                       >
                         Annuler
                       </button>
@@ -502,7 +502,7 @@ export function AvisView({
                           (isPending && pendingId === r.id) ||
                           !replyBody.trim()
                         }
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember/90 transition-colors disabled:opacity-50"
                       >
                         {isPending && pendingId === r.id ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -516,7 +516,7 @@ export function AvisView({
                 ) : !r.response ? (
                   <button
                     onClick={() => openReply(r)}
-                    className="mt-3 inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
+                    className="mt-3 inline-flex items-center gap-1.5 text-sm text-ember hover:underline"
                   >
                     <Reply className="w-3.5 h-3.5" />
                     Répondre
@@ -533,7 +533,7 @@ export function AvisView({
           variants={staggerItem}
           className="flex items-center justify-between bg-white rounded-xl border border-border px-4 py-3"
         >
-          <p className="text-xs text-muted">
+          <p className="text-xs text-steel">
             Affichage {(data.page - 1) * data.pageSize + 1} –{" "}
             {Math.min(data.page * data.pageSize, data.total)} sur {data.total}
           </p>
@@ -541,27 +541,27 @@ export function AvisView({
             {data.page > 1 ? (
               <Link
                 href={buildPageHref(data.page - 1)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-muted-soft transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-bone-soft transition-colors"
               >
                 <ChevronLeft className="w-3 h-3" /> Précédent
               </Link>
             ) : (
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-muted-light opacity-40">
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-steel-soft opacity-40">
                 <ChevronLeft className="w-3 h-3" /> Précédent
               </span>
             )}
-            <span className="text-xs text-muted px-2">
+            <span className="text-xs text-steel px-2">
               Page {data.page} / {totalPages}
             </span>
             {data.hasNext ? (
               <Link
                 href={buildPageHref(data.page + 1)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-muted-soft transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-bone-soft transition-colors"
               >
                 Suivant <ChevronRight className="w-3 h-3" />
               </Link>
             ) : (
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-muted-light opacity-40">
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-steel-soft opacity-40">
                 Suivant <ChevronRight className="w-3 h-3" />
               </span>
             )}

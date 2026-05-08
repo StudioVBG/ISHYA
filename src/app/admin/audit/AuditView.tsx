@@ -26,7 +26,7 @@ const ACTION_COLORS: Record<string, string> = {
   update: "bg-info-soft text-info",
   delete: "bg-destructive-soft text-destructive",
   login: "bg-accent-purple-soft text-accent-purple",
-  logout: "bg-muted-soft text-muted",
+  logout: "bg-bone-soft text-steel",
 };
 
 function actionColor(action: string): string {
@@ -34,7 +34,7 @@ function actionColor(action: string): string {
   for (const key of Object.keys(ACTION_COLORS)) {
     if (lower.includes(key)) return ACTION_COLORS[key];
   }
-  return "bg-muted-soft text-muted";
+  return "bg-bone-soft text-steel";
 }
 
 function buildHref(
@@ -107,7 +107,7 @@ export function AuditView({
         <h2 className="text-xl font-bold text-foreground">
           Journal d&apos;audit
         </h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           {data.total} évènement{data.total > 1 ? "s" : ""} au total — page{" "}
           {data.page} / {totalPages}
         </p>
@@ -120,20 +120,20 @@ export function AuditView({
       >
         <div className="flex flex-col lg:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher (action, table, ID enregistrement)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Rechercher dans les logs d'audit"
             />
           </div>
           <select
             value={action}
             onChange={(e) => setAction(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 sm:min-w-[140px]"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 sm:min-w-[140px]"
             aria-label="Filtrer par action"
           >
             <option value="">Toutes les actions</option>
@@ -146,7 +146,7 @@ export function AuditView({
           <select
             value={table}
             onChange={(e) => setTable(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 sm:min-w-[180px]"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 sm:min-w-[180px]"
             aria-label="Filtrer par table"
           >
             <option value="">Toutes les tables</option>
@@ -166,7 +166,7 @@ export function AuditView({
               type="datetime-local"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
             />
           </div>
           <div>
@@ -177,20 +177,20 @@ export function AuditView({
               type="datetime-local"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
             />
           </div>
           <div className="flex gap-2 sm:ml-auto">
             <button
               type="button"
               onClick={resetFilters}
-              className="px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors"
+              className="px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-bone-soft transition-colors"
             >
               Réinitialiser
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors"
             >
               <Filter className="w-4 h-4" />
               Appliquer
@@ -202,9 +202,9 @@ export function AuditView({
       {data.logs.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <FileText className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <FileText className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           {data.total === 0
             ? "Aucune entrée d'audit pour l'instant."
             : "Aucune entrée ne correspond à vos filtres."}
@@ -217,23 +217,23 @@ export function AuditView({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted-soft/50">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <tr className="border-b border-border bg-bone-soft/50">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                     Action
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                     Table
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                     ID
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                     Utilisateur
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                     IP
                   </th>
                 </tr>
@@ -243,9 +243,9 @@ export function AuditView({
                   <tr
                     key={log.id}
                     onClick={() => setDrawerLog(log)}
-                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors cursor-pointer"
+                    className="border-b border-border/40 last:border-0 hover:bg-bone-soft/50 transition-colors cursor-pointer"
                   >
-                    <td className="px-4 py-3 text-muted whitespace-nowrap">
+                    <td className="px-4 py-3 text-steel whitespace-nowrap">
                       {log.createdAt ? formatDate(log.createdAt) : "—"}
                     </td>
                     <td className="px-4 py-3">
@@ -260,15 +260,15 @@ export function AuditView({
                     </td>
                     <td className="px-4 py-3">
                       {log.tableName ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-mono text-muted">
+                        <span className="inline-flex items-center gap-1 text-xs font-mono text-steel">
                           <Database className="w-3 h-3" />
                           {log.tableName}
                         </span>
                       ) : (
-                        <span className="text-muted-light">—</span>
+                        <span className="text-steel-soft">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[10px] text-muted-light">
+                    <td className="px-4 py-3 font-mono text-[10px] text-steel-soft">
                       <span title={log.recordId ?? ""}>
                         {log.recordId ? log.recordId.slice(0, 8) : "—"}
                       </span>
@@ -279,7 +279,7 @@ export function AuditView({
                           (log.userId ? "Utilisateur supprimé" : "Système")}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted">
+                    <td className="px-4 py-3 font-mono text-xs text-steel">
                       {log.ipAddress ?? "—"}
                     </td>
                   </tr>
@@ -289,8 +289,8 @@ export function AuditView({
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted-soft/30">
-              <p className="text-xs text-muted">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-bone-soft/30">
+              <p className="text-xs text-steel">
                 Affichage {(data.page - 1) * data.pageSize + 1} –{" "}
                 {Math.min(data.page * data.pageSize, data.total)} sur{" "}
                 {data.total}
@@ -304,11 +304,11 @@ export function AuditView({
                     <ChevronLeft className="w-3 h-3" /> Précédent
                   </Link>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-muted-light opacity-40">
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-steel-soft opacity-40">
                     <ChevronLeft className="w-3 h-3" /> Précédent
                   </span>
                 )}
-                <span className="text-xs text-muted px-2">
+                <span className="text-xs text-steel px-2">
                   Page {data.page} / {totalPages}
                 </span>
                 {data.hasNext ? (
@@ -319,7 +319,7 @@ export function AuditView({
                     Suivant <ChevronRight className="w-3 h-3" />
                   </Link>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-muted-light opacity-40">
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-lg text-xs font-medium text-steel-soft opacity-40">
                     Suivant <ChevronRight className="w-3 h-3" />
                   </span>
                 )}
@@ -364,7 +364,7 @@ export function AuditView({
                     {drawerLog.action}
                   </span>
                   {drawerLog.tableName && (
-                    <span className="font-mono text-sm text-muted">
+                    <span className="font-mono text-sm text-steel">
                       {drawerLog.tableName}
                     </span>
                   )}
@@ -373,7 +373,7 @@ export function AuditView({
                   type="button"
                   onClick={() => setDrawerLog(null)}
                   aria-label="Fermer"
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -382,7 +382,7 @@ export function AuditView({
               <div className="p-6 space-y-5 text-sm">
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Date
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -392,7 +392,7 @@ export function AuditView({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       ID enregistrement
                     </dt>
                     <dd className="text-foreground font-mono text-xs mt-0.5 break-all">
@@ -400,7 +400,7 @@ export function AuditView({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Utilisateur
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -409,7 +409,7 @@ export function AuditView({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       IP
                     </dt>
                     <dd className="text-foreground font-mono text-xs mt-0.5">
@@ -419,10 +419,10 @@ export function AuditView({
                 </dl>
 
                 <div>
-                  <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-steel uppercase tracking-wider mb-2">
                     Avant
                   </h3>
-                  <pre className="bg-muted-soft rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
+                  <pre className="bg-bone-soft rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
                     {drawerLog.oldData
                       ? JSON.stringify(drawerLog.oldData, null, 2)
                       : "— (création ou pas de snapshot avant)"}
@@ -430,10 +430,10 @@ export function AuditView({
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                  <h3 className="text-xs font-semibold text-steel uppercase tracking-wider mb-2">
                     Après
                   </h3>
-                  <pre className="bg-muted-soft rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
+                  <pre className="bg-bone-soft rounded-lg p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap break-all">
                     {drawerLog.newData
                       ? JSON.stringify(drawerLog.newData, null, 2)
                       : "— (suppression ou pas de snapshot après)"}

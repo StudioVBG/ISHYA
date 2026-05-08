@@ -132,7 +132,7 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
           <h2 className="text-2xl font-semibold text-foreground">
             Paniers abandonnés
           </h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {counts.all} paniers · Manque à gagner :{" "}
             <strong className="text-foreground">
               {formatMoney(totalOpen)}
@@ -144,13 +144,13 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
           </p>
         </div>
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-steel" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Email, nom…"
-            className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           />
         </div>
       </div>
@@ -165,15 +165,15 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
               className={cn(
                 "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors",
                 active
-                  ? "bg-terracotta text-white border-terracotta"
-                  : "bg-white text-foreground border-border hover:border-terracotta/40",
+                  ? "bg-ember text-white border-ember"
+                  : "bg-white text-foreground border-border hover:border-ember/40",
               )}
             >
               {f.label}
               <span
                 className={cn(
                   "px-1.5 py-0.5 rounded text-[10px] font-semibold",
-                  active ? "bg-white/20" : "bg-muted-soft text-muted",
+                  active ? "bg-white/20" : "bg-bone-soft text-steel",
                 )}
               >
                 {counts[f.value]}
@@ -185,7 +185,7 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
 
       <div className="bg-white border border-border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted-soft text-xs uppercase tracking-wide text-muted">
+          <thead className="bg-bone-soft text-xs uppercase tracking-wide text-steel">
             <tr>
               <th className="text-left px-4 py-3 font-semibold">Client</th>
               <th className="text-right px-4 py-3 font-semibold">Articles</th>
@@ -199,32 +199,32 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
           <tbody className="divide-y divide-border">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-12 text-muted">
+                <td colSpan={7} className="text-center py-12 text-steel">
                   <ShoppingBag className="w-8 h-8 mx-auto mb-2 opacity-40" />
                   <p>Aucun panier abandonné</p>
                 </td>
               </tr>
             ) : (
               filtered.map((r) => (
-                <tr key={r.id} className="hover:bg-muted-soft/40">
+                <tr key={r.id} className="hover:bg-bone-soft/40">
                   <td className="px-4 py-3">
                     <div>
                       <p className="text-foreground">
                         {r.customerName ?? "—"}
                       </p>
-                      <p className="text-xs text-muted">{r.email ?? "—"}</p>
+                      <p className="text-xs text-steel">{r.email ?? "—"}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-muted">
+                  <td className="px-4 py-3 text-right text-steel">
                     {r.itemsCount || "—"}
                   </td>
                   <td className="px-4 py-3 text-right font-medium">
                     {r.cartTotal != null ? formatMoney(r.cartTotal) : "—"}
                   </td>
-                  <td className="px-4 py-3 text-muted text-xs">
+                  <td className="px-4 py-3 text-steel text-xs">
                     {r.abandonedAt ? formatDate(r.abandonedAt) : "—"}
                   </td>
-                  <td className="px-4 py-3 text-muted text-xs">
+                  <td className="px-4 py-3 text-steel text-xs">
                     {r.remindersCount > 0 ? (
                       <div>
                         <span className="font-semibold text-foreground">
@@ -252,14 +252,14 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
                         Relancé
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-terracotta/10 text-terracotta border border-terracotta/20">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-ember/10 text-ember border border-ember/20">
                         À relancer
                       </span>
                     )}
                     {r.recoveredOrderNumber && r.recoveredOrderId ? (
                       <Link
                         href={`/admin/commandes/${r.recoveredOrderId}`}
-                        className="block mt-1 text-[10px] text-terracotta hover:underline"
+                        className="block mt-1 text-[10px] text-ember hover:underline"
                       >
                         {r.recoveredOrderNumber}
                         <ExternalLink className="w-2.5 h-2.5 inline ml-0.5" />
@@ -272,7 +272,7 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
                         <button
                           disabled={isPending || r.remindersCount >= 3}
                           onClick={() => handleRemind(r)}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40 disabled:opacity-50"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-ember/40 disabled:opacity-50"
                           title={
                             r.remindersCount >= 3
                               ? "3 relances déjà envoyées"
@@ -303,7 +303,7 @@ export function AbandonedCartsView({ rows }: { rows: AbandonedCartRow[] }) {
         </table>
       </div>
 
-      <p className="text-xs text-muted">
+      <p className="text-xs text-steel">
         Le bouton « Relancer » envoie l&apos;email du palier suivant (#1, #2 ou
         #3) via Resend, en s&apos;appuyant sur la dédupe <code>email_logs</code>.
         Le cron <code>/api/cron/abandoned-carts</code> envoie automatiquement à

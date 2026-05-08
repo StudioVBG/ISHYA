@@ -19,7 +19,7 @@ import type { AdminSettingRow } from "@/lib/queries/admin";
 import { deleteSetting, upsertSetting } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 function stringifyValue(value: unknown): string {
@@ -135,7 +135,7 @@ export function ParametresView({
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Paramètres</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {settings.length} clé{settings.length > 1 ? "s" : ""} de
             configuration
           </p>
@@ -143,7 +143,7 @@ export function ParametresView({
         {canEdit && (
           <button
             onClick={openCreate}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg font-medium text-sm hover:bg-terracotta-dark transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg font-medium text-sm hover:bg-ember-deep transition-colors"
           >
             <Plus className="w-4 h-4" />
             Nouvelle clé
@@ -168,9 +168,9 @@ export function ParametresView({
       {settings.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <Settings className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <Settings className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           Aucun paramètre défini.
         </motion.div>
       ) : (
@@ -187,15 +187,15 @@ export function ParametresView({
                       {s.key}
                     </p>
                     {s.description && (
-                      <p className="text-xs text-muted mt-0.5">
+                      <p className="text-xs text-steel mt-0.5">
                         {s.description}
                       </p>
                     )}
-                    <div className="mt-2 bg-muted-soft rounded-lg p-2 font-mono text-xs text-foreground break-all">
+                    <div className="mt-2 bg-bone-soft rounded-lg p-2 font-mono text-xs text-foreground break-all">
                       {previewValue(s.value)}
                     </div>
                     {s.updatedAt && (
-                      <p className="text-[10px] text-muted-light mt-1">
+                      <p className="text-[10px] text-steel-soft mt-1">
                         Mis à jour le {formatDate(s.updatedAt)}
                       </p>
                     )}
@@ -204,7 +204,7 @@ export function ParametresView({
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => openEdit(s)}
-                        className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -212,7 +212,7 @@ export function ParametresView({
                         <button
                           onClick={() => setDeletingId(s.id)}
                           disabled={isDeletePending}
-                          className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-destructive transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -249,7 +249,7 @@ export function ParametresView({
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -264,11 +264,11 @@ export function ParametresView({
                       setForm({ ...form, key: e.target.value })
                     }
                     disabled={!!form.id}
-                    className={cn(inputClass, "font-mono", form.id && "bg-muted-soft cursor-not-allowed")}
+                    className={cn(inputClass, "font-mono", form.id && "bg-bone-soft cursor-not-allowed")}
                     placeholder="contact_email, business_hours…"
                   />
                   {form.id && (
-                    <p className="text-xs text-muted-light mt-1">
+                    <p className="text-xs text-steel-soft mt-1">
                       La clé n&apos;est pas modifiable. Supprimez et recréez
                       pour la changer.
                     </p>
@@ -303,14 +303,14 @@ export function ParametresView({
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-bone-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSavePending}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
                 >
                   {isSavePending && (
                     <Loader2 className="w-4 h-4 animate-spin" />

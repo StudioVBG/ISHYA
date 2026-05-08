@@ -130,8 +130,8 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
               className="w-10 h-10 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-muted-soft flex items-center justify-center">
-              <Package className="w-4 h-4 text-muted-light" />
+            <div className="w-10 h-10 rounded-lg bg-bone-soft flex items-center justify-center">
+              <Package className="w-4 h-4 text-steel-soft" />
             </div>
           );
         },
@@ -144,7 +144,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         cell: ({ row }) => (
           <Link
             href={`/admin/produits/${row.original.id}`}
-            className="font-medium text-foreground hover:text-terracotta transition-colors"
+            className="font-medium text-foreground hover:text-ember transition-colors"
           >
             {row.original.name}
           </Link>
@@ -154,7 +154,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         accessorKey: "sku",
         header: "SKU",
         cell: ({ getValue }) => (
-          <span className="font-mono text-xs text-muted">
+          <span className="font-mono text-xs text-steel">
             {getValue<string | null>() ?? "—"}
           </span>
         ),
@@ -203,7 +203,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                 "px-2 py-0.5 rounded-full text-xs font-medium",
                 active
                   ? "bg-success-soft text-success"
-                  : "bg-muted-soft text-muted",
+                  : "bg-bone-soft text-steel",
               )}
             >
               {active ? "Actif" : "Brouillon"}
@@ -218,7 +218,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
           <div className="flex items-center gap-1">
             <Link
               href={`/admin/produits/${row.original.id}`}
-              className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+              className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
             >
               <Edit className="w-4 h-4" />
             </Link>
@@ -228,7 +228,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                 handleDeleteOne(row.original.id, row.original.name)
               }
               disabled={isDeletePending}
-              className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-destructive transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label={`Supprimer ${row.original.name}`}
             >
               <Trash2 className="w-4 h-4" />
@@ -273,13 +273,13 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Produits</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {products.length} produit{products.length > 1 ? "s" : ""} au total
           </p>
         </div>
         <Link
           href="/admin/produits/nouveau"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg font-medium text-sm hover:bg-terracotta-dark transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg font-medium text-sm hover:bg-ember-deep transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouveau produit
@@ -292,19 +292,19 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher un produit..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Toutes catégories</option>
             {categories.map((c) => (
@@ -316,7 +316,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Tous statuts</option>
             <option value="active">Actif</option>
@@ -325,7 +325,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
         </div>
         {selectedCount > 0 && (
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/50">
-            <span className="text-sm text-muted">
+            <span className="text-sm text-steel">
               {selectedCount} sélectionné(s)
             </span>
             <button
@@ -357,7 +357,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="border-b border-border bg-muted-soft/50"
+                  className="border-b border-border bg-bone-soft/50"
                 >
                   {headerGroup.headers.map((header) => (
                     <th
@@ -368,9 +368,9 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                           : undefined
                       }
                       className={cn(
-                        "px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider",
+                        "px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider",
                         header.column.getCanSort() &&
-                          "cursor-pointer select-none hover:text-foreground",
+                          "cursor-pointer select-none hover:text-ink",
                       )}
                       style={{
                         width:
@@ -399,7 +399,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
                     {products.length === 0
                       ? "Aucun produit. Créez-en un pour commencer."
@@ -410,7 +410,7 @@ export function ProduitsView({ products }: { products: AdminProductRow[] }) {
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-border/40 last:border-0 hover:bg-muted-soft/50 transition-colors"
+                    className="border-b border-border/40 last:border-0 hover:bg-bone-soft/50 transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="px-4 py-3">

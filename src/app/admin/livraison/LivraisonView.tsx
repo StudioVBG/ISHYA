@@ -68,7 +68,7 @@ export interface ShippingMethodRow {
 }
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 interface ZoneFormState {
@@ -306,13 +306,13 @@ export function LivraisonView({
           <h2 className="text-2xl font-semibold text-foreground">
             Zones & méthodes de livraison
           </h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {zones.length} zones · {methods.length} méthodes
           </p>
         </div>
         <button
           onClick={openZoneCreate}
-          className="inline-flex items-center gap-2 px-3 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 transition-colors"
+          className="inline-flex items-center gap-2 px-3 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember/90 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouvelle zone
@@ -321,13 +321,13 @@ export function LivraisonView({
 
       {zones.length === 0 ? (
         <div className="bg-white border border-dashed border-border rounded-lg p-12 text-center">
-          <Globe className="w-10 h-10 mx-auto mb-3 text-muted-light" />
-          <p className="text-sm text-muted mb-4">
+          <Globe className="w-10 h-10 mx-auto mb-3 text-steel-soft" />
+          <p className="text-sm text-steel mb-4">
             Aucune zone de livraison configurée. Crée-en une pour commencer.
           </p>
           <button
             onClick={openZoneCreate}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Créer une zone
@@ -354,18 +354,18 @@ export function LivraisonView({
                 key={z.id}
                 className="bg-white border border-border rounded-lg overflow-hidden"
               >
-                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border bg-muted-soft/40">
+                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border bg-bone-soft/40">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-muted" />
+                      <Globe className="w-4 h-4 text-steel" />
                       <h3 className="font-semibold text-foreground">{z.name}</h3>
                       {!z.isActive ? (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted-soft text-muted border border-border">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-bone-soft text-steel border border-border">
                           Inactive
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-xs text-muted mt-0.5">
+                    <p className="text-xs text-steel mt-0.5">
                       {z.countries.length === 0
                         ? "Aucun pays défini"
                         : z.countries.join(", ")}
@@ -374,14 +374,14 @@ export function LivraisonView({
                   <div className="flex gap-1.5 shrink-0">
                     <button
                       onClick={() => openMethodCreate(z.id)}
-                      className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40"
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-ember/40"
                     >
                       <Plus className="w-3 h-3" />
                       Méthode
                     </button>
                     <button
                       onClick={() => openZoneEdit(z)}
-                      className="inline-flex items-center px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40"
+                      className="inline-flex items-center px-2 py-1 text-xs border border-border rounded hover:border-ember/40"
                     >
                       <Edit2 className="w-3 h-3" />
                     </button>
@@ -396,7 +396,7 @@ export function LivraisonView({
                 </div>
 
                 {zoneMethods.length === 0 ? (
-                  <div className="px-5 py-6 text-center text-sm text-muted">
+                  <div className="px-5 py-6 text-center text-sm text-steel">
                     <Package className="w-6 h-6 mx-auto mb-2 opacity-40" />
                     Aucune méthode dans cette zone
                   </div>
@@ -439,7 +439,7 @@ export function LivraisonView({
                 </h3>
                 <button
                   onClick={() => setZoneModal(false)}
-                  className="p-1 hover:bg-muted-soft rounded"
+                  className="p-1 hover:bg-bone-soft rounded"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -471,7 +471,7 @@ export function LivraisonView({
                     placeholder="FR, BE, LU"
                     className={inputClass}
                   />
-                  <p className="text-xs text-muted mt-1">
+                  <p className="text-xs text-steel mt-1">
                     Codes ISO 3166-1 alpha-2. Ex : FR, BE, DE.
                   </p>
                 </div>
@@ -490,14 +490,14 @@ export function LivraisonView({
               <div className="flex justify-end gap-2 mt-6">
                 <button
                   onClick={() => setZoneModal(false)}
-                  className="px-3 py-2 text-sm text-muted hover:text-foreground"
+                  className="px-3 py-2 text-sm text-steel hover:text-ink"
                 >
                   Annuler
                 </button>
                 <button
                   disabled={isZonePending || !zoneForm.name.trim()}
                   onClick={handleZoneSave}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember/90 disabled:opacity-50"
                 >
                   {isZonePending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -534,7 +534,7 @@ export function LivraisonView({
                 </h3>
                 <button
                   onClick={() => setMethodModal(false)}
-                  className="p-1 hover:bg-muted-soft rounded"
+                  className="p-1 hover:bg-bone-soft rounded"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -696,7 +696,7 @@ export function LivraisonView({
                 <button
                   onClick={() => setMethodModal(false)}
                   className={cn(
-                    "px-3 py-2 text-sm text-muted hover:text-foreground",
+                    "px-3 py-2 text-sm text-steel hover:text-ink",
                   )}
                 >
                   Annuler
@@ -708,7 +708,7 @@ export function LivraisonView({
                     !methodForm.zoneId
                   }
                   onClick={handleMethodSave}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember/90 disabled:opacity-50"
                 >
                   {isMethodPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -795,7 +795,7 @@ function SortableMethodsTable({
       onDragEnd={handleDragEnd}
     >
       <table className="w-full text-sm">
-        <thead className="bg-muted-soft/30 text-xs uppercase tracking-wide text-muted">
+        <thead className="bg-bone-soft/30 text-xs uppercase tracking-wide text-steel">
           <tr>
             <th className="w-8 px-2 py-2"></th>
             <th className="text-left px-5 py-2 font-semibold">Méthode</th>
@@ -860,7 +860,7 @@ function SortableMethodRow({
       className={
         isDragging
           ? "bg-white shadow-md relative z-10"
-          : "hover:bg-muted-soft/30"
+          : "hover:bg-bone-soft/30"
       }
     >
       <td className="w-8 px-2 py-3 text-center">
@@ -869,7 +869,7 @@ function SortableMethodRow({
           {...attributes}
           {...listeners}
           aria-label={`Réordonner ${m.name}`}
-          className="p-1 rounded text-muted-light hover:text-foreground hover:bg-muted-soft cursor-grab active:cursor-grabbing touch-none"
+          className="p-1 rounded text-steel-soft hover:text-ink hover:bg-bone-soft cursor-grab active:cursor-grabbing touch-none"
         >
           <GripVertical className="w-4 h-4" />
         </button>
@@ -877,17 +877,17 @@ function SortableMethodRow({
       <td className="px-5 py-3">
         <p className="font-medium text-foreground">{m.name}</p>
         {m.description ? (
-          <p className="text-xs text-muted mt-0.5">{m.description}</p>
+          <p className="text-xs text-steel mt-0.5">{m.description}</p>
         ) : null}
       </td>
-      <td className="px-5 py-3 text-muted">{m.carrier ?? "—"}</td>
+      <td className="px-5 py-3 text-steel">{m.carrier ?? "—"}</td>
       <td className="px-5 py-3 text-right font-medium">
         {new Intl.NumberFormat("fr-FR", {
           style: "currency",
           currency: "EUR",
         }).format(m.price)}
       </td>
-      <td className="px-5 py-3 text-right text-muted">
+      <td className="px-5 py-3 text-right text-steel">
         {m.freeAbove != null
           ? new Intl.NumberFormat("fr-FR", {
               style: "currency",
@@ -895,7 +895,7 @@ function SortableMethodRow({
             }).format(m.freeAbove)
           : "—"}
       </td>
-      <td className="px-5 py-3 text-muted">
+      <td className="px-5 py-3 text-steel">
         {m.estimatedDaysMin != null && m.estimatedDaysMax != null
           ? `${m.estimatedDaysMin}–${m.estimatedDaysMax} j`
           : m.estimatedDaysMin != null
@@ -908,7 +908,7 @@ function SortableMethodRow({
             Actif
           </span>
         ) : (
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted-soft text-muted border border-border">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-bone-soft text-steel border border-border">
             Inactif
           </span>
         )}
@@ -918,7 +918,7 @@ function SortableMethodRow({
           <button
             onClick={() => onEdit(m)}
             aria-label={`Modifier ${m.name}`}
-            className="inline-flex items-center px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40"
+            className="inline-flex items-center px-2 py-1 text-xs border border-border rounded hover:border-ember/40"
           >
             <Edit2 className="w-3 h-3" />
           </button>

@@ -152,11 +152,11 @@ export function NotificationBell({ counts: initialCounts }: NotificationBellProp
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls={menuId}
-        className="relative p-2 rounded-lg hover:bg-muted-soft transition-colors"
+        className="relative p-2 rounded-lg hover:bg-bone-soft transition-colors"
       >
-        <Bell className="w-5 h-5 text-muted" />
+        <Bell className="w-5 h-5 text-steel" />
         {hasAlerts && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-terracotta text-white text-[10px] font-semibold flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-ember text-white text-[10px] font-semibold flex items-center justify-center">
             {counts.total > 99 ? "99+" : counts.total}
           </span>
         )}
@@ -184,7 +184,7 @@ export function NotificationBell({ counts: initialCounts }: NotificationBellProp
                 <h3 className="text-sm font-semibold text-foreground">
                   Notifications
                 </h3>
-                <p className="text-xs text-muted-light mt-0.5">
+                <p className="text-xs text-steel-soft mt-0.5">
                   {hasAlerts
                     ? `${counts.total} action${counts.total > 1 ? "s" : ""} en attente`
                     : "Tout est à jour"}
@@ -202,12 +202,12 @@ export function NotificationBell({ counts: initialCounts }: NotificationBellProp
                       onClick={() => setOpen(false)}
                       role="menuitem"
                       className={cn(
-                        "flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted-soft transition-colors",
+                        "flex items-center justify-between gap-3 px-4 py-3 hover:bg-bone-soft transition-colors",
                         !active && "opacity-60",
                       )}
                     >
                       <span className="flex items-center gap-3">
-                        <Icon className="w-4 h-4 text-muted" />
+                        <Icon className="w-4 h-4 text-steel" />
                         <span className="text-sm text-foreground">
                           {item.label}
                         </span>
@@ -216,8 +216,8 @@ export function NotificationBell({ counts: initialCounts }: NotificationBellProp
                         className={cn(
                           "text-xs font-semibold px-2 py-0.5 rounded-full",
                           active
-                            ? "bg-terracotta/10 text-terracotta"
-                            : "bg-muted-soft text-muted",
+                            ? "bg-ember/10 text-ember"
+                            : "bg-bone-soft text-steel",
                         )}
                       >
                         {item.count}

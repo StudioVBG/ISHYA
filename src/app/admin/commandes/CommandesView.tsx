@@ -95,7 +95,7 @@ export function CommandesView({
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Commandes</h2>
-          <p className="text-sm text-muted">{orders.length} commandes</p>
+          <p className="text-sm text-steel">{orders.length} commandes</p>
         </div>
         <Button
           variant="secondary"
@@ -114,19 +114,19 @@ export function CommandesView({
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher par n° ou client..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Tous statuts</option>
             {statusFilterOptions.map((opt) => (
@@ -146,22 +146,22 @@ export function CommandesView({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-ivory/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   N° Commande
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Client
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Articles
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Statut
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-steel uppercase tracking-wider">
                   Montant
                 </th>
                 <th className="px-4 py-3 w-16"></th>
@@ -172,7 +172,7 @@ export function CommandesView({
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
                     {orders.length === 0
                       ? "Aucune commande pour l'instant."
@@ -188,7 +188,7 @@ export function CommandesView({
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/commandes/${order.id}`}
-                        className="font-mono text-xs text-terracotta hover:underline"
+                        className="font-mono text-xs text-ember hover:underline"
                       >
                         {order.orderNumber}
                       </Link>
@@ -198,15 +198,15 @@ export function CommandesView({
                         <p className="font-medium text-foreground">
                           {order.customerName ?? "—"}
                         </p>
-                        <p className="text-xs text-muted-light">
+                        <p className="text-xs text-steel-soft">
                           {order.customerEmail ?? "—"}
                         </p>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted">
+                    <td className="px-4 py-3 text-steel">
                       {formatDate(order.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-center text-muted tabular-nums">
+                    <td className="px-4 py-3 text-center text-steel tabular-nums">
                       {order.itemCount}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -221,7 +221,7 @@ export function CommandesView({
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/commandes/${order.id}`}
-                        className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors inline-block"
+                        className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors inline-block"
                         aria-label="Voir le détail"
                       >
                         <Eye className="w-4 h-4" />

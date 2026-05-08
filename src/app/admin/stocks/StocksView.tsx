@@ -91,7 +91,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
           <h2 className="text-xl font-bold text-foreground">
             Gestion des stocks
           </h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {rows.length} variante{rows.length > 1 ? "s" : ""} ·
             <span className="text-destructive ml-1">
               {outCount} en rupture
@@ -110,13 +110,13 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher produit ou SKU..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <div className="flex gap-2">
@@ -135,7 +135,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   statusFilter === key
                     ? "bg-foreground text-white"
-                    : "bg-white border border-border text-muted hover:bg-muted-soft",
+                    : "bg-white border border-border text-steel hover:bg-bone-soft",
                 )}
               >
                 {label}
@@ -152,23 +152,23 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted-soft/50">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+              <tr className="border-b border-border bg-bone-soft/50">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Produit
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   SKU
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-steel uppercase tracking-wider">
                   Variante
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Seuil
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-steel uppercase tracking-wider">
                   Statut
                 </th>
               </tr>
@@ -178,7 +178,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-12 text-center text-muted-light"
+                    className="px-4 py-12 text-center text-steel-soft"
                   >
                     {rows.length === 0
                       ? "Aucune variante en base."
@@ -198,16 +198,16 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                           ? "bg-destructive-soft/30"
                           : row.quantity <= row.threshold
                             ? "bg-warning-soft/30"
-                            : "hover:bg-muted-soft/50",
+                            : "hover:bg-bone-soft/50",
                       )}
                     >
                       <td className="px-4 py-3 font-medium text-foreground">
                         {row.productName}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-muted">
+                      <td className="px-4 py-3 font-mono text-xs text-steel">
                         {row.sku ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-muted">
+                      <td className="px-4 py-3 text-steel">
                         {row.variantLabel}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -217,7 +217,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                               type="number"
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              className="w-16 px-2 py-1 border border-border rounded text-center text-sm focus:outline-none focus:border-terracotta"
+                              className="w-16 px-2 py-1 border border-border rounded text-center text-sm focus:outline-none focus:border-ember"
                               autoFocus
                               onKeyDown={(e) =>
                                 e.key === "Enter" && saveEdit(row.variantId)
@@ -255,7 +255,7 @@ export function StocksView({ rows }: { rows: AdminVariantStockRow[] }) {
                           </button>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center text-muted-light">
+                      <td className="px-4 py-3 text-center text-steel-soft">
                         {row.threshold}
                       </td>
                       <td className="px-4 py-3 text-center">

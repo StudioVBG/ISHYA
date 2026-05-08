@@ -31,7 +31,7 @@ import {
 } from "./actions";
 
 const inputClass =
-  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta";
+  "w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember";
 const labelClass = "block text-xs font-medium text-foreground mb-1";
 
 // Seuls les types réellement appliqués au panier sont exposés en création.
@@ -259,13 +259,13 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
       >
         <div>
           <h2 className="text-xl font-bold text-foreground">Packs & parures</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {packs.length} pack{packs.length > 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-terracotta text-white rounded-lg font-medium text-sm hover:bg-terracotta-dark transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-ember text-white rounded-lg font-medium text-sm hover:bg-ember-deep transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouveau pack
@@ -279,19 +279,19 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
         >
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
               <input
                 type="text"
                 placeholder="Rechercher un pack..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               />
             </div>
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Trier les packs"
             >
               {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
@@ -305,7 +305,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
               onChange={(e) =>
                 setTypeFilter(e.target.value as "" | PackDiscountType)
               }
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Filtrer par type"
             >
               <option value="">Tous types</option>
@@ -320,7 +320,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
               onChange={(e) =>
                 setStatusFilter(e.target.value as "" | "active" | "inactive")
               }
-              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
               aria-label="Filtrer par statut"
             >
               <option value="">Tous statuts</option>
@@ -329,7 +329,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
             </select>
           </div>
           {visiblePacks.length !== packs.length && (
-            <p className="mt-3 pt-3 border-t border-border/50 text-xs text-muted">
+            <p className="mt-3 pt-3 border-t border-border/50 text-xs text-steel">
               {visiblePacks.length} pack{visiblePacks.length > 1 ? "s" : ""}{" "}
               affiché{visiblePacks.length > 1 ? "s" : ""} sur {packs.length}
             </p>
@@ -340,17 +340,17 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
       {packs.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <Gift className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <Gift className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           Aucun pack pour l&apos;instant.
         </motion.div>
       ) : visiblePacks.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <Gift className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <Gift className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           Aucun pack ne correspond à votre recherche.
         </motion.div>
       ) : (
@@ -363,7 +363,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
               key={p.id}
               className="bg-white rounded-xl border border-border overflow-hidden flex flex-col"
             >
-              <div className="relative aspect-[16/10] bg-muted-soft">
+              <div className="relative aspect-[16/10] bg-bone-soft">
                 {p.imageUrl ? (
                   <Image
                     src={p.imageUrl}
@@ -375,7 +375,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <ImageIcon className="w-10 h-10 text-muted-light" />
+                    <ImageIcon className="w-10 h-10 text-steel-soft" />
                   </div>
                 )}
                 <span
@@ -389,22 +389,22 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   {p.isActive ? "Actif" : "Inactif"}
                 </span>
                 {formatDiscount(p) && (
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta/90 text-white">
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium bg-ember/90 text-white">
                     {formatDiscount(p)}
                   </span>
                 )}
               </div>
               <div className="p-4 flex-1 flex flex-col">
                 <p className="font-medium text-foreground">{p.name}</p>
-                <p className="text-xs text-muted-light font-mono mt-0.5">
+                <p className="text-xs text-steel-soft font-mono mt-0.5">
                   /{p.slug}
                 </p>
                 {p.description && (
-                  <p className="text-xs text-muted mt-2 line-clamp-2">
+                  <p className="text-xs text-steel mt-2 line-clamp-2">
                     {p.description}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-light mt-2">
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel-soft mt-2">
                   <span>
                     {p.itemCount} produit{p.itemCount > 1 ? "s" : ""}
                   </span>
@@ -416,7 +416,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                 <div className="flex items-center justify-between gap-1 mt-3 pt-3 border-t border-border/50">
                   <Link
                     href={`/admin/packs/${p.id}`}
-                    className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-ember hover:underline"
                   >
                     <Package className="w-3.5 h-3.5" />
                     Composer
@@ -424,14 +424,14 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openEdit(p)}
-                      className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-terracotta transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-ember transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeletingId(p.id)}
                       disabled={isDeletePending}
-                      className="p-1.5 rounded-lg hover:bg-muted-soft text-muted hover:text-destructive transition-colors disabled:opacity-50"
+                      className="p-1.5 rounded-lg hover:bg-bone-soft text-steel hover:text-destructive transition-colors disabled:opacity-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -466,7 +466,7 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted disabled:opacity-50"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel disabled:opacity-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -577,11 +577,11 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                     onChange={(e) =>
                       setForm({ ...form, isActive: e.target.checked })
                     }
-                    className="rounded accent-terracotta"
+                    className="rounded accent-ember"
                   />
                   Pack actif
                 </label>
-                <p className="text-xs text-muted-light italic">
+                <p className="text-xs text-steel-soft italic">
                   Les produits inclus dans le pack se gèrent depuis la page
                   Composer (bouton sur chaque carte de pack).
                 </p>
@@ -590,14 +590,14 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
                 <button
                   onClick={() => setShowModal(false)}
                   disabled={isSavePending}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-soft transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-bone-soft transition-colors disabled:opacity-50"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSavePending}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-50"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-50"
                 >
                   {isSavePending && (
                     <Loader2 className="w-4 h-4 animate-spin" />

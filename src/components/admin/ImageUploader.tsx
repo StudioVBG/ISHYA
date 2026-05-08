@@ -214,16 +214,16 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
         className={cn(
           "border-2 border-dashed rounded-xl p-6 text-center transition-colors",
           isDragOver
-            ? "border-terracotta bg-terracotta/5"
-            : "border-border bg-muted-soft/30",
+            ? "border-ember bg-ember/5"
+            : "border-border bg-bone-soft/30",
           (disabled || busy) && "opacity-60 pointer-events-none",
         )}
       >
-        <ImagePlus className="w-8 h-8 mx-auto text-muted mb-2" />
+        <ImagePlus className="w-8 h-8 mx-auto text-steel mb-2" />
         <p className="text-sm font-medium text-foreground mb-1">
           Glisse tes photos ici
         </p>
-        <p className="text-xs text-muted-light mb-4">
+        <p className="text-xs text-steel-soft mb-4">
           ou choisis-les depuis ton appareil — JPG, PNG, WebP ou photos iPhone
           (HEIC). Elles sont compressées automatiquement.
         </p>
@@ -251,14 +251,14 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
         <div className="flex flex-wrap gap-2 justify-center">
           <label
             htmlFor={fileInputId}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta-dark transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ember text-white rounded-lg text-sm font-medium hover:bg-ember-deep transition-colors cursor-pointer"
           >
             <ImagePlus className="w-4 h-4" />
             Choisir des photos
           </label>
           <label
             htmlFor={cameraInputId}
-            className="sm:hidden inline-flex items-center gap-2 px-4 py-2 border border-border bg-white text-foreground rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors cursor-pointer"
+            className="sm:hidden inline-flex items-center gap-2 px-4 py-2 border border-border bg-white text-foreground rounded-lg text-sm font-medium hover:bg-bone-soft transition-colors cursor-pointer"
           >
             <Camera className="w-4 h-4" />
             Prendre une photo
@@ -266,7 +266,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
         </div>
 
         {busy && progress && (
-          <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted">
+          <div className="mt-4 inline-flex items-center gap-2 text-sm text-steel">
             <Loader2 className="w-4 h-4 animate-spin" />
             Envoi en cours… {progress.done}/{progress.total}
           </div>
@@ -276,7 +276,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
       {value.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-muted-light">
+            <p className="text-xs text-steel-soft">
               {value.length} photo{value.length > 1 ? "s" : ""} — la première
               est utilisée comme image principale.
             </p>
@@ -287,10 +287,10 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                 key={photo.id}
                 className={cn(
                   "relative group border border-border rounded-xl overflow-hidden bg-white",
-                  photo.isPrimary && "ring-2 ring-terracotta",
+                  photo.isPrimary && "ring-2 ring-ember",
                 )}
               >
-                <div className="relative aspect-square bg-muted-soft">
+                <div className="relative aspect-square bg-bone-soft">
                   <Image
                     src={photo.url}
                     alt={photo.altText || `Photo ${idx + 1}`}
@@ -299,7 +299,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                     className="object-cover"
                   />
                   {photo.isPrimary && (
-                    <span className="absolute top-2 left-2 inline-flex items-center gap-1 bg-terracotta text-white text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                    <span className="absolute top-2 left-2 inline-flex items-center gap-1 bg-ember text-white text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
                       <Star className="w-3 h-3 fill-current" />
                       Principale
                     </span>
@@ -311,7 +311,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                     value={photo.altText}
                     onChange={(e) => handleAltChange(photo.id, e.target.value)}
                     placeholder="Décris la photo (optionnel)"
-                    className="w-full text-xs px-2 py-1 border border-border rounded focus:outline-none focus:ring-1 focus:ring-terracotta"
+                    className="w-full text-xs px-2 py-1 border border-border rounded focus:outline-none focus:ring-1 focus:ring-ember"
                   />
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex gap-1">
@@ -320,7 +320,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                         onClick={() => handleMove(photo.id, -1)}
                         disabled={idx === 0 || busy || disabled}
                         title="Monter"
-                        className="p-1 rounded hover:bg-muted-soft disabled:opacity-30"
+                        className="p-1 rounded hover:bg-bone-soft disabled:opacity-30"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
                       </button>
@@ -329,7 +329,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                         onClick={() => handleMove(photo.id, 1)}
                         disabled={idx === value.length - 1 || busy || disabled}
                         title="Descendre"
-                        className="p-1 rounded hover:bg-muted-soft disabled:opacity-30"
+                        className="p-1 rounded hover:bg-bone-soft disabled:opacity-30"
                       >
                         <ArrowDown className="w-3.5 h-3.5" />
                       </button>
@@ -341,7 +341,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                           onClick={() => handleSetPrimary(photo.id)}
                           disabled={busy || disabled}
                           title="Définir comme principale"
-                          className="p-1 rounded hover:bg-muted-soft text-muted hover:text-terracotta disabled:opacity-30"
+                          className="p-1 rounded hover:bg-bone-soft text-steel hover:text-ember disabled:opacity-30"
                         >
                           <Star className="w-3.5 h-3.5" />
                         </button>
@@ -351,7 +351,7 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                         onClick={() => handleRemove(photo.id)}
                         disabled={busy || disabled}
                         title="Retirer"
-                        className="p-1 rounded hover:bg-destructive-soft text-muted hover:text-destructive disabled:opacity-30"
+                        className="p-1 rounded hover:bg-destructive-soft text-steel hover:text-destructive disabled:opacity-30"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

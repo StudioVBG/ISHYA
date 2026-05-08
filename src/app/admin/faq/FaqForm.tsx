@@ -64,7 +64,7 @@ export function FaqForm({ article }: FaqFormProps) {
             onChange={(e) => setQuestion(e.target.value)}
             required
             placeholder="Quelle est la question fréquemment posée ?"
-            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
           />
         </div>
 
@@ -78,7 +78,7 @@ export function FaqForm({ article }: FaqFormProps) {
             required
             rows={6}
             placeholder="Rédigez la réponse complète. Le markdown simple est supporté côté affichage."
-            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 resize-y"
+            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 resize-y"
           />
         </div>
 
@@ -93,7 +93,7 @@ export function FaqForm({ article }: FaqFormProps) {
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Commandes, Livraison, Entretien…"
               list="faq-categories"
-              className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
             />
             <datalist id="faq-categories">
               <option value="Commandes" />
@@ -103,7 +103,7 @@ export function FaqForm({ article }: FaqFormProps) {
               <option value="Entretien des bijoux" />
               <option value="Mon compte" />
             </datalist>
-            <p className="text-xs text-muted mt-1">
+            <p className="text-xs text-steel mt-1">
               Sert à regrouper les questions sur la page /aide.
             </p>
           </div>
@@ -116,9 +116,9 @@ export function FaqForm({ article }: FaqFormProps) {
               type="number"
               value={sortOrder}
               onChange={(e) => setSortOrder(parseInt(e.target.value, 10) || 0)}
-              className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+              className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
             />
-            <p className="text-xs text-muted mt-1">Tri croissant.</p>
+            <p className="text-xs text-steel mt-1">Tri croissant.</p>
           </div>
         </div>
 
@@ -127,13 +127,13 @@ export function FaqForm({ article }: FaqFormProps) {
             type="checkbox"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
-            className="mt-1 w-4 h-4 accent-terracotta"
+            className="mt-1 w-4 h-4 accent-ember"
           />
           <span className="text-sm">
             <span className="font-medium text-foreground block">
               Visible publiquement
             </span>
-            <span className="text-muted">
+            <span className="text-steel">
               Décocher pour cacher la question sans la supprimer.
             </span>
           </span>
@@ -143,14 +143,14 @@ export function FaqForm({ article }: FaqFormProps) {
       <div className="flex items-center justify-between gap-3">
         <Link
           href="/admin/faq"
-          className="text-sm text-muted hover:text-foreground"
+          className="text-sm text-steel hover:text-ink"
         >
           ← Retour à la liste
         </Link>
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-60"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-ember text-white text-sm font-medium hover:bg-ember-deep transition-colors disabled:opacity-60"
         >
           {pending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

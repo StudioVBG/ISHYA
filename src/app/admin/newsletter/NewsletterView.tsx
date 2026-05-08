@@ -169,7 +169,7 @@ export function NewsletterView({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-semibold text-foreground">Newsletter</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {counts.active} actifs · {counts.unsubscribed} désabonnés ·{" "}
             {rows.length} chargés sur {total} au total
             {remaining > 0 ? ` (${remaining} non chargés)` : ""}
@@ -177,18 +177,18 @@ export function NewsletterView({
         </div>
         <div className="flex gap-2">
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-steel" />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher un email…"
-              className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <button
             onClick={() => exportCsv(filtered)}
-            className="inline-flex items-center gap-2 px-3 py-2 border border-border bg-white rounded-lg text-sm font-medium hover:border-terracotta/40 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 border border-border bg-white rounded-lg text-sm font-medium hover:border-ember/40 transition-colors"
           >
             <Download className="w-4 h-4" />
             Export CSV
@@ -207,15 +207,15 @@ export function NewsletterView({
               className={cn(
                 "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors",
                 active
-                  ? "bg-terracotta text-white border-terracotta"
-                  : "bg-white text-foreground border-border hover:border-terracotta/40",
+                  ? "bg-ember text-white border-ember"
+                  : "bg-white text-foreground border-border hover:border-ember/40",
               )}
             >
               {f.label}
               <span
                 className={cn(
                   "px-1.5 py-0.5 rounded text-[10px] font-semibold",
-                  active ? "bg-white/20" : "bg-muted-soft text-muted",
+                  active ? "bg-white/20" : "bg-bone-soft text-steel",
                 )}
               >
                 {count}
@@ -227,7 +227,7 @@ export function NewsletterView({
 
       <div className="bg-white border border-border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted-soft text-xs uppercase tracking-wide text-muted">
+          <thead className="bg-bone-soft text-xs uppercase tracking-wide text-steel">
             <tr>
               <th className="text-left px-4 py-3 font-semibold">Email</th>
               <th className="text-left px-4 py-3 font-semibold">Source</th>
@@ -240,25 +240,25 @@ export function NewsletterView({
           <tbody className="divide-y divide-border">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-12 text-muted">
+                <td colSpan={6} className="text-center py-12 text-steel">
                   <Mail className="w-8 h-8 mx-auto mb-2 opacity-40" />
                   <p>Aucun abonné</p>
                 </td>
               </tr>
             ) : (
               filtered.map((r) => (
-                <tr key={r.id} className="hover:bg-muted-soft/40 transition-colors">
+                <tr key={r.id} className="hover:bg-bone-soft/40 transition-colors">
                   <td className="px-4 py-3 font-medium text-foreground">{r.email}</td>
-                  <td className="px-4 py-3 text-muted">
+                  <td className="px-4 py-3 text-steel">
                     {r.source ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-muted-soft text-xs">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-bone-soft text-xs">
                         {r.source}
                       </span>
                     ) : (
                       "—"
                     )}
                   </td>
-                  <td className="px-4 py-3 text-muted">
+                  <td className="px-4 py-3 text-steel">
                     {r.subscribedAt ? formatDate(r.subscribedAt) : "—"}
                   </td>
                   <td className="px-4 py-3">
@@ -295,7 +295,7 @@ export function NewsletterView({
                             : `⚠ ${r.bounceCount}× soft`}
                       </span>
                     ) : (
-                      <span className="text-xs text-muted-light">—</span>
+                      <span className="text-xs text-steel-soft">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -304,7 +304,7 @@ export function NewsletterView({
                         <button
                           disabled={isPending}
                           onClick={() => handleResub(r.id)}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40 disabled:opacity-50"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-ember/40 disabled:opacity-50"
                         >
                           {isPending ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
@@ -317,7 +317,7 @@ export function NewsletterView({
                         <button
                           disabled={isPending}
                           onClick={() => handleUnsub(r.id)}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-terracotta/40 disabled:opacity-50"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:border-ember/40 disabled:opacity-50"
                         >
                           {isPending ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
@@ -349,7 +349,7 @@ export function NewsletterView({
             type="button"
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-white rounded-lg text-sm font-medium hover:border-terracotta/40 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-white rounded-lg text-sm font-medium hover:border-ember/40 disabled:opacity-50 transition-colors"
           >
             {isLoadingMore ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -358,7 +358,7 @@ export function NewsletterView({
             )}
             Charger {Math.min(pageSize, remaining)} de plus
           </button>
-          <p className="text-xs text-muted-light">
+          <p className="text-xs text-steel-soft">
             {remaining} abonné{remaining > 1 ? "s" : ""} non chargé
             {remaining > 1 ? "s" : ""}
           </p>

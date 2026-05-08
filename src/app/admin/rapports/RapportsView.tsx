@@ -58,7 +58,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
     >
       <motion.div variants={staggerItem}>
         <h2 className="text-xl font-bold text-foreground">Rapports</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           Activité sur les 30 derniers jours
         </p>
       </motion.div>
@@ -78,7 +78,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
           <p className="text-2xl font-semibold text-foreground tabular-nums">
             {formatPrice(data.revenueLast30)}
           </p>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-steel mt-1">
             CA · 30j (vs {formatPrice(data.revenuePrev30)} sur 30j précédents)
           </p>
         </div>
@@ -93,7 +93,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
           <p className="text-2xl font-semibold text-foreground tabular-nums">
             {data.ordersLast30}
           </p>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-steel mt-1">
             Commandes · 30j (vs {data.ordersPrev30})
           </p>
         </div>
@@ -123,7 +123,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
             Top 10 produits · 30j
           </h3>
           {data.topProducts.length === 0 ? (
-            <p className="text-sm text-muted-light">
+            <p className="text-sm text-steel-soft">
               Pas encore de ventes sur cette période.
             </p>
           ) : (
@@ -134,20 +134,20 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
                   <div key={p.id} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-foreground truncate flex-1">
-                        <span className="text-muted-light mr-2">#{i + 1}</span>
+                        <span className="text-steel-soft mr-2">#{i + 1}</span>
                         {p.name}
                       </span>
                       <span className="text-foreground font-medium ml-2 shrink-0 tabular-nums">
                         {formatPrice(p.revenue)}
                       </span>
                     </div>
-                    <div className="h-1.5 bg-muted-soft rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-bone-soft rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-terracotta rounded-full"
+                        className="h-full bg-ember rounded-full"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <p className="text-xs text-muted-light">
+                    <p className="text-xs text-steel-soft">
                       {p.quantity} vendu{p.quantity > 1 ? "s" : ""}
                     </p>
                   </div>
@@ -166,7 +166,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
             CA par catégorie · 30j
           </h3>
           {data.byCategory.length === 0 ? (
-            <p className="text-sm text-muted-light">
+            <p className="text-sm text-steel-soft">
               Pas de ventes catégorisées sur cette période.
             </p>
           ) : (
@@ -181,7 +181,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
                         {formatPrice(c.revenue)}
                       </span>
                     </div>
-                    <div className="h-2 bg-muted-soft rounded-full overflow-hidden">
+                    <div className="h-2 bg-bone-soft rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-terracotta to-gold rounded-full"
                         style={{ width: `${pct}%` }}
@@ -204,7 +204,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
           Répartition des commandes par statut (toutes périodes)
         </h3>
         {totalOrders === 0 ? (
-          <p className="text-sm text-muted-light">Aucune commande.</p>
+          <p className="text-sm text-steel-soft">Aucune commande.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {Object.entries(data.ordersByStatus).map(([status, count]) => {
@@ -215,7 +215,7 @@ export function RapportsView({ data }: { data: AdminAnalyticsSummary }) {
                   <p className="text-xl font-semibold text-foreground mt-2 tabular-nums">
                     {count}
                   </p>
-                  <p className="text-xs text-muted">{pct}% des commandes</p>
+                  <p className="text-xs text-steel">{pct}% des commandes</p>
                 </div>
               );
             })}

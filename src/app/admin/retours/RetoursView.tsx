@@ -88,7 +88,7 @@ export function RetoursView({ returns }: { returns: AdminReturnRow[] }) {
     >
       <motion.div variants={staggerItem}>
         <h2 className="text-xl font-bold text-foreground">Retours</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           {returns.length} retour{returns.length > 1 ? "s" : ""} ·
           <span className="text-warning ml-1">
             {requestedCount} en attente de traitement
@@ -102,19 +102,19 @@ export function RetoursView({ returns }: { returns: AdminReturnRow[] }) {
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
             <input
               type="text"
               placeholder="Rechercher par n° commande, email ou nom..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           >
             <option value="">Tous statuts</option>
             {statusFilterOptions.map((opt) => (
@@ -129,9 +129,9 @@ export function RetoursView({ returns }: { returns: AdminReturnRow[] }) {
       {filtered.length === 0 ? (
         <motion.div
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+          className="bg-white rounded-xl border border-border p-12 text-center text-steel-soft"
         >
-          <RotateCcw className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          <RotateCcw className="w-8 h-8 mx-auto mb-2 text-steel-soft" />
           {returns.length === 0
             ? "Aucun retour pour l'instant."
             : "Aucun retour ne correspond à votre recherche."}
@@ -154,7 +154,7 @@ export function RetoursView({ returns }: { returns: AdminReturnRow[] }) {
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <Link
                         href={`/admin/commandes/${r.orderId}`}
-                        className="font-mono text-sm text-terracotta hover:underline"
+                        className="font-mono text-sm text-ember hover:underline"
                       >
                         {r.orderNumber ?? r.orderId.slice(0, 8)}
                       </Link>
@@ -162,15 +162,15 @@ export function RetoursView({ returns }: { returns: AdminReturnRow[] }) {
                         status={r.status as OrderStatus}
                         size="sm"
                       />
-                      <span className="text-xs text-muted">{reasonLabel}</span>
+                      <span className="text-xs text-steel">{reasonLabel}</span>
                     </div>
                     <p className="text-sm text-foreground">
                       {r.customerName ?? r.customerEmail ?? "Client inconnu"}
                     </p>
                     {r.description && (
-                      <p className="text-xs text-muted mt-1">{r.description}</p>
+                      <p className="text-xs text-steel mt-1">{r.description}</p>
                     )}
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-light mt-2">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel-soft mt-2">
                       {r.requestedAt && (
                         <span>Demandé le {formatDate(r.requestedAt)}</span>
                       )}

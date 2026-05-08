@@ -82,19 +82,19 @@ export function RichTextEditor({
         blockquote: {
           HTMLAttributes: {
             class:
-              "border-l-4 border-terracotta/40 pl-4 italic text-muted my-4",
+              "border-l-4 border-ember/40 pl-4 italic text-steel my-4",
           },
         },
         codeBlock: {
           HTMLAttributes: {
             class:
-              "bg-muted-soft rounded-lg p-3 font-mono text-xs my-3 overflow-x-auto",
+              "bg-bone-soft rounded-lg p-3 font-mono text-xs my-3 overflow-x-auto",
           },
         },
         code: {
           HTMLAttributes: {
             class:
-              "bg-muted-soft rounded px-1.5 py-0.5 font-mono text-xs",
+              "bg-bone-soft rounded px-1.5 py-0.5 font-mono text-xs",
           },
         },
         paragraph: {
@@ -108,7 +108,7 @@ export function RichTextEditor({
         autolink: true,
         HTMLAttributes: {
           rel: "noopener noreferrer",
-          class: "text-terracotta underline hover:text-terracotta-dark",
+          class: "text-ember underline hover:text-ember-deep",
         },
       }),
       Image.configure({
@@ -166,7 +166,7 @@ export function RichTextEditor({
 
   if (!editor) {
     return (
-      <div className="border border-border rounded-lg bg-muted-soft/40 p-4 text-sm text-muted-light">
+      <div className="border border-border rounded-lg bg-bone-soft/40 p-4 text-sm text-steel-soft">
         Chargement de l&apos;éditeur…
       </div>
     );
@@ -228,7 +228,7 @@ export function RichTextEditor({
   };
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-terracotta/20 focus-within:border-terracotta">
+    <div className="border border-border rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-ember/20 focus-within:border-ember">
       <Toolbar
         editor={editor}
         disabled={disabled}
@@ -275,8 +275,8 @@ function ToolbarButton({
       className={cn(
         "p-1.5 rounded text-sm transition-colors",
         active
-          ? "bg-terracotta text-white"
-          : "text-foreground hover:bg-muted-soft",
+          ? "bg-ember text-white"
+          : "text-foreground hover:bg-bone-soft",
         disabled && "opacity-40 cursor-not-allowed",
       )}
     >
@@ -301,7 +301,7 @@ function Toolbar({
   onInsertYoutube: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted-soft/30">
+    <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-border bg-bone-soft/30">
       <ToolbarButton
         icon={Bold}
         label="Gras"
@@ -396,7 +396,7 @@ function Toolbar({
         aria-label="Insérer une image"
         title="Insérer une image"
         className={cn(
-          "p-1.5 rounded text-sm transition-colors text-foreground hover:bg-muted-soft",
+          "p-1.5 rounded text-sm transition-colors text-foreground hover:bg-bone-soft",
           (disabled || uploadingImage) && "opacity-40 cursor-not-allowed",
         )}
       >

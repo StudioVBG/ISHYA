@@ -51,8 +51,8 @@ const STATUS_STYLE: Record<GiftCardStatus, string> = {
   pending: "bg-warning-soft text-warning border-warning/30",
   paid: "bg-info-soft text-info border-info/30",
   sent: "bg-success-soft text-success border-success/30",
-  redeemed: "bg-muted-soft text-muted border-border",
-  expired: "bg-muted-soft text-muted-light border-border",
+  redeemed: "bg-bone-soft text-steel border-border",
+  expired: "bg-bone-soft text-steel-soft border-border",
   cancelled: "bg-destructive-soft text-destructive border-destructive/30",
 };
 
@@ -157,7 +157,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">Cartes cadeaux</h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {cards.length} cartes · Émis :{" "}
             <strong className="text-foreground">
               {formatMoney(totalIssued, "EUR")}
@@ -169,13 +169,13 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
           </p>
         </div>
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-steel" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Code, destinataire…"
-            className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
           />
         </div>
       </div>
@@ -191,15 +191,15 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
               className={cn(
                 "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors",
                 active
-                  ? "bg-terracotta text-white border-terracotta"
-                  : "bg-white text-foreground border-border hover:border-terracotta/40",
+                  ? "bg-ember text-white border-ember"
+                  : "bg-white text-foreground border-border hover:border-ember/40",
               )}
             >
               {f === "all" ? "Toutes" : STATUS_LABELS[f]}
               <span
                 className={cn(
                   "px-1.5 py-0.5 rounded text-[10px] font-semibold",
-                  active ? "bg-white/20" : "bg-muted-soft text-muted",
+                  active ? "bg-white/20" : "bg-bone-soft text-steel",
                 )}
               >
                 {count}
@@ -211,7 +211,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
 
       <div className="bg-white border border-border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted-soft text-xs uppercase tracking-wide text-muted">
+          <thead className="bg-bone-soft text-xs uppercase tracking-wide text-steel">
             <tr>
               <th className="text-left px-4 py-3 font-semibold">Code</th>
               <th className="text-left px-4 py-3 font-semibold">Destinataire</th>
@@ -226,7 +226,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
           <tbody className="divide-y divide-border">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-12 text-muted">
+                <td colSpan={8} className="text-center py-12 text-steel">
                   <Gift className="w-8 h-8 mx-auto mb-2 opacity-40" />
                   <p>Aucune carte cadeau</p>
                 </td>
@@ -235,7 +235,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
               filtered.map((c) => (
                 <tr
                   key={c.id}
-                  className="hover:bg-muted-soft/40 transition-colors cursor-pointer"
+                  className="hover:bg-bone-soft/40 transition-colors cursor-pointer"
                   onClick={() => setDrawerCard(c)}
                 >
                   <td className="px-4 py-3">
@@ -245,7 +245,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                         copyCode(c.code);
                       }}
                       aria-label={`Copier le code ${c.code}`}
-                      className="inline-flex items-center gap-1 font-mono text-xs px-2 py-1 rounded bg-muted-soft hover:bg-muted transition-colors"
+                      className="inline-flex items-center gap-1 font-mono text-xs px-2 py-1 rounded bg-bone-soft hover:bg-muted transition-colors"
                       title="Copier"
                     >
                       {c.code}
@@ -257,13 +257,13 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                       <p className="text-foreground">
                         {c.recipientName ?? "—"}
                       </p>
-                      <p className="text-xs text-muted">{c.recipientEmail}</p>
+                      <p className="text-xs text-steel">{c.recipientEmail}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div>
                       <p className="text-foreground">{c.senderName ?? "—"}</p>
-                      <p className="text-xs text-muted">{c.senderEmail ?? ""}</p>
+                      <p className="text-xs text-steel">{c.senderEmail ?? ""}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right font-medium">
@@ -282,7 +282,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                       {STATUS_LABELS[c.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-muted text-xs">
+                  <td className="px-4 py-3 text-steel text-xs">
                     {c.createdAt ? formatDate(c.createdAt) : "—"}
                   </td>
                   <td
@@ -308,7 +308,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                         )}
                       </select>
                       {isPending ? (
-                        <Loader2 className="w-3 h-3 animate-spin text-muted" />
+                        <Loader2 className="w-3 h-3 animate-spin text-steel" />
                       ) : null}
                     </div>
                   </td>
@@ -345,14 +345,14 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                   id="gift-drawer-title"
                   className="text-base font-semibold text-foreground inline-flex items-center gap-2"
                 >
-                  <Gift className="w-4 h-4 text-terracotta" />
+                  <Gift className="w-4 h-4 text-ember" />
                   Carte cadeau
                 </h2>
                 <button
                   type="button"
                   onClick={() => setDrawerCard(null)}
                   aria-label="Fermer"
-                  className="p-1.5 rounded-lg hover:bg-muted-soft text-muted transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-bone-soft text-steel transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -362,7 +362,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => copyCode(drawerCard.code)}
-                    className="inline-flex items-center gap-2 font-mono text-base font-semibold px-3 py-2 rounded-lg bg-muted-soft hover:bg-muted transition-colors"
+                    className="inline-flex items-center gap-2 font-mono text-base font-semibold px-3 py-2 rounded-lg bg-bone-soft hover:bg-muted transition-colors"
                     title="Copier le code"
                   >
                     {drawerCard.code}
@@ -380,7 +380,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
 
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Montant initial
                     </dt>
                     <dd className="text-foreground mt-0.5 text-lg font-semibold">
@@ -388,7 +388,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Solde restant
                     </dt>
                     <dd className="text-foreground mt-0.5 text-lg font-semibold">
@@ -396,19 +396,19 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Destinataire
                     </dt>
                     <dd className="text-foreground mt-0.5">
                       {drawerCard.recipientName ?? "—"}
                       <br />
-                      <span className="text-muted text-xs">
+                      <span className="text-steel text-xs">
                         {drawerCard.recipientEmail}
                       </span>
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Émetteur
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -416,7 +416,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                       {drawerCard.senderEmail && (
                         <>
                           <br />
-                          <span className="text-muted text-xs">
+                          <span className="text-steel text-xs">
                             {drawerCard.senderEmail}
                           </span>
                         </>
@@ -424,7 +424,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Créée le
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -434,7 +434,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Date de remise
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -444,7 +444,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Payée le
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -454,7 +454,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Email envoyé le
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -464,7 +464,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-semibold text-muted uppercase tracking-wider">
+                    <dt className="text-xs font-semibold text-steel uppercase tracking-wider">
                       Expire le
                     </dt>
                     <dd className="text-foreground mt-0.5">
@@ -477,10 +477,10 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
 
                 {drawerCard.message && (
                   <div>
-                    <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                    <h3 className="text-xs font-semibold text-steel uppercase tracking-wider mb-2">
                       Message personnel
                     </h3>
-                    <p className="bg-muted-soft rounded-lg p-3 text-foreground italic whitespace-pre-wrap">
+                    <p className="bg-bone-soft rounded-lg p-3 text-foreground italic whitespace-pre-wrap">
                       « {drawerCard.message} »
                     </p>
                   </div>
@@ -507,7 +507,7 @@ export function GiftCardsView({ cards }: { cards: GiftCardRow[] }) {
                   </button>
                   <a
                     href={`mailto:${drawerCard.recipientEmail}?subject=Votre carte cadeau ISHYA`}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg text-sm font-medium hover:bg-muted-soft transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-border text-foreground rounded-lg text-sm font-medium hover:bg-bone-soft transition-colors"
                   >
                     <ExternalLink className="w-4 h-4" />
                     Contacter par email

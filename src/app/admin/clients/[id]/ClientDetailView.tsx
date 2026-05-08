@@ -34,7 +34,7 @@ import type { AdminClientDetail } from "@/lib/queries/admin";
 const tierConfig: Record<string, { label: string; className: string }> = {
   bronze: { label: "Bronze", className: "bg-warning-soft text-warning" },
   silver: { label: "Argent", className: "bg-border text-foreground" },
-  gold: { label: "Or", className: "bg-gold/15 text-gold-dark" },
+  gold: { label: "Or", className: "bg-ember/15 text-ember-deep" },
   platinum: {
     label: "Platine",
     className: "bg-accent-purple-soft text-accent-purple",
@@ -63,7 +63,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
     "Client sans nom";
   const tier = tierConfig[client.loyaltyTier] ?? {
     label: client.loyaltyTier,
-    className: "bg-muted-soft text-foreground",
+    className: "bg-bone-soft text-foreground",
   };
 
   const kpis = [
@@ -86,10 +86,10 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
       >
         <Link
           href="/admin/clients"
-          className="p-2 rounded-lg hover:bg-muted-soft transition-colors"
+          className="p-2 rounded-lg hover:bg-bone-soft transition-colors"
           aria-label="Retour"
         >
-          <ChevronLeft className="w-5 h-5 text-muted" />
+          <ChevronLeft className="w-5 h-5 text-steel" />
         </Link>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {client.avatarUrl ? (
@@ -102,15 +102,15 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
               unoptimized
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center">
-              <User className="w-5 h-5 text-terracotta" />
+            <div className="w-12 h-12 rounded-full bg-ember/10 flex items-center justify-center">
+              <User className="w-5 h-5 text-ember" />
             </div>
           )}
           <div className="min-w-0">
             <h2 className="text-xl font-bold text-foreground truncate">
               {fullName}
             </h2>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-steel">
               {client.createdAt
                 ? `Client depuis ${formatDate(client.createdAt)}`
                 : "Date d'inscription inconnue"}
@@ -135,8 +135,8 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
               className="bg-white rounded-xl border border-border p-4"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Icon className="w-4 h-4 text-muted" />
-                <span className="text-sm text-muted">{kpi.label}</span>
+                <Icon className="w-4 h-4 text-steel" />
+                <span className="text-sm text-steel">{kpi.label}</span>
               </div>
               <p className="text-xl font-semibold text-foreground tabular-nums">
                 {kpi.value}
@@ -155,29 +155,29 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
             <h3 className="font-semibold text-foreground mb-4">Informations</h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3">
-                <User className="w-4 h-4 text-muted" />
+                <User className="w-4 h-4 text-steel" />
                 <span className="text-foreground">{fullName}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-muted" />
+                <Mail className="w-4 h-4 text-steel" />
                 <span className="text-foreground break-all">
                   {client.email ?? "—"}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-muted" />
+                <Phone className="w-4 h-4 text-steel" />
                 <span className="text-foreground">{client.phone ?? "—"}</span>
               </div>
               {client.dateOfBirth && (
                 <div className="flex items-center gap-3">
-                  <Cake className="w-4 h-4 text-muted" />
+                  <Cake className="w-4 h-4 text-steel" />
                   <span className="text-foreground">
                     {formatDate(client.dateOfBirth)}
                   </span>
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <Calendar className="w-4 h-4 text-muted" />
+                <Calendar className="w-4 h-4 text-steel" />
                 <span className="text-foreground">
                   {client.createdAt
                     ? `Inscrit le ${formatDate(client.createdAt)}`
@@ -185,7 +185,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Award className="w-4 h-4 text-muted" />
+                <Award className="w-4 h-4 text-steel" />
                 <span
                   className={cn(
                     "px-2 py-0.5 rounded-full text-xs font-medium",
@@ -196,7 +196,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                 </span>
               </div>
               {client.lastLoginAt && (
-                <p className="text-xs text-muted-light pt-2 border-t border-border/50">
+                <p className="text-xs text-steel-soft pt-2 border-t border-border/50">
                   Dernière connexion le {formatActivityDate(client.lastLoginAt)}
                 </p>
               )}
@@ -211,7 +211,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
               Adresses ({client.addresses.length})
             </h3>
             {client.addresses.length === 0 ? (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Aucune adresse enregistrée.
               </p>
             ) : (
@@ -222,7 +222,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                     className="p-3 rounded-lg border border-border/60 text-sm"
                   >
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <MapPin className="w-3.5 h-3.5 text-muted" />
+                      <MapPin className="w-3.5 h-3.5 text-steel" />
                       <span className="font-medium text-foreground">
                         {addr.label ??
                           (addr.type === "billing"
@@ -239,19 +239,19 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       {addr.firstName} {addr.lastName}
                     </p>
                     {addr.company && (
-                      <p className="text-muted ml-5.5">{addr.company}</p>
+                      <p className="text-steel ml-5.5">{addr.company}</p>
                     )}
-                    <p className="text-muted ml-5.5">{addr.line1}</p>
+                    <p className="text-steel ml-5.5">{addr.line1}</p>
                     {addr.line2 && (
-                      <p className="text-muted ml-5.5">{addr.line2}</p>
+                      <p className="text-steel ml-5.5">{addr.line2}</p>
                     )}
-                    <p className="text-muted ml-5.5">
+                    <p className="text-steel ml-5.5">
                       {addr.postalCode} {addr.city}
                       {addr.state ? ` (${addr.state})` : ""}
                     </p>
-                    <p className="text-muted ml-5.5">{addr.country}</p>
+                    <p className="text-steel ml-5.5">{addr.country}</p>
                     {addr.phone && (
-                      <p className="text-xs text-muted-light ml-5.5 mt-1">
+                      <p className="text-xs text-steel-soft ml-5.5 mt-1">
                         {addr.phone}
                       </p>
                     )}
@@ -271,7 +271,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
               Historique des commandes ({client.orders.length})
             </h3>
             {client.orders.length === 0 ? (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Aucune commande pour ce client.
               </p>
             ) : (
@@ -283,10 +283,10 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                     className="flex items-center justify-between p-3 rounded-lg hover:bg-ivory/60 transition-colors"
                   >
                     <div className="min-w-0">
-                      <p className="font-mono text-xs text-terracotta truncate">
+                      <p className="font-mono text-xs text-ember truncate">
                         {order.orderNumber}
                       </p>
-                      <p className="text-xs text-muted-light mt-0.5">
+                      <p className="text-xs text-steel-soft mt-0.5">
                         {formatDate(order.createdAt)} · {order.itemCount}{" "}
                         article{order.itemCount > 1 ? "s" : ""}
                       </p>
@@ -314,7 +314,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
               Avis laissés ({client.reviews.length})
             </h3>
             {client.reviews.length === 0 ? (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Aucun avis publié.
               </p>
             ) : (
@@ -335,7 +335,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                             className={cn(
                               "w-3.5 h-3.5",
                               s < review.rating
-                                ? "text-gold fill-gold"
+                                ? "text-ember fill-gold"
                                 : "text-border",
                             )}
                           />
@@ -348,10 +348,10 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       </p>
                     )}
                     {review.body && (
-                      <p className="text-sm text-muted">{review.body}</p>
+                      <p className="text-sm text-steel">{review.body}</p>
                     )}
                     <div className="flex items-center justify-between mt-1">
-                      <p className="text-xs text-muted-light">
+                      <p className="text-xs text-steel-soft">
                         {review.createdAt
                           ? formatDate(review.createdAt)
                           : "—"}
@@ -378,11 +378,11 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
             className="bg-white rounded-xl border border-border p-5"
           >
             <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
-              <Heart className="w-4 h-4 text-terracotta" />
+              <Heart className="w-4 h-4 text-ember" />
               Wishlist ({client.wishlist.length})
             </h3>
             {client.wishlist.length === 0 ? (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Aucun produit en favoris.
               </p>
             ) : (
@@ -395,11 +395,11 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                     <Link
                       href={`/produit/${w.productSlug}`}
                       target="_blank"
-                      className="text-foreground hover:text-terracotta truncate"
+                      className="text-foreground hover:text-ember truncate"
                     >
                       {w.productName}
                     </Link>
-                    <span className="text-xs text-muted-light shrink-0">
+                    <span className="text-xs text-steel-soft shrink-0">
                       {w.createdAt ? formatDate(w.createdAt) : ""}
                     </span>
                   </li>
@@ -413,11 +413,11 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
             className="bg-white rounded-xl border border-border p-5"
           >
             <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
-              <Ruler className="w-4 h-4 text-muted" />
+              <Ruler className="w-4 h-4 text-steel" />
               Tailles enregistrées ({client.savedSizes.length})
             </h3>
             {client.savedSizes.length === 0 ? (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Aucune taille enregistrée.
               </p>
             ) : (
@@ -427,13 +427,13 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                     key={s.id}
                     className="border border-border rounded-lg p-3"
                   >
-                    <p className="text-xs uppercase tracking-wide text-muted font-semibold mb-2">
+                    <p className="text-xs uppercase tracking-wide text-steel font-semibold mb-2">
                       {s.label}
                     </p>
                     <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                       {s.ringSize && (
                         <>
-                          <dt className="text-muted">Bague</dt>
+                          <dt className="text-steel">Bague</dt>
                           <dd className="text-foreground font-medium">
                             {s.ringSize}
                           </dd>
@@ -441,7 +441,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       )}
                       {s.braceletSize && (
                         <>
-                          <dt className="text-muted">Bracelet</dt>
+                          <dt className="text-steel">Bracelet</dt>
                           <dd className="text-foreground font-medium">
                             {s.braceletSize}
                           </dd>
@@ -449,7 +449,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       )}
                       {s.necklaceLength && (
                         <>
-                          <dt className="text-muted">Collier</dt>
+                          <dt className="text-steel">Collier</dt>
                           <dd className="text-foreground font-medium">
                             {s.necklaceLength}
                           </dd>
@@ -457,7 +457,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       )}
                       {s.ankletLength && (
                         <>
-                          <dt className="text-muted">Cheville</dt>
+                          <dt className="text-steel">Cheville</dt>
                           <dd className="text-foreground font-medium">
                             {s.ankletLength}
                           </dd>
@@ -475,7 +475,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
             className="bg-white rounded-xl border border-border p-5"
           >
             <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
-              <Bell className="w-4 h-4 text-muted" />
+              <Bell className="w-4 h-4 text-steel" />
               Préférences de notification
             </h3>
             {client.notificationPreferences ? (
@@ -500,12 +500,12 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       {enabled ? (
                         <CheckCircle2 className="w-4 h-4 text-success" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-muted-light" />
+                        <XCircle className="w-4 h-4 text-steel-soft" />
                       )}
                       <span
                         className={cn(
                           "text-sm",
-                          enabled ? "text-foreground" : "text-muted-light",
+                          enabled ? "text-foreground" : "text-steel-soft",
                         )}
                       >
                         {label}
@@ -515,7 +515,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Préférences par défaut (le client n&apos;a rien personnalisé).
               </p>
             )}
@@ -526,11 +526,11 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
             className="bg-white rounded-xl border border-border p-5"
           >
             <h3 className="font-semibold text-foreground mb-4 inline-flex items-center gap-2">
-              <Coins className="w-4 h-4 text-gold" />
+              <Coins className="w-4 h-4 text-ember" />
               Points de fidélité — historique
             </h3>
             {client.loyaltyTransactions.length === 0 ? (
-              <p className="text-sm text-muted-light">
+              <p className="text-sm text-steel-soft">
                 Aucune transaction enregistrée.
               </p>
             ) : (
@@ -544,7 +544,7 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
                       <p className="text-foreground">
                         {t.description ?? t.type}
                       </p>
-                      <p className="text-xs text-muted-light">
+                      <p className="text-xs text-steel-soft">
                         {t.orderNumber ? `Commande ${t.orderNumber} · ` : ""}
                         {t.createdAt ? formatDate(t.createdAt) : ""}
                       </p>
@@ -573,17 +573,17 @@ export function ClientDetailView({ client }: { client: AdminClientDetail }) {
             Activité récente
           </h3>
           {client.activity.length === 0 ? (
-            <p className="text-sm text-muted-light">
+            <p className="text-sm text-steel-soft">
               Aucune activité enregistrée.
             </p>
           ) : (
             <div className="space-y-4 max-h-[760px] overflow-y-auto">
               {client.activity.map((event, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-terracotta mt-1.5 shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-ember mt-1.5 shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm text-foreground">{event.event}</p>
-                    <p className="text-xs text-muted-light">
+                    <p className="text-xs text-steel-soft">
                       {formatActivityDate(event.date)}
                     </p>
                   </div>

@@ -124,7 +124,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
       <motion.div variants={staggerItem}>
         <Link
           href="/admin/commandes"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ink transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           Retour aux commandes
@@ -134,7 +134,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
             <h1 className="font-mono text-xl font-bold text-foreground">
               {order.orderNumber}
             </h1>
-            <p className="text-sm text-muted mt-1">
+            <p className="text-sm text-steel mt-1">
               Passée le {formatDate(order.createdAt)}
             </p>
           </div>
@@ -157,21 +157,21 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                   key={item.id}
                   className="flex items-center gap-4 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="w-12 h-12 rounded-lg bg-muted-soft flex items-center justify-center shrink-0">
-                    <Package className="w-5 h-5 text-muted" />
+                  <div className="w-12 h-12 rounded-lg bg-bone-soft flex items-center justify-center shrink-0">
+                    <Package className="w-5 h-5 text-steel" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground truncate">
                       {item.productName}
                     </p>
-                    <p className="text-xs text-muted mt-0.5">
+                    <p className="text-xs text-steel mt-0.5">
                       {[item.variantName, item.sku]
                         .filter(Boolean)
                         .join(" · ") || "—"}
                     </p>
                   </div>
                   <div className="text-right shrink-0 tabular-nums">
-                    <p className="text-sm text-muted">
+                    <p className="text-sm text-steel">
                       {item.quantity} × {formatPrice(item.unitPrice)}
                     </p>
                     <p className="text-sm font-semibold text-foreground">
@@ -183,11 +183,11 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
             </div>
 
             <div className="mt-4 pt-4 border-t border-border/50 space-y-1.5 text-sm tabular-nums">
-              <div className="flex justify-between text-muted">
+              <div className="flex justify-between text-steel">
                 <span>Sous-total</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
-              <div className="flex justify-between text-muted">
+              <div className="flex justify-between text-steel">
                 <span>Livraison</span>
                 <span>{formatPrice(order.shippingTotal)}</span>
               </div>
@@ -198,7 +198,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                 </div>
               )}
               {order.appliedDiscounts.length > 0 && (
-                <div className="pl-4 -mt-1 space-y-0.5 text-xs text-muted">
+                <div className="pl-4 -mt-1 space-y-0.5 text-xs text-steel">
                   {order.appliedDiscounts.map((d) => (
                     <div key={d.id} className="flex justify-between">
                       <span className="font-mono">{d.code}</span>
@@ -208,7 +208,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                 </div>
               )}
               {order.taxTotal > 0 && (
-                <div className="flex justify-between text-muted">
+                <div className="flex justify-between text-steel">
                   <span>TVA</span>
                   <span>{formatPrice(order.taxTotal)}</span>
                 </div>
@@ -258,7 +258,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
               onChange={(e) => setInternalNote(e.target.value)}
               placeholder="Visible par l'équipe uniquement..."
               rows={3}
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta resize-none"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember resize-none"
             />
             <div className="flex justify-end mt-3">
               <Button
@@ -288,7 +288,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                 value={statusValue}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 disabled={isStatusPending}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta disabled:opacity-50"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember disabled:opacity-50"
               >
                 {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -297,7 +297,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                 ))}
               </select>
               {isStatusPending && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted" />
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-steel" />
               )}
             </div>
           </motion.div>
@@ -316,14 +316,14 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                   value={carrier}
                   onChange={(e) => setCarrier(e.target.value)}
                   placeholder="Transporteur (ex. Colissimo)"
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
                 />
                 <input
                   type="text"
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
                   placeholder="N° de suivi"
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 focus:border-ember"
                 />
                 <Button
                   fullWidth
@@ -350,7 +350,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
               <h3 className="font-semibold text-foreground mb-2">
                 Remboursement
               </h3>
-              <p className="text-xs text-muted mb-3">
+              <p className="text-xs text-steel mb-3">
                 Rembourse {formatPrice(order.grandTotal)} via Stripe.
               </p>
               <Button
@@ -373,7 +373,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
             className="bg-white rounded-xl border border-border p-5"
           >
             <div className="flex items-center gap-2 mb-3">
-              <User className="w-4 h-4 text-muted" />
+              <User className="w-4 h-4 text-steel" />
               <h3 className="font-semibold text-foreground">Client</h3>
             </div>
             <div className="space-y-1 text-sm">
@@ -383,9 +383,9 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                     "—"}
                 </p>
               )}
-              {order.email && <p className="text-muted">{order.email}</p>}
-              {order.phone && <p className="text-muted">{order.phone}</p>}
-              <p className="text-xs text-muted-light mt-2">
+              {order.email && <p className="text-steel">{order.email}</p>}
+              {order.phone && <p className="text-steel">{order.phone}</p>}
+              <p className="text-xs text-steel-soft mt-2">
                 {order.userId ? "Client connecté" : "Commande invitée"}
               </p>
             </div>
@@ -397,12 +397,12 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
               className="bg-white rounded-xl border border-border p-5"
             >
               <div className="flex items-center gap-2 mb-3">
-                <MapPin className="w-4 h-4 text-muted" />
+                <MapPin className="w-4 h-4 text-steel" />
                 <h3 className="font-semibold text-foreground">
                   Adresse de livraison
                 </h3>
               </div>
-              <div className="text-sm text-muted space-y-0.5">
+              <div className="text-sm text-steel space-y-0.5">
                 {addr.line1 && <p>{addr.line1}</p>}
                 {addr.line2 && <p>{addr.line2}</p>}
                 {(addr.postalCode || addr.city) && (
@@ -423,7 +423,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
               <h3 className="font-semibold text-foreground mb-3">
                 Adresse de facturation
               </h3>
-              <div className="text-sm text-muted space-y-0.5">
+              <div className="text-sm text-steel space-y-0.5">
                 {billing.line1 && <p>{billing.line1}</p>}
                 {billing.line2 && <p>{billing.line2}</p>}
                 {(billing.postalCode || billing.city) && (
@@ -444,24 +444,24 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
               className="bg-white rounded-xl border border-border p-5"
             >
               <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="w-4 h-4 text-muted" />
+                <CreditCard className="w-4 h-4 text-steel" />
                 <h3 className="font-semibold text-foreground">Paiement</h3>
               </div>
               <div className="space-y-1 text-sm">
-                <p className="text-muted">
+                <p className="text-steel">
                   Statut :{" "}
                   <span className="font-medium text-foreground">
                     {order.payment.status ?? "—"}
                   </span>
                 </p>
-                <p className="text-muted">
+                <p className="text-steel">
                   Montant :{" "}
                   <span className="font-medium text-foreground tabular-nums">
                     {formatPrice(order.payment.amount)}
                   </span>
                 </p>
                 {order.payment.paidAt && (
-                  <p className="text-xs text-muted-light">
+                  <p className="text-xs text-steel-soft">
                     Payée le {formatDate(order.payment.paidAt)}
                   </p>
                 )}
@@ -475,7 +475,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                     href={order.payment.stripeReceiptUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-terracotta hover:underline mt-2"
+                    className="inline-flex items-center gap-1 text-xs text-ember hover:underline mt-2"
                   >
                     Reçu Stripe
                     <ExternalLink className="w-3 h-3" />
@@ -491,12 +491,12 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
               className="bg-white rounded-xl border border-border p-5"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Truck className="w-4 h-4 text-muted" />
+                <Truck className="w-4 h-4 text-steel" />
                 <h3 className="font-semibold text-foreground">Expédition</h3>
               </div>
               <div className="space-y-1 text-sm">
                 {order.shipment.carrier && (
-                  <p className="text-muted">
+                  <p className="text-steel">
                     Transporteur :{" "}
                     <span className="font-medium text-foreground">
                       {order.shipment.carrier}
@@ -504,7 +504,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                   </p>
                 )}
                 {order.shipment.trackingNumber && (
-                  <p className="text-muted">
+                  <p className="text-steel">
                     Suivi :{" "}
                     <span className="font-mono text-xs text-foreground">
                       {order.shipment.trackingNumber}
@@ -512,12 +512,12 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                   </p>
                 )}
                 {order.shipment.shippedAt && (
-                  <p className="text-xs text-muted-light">
+                  <p className="text-xs text-steel-soft">
                     Expédiée le {formatDate(order.shipment.shippedAt)}
                   </p>
                 )}
                 {order.shipment.estimatedDelivery && (
-                  <p className="text-xs text-muted-light">
+                  <p className="text-xs text-steel-soft">
                     Livraison estimée :{" "}
                     {formatDate(order.shipment.estimatedDelivery)}
                   </p>
@@ -526,7 +526,7 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
 
               {order.trackingEvents.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-steel mb-3">
                     Historique de suivi
                   </p>
                   <ol className="space-y-3 max-h-72 overflow-y-auto pr-1">
@@ -537,8 +537,8 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                             className={cn(
                               "block w-2 h-2 rounded-full mt-1.5",
                               idx === 0
-                                ? "bg-terracotta"
-                                : "bg-muted-light",
+                                ? "bg-ember"
+                                : "bg-steel-soft",
                             )}
                           />
                           {idx < order.trackingEvents.length - 1 ? (
@@ -550,11 +550,11 @@ export function OrderDetailView({ order }: { order: AdminOrderDetail }) {
                             {e.status}
                           </p>
                           {e.description ? (
-                            <p className="text-xs text-muted">
+                            <p className="text-xs text-steel">
                               {e.description}
                             </p>
                           ) : null}
-                          <p className="text-[10px] text-muted-light">
+                          <p className="text-[10px] text-steel-soft">
                             {formatDate(e.occurredAt)}
                             {e.location ? ` · ${e.location}` : ""}
                           </p>

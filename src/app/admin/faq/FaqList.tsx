@@ -140,26 +140,26 @@ export function FaqList({ articles }: FaqListProps) {
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel-soft" />
         <input
           type="search"
           placeholder="Rechercher une question…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
           aria-label="Rechercher une question"
         />
       </div>
 
       {isReorderDisabled && (
-        <p className="text-xs text-muted-light">
+        <p className="text-xs text-steel-soft">
           ℹ Le glisser-déposer est désactivé pendant la recherche.
         </p>
       )}
 
       {grouped.length === 0 ? (
         <div className="bg-white border border-border rounded-lg p-12 text-center">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             {query
               ? "Aucune question ne correspond à votre recherche."
               : "Aucune question pour l'instant. Créez la première."}
@@ -171,10 +171,10 @@ export function FaqList({ articles }: FaqListProps) {
             key={category}
             className="bg-white border border-border rounded-lg overflow-hidden"
           >
-            <div className="px-4 py-2.5 bg-muted-soft/60 border-b border-border">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
+            <div className="px-4 py-2.5 bg-bone-soft/60 border-b border-border">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-steel">
                 {category}{" "}
-                <span className="text-muted-light">
+                <span className="text-steel-soft">
                   ({categoryItems.length})
                 </span>
               </h2>
@@ -259,7 +259,7 @@ function SortableFaqRow({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "px-4 py-3 flex items-start justify-between gap-3 hover:bg-muted-soft/60 transition-shadow",
+        "px-4 py-3 flex items-start justify-between gap-3 hover:bg-bone-soft/60 transition-shadow",
         isDragging && "shadow-lg bg-white relative z-10",
       )}
     >
@@ -270,7 +270,7 @@ function SortableFaqRow({
         disabled={reorderDisabled}
         aria-label={`Réordonner ${a.question}`}
         className={cn(
-          "shrink-0 p-1 -ml-1 rounded text-muted-light hover:text-foreground hover:bg-muted-soft transition-colors touch-none",
+          "shrink-0 p-1 -ml-1 rounded text-steel-soft hover:text-ink hover:bg-bone-soft transition-colors touch-none",
           reorderDisabled
             ? "opacity-30 cursor-not-allowed"
             : "cursor-grab active:cursor-grabbing",
@@ -283,7 +283,7 @@ function SortableFaqRow({
         <p className="text-sm font-medium text-foreground truncate">
           {a.question}
         </p>
-        <p className="text-xs text-muted line-clamp-1 mt-0.5">{a.answer}</p>
+        <p className="text-xs text-steel line-clamp-1 mt-0.5">{a.answer}</p>
       </Link>
       <div className="flex items-center gap-1 shrink-0">
         <button
@@ -293,7 +293,7 @@ function SortableFaqRow({
           className={
             a.isActive
               ? "p-1.5 rounded-md text-success hover:bg-success-soft"
-              : "p-1.5 rounded-md text-muted-light hover:bg-muted-soft"
+              : "p-1.5 rounded-md text-steel-soft hover:bg-bone-soft"
           }
           title={a.isActive ? "Publiée" : "Masquée"}
         >
@@ -306,7 +306,7 @@ function SortableFaqRow({
         <Link
           href={`/admin/faq/${a.id}`}
           aria-label="Modifier la question"
-          className="p-1.5 rounded-md text-muted hover:bg-muted-soft"
+          className="p-1.5 rounded-md text-steel hover:bg-bone-soft"
           title="Modifier"
         >
           <Pencil className="w-4 h-4" />

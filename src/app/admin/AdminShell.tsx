@@ -234,7 +234,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                       active
-                        ? "bg-terracotta/20 text-terracotta-light"
+                        ? "bg-ember/20 text-ember-bright"
                         : "text-gray-400 hover:bg-gray-800 hover:text-gray-200",
                     )}
                   >
@@ -334,7 +334,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
               className="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200 hover:opacity-80 transition-opacity"
               title="Modifier mon profil"
             >
-              <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-ember/10 flex items-center justify-center overflow-hidden">
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
@@ -345,7 +345,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
                     unoptimized
                   />
                 ) : (
-                  <span className="text-sm font-semibold text-terracotta">
+                  <span className="text-sm font-semibold text-ember">
                     {user.initials}
                   </span>
                 )}
@@ -354,7 +354,7 @@ export function AdminShell({ user, notificationCounts, children }: AdminShellPro
                 <p className="text-sm font-medium text-gray-900">
                   {user.displayName}
                 </p>
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-terracotta/10 text-terracotta">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-ember/10 text-ember">
                   Admin
                 </span>
               </div>
