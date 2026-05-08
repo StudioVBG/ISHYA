@@ -192,7 +192,7 @@ export function PaiementView({
           <h1 className="font-display text-2xl sm:text-3xl font-semibold mb-1">
             Moyens de paiement
           </h1>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             Gérez vos cartes bancaires enregistrées via Stripe.
           </p>
         </div>
@@ -231,11 +231,11 @@ export function PaiementView({
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl border border-border p-6 mb-6"
+          className="bg-bone-soft rounded-xl border border-border p-6 mb-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-terracotta" />
+              <CreditCard className="w-5 h-5 text-ember" />
               Nouvelle carte
             </h2>
             <button
@@ -243,14 +243,14 @@ export function PaiementView({
                 setShowAdd(false);
                 setClientSecret(null);
               }}
-              className="p-1 rounded-lg hover:bg-muted-soft text-muted"
+              className="p-1 rounded-lg hover:bg-bone-soft text-steel"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
           {isCreatingSetup || !clientSecret ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-5 h-5 animate-spin text-terracotta" />
+              <Loader2 className="w-5 h-5 animate-spin text-ember" />
             </div>
           ) : stripePromise && clientSecret ? (
             <Elements
@@ -279,15 +279,15 @@ export function PaiementView({
           variants={fadeInUp}
           initial="hidden"
           animate="visible"
-          className="bg-white rounded-xl border border-border p-12 text-center"
+          className="bg-bone-soft rounded-xl border border-border p-12 text-center"
         >
-          <div className="w-16 h-16 rounded-full bg-beige-nude-light flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-8 h-8 text-terracotta" />
+          <div className="w-16 h-16 rounded-full bg-bone-soft flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-8 h-8 text-ember" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Aucune carte enregistrée
           </h2>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-steel">
             Ajoutez une carte pour accélérer vos prochaines commandes.
           </p>
         </motion.div>
@@ -305,13 +305,13 @@ export function PaiementView({
                 key={card.id}
                 variants={staggerItem}
                 className={cn(
-                  "bg-white rounded-xl border p-5 flex items-center gap-4",
+                  "bg-bone-soft rounded-xl border p-5 flex items-center gap-4",
                   card.isDefault
-                    ? "border-terracotta ring-1 ring-terracotta/30"
+                    ? "border-ember ring-1 ring-ember/30"
                     : "border-border",
                 )}
               >
-                <div className="w-12 h-8 rounded bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center text-white text-[10px] font-bold tracking-wider">
+                <div className="w-12 h-8 rounded bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center text-bone text-[10px] font-bold tracking-wider">
                   {card.brand
                     ? (BRAND_LABELS[card.brand.toLowerCase()] ?? card.brand.toUpperCase())
                     : "CB"}
@@ -322,13 +322,13 @@ export function PaiementView({
                       •••• •••• •••• {card.last4 ?? "••••"}
                     </p>
                     {card.isDefault && (
-                      <span className="inline-flex items-center gap-1 text-xs text-terracotta font-medium">
+                      <span className="inline-flex items-center gap-1 text-xs text-ember font-medium">
                         <Star className="w-3 h-3 fill-current" />
                         Par défaut
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted mt-0.5">
+                  <p className="text-xs text-steel mt-0.5">
                     Expire le{" "}
                     {String(card.expMonth ?? 0).padStart(2, "0")}/
                     {String(card.expYear ?? 0).slice(-2)}
@@ -339,7 +339,7 @@ export function PaiementView({
                     <button
                       onClick={() => handleSetDefault(card)}
                       disabled={isLoading}
-                      className="px-3 py-1.5 text-xs text-terracotta hover:bg-terracotta/5 rounded-lg transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 text-xs text-ember hover:bg-ember/5 rounded-lg transition-colors disabled:opacity-50"
                     >
                       Définir par défaut
                     </button>
@@ -347,7 +347,7 @@ export function PaiementView({
                   <button
                     onClick={() => handleDelete(card)}
                     disabled={isLoading}
-                    className="p-1.5 rounded-lg text-muted-light hover:text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50"
+                    className="p-1.5 rounded-lg text-steel-soft hover:text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50"
                     aria-label="Supprimer"
                   >
                     {isLoading ? (

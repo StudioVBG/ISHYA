@@ -152,7 +152,7 @@ export default function ConfirmationPage() {
             transition={{ delay: 0.3 }}
             className="inline-flex items-center gap-2 bg-ivory border border-border rounded-full px-5 py-2 mb-4"
           >
-            <Package className="w-4 h-4 text-gold" />
+            <Package className="w-4 h-4 text-ember" />
             <span className="text-sm font-medium">
               Commande #{orderId}
             </span>
@@ -163,7 +163,7 @@ export default function ConfirmationPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="flex items-center justify-center gap-2 text-sm text-muted"
+              className="flex items-center justify-center gap-2 text-sm text-steel"
             >
               <Mail className="w-4 h-4" />
               Un email de confirmation a été envoyé à{" "}
@@ -182,17 +182,17 @@ export default function ConfirmationPage() {
           {/* Estimated delivery */}
           <motion.div
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
+            className="bg-bone-soft rounded-xl border border-border p-6"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center shrink-0">
-                <Truck className="w-6 h-6 text-terracotta" />
+              <div className="w-12 h-12 rounded-full bg-ember/10 flex items-center justify-center shrink-0">
+                <Truck className="w-6 h-6 text-ember" />
               </div>
               <div>
                 <h3 className="font-display text-base mb-0.5">
                   Livraison estimée
                 </h3>
-                <div className="flex items-center gap-2 text-sm text-muted">
+                <div className="flex items-center gap-2 text-sm text-steel">
                   <Calendar className="w-3.5 h-3.5" />
                   <span className="capitalize">{formattedDate}</span>
                 </div>
@@ -204,7 +204,7 @@ export default function ConfirmationPage() {
           {orderItems.length > 0 && (
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-xl border border-border overflow-hidden"
+              className="bg-bone-soft rounded-xl border border-border overflow-hidden"
             >
               <div className="px-6 py-4 border-b border-border">
                 <h3 className="font-display text-base">Détails de la commande</h3>
@@ -216,7 +216,7 @@ export default function ConfirmationPage() {
                     key={item.id}
                     className="flex items-center gap-4 px-6 py-4"
                   >
-                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-bone-soft shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -229,7 +229,7 @@ export default function ConfirmationPage() {
                       <p className="text-sm font-medium truncate">
                         {item.name}
                       </p>
-                      <p className="text-xs text-muted">
+                      <p className="text-xs text-steel">
                         Qté : {item.quantity}
                       </p>
                     </div>
@@ -257,14 +257,14 @@ export default function ConfirmationPage() {
             className="bg-gradient-to-br from-beige-nude-light to-ivory rounded-xl border border-border p-6"
           >
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                <UserPlus className="w-6 h-6 text-gold" />
+              <div className="w-12 h-12 rounded-full bg-ember/10 flex items-center justify-center shrink-0">
+                <UserPlus className="w-6 h-6 text-ember" />
               </div>
               <div className="flex-1">
                 <h3 className="font-display text-base mb-1">
                   Créez un compte pour suivre votre commande
                 </h3>
-                <p className="text-sm text-muted mb-4">
+                <p className="text-sm text-steel mb-4">
                   Accédez à votre historique, suivez vos livraisons et gagnez
                   des points fidélité.
                 </p>

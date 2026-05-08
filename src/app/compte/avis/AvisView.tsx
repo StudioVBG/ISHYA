@@ -44,20 +44,20 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold">
           Mes avis
         </h1>
-        <span className="text-sm text-muted">
+        <span className="text-sm text-steel">
           {reviews.length} avis publié{reviews.length > 1 ? "s" : ""}
         </span>
       </motion.div>
 
       {reviews.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-12 text-center">
+        <div className="bg-bone-soft rounded-xl border border-border p-12 text-center">
           <div className="w-16 h-16 rounded-full bg-warning-soft flex items-center justify-center mx-auto mb-4">
             <MessageSquare className="w-8 h-8 text-warning" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Vous n&apos;avez pas encore laissé d&apos;avis
           </h2>
-          <p className="text-sm text-muted mb-6">
+          <p className="text-sm text-steel mb-6">
             Partagez votre expérience après une commande pour aider d&apos;autres
             clientes à choisir.
           </p>
@@ -77,14 +77,14 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
               key={review.id}
               variants={staggerItem}
               className={cn(
-                "bg-white rounded-xl border p-5",
+                "bg-bone-soft rounded-xl border p-5",
                 review.isApproved ? "border-border" : "border-warning/30",
               )}
             >
               <div className="flex gap-4">
                 <Link
                   href={`/produit/${review.productSlug}`}
-                  className="w-16 h-16 rounded-lg bg-beige-nude-light overflow-hidden shrink-0 relative"
+                  className="w-16 h-16 rounded-lg bg-bone-soft overflow-hidden shrink-0 relative"
                 >
                   {review.productImageUrl ? (
                     <Image
@@ -96,7 +96,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-6 h-6 text-muted-light" />
+                      <Package className="w-6 h-6 text-steel-soft" />
                     </div>
                   )}
                 </Link>
@@ -106,7 +106,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                     <div className="min-w-0">
                       <Link
                         href={`/produit/${review.productSlug}`}
-                        className="font-medium hover:text-terracotta transition-colors text-sm truncate block"
+                        className="font-medium hover:text-ember transition-colors text-sm truncate block"
                       >
                         {review.productName}
                       </Link>
@@ -118,7 +118,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                               className={cn(
                                 "w-3.5 h-3.5",
                                 i < review.rating
-                                  ? "fill-gold text-gold"
+                                  ? "fill-gold text-ember"
                                   : "fill-border text-border",
                               )}
                             />
@@ -147,7 +147,7 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                     <button
                       onClick={() => handleDelete(review)}
                       disabled={isPending}
-                      className="p-1.5 rounded-lg text-muted-light hover:text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50 shrink-0"
+                      className="p-1.5 rounded-lg text-steel-soft hover:text-destructive hover:bg-destructive-soft transition-colors disabled:opacity-50 shrink-0"
                       aria-label="Supprimer l'avis"
                     >
                       {isPending ? (
@@ -162,12 +162,12 @@ export function MesAvisView({ reviews }: { reviews: AccountReview[] }) {
                     <p className="font-medium text-sm mt-2">{review.title}</p>
                   )}
                   {review.body && (
-                    <p className="text-sm text-muted mt-1 leading-relaxed">
+                    <p className="text-sm text-steel mt-1 leading-relaxed">
                       {review.body}
                     </p>
                   )}
                   {review.createdAt && (
-                    <p className="text-xs text-muted mt-2">
+                    <p className="text-xs text-steel mt-2">
                       Publié le {formatDate(review.createdAt)}
                     </p>
                   )}

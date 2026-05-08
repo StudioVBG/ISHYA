@@ -125,11 +125,11 @@ export default function CartPage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-md mx-auto text-center"
         >
-          <div className="w-24 h-24 rounded-full bg-beige-nude-light flex items-center justify-center mx-auto mb-6">
-            <ShoppingBag className="w-10 h-10 text-muted" />
+          <div className="w-24 h-24 rounded-full bg-bone-soft flex items-center justify-center mx-auto mb-6">
+            <ShoppingBag className="w-10 h-10 text-steel" />
           </div>
           <h1 className="font-display text-2xl mb-3">Votre panier est vide</h1>
-          <p className="text-muted mb-8">
+          <p className="text-steel mb-8">
             Découvrez nos bijoux floraux artisanaux et trouvez la pièce qui vous
             ressemble.
           </p>
@@ -150,7 +150,7 @@ export default function CartPage() {
         className="font-display text-2xl lg:text-3xl mb-8"
       >
         Mon Panier{" "}
-        <span className="text-muted text-lg font-sans font-normal">
+        <span className="text-steel text-lg font-sans font-normal">
           ({itemCount} article{itemCount > 1 ? "s" : ""})
         </span>
       </motion.h1>
@@ -163,16 +163,16 @@ export default function CartPage() {
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
-            className="bg-white rounded-xl p-4 border border-border"
+            className="bg-bone-soft rounded-xl p-4 border border-border"
           >
             <div className="flex items-center gap-2 mb-2.5">
-              <Truck className="w-4 h-4 text-gold" />
+              <Truck className="w-4 h-4 text-ember" />
               {subtotal >= FREE_SHIPPING_THRESHOLD ? (
                 <span className="text-sm text-success font-medium">
                   Félicitations, la livraison est offerte !
                 </span>
               ) : (
-                <span className="text-sm text-muted">
+                <span className="text-sm text-steel">
                   Plus que{" "}
                   <strong className="text-foreground">
                     {formatPrice(shippingRemaining)}
@@ -181,7 +181,7 @@ export default function CartPage() {
                 </span>
               )}
             </div>
-            <div className="h-2 bg-beige-nude-light rounded-full overflow-hidden">
+            <div className="h-2 bg-bone-soft rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-gold to-gold-light rounded-full"
                 initial={{ width: 0 }}
@@ -196,10 +196,10 @@ export default function CartPage() {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="space-y-0 bg-white rounded-xl border border-border overflow-hidden"
+            className="space-y-0 bg-bone-soft rounded-xl border border-border overflow-hidden"
           >
             {/* Table header – desktop */}
-            <div className="hidden md:grid grid-cols-[1fr_120px_140px_100px_40px] gap-4 px-6 py-3 bg-ivory/60 text-xs font-medium text-muted uppercase tracking-wider border-b border-border">
+            <div className="hidden md:grid grid-cols-[1fr_120px_140px_100px_40px] gap-4 px-6 py-3 bg-ivory/60 text-xs font-medium text-steel uppercase tracking-wider border-b border-border">
               <span>Produit</span>
               <span className="text-center">Prix unitaire</span>
               <span className="text-center">Quantité</span>
@@ -218,7 +218,7 @@ export default function CartPage() {
                 >
                   {/* ── Mobile : carte verticale ───────────────────── */}
                   <div className="md:hidden p-4 flex gap-4">
-                    <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                    <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-bone-soft shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -234,31 +234,31 @@ export default function CartPage() {
                             {item.name}
                           </h3>
                           {(item.size || item.material || item.stone) && (
-                            <p className="text-xs text-muted mt-0.5 truncate">
+                            <p className="text-xs text-steel mt-0.5 truncate">
                               {[item.size, item.material, item.stone]
                                 .filter(Boolean)
                                 .join(" · ")}
                             </p>
                           )}
-                          <p className="text-xs text-muted/70 mt-0.5 truncate">
+                          <p className="text-xs text-steel/70 mt-0.5 truncate">
                             {formatPrice(item.price)} l&apos;unité
                           </p>
                         </div>
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="p-2 -mt-1 -mr-1 min-w-11 min-h-11 flex items-center justify-center text-muted hover:text-destructive transition-colors"
+                          className="p-2 -mt-1 -mr-1 min-w-11 min-h-11 flex items-center justify-center text-steel hover:text-destructive transition-colors"
                           aria-label="Supprimer l'article"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-                        <div className="flex items-center border border-border rounded-md bg-white">
+                        <div className="flex items-center border border-border rounded-md bg-bone-soft">
                           <button
                             onClick={() =>
                               updateQuantity(item.id, item.quantity - 1)
                             }
-                            className="p-2 min-w-9 min-h-9 flex items-center justify-center hover:text-terracotta transition-colors"
+                            className="p-2 min-w-9 min-h-9 flex items-center justify-center hover:text-ember transition-colors"
                             aria-label="Réduire la quantité"
                           >
                             <Minus className="w-3.5 h-3.5" />
@@ -270,7 +270,7 @@ export default function CartPage() {
                             onClick={() =>
                               updateQuantity(item.id, item.quantity + 1)
                             }
-                            className="p-2 min-w-9 min-h-9 flex items-center justify-center hover:text-terracotta transition-colors"
+                            className="p-2 min-w-9 min-h-9 flex items-center justify-center hover:text-ember transition-colors"
                             aria-label="Augmenter la quantité"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -286,7 +286,7 @@ export default function CartPage() {
                   {/* ── Desktop : grille tabulaire ─────────────────── */}
                   <div className="hidden md:grid grid-cols-[1fr_120px_140px_100px_40px] gap-4 px-6 py-4 items-center">
                     <div className="flex items-center gap-4">
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-bone-soft shrink-0">
                         <Image
                           src={item.image}
                           alt={item.name}
@@ -300,13 +300,13 @@ export default function CartPage() {
                           {item.name}
                         </h3>
                         {(item.size || item.material || item.stone) && (
-                          <p className="text-xs text-muted mt-0.5">
+                          <p className="text-xs text-steel mt-0.5">
                             {[item.size, item.material, item.stone]
                               .filter(Boolean)
                               .join(" · ")}
                           </p>
                         )}
-                        <p className="text-xs text-muted mt-0.5">
+                        <p className="text-xs text-steel mt-0.5">
                           Réf : {item.sku}
                         </p>
                       </div>
@@ -317,12 +317,12 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex items-center justify-center">
-                      <div className="flex items-center border border-border rounded-lg bg-white">
+                      <div className="flex items-center border border-border rounded-lg bg-bone-soft">
                         <button
                           onClick={() =>
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="p-2 hover:text-terracotta transition-colors"
+                          className="p-2 hover:text-ember transition-colors"
                           aria-label="Réduire la quantité"
                         >
                           <Minus className="w-3.5 h-3.5" />
@@ -334,7 +334,7 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="p-2 hover:text-terracotta transition-colors"
+                          className="p-2 hover:text-ember transition-colors"
                           aria-label="Augmenter la quantité"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -349,7 +349,7 @@ export default function CartPage() {
                     <div className="flex justify-center">
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="p-1.5 text-muted hover:text-destructive transition-colors"
+                        className="p-1.5 text-steel hover:text-destructive transition-colors"
                         aria-label="Supprimer l'article"
                       >
                         <X className="w-4 h-4" />
@@ -367,10 +367,10 @@ export default function CartPage() {
             initial="hidden"
             animate="visible"
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl p-5 border border-border"
+            className="bg-bone-soft rounded-xl p-5 border border-border"
           >
             <div className="flex items-center gap-2 mb-3">
-              <Tag className="w-4 h-4 text-gold" />
+              <Tag className="w-4 h-4 text-ember" />
               <span className="text-sm font-medium">Code promo</span>
             </div>
 
@@ -380,13 +380,13 @@ export default function CartPage() {
                   <span className="text-sm font-medium text-success">
                     {discountCode}
                   </span>
-                  <span className="text-xs text-muted ml-2">
+                  <span className="text-xs text-steel ml-2">
                     ({DISCOUNT_CODES[discountCode]?.label})
                   </span>
                 </div>
                 <button
                   onClick={removeDiscount}
-                  className="text-xs text-muted hover:text-destructive transition-colors"
+                  className="text-xs text-steel hover:text-destructive transition-colors"
                 >
                   Retirer
                 </button>
@@ -400,7 +400,7 @@ export default function CartPage() {
                     onChange={(e) => setCodeInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && applyDiscount()}
                     placeholder="Entrez votre code"
-                    className="flex-1 px-4 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta bg-white"
+                    className="flex-1 px-4 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember bg-bone-soft"
                   />
                   <button
                     onClick={applyDiscount}
@@ -425,16 +425,16 @@ export default function CartPage() {
             initial="hidden"
             animate="visible"
             transition={{ delay: 0.15 }}
-            className="bg-white rounded-xl p-5 border border-border"
+            className="bg-bone-soft rounded-xl p-5 border border-border"
           >
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={giftWrap}
                 onChange={(e) => setGiftWrap(e.target.checked)}
-                className="w-4 h-4 rounded border-border text-terracotta focus:ring-terracotta accent-terracotta"
+                className="w-4 h-4 rounded border-border text-ember focus:ring-ember accent-ember"
               />
-              <Gift className="w-4 h-4 text-gold" />
+              <Gift className="w-4 h-4 text-ember" />
               <span className="text-sm font-medium">
                 Emballage cadeau (+3,00 €)
               </span>
@@ -454,9 +454,9 @@ export default function CartPage() {
                     placeholder="Votre message personnalisé (optionnel)"
                     maxLength={200}
                     rows={3}
-                    className="mt-3 w-full px-4 py-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta resize-none bg-ivory/50"
+                    className="mt-3 w-full px-4 py-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember resize-none bg-ivory/50"
                   />
-                  <p className="text-xs text-muted mt-1 text-right">
+                  <p className="text-xs text-steel mt-1 text-right">
                     {giftMessage.length}/200
                   </p>
                 </motion.div>
@@ -472,7 +472,7 @@ export default function CartPage() {
             initial="hidden"
             animate="visible"
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl border border-border overflow-hidden"
+            className="bg-bone-soft rounded-xl border border-border overflow-hidden"
           >
             <div className="p-6 border-b border-border">
               <h2 className="font-display text-lg">Récapitulatif</h2>
@@ -480,7 +480,7 @@ export default function CartPage() {
 
             <div className="p-6 space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Sous-total</span>
+                <span className="text-steel">Sous-total</span>
                 <span className="font-medium">{formatPrice(subtotal)}</span>
               </div>
 
@@ -493,13 +493,13 @@ export default function CartPage() {
 
               {giftWrap && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted">Emballage cadeau</span>
+                  <span className="text-steel">Emballage cadeau</span>
                   <span>{formatPrice(giftWrapCost)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Livraison (estimée)</span>
+                <span className="text-steel">Livraison (estimée)</span>
                 <span className={cn(estimatedShipping === 0 && "text-success font-medium")}>
                   {estimatedShipping === 0
                     ? "Offerte"
@@ -514,7 +514,7 @@ export default function CartPage() {
                     {formatPrice(total)}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted mt-1">
+                <p className="text-[11px] text-steel mt-1">
                   TVA incluse • Livraison calculée à l&apos;étape suivante
                 </p>
               </div>
@@ -544,7 +544,7 @@ export default function CartPage() {
           </motion.div>
 
           {/* Trust Badges */}
-          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-muted">
+          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-steel">
             <span className="flex items-center gap-1">
               <Truck className="w-3.5 h-3.5" /> Livraison suivie
             </span>

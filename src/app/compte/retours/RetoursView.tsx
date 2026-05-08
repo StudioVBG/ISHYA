@@ -38,7 +38,7 @@ const STATUS_ICON_BG: Record<string, string> = {
   inspected: "bg-info-soft text-info",
   refunded: "bg-success-soft text-success",
   exchanged: "bg-success-soft text-success",
-  closed: "bg-muted-soft text-muted",
+  closed: "bg-bone-soft text-steel",
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -70,14 +70,14 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
       </motion.div>
 
       {returns.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-beige-nude-light flex items-center justify-center mx-auto mb-4">
-            <RotateCcw className="w-8 h-8 text-terracotta" />
+        <div className="bg-bone-soft rounded-xl border border-border p-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-bone-soft flex items-center justify-center mx-auto mb-4">
+            <RotateCcw className="w-8 h-8 text-ember" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Aucune demande de retour
           </h2>
-          <p className="text-sm text-muted mb-6 max-w-md mx-auto">
+          <p className="text-sm text-steel mb-6 max-w-md mx-auto">
             Vous disposez de 14 jours après réception pour retourner un article.
             Rendez-vous sur le détail d&apos;une commande livrée pour démarrer une
             demande.
@@ -96,14 +96,14 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
           {returns.map((r) => {
             const Icon = STATUS_ICONS[r.status] ?? Clock;
             const iconBg =
-              STATUS_ICON_BG[r.status] ?? "bg-muted-soft text-muted";
+              STATUS_ICON_BG[r.status] ?? "bg-bone-soft text-steel";
             const reasonLabel = REASON_LABELS[r.reason] ?? r.reason;
 
             return (
               <motion.div
                 key={r.id}
                 variants={staggerItem}
-                className="bg-white rounded-xl border border-border p-5"
+                className="bg-bone-soft rounded-xl border border-border p-5"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex items-start gap-4">
@@ -117,7 +117,7 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
                         {r.orderNumber ? (
                           <Link
                             href={`/compte/commandes/${r.orderNumber}`}
-                            className="font-mono text-sm font-medium hover:text-terracotta transition-colors"
+                            className="font-mono text-sm font-medium hover:text-ember transition-colors"
                           >
                             {r.orderNumber}
                           </Link>
@@ -133,11 +133,11 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
                       </div>
                       <p className="text-sm text-foreground">{reasonLabel}</p>
                       {r.description && (
-                        <p className="text-xs text-muted mt-1 max-w-lg">
+                        <p className="text-xs text-steel mt-1 max-w-lg">
                           {r.description}
                         </p>
                       )}
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted mt-2">
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel mt-2">
                         {r.createdAt && (
                           <span>Demandé le {formatDate(r.createdAt)}</span>
                         )}
@@ -155,7 +155,7 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
 
                   {r.refundAmount != null && (
                     <div className="text-right shrink-0">
-                      <p className="text-xs text-muted">Remboursement</p>
+                      <p className="text-xs text-steel">Remboursement</p>
                       <p className="font-display text-base font-semibold text-success tabular-nums">
                         {formatPrice(r.refundAmount)}
                       </p>
@@ -164,7 +164,7 @@ export function RetoursView({ returns }: { returns: AccountReturn[] }) {
                 </div>
 
                 {r.trackingNumber && (
-                  <div className="mt-3 pt-3 border-t border-border/50 text-xs text-muted">
+                  <div className="mt-3 pt-3 border-t border-border/50 text-xs text-steel">
                     Numéro de suivi retour :{" "}
                     <span className="font-mono text-foreground">
                       {r.trackingNumber}

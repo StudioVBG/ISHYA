@@ -161,7 +161,7 @@ export default function IdentificationPage() {
   }
 
   const inputClasses =
-    "w-full px-4 py-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta bg-white transition-colors";
+    "w-full px-4 py-3 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember bg-bone-soft transition-colors";
 
   return (
     <div className="container py-8 lg:py-12">
@@ -174,7 +174,7 @@ export default function IdentificationPage() {
           <h1 className="font-display text-2xl lg:text-3xl mb-2">
             Identification
           </h1>
-          <p className="text-muted text-sm">
+          <p className="text-steel text-sm">
             Comment souhaitez-vous continuer ?
           </p>
         </motion.div>
@@ -193,16 +193,16 @@ export default function IdentificationPage() {
               className={cn(
                 "w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all",
                 activeMode === mode
-                  ? "border-terracotta bg-terracotta/5 shadow-sm"
-                  : "border-border bg-white hover:border-muted-light"
+                  ? "border-ember bg-ember/5 shadow-sm"
+                  : "border-border bg-bone-soft hover:border-muted-light"
               )}
             >
               <div
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors",
                   activeMode === mode
-                    ? "bg-terracotta text-white"
-                    : "bg-beige-nude-light text-muted"
+                    ? "bg-ember text-bone"
+                    : "bg-bone-soft text-steel"
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -211,25 +211,25 @@ export default function IdentificationPage() {
                 <span
                   className={cn(
                     "text-sm font-medium block",
-                    activeMode === mode && "text-terracotta"
+                    activeMode === mode && "text-ember"
                   )}
                 >
                   {label}
                 </span>
-                <span className="text-xs text-muted">{desc}</span>
+                <span className="text-xs text-steel">{desc}</span>
               </div>
               <div
                 className={cn(
                   "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
                   activeMode === mode
-                    ? "border-terracotta"
+                    ? "border-ember"
                     : "border-muted-light"
                 )}
               >
                 {activeMode === mode && (
                   <motion.div
                     layoutId="auth-indicator"
-                    className="w-2.5 h-2.5 rounded-full bg-terracotta"
+                    className="w-2.5 h-2.5 rounded-full bg-ember"
                   />
                 )}
               </div>
@@ -248,7 +248,7 @@ export default function IdentificationPage() {
               exit="hidden"
               transition={{ duration: 0.2 }}
               onSubmit={guestForm.handleSubmit(onGuestSubmit)}
-              className="bg-white rounded-xl border border-border p-6 space-y-4"
+              className="bg-bone-soft rounded-xl border border-border p-6 space-y-4"
             >
               <div>
                 <label
@@ -258,7 +258,7 @@ export default function IdentificationPage() {
                   Adresse email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel" />
                   <input
                     id="guest-email"
                     type="email"
@@ -309,7 +309,7 @@ export default function IdentificationPage() {
               exit="hidden"
               transition={{ duration: 0.2 }}
               onSubmit={loginForm.handleSubmit(onLoginSubmit)}
-              className="bg-white rounded-xl border border-border p-6 space-y-4"
+              className="bg-bone-soft rounded-xl border border-border p-6 space-y-4"
             >
               <div>
                 <label
@@ -319,7 +319,7 @@ export default function IdentificationPage() {
                   Adresse email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel" />
                   <input
                     id="login-email"
                     type="email"
@@ -349,7 +349,7 @@ export default function IdentificationPage() {
                   Mot de passe
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel" />
                   <input
                     id="login-password"
                     type={showPassword ? "text" : "password"}
@@ -362,7 +362,7 @@ export default function IdentificationPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-steel hover:text-ink transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -396,10 +396,10 @@ export default function IdentificationPage() {
                 )}
               </button>
 
-              <p className="text-center text-xs text-muted">
+              <p className="text-center text-xs text-steel">
                 <a
                   href="/mot-de-passe-oublie"
-                  className="hover:text-terracotta transition-colors"
+                  className="hover:text-ember transition-colors"
                 >
                   Mot de passe oublié ?
                 </a>
@@ -416,7 +416,7 @@ export default function IdentificationPage() {
               exit="hidden"
               transition={{ duration: 0.2 }}
               onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
-              className="bg-white rounded-xl border border-border p-6 space-y-4"
+              className="bg-bone-soft rounded-xl border border-border p-6 space-y-4"
             >
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -475,7 +475,7 @@ export default function IdentificationPage() {
                   Adresse email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel" />
                   <input
                     id="reg-email"
                     type="email"
@@ -505,7 +505,7 @@ export default function IdentificationPage() {
                   Mot de passe
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-steel" />
                   <input
                     id="reg-password"
                     type={showPassword ? "text" : "password"}
@@ -522,7 +522,7 @@ export default function IdentificationPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-steel hover:text-ink transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />

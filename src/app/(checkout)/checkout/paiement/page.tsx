@@ -209,7 +209,7 @@ export default function PaiementPage() {
             <h1 className="font-display text-2xl lg:text-3xl mb-1">
               Paiement
             </h1>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-steel">
               Finalisez votre commande en toute sécurité
             </p>
           </motion.div>
@@ -218,10 +218,10 @@ export default function PaiementPage() {
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
-            className="bg-white rounded-xl border border-border p-6"
+            className="bg-bone-soft rounded-xl border border-border p-6"
           >
             <div className="flex items-center gap-2 mb-6">
-              <CreditCard className="w-4 h-4 text-terracotta" />
+              <CreditCard className="w-4 h-4 text-ember" />
               <h2 className="font-display text-base">
                 Informations de paiement
               </h2>
@@ -239,8 +239,8 @@ export default function PaiementPage() {
               </div>
             ) : !clientSecret ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <div className="w-8 h-8 border-3 border-terracotta/20 border-t-terracotta rounded-full animate-spin" />
-                <p className="text-sm text-muted">
+                <div className="w-8 h-8 border-3 border-ember/20 border-t-terracotta rounded-full animate-spin" />
+                <p className="text-sm text-steel">
                   Préparation du paiement sécurisé...
                 </p>
               </div>
@@ -296,15 +296,15 @@ export default function PaiementPage() {
             transition={{ delay: 0.1 }}
             className="flex items-center justify-center gap-6 py-4"
           >
-            <div className="flex items-center gap-2 text-xs text-muted">
+            <div className="flex items-center gap-2 text-xs text-steel">
               <Shield className="w-4 h-4" />
               <span>Paiement 100% sécurisé</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted">
+            <div className="flex items-center gap-2 text-xs text-steel">
               <Lock className="w-4 h-4" />
               <span>Chiffrement SSL</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted">
+            <div className="flex items-center gap-1.5 text-xs text-steel">
               <span className="font-semibold text-stripe-brand">stripe</span>
             </div>
           </motion.div>
@@ -328,7 +328,7 @@ export default function PaiementPage() {
             initial="hidden"
             animate="visible"
             transition={{ delay: 0.15 }}
-            className="bg-white rounded-xl border border-border overflow-hidden"
+            className="bg-bone-soft rounded-xl border border-border overflow-hidden"
           >
             <div className="p-6 border-b border-border">
               <h2 className="font-display text-lg">Récapitulatif</h2>
@@ -337,7 +337,7 @@ export default function PaiementPage() {
             <div className="p-6 space-y-3 border-b border-border max-h-52 overflow-y-auto">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-beige-nude-light shrink-0">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-bone-soft shrink-0">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -345,14 +345,14 @@ export default function PaiementPage() {
                       className="object-cover"
                       sizes="48px"
                     />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-terracotta text-white text-[10px] font-medium rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-ember text-bone text-[10px] font-medium rounded-full flex items-center justify-center">
                       {item.quantity}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm truncate">{item.name}</p>
                     {(item.size || item.material) && (
-                      <p className="text-xs text-muted">
+                      <p className="text-xs text-steel">
                         {[item.size, item.material].filter(Boolean).join(" · ")}
                       </p>
                     )}
@@ -366,7 +366,7 @@ export default function PaiementPage() {
 
             <div className="p-6 space-y-2.5">
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Sous-total</span>
+                <span className="text-steel">Sous-total</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
               {discountAmount > 0 && (
@@ -377,12 +377,12 @@ export default function PaiementPage() {
               )}
               {giftWrap && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted">Emballage cadeau</span>
+                  <span className="text-steel">Emballage cadeau</span>
                   <span>{formatPrice(giftWrapCost)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Livraison</span>
+                <span className="text-steel">Livraison</span>
                 <span className={cn(shippingCost === 0 && "text-success font-medium")}>
                   {shippingCost === 0
                     ? "Offerte"
@@ -396,7 +396,7 @@ export default function PaiementPage() {
                     {formatPrice(total)}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted mt-1">TVA incluse</p>
+                <p className="text-[11px] text-steel mt-1">TVA incluse</p>
               </div>
             </div>
           </motion.div>

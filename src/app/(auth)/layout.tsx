@@ -22,9 +22,9 @@ export default function AuthLayout({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(197,165,114,0.15),transparent_60%)]" />
 
         {/* Decorative floral dots */}
-        <div className="absolute top-16 left-16 w-24 h-24 rounded-full bg-terracotta/10 blur-2xl" />
-        <div className="absolute bottom-24 right-20 w-32 h-32 rounded-full bg-gold/10 blur-3xl" />
-        <div className="absolute top-1/3 right-16 w-16 h-16 rounded-full bg-terracotta/5 blur-xl" />
+        <div className="absolute top-16 left-16 w-24 h-24 rounded-full bg-ember/10 blur-2xl" />
+        <div className="absolute bottom-24 right-20 w-32 h-32 rounded-full bg-ember/10 blur-3xl" />
+        <div className="absolute top-1/3 right-16 w-16 h-16 rounded-full bg-ember/5 blur-xl" />
 
         <div className="relative z-10 text-center px-12">
           <Link href="/" className="inline-block">
@@ -32,7 +32,7 @@ export default function AuthLayout({
               ISHYA
             </h1>
           </Link>
-          <div className="mt-4 w-12 h-px bg-gold mx-auto" />
+          <div className="mt-4 w-12 h-px bg-ember mx-auto" />
           <p className="mt-4 text-base tracking-widest uppercase text-foreground/50 font-sans">
             Bijoux floraux artisanaux
           </p>

@@ -86,7 +86,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
     <div>
       <Link
         href="/compte/retours"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-terracotta transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-sm text-steel hover:text-ember transition-colors mb-6"
       >
         <ChevronLeft className="w-4 h-4" />
         Retour à mes demandes
@@ -101,7 +101,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold mb-2">
           Demande de retour
         </h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-steel">
           Commande{" "}
           <span className="font-mono">{order.orderNumber}</span>
           {order.createdAt && ` du ${formatDate(order.createdAt)}`}
@@ -118,7 +118,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
           {/* Articles à retourner */}
           <motion.section
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
+            className="bg-bone-soft rounded-xl border border-border p-6"
           >
             <h2 className="font-display text-lg font-semibold mb-4">
               Quels articles souhaitez-vous retourner ?
@@ -132,7 +132,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                     className={cn(
                       "flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-colors",
                       isSelected
-                        ? "border-terracotta bg-terracotta/5"
+                        ? "border-ember bg-ember/5"
                         : "border-border hover:border-muted-light",
                     )}
                   >
@@ -140,9 +140,9 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleItem(item.id, item.quantity)}
-                      className="rounded accent-terracotta"
+                      className="rounded accent-ember"
                     />
-                    <div className="w-14 h-14 rounded-lg bg-beige-nude-light overflow-hidden shrink-0 relative">
+                    <div className="w-14 h-14 rounded-lg bg-bone-soft overflow-hidden shrink-0 relative">
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
@@ -153,7 +153,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-5 h-5 text-muted-light" />
+                          <Package className="w-5 h-5 text-steel-soft" />
                         </div>
                       )}
                     </div>
@@ -162,16 +162,16 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                         {item.productName}
                       </p>
                       {item.variantName && (
-                        <p className="text-xs text-muted">{item.variantName}</p>
+                        <p className="text-xs text-steel">{item.variantName}</p>
                       )}
-                      <p className="text-xs text-muted mt-0.5">
+                      <p className="text-xs text-steel mt-0.5">
                         Quantité commandée : {item.quantity} ·{" "}
                         {formatPrice(item.unitPrice)}
                       </p>
                     </div>
                     {isSelected && item.quantity > 1 && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted">Qté</span>
+                        <span className="text-xs text-steel">Qté</span>
                         <input
                           type="number"
                           min={1}
@@ -198,7 +198,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
           {/* Motif */}
           <motion.section
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
+            className="bg-bone-soft rounded-xl border border-border p-6"
           >
             <h2 className="font-display text-lg font-semibold mb-4">
               Motif du retour
@@ -210,7 +210,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                     reason === r.value
-                      ? "border-terracotta bg-terracotta/5"
+                      ? "border-ember bg-ember/5"
                       : "border-border hover:border-muted-light",
                   )}
                 >
@@ -220,7 +220,7 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
                     value={r.value}
                     checked={reason === r.value}
                     onChange={(e) => setReason(e.target.value)}
-                    className="accent-terracotta"
+                    className="accent-ember"
                   />
                   <span className="text-sm">{r.label}</span>
                 </label>
@@ -231,12 +231,12 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
           {/* Description */}
           <motion.section
             variants={staggerItem}
-            className="bg-white rounded-xl border border-border p-6"
+            className="bg-bone-soft rounded-xl border border-border p-6"
           >
             <h2 className="font-display text-lg font-semibold mb-2">
               Détails complémentaires (facultatif)
             </h2>
-            <p className="text-xs text-muted mb-3">
+            <p className="text-xs text-steel mb-3">
               Précisez le défaut, la nuance attendue, le problème de taille…
               Cela nous aidera à traiter votre demande plus rapidement.
             </p>
@@ -245,9 +245,9 @@ export function RetourForm({ order }: { order: AccountReturnableOrder }) {
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               maxLength={1000}
-              className="w-full px-4 py-2.5 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta resize-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-bone-soft text-sm focus:outline-none focus:ring-2 focus:ring-ember/30 focus:border-ember resize-none"
             />
-            <p className="text-xs text-muted mt-1">
+            <p className="text-xs text-steel mt-1">
               {description.length}/1000 caractères
             </p>
           </motion.section>

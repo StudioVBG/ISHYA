@@ -20,10 +20,10 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-start justify-between gap-4 p-4 bg-beige-nude-light/30 rounded-lg cursor-pointer hover:bg-beige-nude-light/50 transition-colors">
+    <label className="flex items-start justify-between gap-4 p-4 bg-bone-soft/30 rounded-lg cursor-pointer hover:bg-bone-soft/50 transition-colors">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted mt-0.5">{description}</p>
+        <p className="text-xs text-steel mt-0.5">{description}</p>
       </div>
       <div className="relative inline-flex items-center cursor-pointer shrink-0">
         <input
@@ -32,7 +32,7 @@ function Toggle({
           onChange={(e) => onChange(e.target.checked)}
           className="sr-only peer"
         />
-        <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-terracotta peer-focus:ring-2 peer-focus:ring-terracotta/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
+        <div className="w-11 h-6 bg-border rounded-full peer peer-checked:bg-ember peer-focus:ring-2 peer-focus:ring-ember/30 transition-colors after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-bone-soft after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
       </div>
     </label>
   );
@@ -82,7 +82,7 @@ export function NotificationsForm({
         initial="hidden"
         animate="visible"
         transition={{ delay: 0.1 }}
-        className="text-sm text-muted mb-8"
+        className="text-sm text-steel mb-8"
       >
         Choisissez les communications que vous souhaitez recevoir.
       </motion.p>
@@ -95,10 +95,10 @@ export function NotificationsForm({
       >
         <motion.section
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Mail className="w-4 h-4 text-terracotta" />
+            <Mail className="w-4 h-4 text-ember" />
             <h2 className="font-display text-lg font-semibold">E-mails</h2>
           </div>
           <div className="space-y-3">
@@ -125,10 +125,10 @@ export function NotificationsForm({
 
         <motion.section
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <div className="flex items-center gap-2 mb-4">
-            <MessageSquare className="w-4 h-4 text-terracotta" />
+            <MessageSquare className="w-4 h-4 text-ember" />
             <h2 className="font-display text-lg font-semibold">SMS</h2>
           </div>
           <div className="space-y-3">
@@ -149,10 +149,10 @@ export function NotificationsForm({
 
         <motion.section
           variants={staggerItem}
-          className="bg-white rounded-xl border border-border p-6"
+          className="bg-bone-soft rounded-xl border border-border p-6"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Smartphone className="w-4 h-4 text-terracotta" />
+            <Smartphone className="w-4 h-4 text-ember" />
             <h2 className="font-display text-lg font-semibold">
               Notifications push
             </h2>

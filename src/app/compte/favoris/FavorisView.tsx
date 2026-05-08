@@ -36,20 +36,20 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold">
           Mes favoris
         </h1>
-        <span className="text-sm text-muted">
+        <span className="text-sm text-steel">
           {items.length} produit{items.length > 1 ? "s" : ""}
         </span>
       </motion.div>
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-terracotta-light" />
+        <div className="bg-bone-soft rounded-xl border border-border p-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-ember/10 flex items-center justify-center mx-auto mb-4">
+            <Heart className="w-8 h-8 text-ember-bright" />
           </div>
           <h2 className="font-display text-lg mb-2">
             Aucun favori pour le moment
           </h2>
-          <p className="text-sm text-muted mb-6">
+          <p className="text-sm text-steel mb-6">
             Cliquez sur le cœur sur un produit pour l&apos;ajouter à vos favoris.
           </p>
           <Link href="/boutique" className="btn-primary inline-flex">
@@ -67,11 +67,11 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
             <motion.div
               key={item.id}
               variants={staggerItem}
-              className="group bg-white rounded-xl border border-border overflow-hidden"
+              className="group bg-bone-soft rounded-xl border border-border overflow-hidden"
             >
               <Link
                 href={`/produit/${item.productSlug}`}
-                className="block relative aspect-square bg-beige-nude-light"
+                className="block relative aspect-square bg-bone-soft"
               >
                 {item.imageUrl ? (
                   <Image
@@ -83,11 +83,11 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Package className="w-10 h-10 text-muted-light" />
+                    <Package className="w-10 h-10 text-steel-soft" />
                   </div>
                 )}
                 {!item.inStock && (
-                  <span className="absolute top-2 left-2 text-[10px] uppercase tracking-wide font-medium bg-white/90 text-foreground px-2 py-1 rounded-full">
+                  <span className="absolute top-2 left-2 text-[10px] uppercase tracking-wide font-medium bg-bone-soft/90 text-foreground px-2 py-1 rounded-full">
                     Épuisé
                   </span>
                 )}
@@ -95,7 +95,7 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
               <div className="p-3 sm:p-4">
                 <Link
                   href={`/produit/${item.productSlug}`}
-                  className="font-medium text-sm hover:text-terracotta transition-colors line-clamp-2"
+                  className="font-medium text-sm hover:text-ember transition-colors line-clamp-2"
                 >
                   {item.productName}
                 </Link>
@@ -105,7 +105,7 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
                       {formatPrice(item.basePrice)}
                     </span>
                     {item.compareAtPrice && (
-                      <span className="text-xs text-muted line-through">
+                      <span className="text-xs text-steel line-through">
                         {formatPrice(item.compareAtPrice)}
                       </span>
                     )}
@@ -114,7 +114,7 @@ export function FavorisView({ items }: { items: AccountWishlistItem[] }) {
                     onClick={() => handleRemove(item.id)}
                     disabled={isPending}
                     className={cn(
-                      "p-1.5 rounded-lg text-muted-light hover:text-destructive hover:bg-destructive-soft transition-colors",
+                      "p-1.5 rounded-lg text-steel-soft hover:text-destructive hover:bg-destructive-soft transition-colors",
                       isPending && "opacity-50 cursor-not-allowed",
                     )}
                     aria-label="Retirer des favoris"

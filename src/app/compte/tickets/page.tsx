@@ -40,13 +40,13 @@ export default async function MesTicketsPage() {
           <h1 className="font-display text-2xl text-foreground">
             Aide & messages
           </h1>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-steel mt-1">
             Vos échanges avec l&apos;équipe ISHYA.
           </p>
         </div>
         <Link
           href="/compte/tickets/nouveau"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ember text-bone text-sm font-medium hover:bg-ember-deep transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nouvelle demande
@@ -54,18 +54,18 @@ export default async function MesTicketsPage() {
       </div>
 
       {tickets.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-10 text-center">
-          <MessageCircle className="w-10 h-10 mx-auto mb-3 text-muted-light" />
+        <div className="bg-bone-soft rounded-xl border border-border p-10 text-center">
+          <MessageCircle className="w-10 h-10 mx-auto mb-3 text-steel-soft" />
           <p className="text-foreground font-medium">
             Vous n&apos;avez pas encore de message.
           </p>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-steel mt-1">
             Une question, un souci sur une commande&nbsp;? Notre équipe vous
             répond généralement sous 48&nbsp;h ouvrées.
           </p>
           <Link
             href="/compte/tickets/nouveau"
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark"
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ember text-bone text-sm font-medium hover:bg-ember-deep"
           >
             <Plus className="w-4 h-4" />
             Ouvrir une demande
@@ -80,7 +80,7 @@ export default async function MesTicketsPage() {
               <li key={t.id}>
                 <Link
                   href={`/compte/tickets/${t.id}`}
-                  className="block bg-white rounded-xl border border-border p-4 hover:border-terracotta/40 transition-colors"
+                  className="block bg-bone-soft rounded-xl border border-border p-4 hover:border-ember/40 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -89,12 +89,12 @@ export default async function MesTicketsPage() {
                           {status.label}
                         </StatusBadge>
                         {t.category && (
-                          <span className="text-xs text-muted">
+                          <span className="text-xs text-steel">
                             {CATEGORY_LABELS[t.category] ?? t.category}
                           </span>
                         )}
                         {t.orderNumber && (
-                          <span className="text-xs text-muted">
+                          <span className="text-xs text-steel">
                             · Commande {t.orderNumber}
                           </span>
                         )}
@@ -102,7 +102,7 @@ export default async function MesTicketsPage() {
                       <p className="font-medium text-foreground truncate">
                         {t.subject}
                       </p>
-                      <p className="text-xs text-muted mt-1">
+                      <p className="text-xs text-steel mt-1">
                         Mis à jour le {formatDate(t.lastMessageAt)}
                       </p>
                     </div>

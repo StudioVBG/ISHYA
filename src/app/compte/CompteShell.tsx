@@ -133,9 +133,9 @@ export function CompteShell({
       <Header account={account} social={social} />
       <CartDrawer />
       <main className="flex-1 bg-background">
-        <div className="border-b border-border bg-white/50">
+        <div className="border-b border-border bg-bone-soft/50">
           <div className="container py-3">
-            <nav className="flex items-center gap-1.5 text-xs text-muted">
+            <nav className="flex items-center gap-1.5 text-xs text-steel">
               {breadcrumbs.map((crumb, i) => (
                 <span key={crumb.href} className="flex items-center gap-1.5">
                   {i > 0 && <ChevronRight className="w-3 h-3" />}
@@ -146,7 +146,7 @@ export function CompteShell({
                   ) : (
                     <Link
                       href={crumb.href}
-                      className="hover:text-terracotta transition-colors"
+                      className="hover:text-ember transition-colors"
                     >
                       {crumb.label}
                     </Link>
@@ -193,8 +193,8 @@ export function CompteShell({
                         className={cn(
                           "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all shrink-0",
                           active
-                            ? "bg-terracotta text-white"
-                            : "bg-white text-foreground border border-border hover:border-terracotta hover:text-terracotta",
+                            ? "bg-ember text-bone"
+                            : "bg-bone-soft text-foreground border border-border hover:border-ember hover:text-ember",
                         )}
                       >
                         <Icon className="w-4 h-4" />
@@ -211,14 +211,14 @@ export function CompteShell({
             <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
               <div className="sticky top-24">
                 <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border">
-                  <div className="w-12 h-12 rounded-full bg-beige-nude flex items-center justify-center">
-                    <span className="text-lg font-display font-semibold text-terracotta">
+                  <div className="w-12 h-12 rounded-full bg-bone-soft flex items-center justify-center">
+                    <span className="text-lg font-display font-semibold text-ember">
                       {initial}
                     </span>
                   </div>
                   <div>
                     <p className="font-medium text-sm">{fullName}</p>
-                    <p className="text-xs text-muted">{tierLabel}</p>
+                    <p className="text-xs text-steel">{tierLabel}</p>
                   </div>
                 </div>
 
@@ -233,21 +233,21 @@ export function CompteShell({
                         className={cn(
                           "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
                           active
-                            ? "bg-terracotta/10 text-terracotta"
-                            : "text-muted hover:text-foreground hover:bg-beige-nude-light/50",
+                            ? "bg-ember/10 text-ember"
+                            : "text-steel hover:text-ink hover:bg-bone-soft/50",
                         )}
                       >
                         <Icon
                           className={cn(
                             "w-[18px] h-[18px] transition-colors",
                             active
-                              ? "text-terracotta"
-                              : "text-muted-light group-hover:text-foreground",
+                              ? "text-ember"
+                              : "text-steel-soft group-hover:text-ink",
                           )}
                         />
                         {item.label}
                         {active && (
-                          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-terracotta" />
+                          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-ember" />
                         )}
                       </Link>
                     );
@@ -257,7 +257,7 @@ export function CompteShell({
                 <div className="mt-8 pt-6 border-t border-border">
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-destructive transition-colors w-full"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-steel hover:text-destructive transition-colors w-full"
                   >
                     <LogOut className="w-[18px] h-[18px]" />
                     Déconnexion

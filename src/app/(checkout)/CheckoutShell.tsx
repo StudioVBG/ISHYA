@@ -25,11 +25,11 @@ export function CheckoutShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-ivory">
-      <header className="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-border bg-bone-soft/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container py-4 flex justify-center">
           <Link
             href="/"
-            className="font-display text-2xl tracking-widest text-foreground hover:text-terracotta transition-colors"
+            className="font-display text-2xl tracking-widest text-foreground hover:text-ember transition-colors"
           >
             ISHYA
           </Link>
@@ -57,7 +57,7 @@ export function CheckoutShell({ children }: { children: React.ReactNode }) {
                       transition={{ duration: 0.3, ease: "easeOut" }}
                       className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0",
-                        isCompleted || isCurrent ? "text-white" : "text-muted"
+                        isCompleted || isCurrent ? "text-bone" : "text-steel"
                       )}
                     >
                       {isCompleted ? (
@@ -70,10 +70,10 @@ export function CheckoutShell({ children }: { children: React.ReactNode }) {
                       className={cn(
                         "text-[11px] font-medium whitespace-nowrap hidden sm:block",
                         isCurrent
-                          ? "text-terracotta"
+                          ? "text-ember"
                           : isCompleted
                             ? "text-foreground"
-                            : "text-muted"
+                            : "text-steel"
                       )}
                     >
                       {step.label}
@@ -87,7 +87,7 @@ export function CheckoutShell({ children }: { children: React.ReactNode }) {
                         initial={false}
                         animate={{ scaleX: isCompleted ? 1 : 0 }}
                         transition={{ duration: 0.4, ease: "easeOut" }}
-                        className="absolute inset-0 bg-terracotta origin-left"
+                        className="absolute inset-0 bg-ember origin-left"
                       />
                     </div>
                   )}
@@ -110,15 +110,15 @@ export function CheckoutShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <footer className="border-t border-border py-6 mt-auto">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
+        <div className="container flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-steel">
           <div className="flex items-center gap-4">
-            <Link href="/mentions-legales" className="hover:text-terracotta transition-colors">
+            <Link href="/mentions-legales" className="hover:text-ember transition-colors">
               Mentions légales
             </Link>
-            <Link href="/cgv" className="hover:text-terracotta transition-colors">
+            <Link href="/cgv" className="hover:text-ember transition-colors">
               CGV
             </Link>
-            <Link href="/confidentialite" className="hover:text-terracotta transition-colors">
+            <Link href="/confidentialite" className="hover:text-ember transition-colors">
               Confidentialité
             </Link>
           </div>

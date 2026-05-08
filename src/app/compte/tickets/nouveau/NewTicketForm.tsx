@@ -48,7 +48,7 @@ export function NewTicketForm({ orders }: NewTicketFormProps) {
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white border border-border rounded-xl p-6 space-y-5"
+      className="bg-bone-soft border border-border rounded-xl p-6 space-y-5"
     >
       <div>
         <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -57,7 +57,7 @@ export function NewTicketForm({ orders }: NewTicketFormProps) {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as CategoryValue)}
-          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
         >
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
@@ -75,7 +75,7 @@ export function NewTicketForm({ orders }: NewTicketFormProps) {
           <select
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
           >
             <option value="">— Aucune commande —</option>
             {orders.map((o) => (
@@ -98,7 +98,7 @@ export function NewTicketForm({ orders }: NewTicketFormProps) {
           required
           maxLength={200}
           placeholder="En une phrase, votre demande"
-          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20"
         />
       </div>
 
@@ -113,9 +113,9 @@ export function NewTicketForm({ orders }: NewTicketFormProps) {
           rows={7}
           maxLength={5000}
           placeholder="Décrivez votre demande aussi précisément que possible : numéro de commande, photos si pertinent, contexte…"
-          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 resize-y"
+          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ember/20 resize-y"
         />
-        <p className="text-xs text-muted mt-1">
+        <p className="text-xs text-steel mt-1">
           {body.length}/5000 caractères
         </p>
       </div>
@@ -124,7 +124,7 @@ export function NewTicketForm({ orders }: NewTicketFormProps) {
         <button
           type="submit"
           disabled={pending || !subject.trim() || !body.trim()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-ember text-bone text-sm font-medium hover:bg-ember-deep disabled:opacity-50"
         >
           {pending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
