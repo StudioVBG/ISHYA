@@ -63,8 +63,8 @@ export function AbandonedCartEmail1({
         <EmailHeadFonts />
       </Head>
       <Preview>{previewText}</Preview>
-      <Body style={{ margin: 0, backgroundColor: colors.ivory, fontFamily: fontBody }}>
-        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.ivory }}>
+      <Body style={{ margin: 0, backgroundColor: colors.bone, fontFamily: fontBody }}>
+        <Container style={{ maxWidth: "600px", margin: "0 auto", backgroundColor: colors.bone }}>
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
           <Section style={{ padding: "8px 32px 32px" }}>
             <Heading
@@ -74,13 +74,13 @@ export function AbandonedCartEmail1({
                 fontSize: "26px",
                 lineHeight: "34px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 12px",
               }}
             >
               Vous avez oublié quelque chose...
             </Heading>
-            <Text style={{ fontSize: "14px", lineHeight: "22px", color: colors.textMuted, margin: "0 0 8px" }}>
+            <Text style={{ fontSize: "14px", lineHeight: "22px", color: colors.steel, margin: "0 0 8px" }}>
               Il y a environ une heure, vous avez laissé ces trésors dans votre panier. Ils sont toujours réservés pour
               vous, le temps de finaliser votre commande.
             </Text>
@@ -101,7 +101,7 @@ export function AbandonedCartEmail1({
                           height: "auto",
                           borderRadius: "8px",
                           display: "block",
-                          border: `1px solid ${colors.beigeNude}`,
+                          border: `1px solid ${colors.boneSoft}`,
                         }}
                       />
                       <Text
@@ -109,13 +109,13 @@ export function AbandonedCartEmail1({
                           margin: "10px 0 4px",
                           fontSize: "14px",
                           fontWeight: 600,
-                          color: colors.black,
+                          color: colors.ink,
                         }}
                       >
                         {p.name}
                       </Text>
                       {p.price != null && (
-                        <Text style={{ margin: 0, fontSize: "13px", color: colors.gold, fontWeight: 600 }}>
+                        <Text style={{ margin: 0, fontSize: "13px", color: colors.ember, fontWeight: 600 }}>
                           {formatEur(p.price)}
                         </Text>
                       )}
@@ -132,8 +132,8 @@ export function AbandonedCartEmail1({
               </Button>
             </Section>
 
-            <Hr style={{ borderColor: colors.beigeNude, margin: "32px 0 20px" }} />
-            <Text style={{ fontSize: "12px", lineHeight: "18px", color: colors.textMuted, margin: 0 }}>
+            <Hr style={{ borderColor: colors.boneSoft, margin: "32px 0 20px" }} />
+            <Text style={{ fontSize: "12px", lineHeight: "18px", color: colors.steel, margin: 0 }}>
               Cet email est envoyé automatiquement environ 1 h après l&apos;abandon de panier.
             </Text>
           </Section>

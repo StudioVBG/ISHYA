@@ -48,7 +48,7 @@ export function NewsletterConfirmEmail({
       <Body
         style={{
           margin: 0,
-          backgroundColor: colors.ivory,
+          backgroundColor: colors.bone,
           fontFamily: fontBody,
         }}
       >
@@ -56,7 +56,7 @@ export function NewsletterConfirmEmail({
           style={{
             maxWidth: "600px",
             margin: "0 auto",
-            backgroundColor: colors.ivory,
+            backgroundColor: colors.bone,
           }}
         >
           <EmailHeader baseUrl={baseUrl} logoSrc={logoSrc} />
@@ -68,7 +68,7 @@ export function NewsletterConfirmEmail({
                 fontSize: "26px",
                 lineHeight: "34px",
                 fontWeight: 600,
-                color: colors.black,
+                color: colors.ink,
                 margin: "0 0 20px",
               }}
             >
@@ -78,13 +78,13 @@ export function NewsletterConfirmEmail({
               style={{
                 fontSize: "15px",
                 lineHeight: "24px",
-                color: colors.textMuted,
+                color: colors.steel,
                 margin: "0 0 16px",
               }}
             >
               Quelqu&apos;un (probablement vous !) a inscrit cette adresse à la
               newsletter ISHYA. Pour finaliser votre inscription et recevoir
-              votre code <strong style={{ color: colors.black }}>-10 %</strong>{" "}
+              votre code <strong style={{ color: colors.ink }}>-10 %</strong>{" "}
               de bienvenue, cliquez sur le bouton ci-dessous.
             </Text>
 
@@ -98,7 +98,7 @@ export function NewsletterConfirmEmail({
               style={{
                 fontSize: "13px",
                 lineHeight: "20px",
-                color: colors.textMuted,
+                color: colors.steel,
                 margin: "28px 0 0",
               }}
             >
@@ -110,7 +110,7 @@ export function NewsletterConfirmEmail({
               style={{
                 fontSize: "12px",
                 lineHeight: "18px",
-                color: colors.textMuted,
+                color: colors.steel,
                 margin: "16px 0 0",
               }}
             >
@@ -118,7 +118,7 @@ export function NewsletterConfirmEmail({
               copiez-collez l&apos;URL :{" "}
               <Link
                 href={confirmUrl}
-                style={{ color: colors.terracotta, wordBreak: "break-all" }}
+                style={{ color: colors.ember, wordBreak: "break-all" }}
               >
                 {confirmUrl}
               </Link>
