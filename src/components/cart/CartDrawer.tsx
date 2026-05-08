@@ -4,7 +4,16 @@ import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShoppingBag, Minus, Plus, Trash2, Gift, Truck } from "lucide-react";
+import {
+  X,
+  ShoppingBag,
+  Minus,
+  Plus,
+  Trash2,
+  Gift,
+  Truck,
+  Sparkles,
+} from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/utils";
 import { slideInRight, fadeIn, drawerTransition } from "@/lib/animations";
@@ -215,6 +224,20 @@ export function CartDrawer() {
                       {formatPrice(total)}
                     </span>
                   </div>
+
+                  {Math.floor(total) > 0 && (
+                    <p className="flex items-center gap-1.5 text-xs text-gold-dark bg-gold/10 rounded-lg px-3 py-2">
+                      <Sparkles className="w-3.5 h-3.5" aria-hidden />
+                      <span>
+                        Vous gagnerez{" "}
+                        <strong className="font-semibold">
+                          {Math.floor(total)} point
+                          {Math.floor(total) > 1 ? "s" : ""}
+                        </strong>{" "}
+                        de fidélité avec cette commande
+                      </span>
+                    </p>
+                  )}
 
                   <div className="grid grid-cols-2 gap-3">
                     <Link

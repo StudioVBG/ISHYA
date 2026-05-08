@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -14,6 +14,7 @@ import {
   Gift,
   ImageIcon,
   Package,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, formatPrice, formatDate } from "@/lib/utils";
@@ -91,6 +92,27 @@ function formatDiscount(p: AdminPackRow): string | null {
   }
 }
 
+type SortKey =
+  | "name-asc"
+  | "name-desc"
+  | "discount-desc"
+  | "discount-asc"
+  | "items-desc"
+  | "items-asc"
+  | "starts-desc"
+  | "starts-asc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  "name-asc": "Nom (A → Z)",
+  "name-desc": "Nom (Z → A)",
+  "discount-desc": "Réduction (forte → faible)",
+  "discount-asc": "Réduction (faible → forte)",
+  "items-desc": "Produits (plus → moins)",
+  "items-asc": "Produits (moins → plus)",
+  "starts-desc": "Début (récent → ancien)",
+  "starts-asc": "Début (ancien → récent)",
+};
+
 export function PacksView({ packs }: { packs: AdminPackRow[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -100,6 +122,50 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [isSavePending, startSaveTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">(
+    "",
+  );
+  const [typeFilter, setTypeFilter] = useState<"" | PackDiscountType>("");
+  const [sortKey, setSortKey] = useState<SortKey>("name-asc");
+
+  const visiblePacks = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const filtered = packs.filter((p) => {
+      if (q) {
+        const haystack = `${p.name} ${p.slug} ${p.description ?? ""}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      if (statusFilter === "active" && !p.isActive) return false;
+      if (statusFilter === "inactive" && p.isActive) return false;
+      if (typeFilter && p.discountType !== typeFilter) return false;
+      return true;
+    });
+    const startsAtMs = (p: AdminPackRow) =>
+      p.startsAt ? new Date(p.startsAt).getTime() : 0;
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortKey) {
+        case "name-asc":
+          return a.name.localeCompare(b.name, "fr");
+        case "name-desc":
+          return b.name.localeCompare(a.name, "fr");
+        case "discount-desc":
+          return b.discountValue - a.discountValue;
+        case "discount-asc":
+          return a.discountValue - b.discountValue;
+        case "items-desc":
+          return b.itemCount - a.itemCount;
+        case "items-asc":
+          return a.itemCount - b.itemCount;
+        case "starts-desc":
+          return startsAtMs(b) - startsAtMs(a);
+        case "starts-asc":
+          return startsAtMs(a) - startsAtMs(b);
+      }
+    });
+    return sorted;
+  }, [packs, search, statusFilter, typeFilter, sortKey]);
 
   const deletingPack = packs.find((p) => p.id === deletingId);
 
@@ -206,6 +272,71 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
         </button>
       </motion.div>
 
+      {packs.length > 0 && (
+        <motion.div
+          variants={staggerItem}
+          className="bg-white rounded-xl border border-border p-4"
+        >
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-light" />
+              <input
+                type="text"
+                placeholder="Rechercher un pack..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              />
+            </div>
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as SortKey)}
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              aria-label="Trier les packs"
+            >
+              {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+                <option key={key} value={key}>
+                  {SORT_LABELS[key]}
+                </option>
+              ))}
+            </select>
+            <select
+              value={typeFilter}
+              onChange={(e) =>
+                setTypeFilter(e.target.value as "" | PackDiscountType)
+              }
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              aria-label="Filtrer par type"
+            >
+              <option value="">Tous types</option>
+              {(Object.keys(TYPE_LABELS) as PackDiscountType[]).map((key) => (
+                <option key={key} value={key}>
+                  {TYPE_LABELS[key]}
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as "" | "active" | "inactive")
+              }
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+              aria-label="Filtrer par statut"
+            >
+              <option value="">Tous statuts</option>
+              <option value="active">Actif</option>
+              <option value="inactive">Inactif</option>
+            </select>
+          </div>
+          {visiblePacks.length !== packs.length && (
+            <p className="mt-3 pt-3 border-t border-border/50 text-xs text-muted">
+              {visiblePacks.length} pack{visiblePacks.length > 1 ? "s" : ""}{" "}
+              affiché{visiblePacks.length > 1 ? "s" : ""} sur {packs.length}
+            </p>
+          )}
+        </motion.div>
+      )}
+
       {packs.length === 0 ? (
         <motion.div
           variants={staggerItem}
@@ -214,12 +345,20 @@ export function PacksView({ packs }: { packs: AdminPackRow[] }) {
           <Gift className="w-8 h-8 mx-auto mb-2 text-muted-light" />
           Aucun pack pour l&apos;instant.
         </motion.div>
+      ) : visiblePacks.length === 0 ? (
+        <motion.div
+          variants={staggerItem}
+          className="bg-white rounded-xl border border-border p-12 text-center text-muted-light"
+        >
+          <Gift className="w-8 h-8 mx-auto mb-2 text-muted-light" />
+          Aucun pack ne correspond à votre recherche.
+        </motion.div>
       ) : (
         <motion.div
           variants={staggerItem}
           className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
         >
-          {packs.map((p) => (
+          {visiblePacks.map((p) => (
             <div
               key={p.id}
               className="bg-white rounded-xl border border-border overflow-hidden flex flex-col"

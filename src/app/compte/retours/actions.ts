@@ -1,18 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
-export type ReturnReason =
-  | "wrong_size"
-  | "defective"
-  | "not_as_described"
-  | "changed_mind"
-  | "arrived_late"
-  | "wrong_item"
-  | "other";
-
-const ALLOWED_REASONS: ReturnReason[] = [
+const reasonEnum = z.enum([
   "wrong_size",
   "defective",
   "not_as_described",
@@ -20,8 +12,25 @@ const ALLOWED_REASONS: ReturnReason[] = [
   "arrived_late",
   "wrong_item",
   "other",
-];
+]);
+export type ReturnReason = z.infer<typeof reasonEnum>;
 
+const returnRequestSchema = z.object({
+  orderId: z.string().uuid("Identifiant de commande invalide"),
+  reason: reasonEnum,
+  description: z.string().trim().max(2000),
+  items: z
+    .array(
+      z.object({
+        orderItemId: z.string().uuid(),
+        quantity: z.number().int().positive("Quantité invalide"),
+      }),
+    )
+    .min(1, "Sélectionnez au moins un article"),
+});
+
+// Input "loose" côté TS : le formulaire passe une string brute pour le motif,
+// la validation Zod (returnRequestSchema) la contraint à l'enum côté serveur.
 export interface ReturnRequestInput {
   orderId: string;
   reason: string;
@@ -32,15 +41,14 @@ export interface ReturnRequestInput {
 export async function requestReturn(
   input: ReturnRequestInput,
 ): Promise<{ ok: boolean; error?: string; returnId?: string }> {
-  if (!ALLOWED_REASONS.includes(input.reason as ReturnReason)) {
-    return { ok: false, error: "Motif invalide" };
+  const parsed = returnRequestSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Données invalides",
+    };
   }
-  if (input.items.length === 0) {
-    return { ok: false, error: "Sélectionnez au moins un article" };
-  }
-  if (input.items.some((it) => it.quantity <= 0)) {
-    return { ok: false, error: "Quantité invalide" };
-  }
+  const data = parsed.data;
 
   const supabase = await createClient();
   const {
@@ -52,7 +60,7 @@ export async function requestReturn(
   const { data: order } = await supabase
     .from("orders")
     .select("id, status")
-    .eq("id", input.orderId)
+    .eq("id", data.orderId)
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -70,7 +78,7 @@ export async function requestReturn(
   const { data: existing } = await supabase
     .from("returns")
     .select("id")
-    .eq("order_id", input.orderId)
+    .eq("order_id", data.orderId)
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -84,10 +92,10 @@ export async function requestReturn(
   const { data: created, error: createError } = await supabase
     .from("returns")
     .insert({
-      order_id: input.orderId,
+      order_id: data.orderId,
       user_id: user.id,
-      reason: input.reason as ReturnReason,
-      description: input.description.trim() || null,
+      reason: data.reason,
+      description: data.description || null,
       status: "requested",
     })
     .select("id")
@@ -99,7 +107,7 @@ export async function requestReturn(
   }
 
   // Insérer les return_items
-  const itemsRows = input.items.map((it) => ({
+  const itemsRows = data.items.map((it) => ({
     return_id: created.id,
     order_item_id: it.orderItemId,
     quantity: it.quantity,

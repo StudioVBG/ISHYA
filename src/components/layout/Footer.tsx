@@ -32,10 +32,12 @@ const FOOTER_LINKS = {
     links: [
       { label: "À propos", href: "/a-propos" },
       { label: "Notre atelier", href: "/atelier" },
-      { label: "Savoir-faire", href: "/atelier" },
+      { label: "Notre équipe", href: "/equipe" },
       { label: "Matériaux", href: "/materiaux" },
       { label: "Sur-mesure", href: "/sur-mesure" },
       { label: "Blog", href: "/blog" },
+      { label: "Presse", href: "/presse" },
+      { label: "Recrutement", href: "/recrutement" },
     ],
   },
   aide: {

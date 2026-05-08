@@ -18,7 +18,19 @@ import { heartBounce, easeOutQuart, softSpring } from "@/lib/animations";
 import { useCartStore } from "@/stores/cart-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { toggleWishlist } from "@/app/compte/favoris/actions";
-import type { ProductMedia, ProductVariant } from "@/types/database";
+import { StarRating } from "@/components/ui/StarRating";
+// Types projetés sur ce que la carte affiche (sous-ensemble des colonnes
+// `product_media` et `product_variants` côté Supabase). Définis en local
+// pour ne pas dépendre d'une façade typée séparée.
+type ProductMediaProjection = {
+  url: string;
+  alt_text: string | null;
+  position: number;
+  is_primary: boolean;
+};
+type ProductVariantProjection = {
+  stock_quantity: number;
+};
 
 export interface ProductCardProduct {
   id: string;
@@ -27,14 +39,16 @@ export interface ProductCardProduct {
   base_price: number;
   compare_at_price: number | null;
   is_featured?: boolean;
-  media?: Pick<ProductMedia, "url" | "alt_text" | "position" | "is_primary">[];
+  media?: ProductMediaProjection[];
   category?: { name: string; slug: string };
-  variants?: Pick<ProductVariant, "stock_quantity">[];
+  variants?: ProductVariantProjection[];
   badges?: string[];
   productType?: "product" | "pack";
   material?: string | null;
   createdAt?: string | null;
   description?: string | null;
+  reviewAverage?: number | null;
+  reviewCount?: number | null;
 }
 
 interface ProductCardProps {
@@ -336,6 +350,18 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
         <h3 className="font-display text-sm sm:text-base font-medium leading-snug group-hover:text-terracotta transition-colors duration-300">
           {product.name}
         </h3>
+        {product.reviewCount !== undefined &&
+          product.reviewCount !== null &&
+          product.reviewCount > 0 &&
+          product.reviewAverage !== undefined &&
+          product.reviewAverage !== null && (
+            <StarRating
+              value={product.reviewAverage}
+              count={product.reviewCount}
+              size="xs"
+              className="mt-1"
+            />
+          )}
         <div className="flex items-center gap-2 mt-1">
           {isPack ? (
             <span className="text-sm text-muted">Voir le pack →</span>

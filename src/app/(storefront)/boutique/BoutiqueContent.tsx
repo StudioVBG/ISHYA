@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -123,6 +123,19 @@ export default function BoutiqueContent({
   const [isPending, startTransition] = useTransition();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [searchInput, setSearchInput] = useState(filters.q ?? "");
+
+  const PAGE_SIZE = 24;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const searchParamsKey = searchParams.toString();
+  // Réinitialise la pagination dès que les filtres / le tri changent.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [searchParamsKey]);
+  const visibleProducts = useMemo(
+    () => products.slice(0, visibleCount),
+    [products, visibleCount],
+  );
+  const hasMore = visibleCount < products.length;
 
   const updateFilters = useCallback(
     (overrides: Partial<ProductSearchFilters>) => {
@@ -514,7 +527,7 @@ export default function BoutiqueContent({
                 variants={staggerContainer}
                 className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
               >
-                {products.map((product, index) => (
+                {visibleProducts.map((product, index) => (
                   <motion.div key={product.id} variants={staggerItem}>
                     <ProductCard product={product} index={index} />
                   </motion.div>
@@ -529,6 +542,28 @@ export default function BoutiqueContent({
                   <button onClick={clearAll} className="btn-secondary text-sm">
                     Effacer les filtres
                   </button>
+                </div>
+              )}
+
+              {products.length > 0 && (
+                <div className="mt-12 flex flex-col items-center gap-3">
+                  <p className="text-xs text-muted">
+                    {visibleProducts.length} sur {products.length} bijou
+                    {products.length > 1 ? "x" : ""}
+                  </p>
+                  {hasMore && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVisibleCount((c) =>
+                          Math.min(c + PAGE_SIZE, products.length),
+                        )
+                      }
+                      className="btn-secondary text-sm"
+                    >
+                      Charger plus
+                    </button>
+                  )}
                 </div>
               )}
             </div>

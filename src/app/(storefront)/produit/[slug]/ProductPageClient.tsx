@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronRight,
   Minus,
   Plus,
   Heart,
@@ -27,6 +25,7 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { RelatedCarousel } from "@/components/product/RelatedCarousel";
 import { type ProductCardProduct } from "@/components/product/ProductCard";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { useCartStore } from "@/stores/cart-store";
 import { trackAddToCart, trackViewItem } from "@/lib/analytics";
 import type { ProductDetail } from "@/lib/queries/storefront";
@@ -172,36 +171,24 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
 
   return (
     <>
-      {/* Breadcrumb */}
-      <nav className="border-b border-border px-4">
-        <div className="container py-3 flex items-center gap-2 text-sm text-muted">
-          <Link href="/" className="hover:text-terracotta transition-colors">
-            Accueil
-          </Link>
-          <ChevronRight className="w-3 h-3" />
-          <Link
-            href="/boutique"
-            className="hover:text-terracotta transition-colors"
-          >
-            Boutique
-          </Link>
-          {category && (
-            <>
-              <ChevronRight className="w-3 h-3" />
-              <Link
-                href={`/boutique/${category.slug}`}
-                className="hover:text-terracotta transition-colors"
-              >
-                {category.name}
-              </Link>
-            </>
-          )}
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-foreground font-medium truncate">
-            {product.name}
-          </span>
+      <div className="border-b border-border px-4">
+        <div className="container py-3">
+          <Breadcrumb
+            items={[
+              { label: "Boutique", href: "/boutique" },
+              ...(category
+                ? [
+                    {
+                      label: category.name,
+                      href: `/boutique/${category.slug}`,
+                    },
+                  ]
+                : []),
+              { label: product.name },
+            ]}
+          />
         </div>
-      </nav>
+      </div>
 
       <section className="py-8 md:py-12 px-4">
         <div className="container">

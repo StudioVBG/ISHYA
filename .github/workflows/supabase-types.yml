@@ -1,0 +1,68 @@
+name: Regenerate Supabase types
+
+# Régénère src/types/supabase.ts depuis le projet Supabase de prod et ouvre
+# une PR si le fichier a changé. À déclencher manuellement (workflow_dispatch)
+# après l'application d'une migration en prod, ou via la CI quand un fichier
+# `supabase/migrations/*.sql` est modifié sur main.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Generate types
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_ID" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_ID secrets are required."
+            exit 1
+          fi
+          supabase gen types typescript \
+            --project-id "$SUPABASE_PROJECT_ID" \
+            --schema public \
+            > src/types/supabase.ts
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet src/types/supabase.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/regenerate-supabase-types
+          base: main
+          title: "chore(types): regenerate src/types/supabase.ts"
+          commit-message: "chore(types): regenerate src/types/supabase.ts"
+          body: |
+            Régénération automatique des types Supabase suite à une migration.
+
+            Vérifie que les imports `Database` et les casts (notamment
+            `attachReviewStats` sur `product_review_stats`) sont toujours
+            cohérents avant de merger.
+          labels: |
+            chore
+            types
