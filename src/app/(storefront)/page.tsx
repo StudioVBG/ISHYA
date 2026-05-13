@@ -67,10 +67,11 @@ export default async function HomePage() {
     getHomeDesign(),
   ]);
 
-  const heroImage =
-    homeDesign.heroBackgroundUrl ??
-    heroBanner?.imageUrl ??
-    "/images/hero-ishya.png";
+  // L'image de fond est désormais gérée exclusivement via /admin/design.
+  // On ne retombe plus sur `heroBanner.imageUrl` car cette URL peut
+  // pointer vers un fichier supprimé du bucket (404). Le fallback est
+  // l'image locale garantie présente dans `/public/images`.
+  const heroImage = homeDesign.heroBackgroundUrl ?? "/images/hero-ishya.png";
   const heroEyebrow = heroBanner?.subtitle ?? "Bijoux floraux artisanaux";
   const heroTitle = heroBanner?.title ?? "ISHYA";
   const heroSubtitle = heroBanner
