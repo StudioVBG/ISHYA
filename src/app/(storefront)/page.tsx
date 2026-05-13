@@ -18,6 +18,7 @@ import {
   getFeaturedCollection,
   getHomepageReviews,
   getHeroBanner,
+  getHomeDesign,
 } from "@/lib/queries/storefront";
 
 export const revalidate = 300;
@@ -50,40 +51,70 @@ const giftBudgets = [
 ];
 
 export default async function HomePage() {
-  const [categories, bestSellers, featuredCollection, homeReviews, heroBanner] =
-    await Promise.all([
-      getTopCategories(6),
-      getBestSellers(8),
-      getFeaturedCollection(),
-      getHomepageReviews(3),
-      getHeroBanner(),
-    ]);
+  const [
+    categories,
+    bestSellers,
+    featuredCollection,
+    homeReviews,
+    heroBanner,
+    homeDesign,
+  ] = await Promise.all([
+    getTopCategories(6),
+    getBestSellers(8),
+    getFeaturedCollection(),
+    getHomepageReviews(3),
+    getHeroBanner(),
+    getHomeDesign(),
+  ]);
 
-  const heroImage = heroBanner?.imageUrl ?? "/images/hero-ishya.png";
+  const heroImage =
+    homeDesign.heroBackgroundUrl ??
+    heroBanner?.imageUrl ??
+    "/images/hero-ishya.png";
   const heroEyebrow = heroBanner?.subtitle ?? "Bijoux floraux artisanaux";
   const heroTitle = heroBanner?.title ?? "ISHYA";
   const heroSubtitle = heroBanner
     ? null
     : "Bijoux floraux artisanaux en fleurs séchées et résine";
   const heroCtaHref = heroBanner?.linkUrl ?? "/boutique";
+  const overlayAlpha = Math.max(0, Math.min(100, homeDesign.heroOverlayOpacity)) / 100;
 
   return (
     <>
-      {/* ── Hero — Atelier Noir, asymétrique 33/67 ─────────────── */}
-      <section className="relative bg-ink text-bone overflow-hidden">
-        <div className="grid grid-cols-12 min-h-[88svh] gap-y-12 md:gap-y-0">
-          {/* Colonne gauche : eyebrow + titre + CTA, ancrée en bas */}
-          <div className="col-span-12 md:col-span-5 lg:col-span-4 lg:col-start-2 flex flex-col justify-end pt-32 md:pt-24 pb-16 md:pb-24 px-(--gutter)">
+      {/* ── Hero — Plein écran, image en fond ──────────────────── */}
+      <section className="relative bg-ink text-bone overflow-hidden min-h-[100svh] flex">
+        <Image
+          src={heroImage}
+          alt={heroBanner?.title ?? "Collection ISHYA"}
+          fill
+          className="object-cover object-center -z-10"
+          priority
+          sizes="100vw"
+        />
+        {/* Voile sombre paramétrable pour garantir la lisibilité */}
+        <div
+          className="absolute inset-0 -z-10 bg-ink"
+          style={{ opacity: overlayAlpha }}
+          aria-hidden
+        />
+        {/* Dégradé subtil bas → haut pour lester le texte */}
+        <div
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/60 via-ink/20 to-transparent"
+          aria-hidden
+        />
+
+        <div className="relative grid grid-cols-12 w-full gap-y-12 md:gap-y-0">
+          <div className="col-span-12 md:col-span-7 lg:col-span-6 lg:col-start-2 flex flex-col justify-end pt-32 md:pt-24 pb-16 md:pb-24 px-(--gutter)">
             <div className="flex items-center gap-3 mb-8">
               <span className="h-px w-10 bg-ember" aria-hidden />
-              <span className="eyebrow text-bone/70">
+              <span className="eyebrow text-bone/80">
                 {heroEyebrow} · Édition 2026
               </span>
             </div>
 
             <HeroReveal>
               <h1
-                className="font-display text-bone leading-[1.02] tracking-[-0.04em] mb-8"
+                className="font-display text-bone leading-[1.02] tracking-[-0.04em] mb-8 [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]"
                 style={{
                   fontSize: "var(--text-display)",
                   fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'WONK' 1",
@@ -95,7 +126,7 @@ export default async function HomePage() {
             </HeroReveal>
 
             {heroSubtitle && (
-              <p className="text-lg md:text-xl text-bone/70 max-w-md leading-snug mb-10">
+              <p className="text-lg md:text-xl text-bone/85 max-w-md leading-snug mb-10 [text-shadow:0_1px_12px_rgba(0,0,0,0.35)]">
                 {heroSubtitle}
               </p>
             )}
@@ -110,30 +141,17 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/atelier"
-                className="text-sm text-bone/70 hover:text-bone transition-colors underline-offset-4 hover:underline"
+                className="text-sm text-bone/80 hover:text-bone transition-colors underline-offset-4 hover:underline"
               >
                 L&apos;atelier
               </Link>
             </div>
           </div>
 
-          {/* Colonne droite : image full-bleed cinéma */}
-          <div className="col-span-12 md:col-span-7 lg:col-span-6 relative aspect-[4/5] md:aspect-auto md:h-full">
-            <Image
-              src={heroImage}
-              alt={heroBanner?.title ?? "Collection ISHYA"}
-              fill
-              className="object-cover object-center"
-              priority
-              sizes="(max-width: 768px) 100vw, 60vw"
-            />
-            {/* Liseré ember vertical signature, côté gauche de l'image */}
-            <div className="absolute inset-y-0 left-0 w-px bg-ember/40 hidden md:block" aria-hidden />
-            {/* Numérotation édition mono, coin bas droit */}
-            <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-3 text-bone/80">
-              <span className="font-mono text-xs tracking-widest">N° 01 / 26</span>
-              <span className="h-px w-8 bg-bone/40" aria-hidden />
-            </div>
+          {/* Numérotation édition mono, coin bas droit */}
+          <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-3 text-bone/80">
+            <span className="font-mono text-xs tracking-widest">N° 01 / 26</span>
+            <span className="h-px w-8 bg-bone/40" aria-hidden />
           </div>
         </div>
       </section>
