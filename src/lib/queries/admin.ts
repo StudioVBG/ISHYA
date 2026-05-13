@@ -2150,6 +2150,49 @@ export async function getAdminSocialLinks(): Promise<AdminSocialLinks> {
   };
 }
 
+export interface AdminDesignSettings {
+  homeHeroBackgroundUrl: string;
+  homeHeroOverlayOpacity: number;
+}
+
+const DESIGN_KEYS = [
+  "design.home_hero_background_url",
+  "design.home_hero_overlay_opacity",
+] as const;
+
+export async function getAdminDesignSettings(): Promise<AdminDesignSettings> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("settings")
+    .select("key, value")
+    .in("key", [...DESIGN_KEYS]);
+
+  const map = new Map<string, unknown>();
+  for (const row of data ?? []) {
+    map.set(row.key, row.value);
+  }
+  const asString = (key: string): string => {
+    const v = map.get(key);
+    if (typeof v === "string") return v;
+    if (v == null) return "";
+    return String(v);
+  };
+  const asNumber = (key: string, fallback: number): number => {
+    const v = map.get(key);
+    if (typeof v === "number") return v;
+    if (typeof v === "string" && v.trim()) {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return fallback;
+  };
+
+  return {
+    homeHeroBackgroundUrl: asString("design.home_hero_background_url"),
+    homeHeroOverlayOpacity: asNumber("design.home_hero_overlay_opacity", 40),
+  };
+}
+
 export async function getAdminCmsPages(): Promise<AdminCmsPageRow[]> {
   const admin = createAdminClient();
   const { data, error } = await admin

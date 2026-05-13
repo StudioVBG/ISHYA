@@ -487,6 +487,48 @@ async function getActiveBanner(
 export const getHeroBanner = () => getActiveBanner("hero");
 export const getAnnouncementBanner = () => getActiveBanner("announcement_bar");
 
+export interface HomeDesign {
+  heroBackgroundUrl: string | null;
+  heroOverlayOpacity: number;
+}
+
+/**
+ * Lit la configuration "Design" de la home (clé `design.*` dans `settings`).
+ * Lu via service role car la table est admin-only via RLS — ces clés sont
+ * publiques par nature (URL d'image affichée + intensité d'overlay).
+ */
+export async function getHomeDesign(): Promise<HomeDesign> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("settings")
+    .select("key, value")
+    .in("key", [
+      "design.home_hero_background_url",
+      "design.home_hero_overlay_opacity",
+    ]);
+
+  const map = new Map<string, unknown>();
+  for (const row of data ?? []) {
+    map.set(row.key, row.value);
+  }
+  const bgRaw = map.get("design.home_hero_background_url");
+  const overlayRaw = map.get("design.home_hero_overlay_opacity");
+
+  const heroBackgroundUrl =
+    typeof bgRaw === "string" && bgRaw.trim() ? bgRaw : null;
+
+  let heroOverlayOpacity = 40;
+  if (typeof overlayRaw === "number" && Number.isFinite(overlayRaw)) {
+    heroOverlayOpacity = overlayRaw;
+  } else if (typeof overlayRaw === "string" && overlayRaw.trim()) {
+    const n = Number(overlayRaw);
+    if (Number.isFinite(n)) heroOverlayOpacity = n;
+  }
+  heroOverlayOpacity = Math.max(0, Math.min(100, heroOverlayOpacity));
+
+  return { heroBackgroundUrl, heroOverlayOpacity };
+}
+
 export interface SocialLinks {
   instagramUrl: string;
   facebookUrl: string;
