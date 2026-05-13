@@ -67,10 +67,11 @@ export default async function HomePage() {
     getHomeDesign(),
   ]);
 
-  const heroImage =
-    homeDesign.heroBackgroundUrl ??
-    heroBanner?.imageUrl ??
-    "/images/hero-ishya.png";
+  // L'image de fond est désormais gérée exclusivement via /admin/design.
+  // On ne retombe plus sur `heroBanner.imageUrl` car cette URL peut
+  // pointer vers un fichier supprimé du bucket (404). Le fallback est
+  // l'image locale garantie présente dans `/public/images`.
+  const heroImage = homeDesign.heroBackgroundUrl ?? "/images/hero-ishya.png";
   const heroEyebrow = heroBanner?.subtitle ?? "Bijoux floraux artisanaux";
   const heroTitle = heroBanner?.title ?? "ISHYA";
   const heroSubtitle = heroBanner
@@ -82,28 +83,29 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero — Plein écran, image en fond ──────────────────── */}
-      <section className="relative bg-ink text-bone overflow-hidden min-h-[100svh] flex">
+      <section className="relative text-bone overflow-hidden min-h-[100svh] flex isolate">
+        {/* Image de fond */}
         <Image
           src={heroImage}
           alt={heroBanner?.title ?? "Collection ISHYA"}
           fill
-          className="object-cover object-center -z-10"
+          className="absolute inset-0 object-cover object-center"
           priority
           sizes="100vw"
         />
         {/* Voile sombre paramétrable pour garantir la lisibilité */}
         <div
-          className="absolute inset-0 -z-10 bg-ink"
+          className="absolute inset-0 bg-ink pointer-events-none"
           style={{ opacity: overlayAlpha }}
           aria-hidden
         />
         {/* Dégradé subtil bas → haut pour lester le texte */}
         <div
-          className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/60 via-ink/20 to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/20 to-transparent pointer-events-none"
           aria-hidden
         />
 
-        <div className="relative grid grid-cols-12 w-full gap-y-12 md:gap-y-0">
+        <div className="relative z-10 grid grid-cols-12 w-full gap-y-12 md:gap-y-0">
           <div className="col-span-12 md:col-span-7 lg:col-span-6 lg:col-start-2 flex flex-col justify-end pt-32 md:pt-24 pb-16 md:pb-24 px-(--gutter)">
             <div className="flex items-center gap-3 mb-8">
               <span className="h-px w-10 bg-ember" aria-hidden />
