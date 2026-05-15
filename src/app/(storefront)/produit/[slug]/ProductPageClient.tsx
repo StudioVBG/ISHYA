@@ -312,6 +312,12 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                     {variants.map((v, idx) => {
                       const out = v.stock_quantity === 0;
                       const selected = selectedVariant === idx;
+                      const label =
+                        v.size ??
+                        v.color ??
+                        v.material_variant ??
+                        v.stone ??
+                        v.sku;
                       return (
                         <button
                           key={v.id}
@@ -324,11 +330,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                             out && "opacity-40 line-through",
                           )}
                           aria-pressed={selected}
-                          aria-label={
-                            out
-                              ? `${v.size ?? v.material_variant ?? v.sku} (rupture)`
-                              : undefined
-                          }
+                          aria-label={out ? `${label} (rupture)` : undefined}
                         >
                           {selected && (
                             <motion.span
@@ -341,9 +343,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                               }}
                             />
                           )}
-                          <span className="relative">
-                            {v.size ?? v.material_variant ?? v.sku}
-                          </span>
+                          <span className="relative">{label}</span>
                         </button>
                       );
                     })}
@@ -682,9 +682,9 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 </p>
                 <p className="font-mono text-sm tabular-nums text-ink mt-0.5">
                   {formatPrice(displayedPrice)}
-                  {currentVariant?.size && (
+                  {(currentVariant?.size ?? currentVariant?.color) && (
                     <span className="text-steel ml-2 text-xs">
-                      · {currentVariant.size}
+                      · {currentVariant?.size ?? currentVariant?.color}
                     </span>
                   )}
                 </p>

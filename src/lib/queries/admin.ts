@@ -2771,7 +2771,7 @@ export async function getAdminVariantStocks(): Promise<AdminVariantStockRow[]> {
   const { data, error } = await admin
     .from("product_variants")
     .select(
-      `id, sku, size, material_variant, stone, length_cm, stock_quantity,
+      `id, sku, size, color, material_variant, stone, length_cm, stock_quantity,
        low_stock_threshold, is_active,
        product:products ( name, slug )`,
     )
@@ -2789,6 +2789,7 @@ export async function getAdminVariantStocks(): Promise<AdminVariantStockRow[]> {
       : (row.product as { name: string; slug: string } | null);
     const labelParts = [
       row.size,
+      row.color,
       row.material_variant,
       row.stone,
       row.length_cm ? `${row.length_cm}cm` : null,

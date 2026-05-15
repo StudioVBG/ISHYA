@@ -47,6 +47,7 @@ interface VariantState {
   uiKey: string;
   persistedId?: string;
   size: string;
+  color: string;
   stone: string;
   materialVariant: string;
   priceOverride: string;
@@ -60,6 +61,7 @@ function variantToState(v: AdminProductDetail["variants"][number]): VariantState
     uiKey: v.id,
     persistedId: v.id,
     size: v.size ?? "",
+    color: v.color ?? "",
     stone: v.stone ?? "",
     materialVariant: v.materialVariant ?? "",
     priceOverride: v.priceOverride != null ? String(v.priceOverride) : "",
@@ -73,6 +75,7 @@ function emptyVariant(): VariantState {
   return {
     uiKey: `new-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     size: "",
+    color: "",
     stone: "",
     materialVariant: "",
     priceOverride: "",
@@ -90,7 +93,7 @@ function variantStateToInput(v: VariantState): VariantInput {
     size: v.size.trim() || null,
     materialVariant: v.materialVariant.trim() || null,
     stone: v.stone.trim() || null,
-    color: null,
+    color: v.color.trim() || null,
     lengthCm: null,
     priceOverride: v.priceOverride ? Number(v.priceOverride) : null,
     stockQuantity: Number(v.stockQuantity) || 0,
@@ -599,7 +602,7 @@ export function ProductForm({
                         Retirer
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
                         <label className="block text-xs text-steel mb-1">
                           Taille
@@ -612,6 +615,20 @@ export function ProductForm({
                           }
                           className={inputClass}
                           placeholder="Ex : 52, M, 45 cm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-steel mb-1">
+                          Couleur
+                        </label>
+                        <input
+                          type="text"
+                          value={variant.color}
+                          onChange={(e) =>
+                            updateVariant(idx, "color", e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Ex : Doré, Argenté, Rose"
                         />
                       </div>
                       <div>

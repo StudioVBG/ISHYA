@@ -167,9 +167,9 @@ export function CartDrawer() {
                         <h3 className="text-sm font-medium text-ink truncate leading-snug">
                           {item.name}
                         </h3>
-                        {(item.size || item.material) && (
+                        {(item.size || item.color || item.material) && (
                           <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-steel mt-1">
-                            {[item.size, item.material]
+                            {[item.size, item.color, item.material]
                               .filter(Boolean)
                               .join(" · ")}
                           </p>
