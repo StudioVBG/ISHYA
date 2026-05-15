@@ -27,6 +27,13 @@ export interface UploadedPhoto {
   isPrimary: boolean;
   sortOrder: number;
   persistedId?: string;
+  /** Coloris auquel cette photo est rattachée (uiKey de la variante), ou null = commun. */
+  variantKey?: string | null;
+}
+
+export interface ColorOption {
+  key: string;
+  label: string;
 }
 
 interface Props {
@@ -34,6 +41,8 @@ interface Props {
   value: UploadedPhoto[];
   onChange: (photos: UploadedPhoto[]) => void;
   disabled?: boolean;
+  /** Si fourni, affiche un sélecteur "coloris" sur chaque photo. */
+  colorOptions?: ColorOption[];
 }
 
 const BUCKET = ADMIN_MEDIA_BUCKET;
@@ -54,7 +63,13 @@ function makeStoragePath(productId: string | null, originalName: string) {
   return `${folder}/${random}.${ext}`;
 }
 
-export function ImageUploader({ productId, value, onChange, disabled }: Props) {
+export function ImageUploader({
+  productId,
+  value,
+  onChange,
+  disabled,
+  colorOptions,
+}: Props) {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(
     null,
@@ -202,6 +217,10 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
     onChange(value.map((p) => (p.id === id ? { ...p, altText } : p)));
   };
 
+  const handleVariantChange = (id: string, variantKey: string | null) => {
+    onChange(value.map((p) => (p.id === id ? { ...p, variantKey } : p)));
+  };
+
   return (
     <div className="space-y-3">
       <div
@@ -313,6 +332,27 @@ export function ImageUploader({ productId, value, onChange, disabled }: Props) {
                     placeholder="Décris la photo (optionnel)"
                     className="w-full text-xs px-2 py-1 border border-border rounded focus:outline-none focus:ring-1 focus:ring-ember"
                   />
+                  {colorOptions && colorOptions.length > 0 && (
+                    <select
+                      value={photo.variantKey ?? ""}
+                      onChange={(e) =>
+                        handleVariantChange(
+                          photo.id,
+                          e.target.value || null,
+                        )
+                      }
+                      disabled={busy || disabled}
+                      title="Coloris associé à cette photo"
+                      className="w-full text-xs px-2 py-1 border border-border rounded bg-white focus:outline-none focus:ring-1 focus:ring-ember"
+                    >
+                      <option value="">Commun (tous les coloris)</option>
+                      {colorOptions.map((opt) => (
+                        <option key={opt.key} value={opt.key}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex gap-1">
                       <button

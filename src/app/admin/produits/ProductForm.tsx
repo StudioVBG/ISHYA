@@ -48,6 +48,7 @@ interface VariantState {
   persistedId?: string;
   size: string;
   color: string;
+  colorHex: string;
   stone: string;
   materialVariant: string;
   priceOverride: string;
@@ -62,6 +63,7 @@ function variantToState(v: AdminProductDetail["variants"][number]): VariantState
     persistedId: v.id,
     size: v.size ?? "",
     color: v.color ?? "",
+    colorHex: v.colorHex ?? "",
     stone: v.stone ?? "",
     materialVariant: v.materialVariant ?? "",
     priceOverride: v.priceOverride != null ? String(v.priceOverride) : "",
@@ -76,6 +78,7 @@ function emptyVariant(): VariantState {
     uiKey: `new-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     size: "",
     color: "",
+    colorHex: "",
     stone: "",
     materialVariant: "",
     priceOverride: "",
@@ -88,12 +91,14 @@ function emptyVariant(): VariantState {
 function variantStateToInput(v: VariantState): VariantInput {
   return {
     id: v.persistedId,
+    clientKey: v.uiKey,
     sku: null,
     name: null,
     size: v.size.trim() || null,
     materialVariant: v.materialVariant.trim() || null,
     stone: v.stone.trim() || null,
     color: v.color.trim() || null,
+    colorHex: v.colorHex.trim() || null,
     lengthCm: null,
     priceOverride: v.priceOverride ? Number(v.priceOverride) : null,
     stockQuantity: Number(v.stockQuantity) || 0,
@@ -111,6 +116,7 @@ function photoStateToMediaInput(p: UploadedPhoto): MediaInput {
     altText: p.altText.trim() || null,
     isPrimary: p.isPrimary,
     sortOrder: p.sortOrder,
+    variantKey: p.variantKey ?? null,
   };
 }
 
@@ -123,6 +129,7 @@ function mediaToUploadedPhoto(m: AdminProductDetail["media"][number]): UploadedP
     altText: m.altText ?? "",
     isPrimary: m.isPrimary,
     sortOrder: m.sortOrder,
+    variantKey: m.variantId ?? null,
   };
 }
 
@@ -296,14 +303,20 @@ export function ProductForm({
           toast.error(r1.error ?? "Erreur");
           return;
         }
-        const r2 = await replaceMedia(product.id, mediaPayload);
+        // Les déclinaisons d'abord : on récupère l'id de chaque coloris pour
+        // pouvoir y rattacher les photos.
+        const r2 = await replaceVariants(product.id, variantsPayload);
         if (!r2.ok) {
-          toast.error(r2.error ?? "Erreur lors de la sauvegarde des photos");
+          toast.error(r2.error ?? "Erreur lors de la sauvegarde des déclinaisons");
           return;
         }
-        const r3 = await replaceVariants(product.id, variantsPayload);
+        const r3 = await replaceMedia(
+          product.id,
+          mediaPayload,
+          r2.idByKey,
+        );
         if (!r3.ok) {
-          toast.error(r3.error ?? "Erreur lors de la sauvegarde des déclinaisons");
+          toast.error(r3.error ?? "Erreur lors de la sauvegarde des photos");
           return;
         }
         toast.success(publish ? "Produit en ligne ✓" : "Brouillon enregistré");
@@ -356,6 +369,22 @@ export function ProductForm({
   const totalStock = useMemo(
     () => variants.reduce((acc, v) => acc + (Number(v.stockQuantity) || 0), 0),
     [variants],
+  );
+
+  // Coloris assignables aux photos : seulement s'il y a plusieurs déclinaisons.
+  const colorOptions = useMemo(
+    () =>
+      showVariants && variants.length > 1
+        ? variants.map((v, i) => ({
+            key: v.uiKey,
+            label:
+              v.color.trim() ||
+              v.size.trim() ||
+              v.materialVariant.trim() ||
+              `Coloris ${i + 1}`,
+          }))
+        : [],
+    [showVariants, variants],
   );
 
   return (
@@ -547,6 +576,7 @@ export function ProductForm({
               value={photos}
               onChange={setPhotos}
               disabled={isSavePending}
+              colorOptions={colorOptions}
             />
           </motion.div>
 
@@ -621,15 +651,27 @@ export function ProductForm({
                         <label className="block text-xs text-steel mb-1">
                           Couleur
                         </label>
-                        <input
-                          type="text"
-                          value={variant.color}
-                          onChange={(e) =>
-                            updateVariant(idx, "color", e.target.value)
-                          }
-                          className={inputClass}
-                          placeholder="Ex : Doré, Argenté, Rose"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={variant.colorHex || "#cccccc"}
+                            onChange={(e) =>
+                              updateVariant(idx, "colorHex", e.target.value)
+                            }
+                            title="Pastille de couleur affichée au client"
+                            aria-label="Pastille de couleur"
+                            className="h-9 w-10 shrink-0 rounded border border-border bg-white p-0.5 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={variant.color}
+                            onChange={(e) =>
+                              updateVariant(idx, "color", e.target.value)
+                            }
+                            className={`${inputClass} flex-1`}
+                            placeholder="Ex : Doré, Argenté, Rose"
+                          />
+                        </div>
                       </div>
                       <div>
                         <label className="block text-xs text-steel mb-1">
