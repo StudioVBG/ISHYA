@@ -151,6 +151,7 @@ export interface AdminProductDetail {
     materialVariant: string | null;
     stone: string | null;
     color: string | null;
+    colorHex: string | null;
     lengthCm: number | null;
     priceOverride: number | null;
     stockQuantity: number;
@@ -164,6 +165,7 @@ export interface AdminProductDetail {
     altText: string | null;
     isPrimary: boolean;
     sortOrder: number;
+    variantId: string | null;
   }>;
 }
 
@@ -1267,9 +1269,10 @@ export async function getAdminProductById(
        is_active, is_featured, is_new, seo_title, seo_description,
        created_at,
        product_variants ( id, sku, name, size, material_variant, stone,
-                          color, length_cm, price_override, stock_quantity,
-                          low_stock_threshold, weight_g, is_active ),
-       product_media ( id, url, alt_text, is_primary, sort_order ),
+                          color, color_hex, length_cm, price_override,
+                          stock_quantity, low_stock_threshold, weight_g,
+                          is_active ),
+       product_media ( id, url, alt_text, is_primary, sort_order, variant_id ),
        product_collections ( collection_id ),
        product_categories ( category_id )`,
     )
@@ -1296,6 +1299,7 @@ export async function getAdminProductById(
     material_variant: string | null;
     stone: string | null;
     color: string | null;
+    color_hex: string | null;
     length_cm: number | null;
     price_override: number | string | null;
     stock_quantity: number;
@@ -1310,6 +1314,7 @@ export async function getAdminProductById(
     alt_text: string | null;
     is_primary: boolean | null;
     sort_order: number | null;
+    variant_id: string | null;
   }>;
 
   return {
@@ -1345,6 +1350,7 @@ export async function getAdminProductById(
       materialVariant: v.material_variant,
       stone: v.stone,
       color: v.color,
+      colorHex: v.color_hex,
       lengthCm: v.length_cm,
       priceOverride: v.price_override != null ? Number(v.price_override) : null,
       stockQuantity: v.stock_quantity,
@@ -1359,6 +1365,7 @@ export async function getAdminProductById(
         altText: m.alt_text,
         isPrimary: m.is_primary ?? false,
         sortOrder: m.sort_order ?? 0,
+        variantId: m.variant_id,
       }))
       .sort((a, b) => a.sortOrder - b.sortOrder),
   };
@@ -2771,7 +2778,7 @@ export async function getAdminVariantStocks(): Promise<AdminVariantStockRow[]> {
   const { data, error } = await admin
     .from("product_variants")
     .select(
-      `id, sku, size, material_variant, stone, length_cm, stock_quantity,
+      `id, sku, size, color, material_variant, stone, length_cm, stock_quantity,
        low_stock_threshold, is_active,
        product:products ( name, slug )`,
     )
@@ -2789,6 +2796,7 @@ export async function getAdminVariantStocks(): Promise<AdminVariantStockRow[]> {
       : (row.product as { name: string; slug: string } | null);
     const labelParts = [
       row.size,
+      row.color,
       row.material_variant,
       row.stone,
       row.length_cm ? `${row.length_cm}cm` : null,

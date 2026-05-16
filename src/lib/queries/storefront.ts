@@ -628,6 +628,7 @@ export type ProductDetailMedia = {
   position: number;
   is_primary: boolean;
   media_type: string | null;
+  variant_id: string | null;
 };
 
 export type ProductDetailVariant = {
@@ -636,6 +637,7 @@ export type ProductDetailVariant = {
   sku: string | null;
   size: string | null;
   color: string | null;
+  color_hex: string | null;
   stone: string | null;
   length_cm: number | null;
   material_variant: string | null;
@@ -694,8 +696,8 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
       is_featured, category_id, collection_id, created_at,
       category:categories!products_category_id_fkey ( id, name, slug ),
       collection:collections!products_collection_id_fkey ( id, name, slug ),
-      product_media ( id, url, alt_text, sort_order, is_primary, media_type ),
-      product_variants ( id, name, sku, size, color, stone, length_cm, material_variant, price_override, stock_quantity, is_active, sort_order ),
+      product_media ( id, url, alt_text, sort_order, is_primary, media_type, variant_id ),
+      product_variants ( id, name, sku, size, color, color_hex, stone, length_cm, material_variant, price_override, stock_quantity, is_active, sort_order ),
       reviews ( id, rating, title, body, photos, is_verified_purchase, created_at, user_id )
       `
     )
@@ -744,6 +746,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
           sort_order: number | null;
           is_primary: boolean | null;
           media_type: string | null;
+          variant_id: string | null;
         }) => ({
           id: m.id,
           url: m.url,
@@ -751,6 +754,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
           position: m.sort_order ?? 0,
           is_primary: m.is_primary ?? false,
           media_type: m.media_type,
+          variant_id: m.variant_id ?? null,
         })
       )
       .sort(
@@ -764,6 +768,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
         sku: string | null;
         size: string | null;
         color: string | null;
+        color_hex: string | null;
         stone: string | null;
         length_cm: number | string | null;
         material_variant: string | null;
@@ -777,6 +782,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
         sku: v.sku,
         size: v.size,
         color: v.color,
+        color_hex: v.color_hex ?? null,
         stone: v.stone,
         length_cm: v.length_cm === null ? null : Number(v.length_cm),
         material_variant: v.material_variant,

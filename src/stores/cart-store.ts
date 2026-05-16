@@ -12,6 +12,7 @@ export type CartVariant = {
   id: string;
   sku?: string | null;
   size?: string | null;
+  color?: string | null;
   material_variant?: string | null;
   stone?: string | null;
   price_override?: number | null;
@@ -26,6 +27,7 @@ export interface CartItemLocal {
   image: string;
   quantity: number;
   size?: string;
+  color?: string;
   material?: string;
   stone?: string;
   sku: string;
@@ -131,6 +133,7 @@ export const useCartStore = create<CartState>()(
               image: media ?? "/placeholder.jpg",
               quantity: 1,
               size: variant?.size ?? undefined,
+              color: variant?.color ?? undefined,
               material: variant?.material_variant ?? undefined,
               stone: variant?.stone ?? undefined,
               sku: variant?.sku ?? product.sku ?? "",
@@ -153,6 +156,7 @@ export const useCartStore = create<CartState>()(
           image: line.media ?? "/placeholder.jpg",
           quantity: line.quantity ?? 1,
           size: line.variant?.size ?? undefined,
+          color: line.variant?.color ?? undefined,
           material: line.variant?.material_variant ?? undefined,
           stone: line.variant?.stone ?? undefined,
           sku: line.variant?.sku ?? line.product.sku ?? "",

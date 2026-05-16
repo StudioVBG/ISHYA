@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Minus,
@@ -143,10 +143,20 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
   }, []);
 
   const { product, media, variants, reviews, category } = data;
-  const sortedMedia = media;
   const currentVariant = variants[selectedVariant] as
     | (typeof variants)[number]
     | undefined;
+  // Galerie filtrée sur le coloris sélectionné : photos du coloris si elles
+  // existent, sinon photos communes (variant_id null), sinon toutes.
+  const sortedMedia = useMemo(() => {
+    const common = media.filter((m) => !m.variant_id);
+    if (!currentVariant) return common.length > 0 ? common : media;
+    const variantMedia = media.filter(
+      (m) => m.variant_id === currentVariant.id,
+    );
+    if (variantMedia.length > 0) return variantMedia;
+    return common.length > 0 ? common : media;
+  }, [media, currentVariant]);
   const totalStock = variants.reduce((s, v) => s + v.stock_quantity, 0);
   const currentStock = currentVariant?.stock_quantity ?? totalStock;
   const displayedPrice =
@@ -220,6 +230,7 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
             {/* Galerie — sticky desktop */}
             <div className="md:sticky md:top-24">
               <ProductGallery
+                key={currentVariant?.id ?? "all"}
                 media={sortedMedia}
                 productName={product.name}
                 productId={product.id}
@@ -302,54 +313,100 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 {product.short_description}
               </motion.p>
 
-              {/* Variant selector avec ripple */}
-              {variants.length > 1 && (
-                <motion.div variants={fadeInUp} className="mb-8">
-                  <label className="block font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
-                    Taille / Variante
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {variants.map((v, idx) => {
-                      const out = v.stock_quantity === 0;
-                      const selected = selectedVariant === idx;
-                      return (
-                        <button
-                          key={v.id}
-                          onClick={() => setSelectedVariant(idx)}
-                          className={cn(
-                            "relative px-4 h-11 min-w-[3rem] border font-mono text-[12px] tracking-wide transition-all overflow-hidden",
-                            selected
-                              ? "border-ink text-ink"
-                              : "border-border-strong text-steel hover:border-ink hover:text-ink",
-                            out && "opacity-40 line-through",
-                          )}
-                          aria-pressed={selected}
-                          aria-label={
-                            out
-                              ? `${v.size ?? v.material_variant ?? v.sku} (rupture)`
-                              : undefined
-                          }
-                        >
-                          {selected && (
-                            <motion.span
-                              layoutId="variant-ripple"
-                              className="absolute inset-0 bg-ink/8"
-                              transition={{
-                                type: "spring",
-                                stiffness: 350,
-                                damping: 30,
-                              }}
+              {/* Variant selector */}
+              {variants.length > 1 &&
+                (variants.some((v) => v.color_hex) ? (
+                  <motion.div variants={fadeInUp} className="mb-8">
+                    <label className="flex items-baseline gap-2 font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
+                      Couleur
+                      {currentVariant?.color && (
+                        <span className="text-steel normal-case tracking-normal text-[12px] font-sans">
+                          {currentVariant.color}
+                        </span>
+                      )}
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                      {variants.map((v, idx) => {
+                        const out = v.stock_quantity === 0;
+                        const selected = selectedVariant === idx;
+                        const name =
+                          v.color ?? v.size ?? v.material_variant ?? v.sku ?? "";
+                        return (
+                          <button
+                            key={v.id}
+                            onClick={() => setSelectedVariant(idx)}
+                            title={out ? `${name} — épuisé` : name}
+                            aria-label={out ? `${name} (épuisé)` : name}
+                            aria-pressed={selected}
+                            className={cn(
+                              "relative w-9 h-9 rounded-full transition-all",
+                              "ring-offset-2 ring-offset-bone",
+                              selected
+                                ? "ring-2 ring-ink"
+                                : "ring-1 ring-border-strong hover:ring-ink",
+                            )}
+                          >
+                            <span
+                              className="absolute inset-[3px] rounded-full"
+                              style={{ backgroundColor: v.color_hex ?? "#cccccc" }}
                             />
-                          )}
-                          <span className="relative">
-                            {v.size ?? v.material_variant ?? v.sku}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
+                            {out && (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <span className="block w-full h-px bg-steel rotate-45" />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div variants={fadeInUp} className="mb-8">
+                    <label className="block font-mono text-[10px] tracking-[0.24em] uppercase text-ink mb-4">
+                      Taille / Variante
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {variants.map((v, idx) => {
+                        const out = v.stock_quantity === 0;
+                        const selected = selectedVariant === idx;
+                        const label =
+                          v.size ??
+                          v.color ??
+                          v.material_variant ??
+                          v.stone ??
+                          v.sku;
+                        return (
+                          <button
+                            key={v.id}
+                            onClick={() => setSelectedVariant(idx)}
+                            className={cn(
+                              "relative px-4 h-11 min-w-[3rem] border font-mono text-[12px] tracking-wide transition-all overflow-hidden",
+                              selected
+                                ? "border-ink text-ink"
+                                : "border-border-strong text-steel hover:border-ink hover:text-ink",
+                              out && "opacity-40 line-through",
+                            )}
+                            aria-pressed={selected}
+                            aria-label={out ? `${label} (rupture)` : undefined}
+                          >
+                            {selected && (
+                              <motion.span
+                                layoutId="variant-ripple"
+                                className="absolute inset-0 bg-ink/8"
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 350,
+                                  damping: 30,
+                                }}
+                              />
+                            )}
+                            <span className="relative">{label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                ))}
 
               {/* Stock indicator */}
               <motion.div variants={fadeInUp} className="mb-8">
@@ -682,9 +739,9 @@ export default function ProductPageClient({ data, related }: ProductPageClientPr
                 </p>
                 <p className="font-mono text-sm tabular-nums text-ink mt-0.5">
                   {formatPrice(displayedPrice)}
-                  {currentVariant?.size && (
+                  {(currentVariant?.size ?? currentVariant?.color) && (
                     <span className="text-steel ml-2 text-xs">
-                      · {currentVariant.size}
+                      · {currentVariant?.size ?? currentVariant?.color}
                     </span>
                   )}
                 </p>

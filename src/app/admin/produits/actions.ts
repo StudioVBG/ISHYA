@@ -70,12 +70,15 @@ export interface ProductInput {
 
 export interface VariantInput {
   id?: string;
+  /** Clé stable côté formulaire, sert à relier les photos à ce coloris. */
+  clientKey: string;
   sku: string | null;
   name: string | null;
   size: string | null;
   materialVariant: string | null;
   stone: string | null;
   color: string | null;
+  colorHex: string | null;
   lengthCm: number | null;
   priceOverride: number | null;
   stockQuantity: number;
@@ -91,6 +94,19 @@ export interface MediaInput {
   altText: string | null;
   isPrimary: boolean;
   sortOrder: number;
+  /** Coloris auquel cette photo est rattachée (clientKey de la variante), ou null = commun. */
+  variantKey: string | null;
+}
+
+/** Mappe la clientKey d'un coloris vers son id persisté en base. */
+export type VariantIdByKey = Record<string, string>;
+
+function resolveVariantId(
+  variantKey: string | null,
+  idByKey: VariantIdByKey | undefined,
+): string | null {
+  if (!variantKey || !idByKey) return null;
+  return idByKey[variantKey] ?? null;
 }
 
 function validate(input: ProductInput): string | null {
@@ -193,32 +209,37 @@ export async function createProduct(
     return { ok: false, error: "Erreur lors de la création du produit" };
   }
 
-  if (variants.length > 0) {
-    const { error: variantsError } = await admin
+  // Insertion une par une pour récupérer l'id de chaque coloris et pouvoir
+  // y rattacher les photos (product_media.variant_id).
+  const idByKey: VariantIdByKey = {};
+  for (const [idx, v] of variants.entries()) {
+    const { data: inserted, error: variantsError } = await admin
       .from("product_variants")
-      .insert(
-        variants.map((v, idx) => ({
-          product_id: product.id,
-          sku: v.sku,
-          name: v.name,
-          size: v.size,
-          material_variant: v.materialVariant,
-          stone: v.stone,
-          color: v.color,
-          length_cm: v.lengthCm,
-          price_override: v.priceOverride,
-          stock_quantity: v.stockQuantity,
-          low_stock_threshold: v.lowStockThreshold,
-          weight_g: v.weightG,
-          is_active: v.isActive,
-          sort_order: idx,
-        })),
-      );
-    if (variantsError) {
+      .insert({
+        product_id: product.id,
+        sku: v.sku,
+        name: v.name,
+        size: v.size,
+        material_variant: v.materialVariant,
+        stone: v.stone,
+        color: v.color,
+        color_hex: v.colorHex,
+        length_cm: v.lengthCm,
+        price_override: v.priceOverride,
+        stock_quantity: v.stockQuantity,
+        low_stock_threshold: v.lowStockThreshold,
+        weight_g: v.weightG,
+        is_active: v.isActive,
+        sort_order: idx,
+      })
+      .select("id")
+      .single();
+    if (variantsError || !inserted) {
       console.error("[createProduct] variants:", variantsError);
       await admin.from("products").delete().eq("id", product.id);
       return { ok: false, error: "Erreur création variantes" };
     }
+    idByKey[v.clientKey] = inserted.id;
   }
 
   const collectionIds = Array.from(
@@ -247,6 +268,7 @@ export async function createProduct(
         alt_text: m.altText,
         is_primary: m.isPrimary,
         sort_order: m.sortOrder ?? idx,
+        variant_id: resolveVariantId(m.variantKey, idByKey),
       })),
     );
     if (mediaError) {
@@ -474,7 +496,7 @@ export async function deleteVariant(
 export async function replaceVariants(
   productId: string,
   variants: VariantInput[],
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; idByKey?: VariantIdByKey }> {
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
 
@@ -508,6 +530,7 @@ export async function replaceVariants(
     }
   }
 
+  const idByKey: VariantIdByKey = {};
   for (const [idx, v] of variants.entries()) {
     const payload = {
       product_id: productId,
@@ -517,6 +540,7 @@ export async function replaceVariants(
       material_variant: v.materialVariant,
       stone: v.stone,
       color: v.color,
+      color_hex: v.colorHex,
       length_cm: v.lengthCm,
       price_override: v.priceOverride,
       stock_quantity: v.stockQuantity,
@@ -539,19 +563,25 @@ export async function replaceVariants(
         .from("inventory")
         .update({ quantity: v.stockQuantity })
         .eq("variant_id", v.id);
+      idByKey[v.clientKey] = v.id;
     } else {
-      const { error } = await admin.from("product_variants").insert(payload);
-      if (error) {
+      const { data: inserted, error } = await admin
+        .from("product_variants")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (error || !inserted) {
         console.error("[replaceVariants] insert:", error);
         return { ok: false, error: "Erreur de création d'une déclinaison" };
       }
+      idByKey[v.clientKey] = inserted.id;
     }
   }
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/admin/stocks");
   await revalidateForProductId(admin, productId);
-  return { ok: true };
+  return { ok: true, idByKey };
 }
 
 export async function upsertMedia(
@@ -653,6 +683,7 @@ export async function deleteMedia(
 export async function replaceMedia(
   productId: string,
   mediaList: MediaInput[],
+  idByKey?: VariantIdByKey,
 ): Promise<{ ok: boolean; error?: string }> {
   const auth = await requireAdminRole();
   if (!auth.ok) return auth;
@@ -717,6 +748,7 @@ export async function replaceMedia(
           alt_text: m.altText,
           is_primary: m.isPrimary,
           sort_order: m.sortOrder,
+          variant_id: resolveVariantId(m.variantKey, idByKey),
         })
         .eq("id", m.id);
       if (error) {
@@ -731,6 +763,7 @@ export async function replaceMedia(
         alt_text: m.altText,
         is_primary: m.isPrimary,
         sort_order: m.sortOrder,
+        variant_id: resolveVariantId(m.variantKey, idByKey),
       });
       if (error) {
         console.error("[replaceMedia] insert:", error);
